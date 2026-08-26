@@ -14,7 +14,13 @@
 
 `assets/foods/` 为项目交互使用的处理后图片。仅允许随本项目用于演示、学习和非商业运行，不授予单独再分发或商业使用权。
 
-## 第三方模型
+## CC0 仓鼠3D模型
 
-BOOTH 仓鼠模型没有包含在本仓库中，也不受本项目许可证授权。使用者必须从原作者处合法取得，并遵守原作者许可。
+`assets/models/booth-hamster/restored/Assets/Ham/` 中的 `Ham.fbx`、`Ham.png` 和 `Ham_mask.png` 来自如月十二制作的“ハムちゃん/Hamster”。作者在 BOOTH 商品页面明确将3D模型数据以 CC0 发布，因此模型允许复制、修改、商用和再分发。
 
+- 作者：如月十二
+- 原始名称：オリジナル3Dモデル「ハムちゃん/Hamster」
+- 来源：https://booth.pm/en/items/2621226
+- 许可：CC0 1.0 Universal
+
+仓库没有包含 VRCSDK、UTS2.0、WFUnlit Shader 或完整 Unity 工程；这些第三方组件拥有各自的许可。

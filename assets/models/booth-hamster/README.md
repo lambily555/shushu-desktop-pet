@@ -1,4 +1,7 @@
-# 模型未随仓库提供
+# CC0 仓鼠3D模型
 
-此目录故意不包含第三方 BOOTH 模型。请阅读项目根目录的 `MODEL_SETUP.md`，并仅使用自己拥有合法授权的模型。
+本目录中的 `Ham.fbx`、`Ham.png` 与 `Ham_mask.png` 来自如月十二制作的“ハムちゃん/Hamster”，原作者以 CC0 发布模型数据。
 
+来源：https://booth.pm/en/items/2621226
+
+仓库仅包含程序实际使用的模型与贴图，不包含 VRCSDK、UTS2.0、WFUnlit Shader 或完整 Unity 工程。详细说明见项目根目录 `MODEL_SETUP.md`。
