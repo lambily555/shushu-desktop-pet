@@ -1,0 +1,53 @@
+{
+  "name": "momo-desktop-pet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A tiny privacy-friendly hamster desktop companion",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/renderer.js",
+    "dist": "electron-builder --win portable nsis"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.28.2"
+  },
+  "build": {
+    "appId": "com.tuantuan.desktop.pet",
+    "productName": "鼠鼠桌面小宠",
+    "asar": false,
+    "electronDist": "node_modules/electron/dist",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "scripts/process-custom-action.py",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/mouse-real-icon-v2.ico",
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "portable": {
+      "artifactName": "鼠鼠桌面小宠-免安装版-${version}.exe"
+    },
+    "nsis": {
+      "artifactName": "鼠鼠桌面小宠-安装包-${version}.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "鼠鼠桌面小宠"
+    }
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  }
+}

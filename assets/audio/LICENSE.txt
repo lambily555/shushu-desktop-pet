@@ -1,0 +1,3 @@
+hamster-happy.mp3 is a user-provided recording.
+It is used only when the pet enters a happy state after direct user interaction
+(clicking the hamster or feeding it). No random or autonomous sound is played.
