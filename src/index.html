@@ -7,23 +7,25 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main id="pet" class="pet idle" title="拖动我，点点我">
+  <main id="pet" class="pet idle">
     <div class="pet-ui">
       <div id="bubble" class="bubble">今天也陪你一会儿～</div>
-      <button id="close" aria-label="暂时隐藏">×</button>
     </div>
     <div class="actor">
       <canvas id="hamster3d" aria-label="真实三维鼠鼠"></canvas>
       <canvas id="realVideo" width="600" height="600" aria-label="鼠鼠真实动态视频"></canvas>
       <img id="realCutout" alt="鼠鼠真实透明动态" draggable="false" />
       <img id="foodProp" class="food-prop" alt="鼠鼠正在吃的食物" draggable="false" />
+      <canvas id="foodCanvas" class="food-canvas" width="220" height="220" aria-label="正在被鼠鼠啃食的食物"></canvas>
+      <div id="foodCrumbs" class="food-crumbs" aria-hidden="true"></div>
       <div class="wheelProp"></div>
       <div class="glow"></div>
       <div class="sprite" aria-label="灰色仓鼠鼠鼠"></div>
       <div id="outfit" class="outfit"></div>
       <div class="shadow"></div>
+      <button id="close" aria-label="暂时隐藏">×</button>
+      <div id="dragHandle" title="按住这里移动鼠鼠">⠿</div>
     </div>
-    <div id="dragHandle" title="按住这里移动鼠鼠">⠿</div>
   </main>
   <div id="sizeTip">滚轮调整大小</div>
   <script src="renderer.js"></script>

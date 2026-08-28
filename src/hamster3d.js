@@ -212,6 +212,23 @@ function pose(t, phase) {
     leftArmZ = -0.1; rightArmZ = 0.1;
     leftForeArm = leftArm * 0.72; rightForeArm = rightArm * 0.72;
     headZ += 0.12;
+  } else if (state === 'feeding') {
+    // Use the model's own rigged forepaws to cradle the food at the chest.
+    // The small repeated lift lines up with the canvas bite pulse at the mouth.
+    const chew = (Math.sin(t * 17) + 1) * 0.5;
+    headX += 0.18 + chew * 0.055;
+    headZ += Math.sin(t * 8.5) * 0.018;
+    leftArm = -0.62 - chew * 0.06;
+    rightArm = -0.62 - chew * 0.06;
+    leftArmY = 0.22;
+    rightArmY = -0.22;
+    leftArmZ = -0.2;
+    rightArmZ = 0.2;
+    leftForeArm = -0.5 - chew * 0.08;
+    rightForeArm = -0.5 - chew * 0.08;
+    leftForeArmY = 0.2;
+    rightForeArmY = -0.2;
+    stage.position.y += chew * 0.018;
   } else if (state === 'look') {
     headY += Math.sin(t * 1.35) * 0.42;
     headZ += Math.sin(t * 1.8) * 0.08;
@@ -225,7 +242,7 @@ function pose(t, phase) {
   } else if (state === 'wheel') {
     const stride = Math.sin(t * 15);
     stage.position.y += Math.abs(stride) * 0.018;
-    modelRig.position.x = stride * 0.025;
+    modelRig.position.x *= 0.7;
     modelRig.scale.set(1.02, 0.97, 1.02);
     leftArm = stride * 0.62 - 0.2;
     rightArm = -leftArm;
@@ -256,6 +273,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(canvas);
 resize();
+window.addEventListener('pet-3d-resume',()=>{resize();renderer.resetState();renderer.render(scene,camera)});
 function animate(now) {
   requestAnimationFrame(animate);
   pose(now * 0.001, (now - stateAt) * 0.001);

@@ -29,5 +29,7 @@ contextBridge.exposeInMainWorld('petAPI', {
   ,renameAction: (id, name) => ipcRenderer.invoke('action-rename', id, name)
   ,petCommand: (command) => ipcRenderer.send('pet-command', command)
   ,onPetCommand: (callback) => ipcRenderer.on('pet-command', (_event, command) => callback(command))
+  ,chat: (message) => ipcRenderer.invoke('ai-chat', message)
+  ,clearChat: () => ipcRenderer.invoke('ai-chat-clear')
   ,setMousePassthrough: (passthrough) => ipcRenderer.send('mouse-passthrough', !!passthrough)
 });

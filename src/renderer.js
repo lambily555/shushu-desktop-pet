@@ -7,6 +7,62 @@ const realVideoCanvas = document.querySelector('#realVideo');
 const realVideoContext = realVideoCanvas.getContext('2d');
 const realCutout = document.querySelector('#realCutout');
 const foodProp = document.querySelector('#foodProp');
+const foodCanvas = document.querySelector('#foodCanvas');
+const foodCrumbs = document.querySelector('#foodCrumbs');
+let feedingAnimationToken=0;
+
+const foodBiteProfiles={
+  leaf:{steps:12,start:[.53,.16],end:[.49,.88],radius:.105,crumb:'#63843e'},
+  worm:{steps:10,start:[.20,.48],end:[.86,.55],radius:.115,crumb:'#b98539'},
+  cookie:{steps:11,start:[.52,.12],end:[.53,.82],radius:.13,crumb:'#c89b55'},
+  paste:{steps:9,start:[.48,.18],end:[.52,.76],radius:.145,crumb:'#70864e'}
+};
+function scatterFoodCrumbs(profile,step){
+  for(let i=0;i<3;i++){
+    const crumb=document.createElement('i');
+    const size=3+Math.random()*4;
+    crumb.style.cssText=`--crumb-x:${(Math.random()-.5)*38}px;--crumb-r:${(Math.random()-.5)*150}deg;left:${47+(Math.random()-.5)*22}%;top:${34+step*3.2}%;width:${size}px;height:${size*.72}px;background:${profile.crumb};animation-delay:${i*35}ms`;
+    foodCrumbs.appendChild(crumb);
+    setTimeout(()=>crumb.remove(),850);
+  }
+}
+function animateFoodBeingEaten(food,portion=1){
+  const token=++feedingAnimationToken,profile=foodBiteProfiles[food]||foodBiteProfiles.leaf;
+  const ctx=foodCanvas.getContext('2d'),image=new Image();
+  foodProp.className='food-prop';
+  foodCanvas.className=`food-canvas show ${food}`;
+  foodCrumbs.className=`food-crumbs show ${food}`;
+  foodCrumbs.replaceChildren();
+  image.onload=()=>{
+    if(token!==feedingAnimationToken)return;
+    const w=foodCanvas.width,h=foodCanvas.height;
+    ctx.clearRect(0,0,w,h);
+    const scale=Math.min(w/image.width,h/image.height),dw=image.width*scale,dh=image.height*scale,dx=(w-dw)/2,dy=(h-dh)/2;
+    ctx.drawImage(image,dx,dy,dw,dh);
+    const original=ctx.getImageData(0,0,w,h),steps=profile.steps+Math.max(0,portion-1)*2;
+    let step=0;
+    const bite=()=>{
+      if(token!==feedingAnimationToken)return;
+      step++;
+      const t=Math.min(1,step/steps),jitter=(step%2?.035:-.03);
+      const x=(profile.start[0]+(profile.end[0]-profile.start[0])*t+jitter)*w;
+      const y=(profile.start[1]+(profile.end[1]-profile.start[1])*t)*h;
+      ctx.save();ctx.globalCompositeOperation='destination-out';
+      for(let n=0;n<4;n++){
+        ctx.beginPath();
+        ctx.arc(x+(n-1.5)*profile.radius*w*.54,y+(n%2-.5)*profile.radius*h*.42,profile.radius*w*(.72+Math.random()*.28),0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();scatterFoodCrumbs(profile,step);
+      foodCanvas.classList.remove('bite-pulse');void foodCanvas.offsetWidth;foodCanvas.classList.add('bite-pulse');
+      if(step<steps)setTimeout(bite,290+Math.random()*130);
+      else setTimeout(()=>{if(token===feedingAnimationToken){ctx.clearRect(0,0,w,h);foodCanvas.className='food-canvas';foodCrumbs.className='food-crumbs'}},420);
+    };
+    setTimeout(bite,420);
+  };
+  image.onerror=()=>{if(token===feedingAnimationToken){foodCanvas.className='food-canvas';foodProp.src=image.src;foodProp.className=`food-prop show ${food}`}};
+  image.src=`../assets/foods/${food}.png`;
+}
 const realHitCanvas = document.createElement('canvas');
 realHitCanvas.width = 290; realHitCanvas.height = 290;
 const realHitContext = realHitCanvas.getContext('2d', { willReadFrequently:true });
@@ -28,7 +84,7 @@ let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false;
 let idleAdventure = false;
 let lastAdventure = 0;
 let scale = Number(localStorage.getItem('petScale') || 1);
-let appSettings = { keyboardReaction:true, idleWheel:true, randomTalk:true, soundEnabled:true, idleDelay:22, outfit:'none', petForm:'real', customLines:[] };
+let appSettings = { keyboardReaction:true, idleWheel:true, randomTalk:true, soundEnabled:true, idleDelay:22, outfit:'none', petForm:'3d', customLines:[] };
 const profile = {
   birthday: '2024-06-09',
   sex: '小男鼠',
@@ -132,13 +188,15 @@ function isOpaquePoint(x,y){
   const py=Math.min(canvas.height-1,Math.floor((cell[2]+ny)*ch));
   return canvas.getContext('2d').getImageData(px,py,1,1).data[3]>70;
 }
-let mousePassthrough;
+let mousePassthrough, hoverUiTimer;
 window.addEventListener('mousemove',event=>{
-  const interactive=isOpaquePoint(event.clientX,event.clientY)||pointInElement(event.clientX,event.clientY,document.querySelector('#dragHandle'),3)||pointInElement(event.clientX,event.clientY,closeButton,2);
+  const dragHandle=document.querySelector('#dragHandle'),overActor=isOpaquePoint(event.clientX,event.clientY),overClose=pointInElement(event.clientX,event.clientY,closeButton,5),overDrag=pointInElement(event.clientX,event.clientY,dragHandle,6),overUi=overActor||overClose||overDrag;
+  if(overUi){clearTimeout(hoverUiTimer);pet.classList.add('pointer-over')}else if(pet.classList.contains('pointer-over')&&!hoverUiTimer){hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000)}
+  const interactive=overUi||pet.classList.contains('pointer-over');
   const next=!interactive;
   if(next!==mousePassthrough){mousePassthrough=next;window.petAPI.setMousePassthrough(next)}
 });
-window.addEventListener('mouseleave',()=>{mousePassthrough=true;window.petAPI.setMousePassthrough(true)});
+window.addEventListener('mouseleave',()=>{clearTimeout(hoverUiTimer);hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000);mousePassthrough=true;window.petAPI.setMousePassthrough(true)});
 
 function setState(next, duration = 0) {
   state = next; pet.className = `pet ${next}`; clearTimeout(actionTimer);
@@ -162,6 +220,41 @@ let customCutoutActions = {};
 function cutoutSource(action){return customCutoutActions[action]?.src||`../assets/videos/matted/${action}.webp`}
 let activeRealCutout = '';
 const realCutoutCursor = {};
+let realRecoveryTimer;
+let realRecoveryLoading = false;
+function recoverRealCutout(){
+  if(appSettings.petForm!=='real'||realRecoveryLoading)return;
+  clearTimeout(realRecoveryTimer);
+  realRecoveryTimer=setTimeout(()=>{
+    const action=activeRealCutout||'idle-a',source=cutoutSource(action),separator=source.includes('?')?'&':'?';
+    const resumedSource=source.startsWith('data:')?source:`${source}${separator}resume=${Date.now()}`;
+    const recoveryImage=new Image();
+    realRecoveryLoading=true;
+    recoveryImage.onload=()=>{
+      realCutout.src=resumedSource;
+      realRecoveryLoading=false;
+    };
+    recoveryImage.onerror=()=>{realRecoveryLoading=false};
+    recoveryImage.src=resumedSource;
+  },120);
+}
+window.addEventListener('blur',()=>{document.body.dataset.visualPaused='1';if(appSettings.petForm==='real')document.body.dataset.realPaused='1'});
+window.addEventListener('focus',()=>resumePetVisual());
+window.addEventListener('pageshow',recoverRealCutout);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)recoverRealCutout()});
+realCutout.addEventListener('error',()=>{if(appSettings.petForm==='real'&&!realRecoveryLoading){activeRealCutout='idle-a';setTimeout(recoverRealCutout,180)}});
+function resumePetVisual(){
+  if(!document.body.dataset.visualPaused&&!document.body.dataset.realPaused)return;
+  delete document.body.dataset.visualPaused;
+  if(appSettings.petForm==='real'){
+    delete document.body.dataset.realPaused;
+    realCutout.style.visibility='visible';
+    recoverRealCutout();
+  }else{
+    window.dispatchEvent(new Event('resize'));
+    window.dispatchEvent(new CustomEvent('pet-3d-resume'));
+  }
+}
 function syncRealCutout(force=false) {
   const choices = realCutoutActions[state] || realCutoutActions.idle;
   const cursor = realCutoutCursor[state] || 0;
@@ -324,13 +417,16 @@ window.petAPI.onScale((value) => {
   const root = document.documentElement.style;
   root.setProperty('--pet-scale', value);
   root.setProperty('--pet-top', `${305 * value}px`);
+  root.setProperty('--control-inverse', 1 / Math.max(.25, Number(value) || 1));
 });
 function applySettings(next) {
   appSettings = { ...appSettings, ...next };
+  appSettings.petForm=appSettings.petForm==='real'?'real':'3d';
   customCutoutActions=Object.fromEntries((appSettings.customActions||[]).map(action=>[action.id,action]));
   Object.values(customCutoutActions).forEach(action=>{const image=new Image();image.src=action.src});
   document.body.classList.toggle('mode-real', appSettings.petForm === 'real');
   document.body.classList.toggle('mode-3d', appSettings.petForm !== 'real');
+  realCutout.style.visibility='visible';
   for (const video of Object.values(realVideos)) video.pause();
   if (appSettings.petForm === 'real') syncRealCutout(true);
   const outfit = document.querySelector('#outfit');
@@ -388,10 +484,12 @@ async function playHappySound(){
 }
 window.petAPI.getSettings().then(applySettings);
 window.petAPI.onSettings(applySettings);
-window.petAPI.onFed((payload)=>{const food=typeof payload==='string'?payload:payload?.food,portion=typeof payload==='object'?payload.portion||1:1,names={leaf:'菜叶',worm:'面包虫',cookie:'小饼干',paste:'营养糊糊'};setState('feeding');pet.classList.add(`feeding-${food}`);foodProp.src=`../assets/foods/${food}.png`;foodProp.className=`food-prop show ${food}`;if(appSettings.petForm==='real'){activeRealCutout='eat-a';realCutout.src=cutoutSource('eat-a')}say(food==='leaf'?'我抱好啦，咔嚓咔嚓慢慢吃～':`谢谢！${names[food]||'好吃的'}真香～`,3600);playHappySound();clearTimeout(actionTimer);actionTimer=setTimeout(()=>{foodProp.className='food-prop';setState(idleSeconds>25?'sleep':'idle')},4200+portion*350)});
+window.petAPI.onFed((payload)=>{const food=typeof payload==='string'?payload:payload?.food,portion=typeof payload==='object'?payload.portion||1:1,names={leaf:'菜叶',worm:'面包虫',cookie:'小饼干',paste:'营养糊糊'};setState('feeding');pet.classList.add(`feeding-${food}`);animateFoodBeingEaten(food,portion);if(appSettings.petForm==='real'){activeRealCutout='eat-a';realCutout.src=cutoutSource('eat-a')}const eatingLines={leaf:'我抱好啦，咔嚓咔嚓慢慢吃～',worm:'是面包虫！我要从这一头慢慢吃～',cookie:'小饼干脆脆的，我一口一口啃～',paste:'营养糊糊软软的，我慢慢舔干净～'};say(eatingLines[food]||`谢谢！${names[food]||'好吃的'}真香～`,4200);playHappySound();clearTimeout(actionTimer);actionTimer=setTimeout(()=>{feedingAnimationToken++;foodProp.className='food-prop';foodCanvas.className='food-canvas';foodCrumbs.className='food-crumbs';foodCrumbs.replaceChildren();setState(idleSeconds>25?'sleep':'idle')},5100+portion*520)});
 window.petAPI.onPetCommand(command=>{
+  if(command==='visual-resume'){resumePetVisual();return}
   if(command==='pet'){happyInteraction();return}
   if(command==='wheel'){setState('wheel');say('出发！今晚也要跑得飞快～',1800);setTimeout(()=>setState('idle'),5000);return}
+  if(command?.startsWith('say:')){say(command.slice(4),Math.max(3200,Math.min(9000,command.length*95)));return}
   if(command?.startsWith('action:')){
     const action=command.slice(7);
     if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
@@ -403,7 +501,9 @@ window.petAPI.onPetCommand(command=>{
     actionTimer=setTimeout(()=>setState('idle'),4500);
   }
 });
-closeButton.addEventListener('click', (event) => { event.stopPropagation(); window.petAPI.hide(); });
+let closeArmedAt=0;
+closeButton.addEventListener('pointerdown',()=>{if(document.hasFocus())closeArmedAt=Date.now()});
+closeButton.addEventListener('click', (event) => { event.stopPropagation();if(document.hasFocus()&&Date.now()-closeArmedAt<900)window.petAPI.hide();closeArmedAt=0; });
 window.petAPI.setScale(scale);
 setTimeout(() => say(appSettings.petForm === 'real' ? '点我互动 · 拖动底部按钮移动 · 滚轮缩放' : '点我互动 · 按住鼠鼠拖动旋转 · 滚轮缩放', 3800), 450);
 scheduleLife();

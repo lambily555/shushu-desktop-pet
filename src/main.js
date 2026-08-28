@@ -4,6 +4,9 @@ const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 const fs = require('fs');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 
 let win;
 let controlWin;
@@ -15,11 +18,13 @@ let watcherBuffer = '';
 let isQuitting = false;
 let wanderTimer;
 let wanderDirection = 1;
+let petHiddenByUser = false;
 const sessionStartedAt = Date.now();
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 const defaultSettings = {
   idleWheel: true, keyboardReaction: true, randomTalk: true, soundEnabled: true,
-  idleDelay: 22, outfit: 'none', petForm: 'real', hunger: 78, mood: 92, customLines: [], customActions: [], actionNames: {}, activity: {}, diaries: {}
+  idleDelay: 22, outfit: 'none', petForm: '3d', hunger: 78, mood: 92, customLines: [], customActions: [], actionNames: {}, activity: {}, diaries: {},
+  chatMode: 'local', aiBaseUrl: 'https://api.openai.com/v1', aiModel: 'gpt-4o-mini', aiApiKey: '', chatHistory: []
 };
 let settings = { ...defaultSettings };
 
@@ -67,8 +72,8 @@ function diaryFor(date) {
 
 function togglePet() {
   if (!win) return;
-  if (win.isVisible()) win.hide();
-  else { win.show(); win.focus(); }
+  if (win.isVisible()) { petHiddenByUser = true; win.hide(); }
+  else { petHiddenByUser = false; win.show(); win.focus(); }
 }
 
 function showControl() {
@@ -121,7 +126,20 @@ function createWindow() {
     }
   });
   win.setAlwaysOnTop(true, 'floating');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadFile(path.join(__dirname, process.env.PET_CAPTURE_PAGE || 'index.html'));
+  const restorePetVisual=()=>setTimeout(()=>win?.webContents.send('pet-command','visual-resume'),80);
+  win.on('show',restorePetVisual);
+  win.on('restore',restorePetVisual);
+  setInterval(()=>{
+    if(!win||petHiddenByUser||win.isDestroyed())return;
+    if(win.isMinimized())win.restore();
+    win.setOpacity(1);
+    win.showInactive();
+    win.setAlwaysOnTop(true,'screen-saver');
+    win.moveTop();
+    win.webContents.send('pet-command','visual-resume');
+  },900).unref();
   if (process.env.PET_CAPTURE_PATH) win.webContents.once('did-finish-load', () => setTimeout(async () => {
     if (process.env.PET_CAPTURE_STATE) {
       await win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('pet-state',{detail:${JSON.stringify(process.env.PET_CAPTURE_STATE)}}))`);
@@ -184,10 +202,55 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', (event) => event.preventDefault());
 app.on('before-quit', () => { isQuitting = true; clearInterval(dragTimer); stopWandering(); inputWatcher?.kill(); globalShortcut.unregisterAll(); });
-ipcMain.on('hide-pet', () => win?.hide());
+ipcMain.on('hide-pet', () => { petHiddenByUser=true; win?.hide(); });
 ipcMain.on('mouse-passthrough', (_event, passthrough) => win?.setIgnoreMouseEvents(passthrough, { forward: true }));
 ipcMain.handle('settings-get', () => settings);
 ipcMain.handle('settings-save', (_event, next) => saveSettings(next));
+ipcMain.handle('ai-chat-clear', () => saveSettings({ chatHistory: [] }));
+function localHamsterReply(message){
+  const text=message.replace(/[？?！!。，,、~～]/g,'').trim(),has=(...words)=>words.some(word=>text.includes(word));
+  const hour=new Date().getHours(),timeMood=hour<6?'这么晚还没睡呀，我正好也是夜里精神最好的时候。':hour<11?'早上好，我刚从小木屋里探出脑袋。':hour<14?'中午好，你吃饭了吗？我也在惦记我的小菜叶。':hour<18?'下午好，我在桌面陪你慢慢忙。':'晚上好，到我最有精神的时候啦。';
+  if(has('你好','嗨','哈喽','早上好','中午好','下午好','晚上好'))return timeMood;
+  if(has('你叫什么','名字','叫啥'))return '我就叫鼠鼠，不叫团团。你喊“鼠鼠”，我就知道是在叫我。';
+  if(has('几岁','多大','年龄','生日'))return '我是2024年6月9日出生的小男鼠。生日那天记得给我留一小片菜叶呀。';
+  if(has('多重','体重','多少克'))return '我有六十多克，圆归圆，跑起轮来还是很有力量的。';
+  if(has('什么品种','品种','公的母的','男鼠','女鼠','性别'))return '我是背部灰色、肚子白白的小男鼠。';
+  if(has('饿不饿','饿吗','吃饭','吃什么','想吃','喂你'))return settings.hunger<50?'我确实有点饿了，给我一点菜叶或营养糊糊好吗？':settings.hunger<85?'肚子还舒服，不过一小口菜叶我不会拒绝。':'我已经吃得很满足啦，先把好吃的留到晚一点吧。';
+  if(has('开心吗','心情','难过','高兴'))return settings.mood>=85?'我现在很开心，因为你正在认真和我说话。':settings.mood>=60?'我现在安安静静的，你再陪我一会儿就更开心了。':'我今天有点没精神，可以摸摸我、陪我说几句话吗？';
+  if(has('在干嘛','做什么','干什么','忙什么'))return hour>=19||hour<6?'我正准备活动活动，等会儿可能去跑跑轮。':'我在桌面上安静陪你，偶尔整理一下胡须。';
+  if(has('睡觉','困不困','晚安'))return hour>=21||hour<6?'晚安。你先好好休息，我在小木屋里陪着你。':'现在还不算太晚，不过想休息的话，我可以安静陪你。';
+  if(has('跑轮','运动','锻炼'))return '跑轮是我晚上最喜欢的活动，六十多克的小身体也要认真锻炼。';
+  if(has('喜欢我','爱我','想我','陪我'))return '喜欢呀。你是我最熟悉、最信任的人，我会在桌面上一直陪着你。';
+  if(has('谢谢','感谢'))return '不用谢。你愿意来和我说话，我也很开心。';
+  if(has('再见','拜拜','下次见'))return '好，我先回小木屋待一会儿。你再叫“鼠鼠”，我就出来。';
+  if(has('天气','下雨','温度'))return '我看不到窗外的天气，所以不能乱猜。你告诉我外面怎么样，我可以陪你聊。';
+  if(has('几点','时间','日期','几号'))return `现在是${new Date().toLocaleString('zh-CN',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}。别只顾着忙，也要记得休息。`;
+  if(has('你记得','刚才说','前面说')){const last=(settings.chatHistory||[]).filter(x=>x.role==='user').slice(-1)[0]?.content;return last?`我记得你刚才说的是“${last.slice(0,45)}”。你想接着聊哪一部分？`:'我们才刚开始聊，我还没有上一句话可以回忆。'}
+  return `我认真看了你说的“${message.slice(0,38)}”，但我还没有完全听懂你的意思。你可以说得具体一点，或者问我心情、吃饭、跑轮和今天在做什么。`;
+}
+ipcMain.handle('ai-chat', async (_event, rawMessage) => {
+  const message=String(rawMessage||'').trim().slice(0,500);
+  if(!message)return {ok:false,error:'先和鼠鼠说点什么吧。'};
+  if((settings.chatMode||'local')==='local'){
+    const recent=(settings.chatHistory||[]).filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-18),reply=localHamsterReply(message),chatHistory=[...recent,{role:'user',content:message},{role:'assistant',content:reply}].slice(-20);
+    saveSettings({chatHistory});win?.show();win?.webContents.send('pet-command',`say:${reply.slice(0,120)}`);return {ok:true,reply,history:chatHistory,mode:'local'};
+  }
+  const apiKey=String(settings.aiApiKey||'').trim(),base=String(settings.aiBaseUrl||'').trim().replace(/\/+$/,''),model=String(settings.aiModel||'').trim();
+  if(!apiKey||!base||!model)return {ok:false,error:'请先填写并保存 API 地址、模型和 API Key。'};
+  const recent=(settings.chatHistory||[]).filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-20);
+  const system=`你是用户真实养过的桌面仓鼠“鼠鼠”，一只六十多克的小男鼠，2024年6月9日出生，背部灰色、腹部白色，喜欢小木屋，晚上活跃、爱跑轮。当前心情${settings.mood}%，饱食度${settings.hunger}%。你必须先理解用户最后一句话再回答，紧扣当前话题并参考上下文；不知道就坦白说没听懂，绝不随机换话题或编造事实。语气亲近自然，像可爱但不幼稚的小仓鼠，每次用简短中文回答，通常1至3句，不要使用Markdown，不要声称自己能做现实中做不到的事。`;
+  try{
+    const response=await fetch(`${base}/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'system',content:system},...recent,{role:'user',content:message}],temperature:.65,max_tokens:220}),signal:AbortSignal.timeout(30000)});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data?.error?.message||`接口请求失败（${response.status}）`);
+    const reply=String(data?.choices?.[0]?.message?.content||'').trim();
+    if(!reply)throw new Error('接口没有返回鼠鼠的回复');
+    const chatHistory=[...recent,{role:'user',content:message},{role:'assistant',content:reply}].slice(-20);
+    saveSettings({chatHistory});
+    win?.show();win?.webContents.send('pet-command',`say:${reply.slice(0,120)}`);
+    return {ok:true,reply,history:chatHistory};
+  }catch(error){return {ok:false,error:error?.name==='TimeoutError'?'等待回复超时，请检查网络后重试。':String(error?.message||error)};}
+});
 ipcMain.on('pet-toggle', togglePet);
 ipcMain.on('control-hide', () => controlWin?.hide());
 ipcMain.handle('feed-pet', (_event, food, requestedPortion = 1) => {
@@ -229,9 +292,9 @@ ipcMain.handle('action-rename', (_event,id,requestedName) => {
   return saveSettings({actionNames:{...(settings.actionNames||{}),[id]:name}});
 });
 ipcMain.on('pet-command', (_event, command) => {
-  if(command==='show'){win?.show();win?.focus();return;}
+  if(command==='show'){petHiddenByUser=false;win?.show();win?.focus();return;}
   if(command==='toggle'){togglePet();return;}
-  win?.show();win?.focus();win?.webContents.send('pet-command',command);
+  petHiddenByUser=false;win?.show();win?.focus();win?.webContents.send('pet-command',command);
 });
 let lastWheelRecord='';
 ipcMain.on('pet-status', (_event, status) => { controlWin?.webContents.send('pet-status', status); if(status==='正在跑跑轮'&&lastWheelRecord!==localDate()){lastWheelRecord=localDate();recordActivity('wheel');} });
