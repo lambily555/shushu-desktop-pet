@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, powerMonitor, globalShortcut, dialog } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, powerMonitor, globalShortcut, dialog, shell } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
@@ -285,6 +285,13 @@ app.whenReady().then(() => {
         fs.writeFileSync(process.env.DASHBOARD_SETTINGS_CAPTURE_PATH, settingsImage.toPNG());
         await controlWin.webContents.executeJavaScript(`document.body.click()`);
       }
+      if (process.env.DASHBOARD_FEEDBACK_CAPTURE_PATH) {
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click();document.querySelector('#feedbackButton').click()`);
+        await new Promise(resolve => setTimeout(resolve, 260));
+        const feedbackImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_FEEDBACK_CAPTURE_PATH, feedbackImage.toPNG());
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
+      }
       if (process.env.DASHBOARD_PANELS_CAPTURE_DIR) {
         for (const panel of ['chat','dialogue','actions','behavior','feed','diary']) {
           await controlWin.webContents.executeJavaScript(`document.querySelector('[data-feature-panel="${panel}"]').click()`);
@@ -327,6 +334,15 @@ app.whenReady().then(() => {
           await new Promise(resolve=>setTimeout(resolve,120));
           const settingsPageOpened=document.body.dataset.currentPanel==='settings'&&document.querySelector('#effectSettings').classList.contains('active')&&getComputedStyle(document.querySelector('#effectSettings')).display!=='none';
           document.querySelector('#backHome').click();
+          document.querySelector('#feedbackButton').click();
+          await new Promise(resolve=>setTimeout(resolve,80));
+          const feedbackPanel=document.querySelector('[data-section="feedback"]'),feedbackDescription=document.querySelector('#feedbackDescription'),feedbackSubmit=document.querySelector('#submitFeedback');
+          const feedbackPageOpened=document.body.dataset.currentPanel==='feedback'&&feedbackPanel.classList.contains('active')&&getComputedStyle(feedbackPanel).display!=='none';
+          const emptyFeedbackBlocked=feedbackSubmit.disabled;
+          feedbackDescription.value='测试反馈';feedbackDescription.dispatchEvent(new Event('input',{bubbles:true}));
+          const filledFeedbackEnabled=!feedbackSubmit.disabled;
+          document.querySelector('#backHome').click();
+          const centeredActions=Math.abs((document.querySelector('.header-actions').getBoundingClientRect().left+document.querySelector('.header-actions').getBoundingClientRect().width/2)-(innerWidth/2))<2;
           const effectControls={pawToggle:!!document.querySelector('#pawTrailEnabled'),upload:!!document.querySelector('#clickEffectFile'),restore:!!document.querySelector('#restoreClickEffect')};
           const labelsInitiallyClear=[...document.querySelectorAll('.photo-map .hamster-tile b')].every(node=>Number.parseFloat(getComputedStyle(node).opacity)===0);
           const pawToggle=document.querySelector('#pawTrailEnabled'),pawOriginal=pawToggle.checked;pawToggle.checked=false;pawToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));document.querySelectorAll('.paw-trail').forEach(node=>node.remove());document.dispatchEvent(new PointerEvent('pointermove',{clientX:610,clientY:610,pointerType:'mouse'}));await new Promise(resolve=>setTimeout(resolve,80));const pawDisabledStopsTrail=document.querySelectorAll('.paw-trail').length===0;pawToggle.checked=pawOriginal;pawToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));
@@ -341,7 +357,7 @@ app.whenReady().then(() => {
           await new Promise(resolve=>setTimeout(resolve,1500));
           visualEffects.remaining={paws:document.querySelectorAll('.paw-trail').length,bursts:document.querySelectorAll('.click-hamster-burst').length};
           visualEffects.cleaned=visualEffects.remaining.paws===0&&visualEffects.remaining.bursts===0;
-          return {results,returnedHome,profileOpened,profilePushesContent,profileClosed,settingsPageOpened,effectControls,pawDisabledStopsTrail,clickDisabledStopsEffect,englishApplied,spanishApplied,labelsInitiallyClear,backgroundActuallyMoves,visualEffects};
+          return {results,returnedHome,profileOpened,profilePushesContent,profileClosed,settingsPageOpened,feedbackPageOpened,emptyFeedbackBlocked,filledFeedbackEnabled,centeredActions,effectControls,pawDisabledStopsTrail,clickDisabledStopsEffect,englishApplied,spanishApplied,labelsInitiallyClear,backgroundActuallyMoves,visualEffects};
         })()`);
         fs.writeFileSync(process.env.DASHBOARD_TEST_REPORT, JSON.stringify(report, null, 2));
       }
@@ -487,6 +503,24 @@ ipcMain.handle('action-rename', (_event,id,requestedName) => {
   const name=String(requestedName||'').trim().slice(0,24);if(!name)return settings;
   if((settings.customActions||[]).some(action=>action.id===id))return saveSettings({customActions:(settings.customActions||[]).map(action=>action.id===id?{...action,name}:action)});
   return saveSettings({actionNames:{...(settings.actionNames||{}),[id]:name}});
+});
+ipcMain.handle('feedback-choose-files', async () => {
+  const result=await dialog.showOpenDialog(controlWin||undefined,{title:'选择反馈附件',properties:['openFile','multiSelections'],filters:[{name:'图片和视频',extensions:['png','jpg','jpeg','webp','gif','mp4','mov','webm']}]});
+  if(result.canceled)return [];
+  return result.filePaths.slice(0,5).map(filePath=>({name:path.basename(filePath)}));
+});
+ipcMain.handle('feedback-submit', async (_event,payload) => {
+  const type=String(payload?.type||'其他').slice(0,30),description=String(payload?.description||'').trim().slice(0,2000),contact=String(payload?.contact||'').trim().slice(0,120),files=Array.isArray(payload?.files)?payload.files.slice(0,5).map(item=>String(item?.name||'').slice(0,120)).filter(Boolean):[];
+  if(!description)return {ok:false,error:'请先填写问题描述'};
+  const title=`[${type}] ${description.split(/\r?\n/)[0].slice(0,60)}`;
+  const body=[`## 反馈类型\n${type}`,`## 问题描述\n${description}`,contact?`## 联系方式\n${contact}`:'',files.length?`## 待添加附件\n${files.map(name=>`- ${name}`).join('\n')}\n\n请在 GitHub 页面中将这些附件拖入本反馈。`:'','## 应用信息\nShushu Desktop Pet for Windows'].filter(Boolean).join('\n\n');
+  const url=`https://github.com/lambily555/shushu-desktop-pet/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  await shell.openExternal(url);
+  return {ok:true};
+});
+ipcMain.handle('feedback-open-list', async () => {
+  await shell.openExternal('https://github.com/lambily555/shushu-desktop-pet/issues');
+  return {ok:true};
 });
 ipcMain.on('pet-command', (_event, command) => {
   if(command==='show'){petHiddenByUser=false;win?.show();win?.focus();return;}

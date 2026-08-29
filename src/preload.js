@@ -31,5 +31,8 @@ contextBridge.exposeInMainWorld('petAPI', {
   ,onPetCommand: (callback) => ipcRenderer.on('pet-command', (_event, command) => callback(command))
   ,chat: (message) => ipcRenderer.invoke('ai-chat', message)
   ,clearChat: () => ipcRenderer.invoke('ai-chat-clear')
+  ,chooseFeedbackFiles: () => ipcRenderer.invoke('feedback-choose-files')
+  ,submitFeedback: (payload) => ipcRenderer.invoke('feedback-submit', payload)
+  ,openFeedbackIssues: () => ipcRenderer.invoke('feedback-open-list')
   ,setMousePassthrough: (passthrough) => ipcRenderer.send('mouse-passthrough', !!passthrough)
 });
