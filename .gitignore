@@ -1,0 +1,12 @@
+node_modules/
+.pnpm-store/
+release/
+dist/
+*.log
+*.zip
+*.7z
+.DS_Store
+Thumbs.db
+.capture-profile*/
+assets/videos/raw/
+assets/references/
