@@ -197,6 +197,22 @@ window.addEventListener('mousemove',event=>{
   if(next!==mousePassthrough){mousePassthrough=next;window.petAPI.setMousePassthrough(next)}
 });
 window.addEventListener('mouseleave',()=>{clearTimeout(hoverUiTimer);hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000);mousePassthrough=true;window.petAPI.setMousePassthrough(true)});
+const dragHandle=document.querySelector('#dragHandle');
+let movingPetWindow=false;
+dragHandle.addEventListener('pointerdown',event=>{
+  if(event.button!==0)return;
+  event.preventDefault();event.stopPropagation();movingPetWindow=true;
+  window.petAPI.setMousePassthrough(false);window.petAPI.dragStart();
+  try{dragHandle.setPointerCapture(event.pointerId)}catch{}
+});
+const finishPetWindowMove=event=>{
+  if(!movingPetWindow)return;
+  movingPetWindow=false;window.petAPI.dragEnd();
+  try{if(event&&dragHandle.hasPointerCapture(event.pointerId))dragHandle.releasePointerCapture(event.pointerId)}catch{}
+};
+dragHandle.addEventListener('pointerup',finishPetWindowMove);
+dragHandle.addEventListener('pointercancel',finishPetWindowMove);
+window.addEventListener('blur',()=>{if(movingPetWindow){movingPetWindow=false;window.petAPI.dragEnd()}});
 
 function setState(next, duration = 0) {
   state = next; pet.className = `pet ${next}`; clearTimeout(actionTimer);

@@ -3,6 +3,11 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 const fs = require('fs');
+if (process.env.DASHBOARD_PANELS_CAPTURE_DIR || process.env.DASHBOARD_TEST_REPORT) {
+  app.disableHardwareAcceleration();
+  app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-gpu-compositing');
+}
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
@@ -14,13 +19,15 @@ let tray;
 let inputWatcher;
 let dragOrigin;
 let dragTimer;
+let dragActive = false;
 let watcherBuffer = '';
 let isQuitting = false;
 let wanderTimer;
 let wanderDirection = 1;
 let petHiddenByUser = false;
 const sessionStartedAt = Date.now();
-const hasSingleInstanceLock = app.requestSingleInstanceLock();
+const isDashboardQa = Boolean(process.env.DASHBOARD_PANELS_CAPTURE_DIR || process.env.DASHBOARD_TEST_REPORT);
+const hasSingleInstanceLock = isDashboardQa ? true : app.requestSingleInstanceLock();
 const defaultSettings = {
   idleWheel: true, keyboardReaction: true, randomTalk: true, soundEnabled: true,
   idleDelay: 22, outfit: 'none', petForm: '3d', hunger: 78, mood: 92, customLines: [], customActions: [], actionNames: {}, activity: {}, diaries: {},
@@ -85,6 +92,15 @@ function stopDragging() {
   clearInterval(dragTimer);
   dragTimer = null;
   dragOrigin = null;
+  dragActive = false;
+}
+
+function clampPetPosition(bounds, area, wantedX, wantedY) {
+  const keepVisible = 54;
+  return {
+    x: Math.max(area.x - bounds.width + keepVisible, Math.min(wantedX, area.x + area.width - keepVisible)),
+    y: Math.max(area.y - bounds.height + keepVisible, Math.min(wantedY, area.y + area.height - keepVisible))
+  };
 }
 
 function stopWandering() {
@@ -192,7 +208,147 @@ app.whenReady().then(() => {
   loadSettings();
   if (process.env.PET_CAPTURE_FORM) settings.petForm = process.env.PET_CAPTURE_FORM;
   createWindow();
+  if (process.env.PET_POSITION_TEST_PATH) {
+    win.webContents.once('did-finish-load', () => setTimeout(async () => {
+      const area = screen.getPrimaryDisplay().workArea;
+      const bounds = win.getBounds();
+      const targets = [
+        { name: 'top-left', x: area.x, y: area.y },
+        { name: 'top-center', x: area.x + Math.round((area.width - bounds.width) / 2), y: area.y },
+        { name: 'top-right', x: area.x + area.width - bounds.width, y: area.y },
+        { name: 'bottom-center', x: area.x + Math.round((area.width - bounds.width) / 2), y: area.y + area.height - bounds.height }
+      ];
+      const results = [];
+      for (const target of targets) {
+        win.setPosition(target.x, target.y, false);
+        await new Promise(resolve => setTimeout(resolve, 120));
+        const [actualX, actualY] = win.getPosition();
+        results.push({ ...target, actualX, actualY, passed: actualX === target.x && actualY === target.y });
+      }
+      const clampChecks = [
+        { name: 'above-top', wantedX: area.x, wantedY: area.y - bounds.height },
+        { name: 'past-left', wantedX: area.x - bounds.width, wantedY: area.y },
+        { name: 'past-right', wantedX: area.x + area.width, wantedY: area.y },
+        { name: 'past-bottom', wantedX: area.x, wantedY: area.y + area.height }
+      ].map(test => ({ ...test, result: clampPetPosition(bounds, area, test.wantedX, test.wantedY) }));
+      const holdTarget = targets[1];
+      win.setPosition(holdTarget.x, Math.round(area.y + area.height / 3), false);
+      await new Promise(resolve => setTimeout(resolve, 120));
+      const holdBefore = win.getPosition();
+      await win.webContents.executeJavaScript('window.petAPI.dragStart()');
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const holdAfter = win.getPosition();
+      await win.webContents.executeJavaScript('window.petAPI.dragEnd()');
+      const stationaryHold = { before: holdBefore, after: holdAfter, durationMs: 1500, passed: holdBefore[0] === holdAfter[0] && holdBefore[1] === holdAfter[1] };
+      fs.writeFileSync(process.env.PET_POSITION_TEST_PATH, JSON.stringify({ area, bounds, results, clampChecks, stationaryHold }, null, 2));
+      isQuitting = true; app.quit();
+    }, 500));
+    return;
+  }
   createControlWindow();
+  if (process.env.DASHBOARD_CAPTURE_PATH) {
+    win.hide();
+    controlWin.webContents.once('did-finish-load', () => setTimeout(async () => {
+      controlWin.setBounds({ x: 20, y: 20, width: Math.max(680,Number(process.env.DASHBOARD_CAPTURE_WIDTH)||1200), height: Math.max(560,Number(process.env.DASHBOARD_CAPTURE_HEIGHT)||720) });
+      await new Promise(resolve => setTimeout(resolve, 700));
+      if (process.env.DASHBOARD_CAPTURE_LANGUAGE) {
+        await controlWin.webContents.executeJavaScript(`(()=>{const language=document.querySelector('#interfaceLanguage');language.value=${JSON.stringify(process.env.DASHBOARD_CAPTURE_LANGUAGE)};language.dispatchEvent(new Event('change',{bubbles:true}))})()`);
+        await new Promise(resolve => setTimeout(resolve, 260));
+      }
+      const image = await controlWin.webContents.capturePage();
+      fs.writeFileSync(process.env.DASHBOARD_CAPTURE_PATH, image.toPNG());
+      if (process.env.DASHBOARD_PROFILE_CAPTURE_PATH) {
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#homeBrand').click()`);
+        await new Promise(resolve => setTimeout(resolve, 180));
+        const profileImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_PROFILE_CAPTURE_PATH, profileImage.toPNG());
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
+      }
+      if (process.env.DASHBOARD_EFFECT_CAPTURE_PATH) {
+        await controlWin.webContents.executeJavaScript(`(()=>{document.dispatchEvent(new PointerEvent('pointermove',{clientX:360,clientY:280,pointerType:'mouse'}));document.dispatchEvent(new PointerEvent('pointermove',{clientX:405,clientY:305,pointerType:'mouse'}));document.dispatchEvent(new PointerEvent('pointermove',{clientX:450,clientY:330,pointerType:'mouse'}));document.dispatchEvent(new PointerEvent('pointerdown',{clientX:480,clientY:350,pointerType:'mouse',button:0}))})()`);
+        await new Promise(resolve => setTimeout(resolve, 140));
+        const effectImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_EFFECT_CAPTURE_PATH, effectImage.toPNG());
+      }
+      if (process.env.DASHBOARD_MAP_CAPTURE_PATH) {
+        controlWin.webContents.sendInputEvent({type:'mouseMove',x:600,y:360});
+        await new Promise(resolve => setTimeout(resolve, 620));
+        const mapImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_MAP_CAPTURE_PATH, mapImage.toPNG());
+        controlWin.webContents.sendInputEvent({type:'mouseMove',x:20,y:20});
+        await new Promise(resolve => setTimeout(resolve, 260));
+      }
+      if (process.env.DASHBOARD_SETTINGS_CAPTURE_PATH) {
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#effectSettingsButton').click()`);
+        await new Promise(resolve => setTimeout(resolve, 360));
+        const settingsImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_SETTINGS_CAPTURE_PATH, settingsImage.toPNG());
+        await controlWin.webContents.executeJavaScript(`document.body.click()`);
+      }
+      if (process.env.DASHBOARD_PANELS_CAPTURE_DIR) {
+        for (const panel of ['chat','dialogue','actions','behavior','feed','diary']) {
+          await controlWin.webContents.executeJavaScript(`document.querySelector('[data-feature-panel="${panel}"]').click()`);
+          await new Promise(resolve => setTimeout(resolve, 180));
+          const panelImage = await controlWin.webContents.capturePage();
+          fs.writeFileSync(path.join(process.env.DASHBOARD_PANELS_CAPTURE_DIR, `${panel}.png`), panelImage.toPNG());
+          await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
+        }
+      }
+      if (process.env.DASHBOARD_SCROLL_CAPTURE_PATH) {
+        await controlWin.webContents.executeJavaScript(`document.querySelector('[data-feature-panel="chat"]').click();document.querySelector('main').scrollTop=420`);
+        await new Promise(resolve => setTimeout(resolve, 180));
+        const scrollImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_SCROLL_CAPTURE_PATH, scrollImage.toPNG());
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
+      }
+      if (process.env.DASHBOARD_TEST_REPORT) {
+        const report = await controlWin.webContents.executeJavaScript(`(async()=>{
+          const panels=['chat','dialogue','actions','behavior','feed','diary'];
+          const results=[];
+          for(const panel of panels){
+            document.querySelector('[data-feature-panel="'+panel+'"]').click();
+            await new Promise(resolve=>setTimeout(resolve,60));
+            const activeNodes=[...document.querySelectorAll('.panel-section.active')];
+            const active=activeNodes.map(node=>node.dataset.section);
+            const homeHidden=getComputedStyle(document.querySelector('.feature-hamster')).display==='none';
+            const detailVisible=activeNodes.length>0&&activeNodes.every(node=>getComputedStyle(node).display!=='none');
+            results.push({panel,active,homeHidden,detailVisible,passed:active.length>0&&active.every(value=>value===panel)&&document.body.dataset.currentPanel===panel&&document.querySelector('#backHome').classList.contains('show')&&homeHidden&&detailVisible});
+            document.querySelector('#backHome').click();
+          }
+          const returnedHome=document.body.dataset.currentPanel==='home'&&document.querySelector('.feature-hamster').classList.contains('active');
+          document.querySelector('#homeBrand').click();
+          await new Promise(resolve=>setTimeout(resolve,180));
+          const profileOpened=document.body.dataset.currentPanel==='profile'&&document.querySelector('#mouseProfilePopover').classList.contains('active');
+          const profilePushesContent=document.querySelector('main>header').getBoundingClientRect().height<=70;
+          document.querySelector('#backHome').click();
+          await new Promise(resolve=>setTimeout(resolve,180));
+          const profileClosed=document.body.dataset.currentPanel==='home'&&!document.querySelector('#mouseProfilePopover').classList.contains('active');
+          document.querySelector('#effectSettingsButton').click();
+          await new Promise(resolve=>setTimeout(resolve,120));
+          const settingsPageOpened=document.body.dataset.currentPanel==='settings'&&document.querySelector('#effectSettings').classList.contains('active')&&getComputedStyle(document.querySelector('#effectSettings')).display!=='none';
+          document.querySelector('#backHome').click();
+          const effectControls={pawToggle:!!document.querySelector('#pawTrailEnabled'),upload:!!document.querySelector('#clickEffectFile'),restore:!!document.querySelector('#restoreClickEffect')};
+          const labelsInitiallyClear=[...document.querySelectorAll('.photo-map .hamster-tile b')].every(node=>Number.parseFloat(getComputedStyle(node).opacity)===0);
+          const pawToggle=document.querySelector('#pawTrailEnabled'),pawOriginal=pawToggle.checked;pawToggle.checked=false;pawToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));document.querySelectorAll('.paw-trail').forEach(node=>node.remove());document.dispatchEvent(new PointerEvent('pointermove',{clientX:610,clientY:610,pointerType:'mouse'}));await new Promise(resolve=>setTimeout(resolve,80));const pawDisabledStopsTrail=document.querySelectorAll('.paw-trail').length===0;pawToggle.checked=pawOriginal;pawToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));
+          const movingBlob=document.querySelector('.background-motion-layer i'),backgroundTransformA=getComputedStyle(movingBlob).transform;await new Promise(resolve=>setTimeout(resolve,420));const backgroundTransformB=getComputedStyle(movingBlob).transform,backgroundActuallyMoves=backgroundTransformA!==backgroundTransformB;
+          const clickToggle=document.querySelector('#clickEffectEnabled'),clickOriginal=clickToggle.checked;clickToggle.checked=false;clickToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));document.querySelectorAll('.click-hamster-burst').forEach(node=>node.remove());document.dispatchEvent(new PointerEvent('pointerdown',{clientX:640,clientY:620,pointerType:'mouse',button:0}));await new Promise(resolve=>setTimeout(resolve,50));const clickDisabledStopsEffect=document.querySelectorAll('.click-hamster-burst').length===0;clickToggle.checked=clickOriginal;clickToggle.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));
+          const language=document.querySelector('#interfaceLanguage'),languageOriginal=language.value;language.value='en';language.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));const englishApplied=document.querySelector('#effectSettingsButton').textContent==='Settings'&&document.documentElement.lang==='en'&&document.querySelector('#homeBrand b').textContent==='Hamster'&&document.querySelector('.photo-map .hamster-tile b').textContent.includes('Hamster');language.value='es';language.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));const spanishApplied=document.querySelector('#effectSettingsButton').textContent==='Ajustes'&&document.documentElement.lang==='es'&&document.querySelector('#homeBrand b').textContent==='Hámster'&&document.querySelector('.photo-map .hamster-tile b').textContent.includes('Hámster');language.value=languageOriginal;language.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));
+          document.dispatchEvent(new PointerEvent('pointermove',{clientX:180,clientY:180,pointerType:'mouse'}));
+          document.dispatchEvent(new PointerEvent('pointermove',{clientX:230,clientY:210,pointerType:'mouse'}));
+          document.dispatchEvent(new PointerEvent('pointerdown',{clientX:260,clientY:235,pointerType:'mouse',button:0}));
+          await new Promise(resolve=>setTimeout(resolve,40));
+          const visualEffects={background:!!document.querySelector('.background-motion-layer'),pawTrail:!!document.querySelector('.paw-trail'),clickBurst:!!document.querySelector('.click-hamster-burst')};
+          await new Promise(resolve=>setTimeout(resolve,1500));
+          visualEffects.remaining={paws:document.querySelectorAll('.paw-trail').length,bursts:document.querySelectorAll('.click-hamster-burst').length};
+          visualEffects.cleaned=visualEffects.remaining.paws===0&&visualEffects.remaining.bursts===0;
+          return {results,returnedHome,profileOpened,profilePushesContent,profileClosed,settingsPageOpened,effectControls,pawDisabledStopsTrail,clickDisabledStopsEffect,englishApplied,spanishApplied,labelsInitiallyClear,backgroundActuallyMoves,visualEffects};
+        })()`);
+        fs.writeFileSync(process.env.DASHBOARD_TEST_REPORT, JSON.stringify(report, null, 2));
+      }
+      isQuitting = true; app.quit();
+    }, 900));
+    return;
+  }
   createTray();
   watchKeyboardActivity();
   globalShortcut.register('Alt+Shift+H', togglePet);
@@ -208,8 +364,49 @@ ipcMain.handle('settings-get', () => settings);
 ipcMain.handle('settings-save', (_event, next) => saveSettings(next));
 ipcMain.handle('ai-chat-clear', () => saveSettings({ chatHistory: [] }));
 function localHamsterReply(message){
-  const text=message.replace(/[？?！!。，,、~～]/g,'').trim(),has=(...words)=>words.some(word=>text.includes(word));
+  const text=message.toLocaleLowerCase().replace(/[¿?¡!。，,、~～.]/g,'').trim(),has=(...words)=>words.some(word=>text.includes(word));
+  const spanishInput=/[áéíóúñ¿¡]|\b(hola|gracias|adiós|buenos|buenas|cómo|qué|cuándo|comida|hambre|rueda|cumpleaños)\b/i.test(message);
+  const englishInput=/\b(hi|hello|hey|thanks|thank you|goodbye|good morning|good afternoon|good evening|how|what|when|where|food|hungry|wheel|birthday)\b/i.test(message);
+  const lang=spanishInput?'es':englishInput?'en':(settings.interfaceLanguage||'zh');
   const hour=new Date().getHours(),timeMood=hour<6?'这么晚还没睡呀，我正好也是夜里精神最好的时候。':hour<11?'早上好，我刚从小木屋里探出脑袋。':hour<14?'中午好，你吃饭了吗？我也在惦记我的小菜叶。':hour<18?'下午好，我在桌面陪你慢慢忙。':'晚上好，到我最有精神的时候啦。';
+  if(lang==='en'){
+    const greeting=hour<6?'Still awake? I am naturally most active at night.':hour<11?'Good morning! I just peeked out of my little wooden house.':hour<14?'Good afternoon! Have you eaten? I am thinking about my leafy greens.':hour<18?'Good afternoon! I will stay here while you work.':'Good evening! This is when I have the most energy.';
+    if(text==='hi'||has('hello','hey','good morning','good afternoon','good evening'))return greeting;
+    if(has('your name','what are you called','who are you'))return 'My name is Hamster. When you call “Hamster,” I know you are talking to me.';
+    if(has('how old','age','birthday','when were you born'))return 'I am a little male hamster born on June 9, 2024. Please save me a tiny leafy treat on my birthday.';
+    if(has('weight','how heavy','grams'))return 'I weigh a little over 60 grams. I may be round, but I can still run strongly on my wheel.';
+    if(has('breed','species','male','female','gender','sex'))return 'I am a little male hamster with a gray back and a white belly.';
+    if(has('hungry','food','eat','feed','snack'))return settings.hunger<50?'I am a little hungry. Could I have some leafy greens or nutrition paste?':settings.hunger<85?'My belly feels fine, but I would not refuse one small bite of greens.':'I am already very full. Let us save the treats for later.';
+    if(has('happy','mood','sad','how are you','feeling'))return settings.mood>=85?'I am very happy because you are talking with me.':settings.mood>=60?'I feel calm and comfortable. Staying with you a little longer would make me happier.':'I feel a little low today. Could you pet me and talk with me for a while?';
+    if(has('what are you doing','doing now','busy'))return hour>=19||hour<6?'I am getting ready to move around. I may run on my wheel soon.':'I am quietly keeping you company and tidying my whiskers.';
+    if(has('sleep','sleepy','good night'))return hour>=21||hour<6?'Good night. Rest well; I will stay in my little house nearby.':'It is not very late yet, but I can stay quiet if you want to rest.';
+    if(has('wheel','exercise','work out','running'))return 'Running on my wheel is my favorite nighttime activity. Even a 60-gram hamster needs exercise.';
+    if(has('love me','like me','miss me','stay with me'))return 'Of course. You are the person I know and trust most, and I will keep you company on the desktop.';
+    if(has('thank','thanks'))return 'You are welcome. I am happy whenever you come to talk with me.';
+    if(has('bye','goodbye','see you'))return 'Okay, I will rest in my little wooden house. Call “Hamster” whenever you want me back.';
+    if(has('weather','rain','temperature'))return 'I cannot see the weather outside, so I should not guess. Tell me what it is like and we can talk about it.';
+    if(has('time','date','day is it'))return `It is ${new Date().toLocaleString('en-US',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}. Remember to take a break too.`;
+    return `I read “${message.slice(0,38)}” carefully, but I do not fully understand yet. You can ask about my mood, food, running wheel, birthday, or what I am doing.`;
+  }
+  if(lang==='es'){
+    const greeting=hour<6?'¿Sigues despierto? Por la noche es cuando tengo más energía.':hour<11?'¡Buenos días! Acabo de asomarme desde mi casita.':hour<14?'¡Buenas tardes! ¿Ya comiste? Yo estoy pensando en mis hojas verdes.':hour<18?'¡Buenas tardes! Me quedaré aquí mientras trabajas.':'¡Buenas noches! Ahora es cuando tengo más energía.';
+    if(has('hola','buenos días','buenas tardes','buenas noches','qué tal'))return greeting;
+    if(has('tu nombre','cómo te llamas','quién eres'))return 'Me llamo Hámster. Cuando dices “Hámster”, sé que estás hablando conmigo.';
+    if(has('cuántos años','edad','cumpleaños','cuándo naciste'))return 'Soy un pequeño hámster macho nacido el 9 de junio de 2024. En mi cumpleaños, guárdame una hojita.';
+    if(has('peso','cuánto pesas','gramos'))return 'Peso un poco más de 60 gramos. Soy redondito, pero corro con mucha fuerza en mi rueda.';
+    if(has('raza','especie','macho','hembra','género','sexo'))return 'Soy un pequeño hámster macho, con la espalda gris y la barriga blanca.';
+    if(has('hambre','comida','comer','darte de comer','aperitivo'))return settings.hunger<50?'Tengo un poco de hambre. ¿Me das hojas verdes o pasta nutritiva?':settings.hunger<85?'Mi barriga está bien, pero no rechazaría un pequeño bocado.':'Ya estoy muy lleno. Guardemos la comida para después.';
+    if(has('feliz','ánimo','triste','cómo estás','te sientes'))return settings.mood>=85?'Estoy muy feliz porque estás hablando conmigo.':settings.mood>=60?'Estoy tranquilo y cómodo. Si te quedas un poco más, estaré aún más feliz.':'Hoy tengo poca energía. ¿Puedes acariciarme y hablar conmigo?';
+    if(has('qué haces','haciendo','ocupado'))return hour>=19||hour<6?'Estoy preparándome para moverme; quizá corra pronto en mi rueda.':'Estoy acompañándote tranquilamente y arreglando mis bigotes.';
+    if(has('dormir','sueño','buenas noches'))return hour>=21||hour<6?'Buenas noches. Descansa; yo estaré cerca en mi casita.':'Todavía no es muy tarde, pero puedo quedarme tranquilo si quieres descansar.';
+    if(has('rueda','ejercicio','correr','entrenar'))return 'Correr en mi rueda es mi actividad nocturna favorita. Incluso un hámster de 60 gramos necesita ejercicio.';
+    if(has('me quieres','te gusto','me extrañas','acompáñame'))return 'Claro. Eres la persona que más conozco y en quien más confío; te acompañaré en el escritorio.';
+    if(has('gracias'))return 'De nada. Me alegra mucho que vengas a hablar conmigo.';
+    if(has('adiós','hasta luego','nos vemos'))return 'De acuerdo, descansaré en mi casita. Llámame “Hámster” cuando quieras que vuelva.';
+    if(has('tiempo','clima','lluvia','temperatura'))return 'No puedo ver el clima exterior y no quiero inventarlo. Cuéntame cómo está y hablamos de ello.';
+    if(has('qué hora','fecha','qué día'))return `Ahora es ${new Date().toLocaleString('es-ES',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}. Recuerda descansar también.`;
+    return `He leído con atención “${message.slice(0,38)}”, pero todavía no lo entiendo del todo. Puedes preguntarme por mi ánimo, comida, rueda, cumpleaños o qué estoy haciendo.`;
+  }
   if(has('你好','嗨','哈喽','早上好','中午好','下午好','晚上好'))return timeMood;
   if(has('你叫什么','名字','叫啥'))return '我就叫鼠鼠，不叫团团。你喊“鼠鼠”，我就知道是在叫我。';
   if(has('几岁','多大','年龄','生日'))return '我是2024年6月9日出生的小男鼠。生日那天记得给我留一小片菜叶呀。';
@@ -299,7 +496,7 @@ ipcMain.on('pet-command', (_event, command) => {
 let lastWheelRecord='';
 ipcMain.on('pet-status', (_event, status) => { controlWin?.webContents.send('pet-status', status); if(status==='正在跑跑轮'&&lastWheelRecord!==localDate()){lastWheelRecord=localDate();recordActivity('wheel');} });
 ipcMain.on('wander-start', () => {
-  if (!win || wanderTimer) return;
+  if (!win || wanderTimer || dragActive) return;
   wanderDirection = Math.random() < .5 ? -1 : 1;
   let position = win.getPosition();
   wanderTimer = setInterval(() => {
@@ -321,8 +518,27 @@ ipcMain.on('wander-stop', stopWandering);
 ipcMain.on('drag-start', () => {
   if (!win) return;
   stopDragging();
+  stopWandering();
   const [x, y] = win.getPosition();
-  dragOrigin = { pointer: screen.getCursorScreenPoint(), x, y };
+  const pointer = screen.getCursorScreenPoint();
+  dragActive = true;
+  dragOrigin = { pointer, lastPointer: pointer, x, y };
+  dragTimer = setInterval(() => {
+    if (!win || !dragOrigin || win.isDestroyed()) return stopDragging();
+    const pointer = process.env.PET_TEST_FIXED_POINTER ? dragOrigin.pointer : screen.getCursorScreenPoint();
+    if (pointer.x === dragOrigin.lastPointer.x && pointer.y === dragOrigin.lastPointer.y) return;
+    dragOrigin.lastPointer = pointer;
+    const deltaX = pointer.x - dragOrigin.pointer.x;
+    const deltaY = pointer.y - dragOrigin.pointer.y;
+    if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) return;
+    const bounds = win.getBounds();
+    const display = screen.getDisplayNearestPoint(pointer);
+    const area = display.workArea;
+    const wantedX = dragOrigin.x + deltaX;
+    const wantedY = dragOrigin.y + deltaY;
+    const { x, y } = clampPetPosition(bounds, area, wantedX, wantedY);
+    win.setPosition(Math.round(x), Math.round(y), false);
+  }, 16);
 });
 ipcMain.handle('drag-move', () => {
   if (!win || !dragOrigin) return false;

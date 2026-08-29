@@ -2,6 +2,10 @@
 
 一只会在 Windows 桌面陪伴你的小仓鼠。它能回应点击和键盘输入、展示真实动态动作、跑跑轮、接受投喂、换装、说话，并记录每日互动日记。
 
+## 主页展示 / Home Preview
+
+![鼠鼠桌面小宠主页 / Hamster Desktop Pet Home](assets/screenshots/home.png)
+
 ## 功能
 
 - 透明桌面小宠窗口与系统托盘

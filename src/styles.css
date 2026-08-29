@@ -47,7 +47,7 @@ body.mode-3d #hamster3d{display:block}
 .pet.pointer-over #close { opacity:.75; } #close:hover { opacity:1!important; background:#fff; }
 #sizeTip { position:absolute; left:50%; bottom:4px; transform:translateX(-50%) translateY(8px); padding:5px 10px; border-radius:12px; background:rgba(63,46,38,.76); color:white; font-size:11px; opacity:0; transition:.18s; pointer-events:none; }
 #sizeTip.show { opacity:1; transform:translateX(-50%) translateY(0); }
-#dragHandle { -webkit-app-region:drag; position:absolute; left:50%; bottom:43px; z-index:9; width:42px; height:28px; margin-left:-21px; border-radius:14px; color:#6f584c; background:rgba(255,255,255,.92); box-shadow:0 2px 9px rgba(55,38,30,.2); font-size:20px; line-height:26px; text-align:center; cursor:move; opacity:0; transition:opacity .18s; transform:scale(var(--control-inverse)); }
+#dragHandle { -webkit-app-region:no-drag; position:absolute; left:50%; bottom:43px; z-index:9; width:42px; height:28px; margin-left:-21px; border-radius:14px; color:#6f584c; background:rgba(255,255,255,.92); box-shadow:0 2px 9px rgba(55,38,30,.2); font-size:20px; line-height:26px; text-align:center; cursor:move; opacity:0; transition:opacity .18s; transform:scale(var(--control-inverse)); touch-action:none; }
 .pet.pointer-over #dragHandle { opacity:.9; }
 @keyframes breathe { 0%,100%{transform:rotateX(var(--rx)) rotateY(var(--ry)) translateY(1px) scale(1)} 50%{transform:rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px) scale(1.016,1.01)} }
 @keyframes typeBounce { from{transform:rotateX(var(--rx)) rotateY(var(--ry)) translateY(0) rotate(-.8deg)} to{transform:rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px) rotate(.8deg)} }
