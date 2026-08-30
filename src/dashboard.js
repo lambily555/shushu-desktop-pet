@@ -174,5 +174,8 @@ const localChatSuggestions={
 };
 function renderChatSuggestions(){const root=$('#chatSuggestions');if(!root||!settings)return;const copy=localChatSuggestions[settings.interfaceLanguage||'zh']||localChatSuggestions.zh;root.querySelector('b').textContent=copy.title;root.querySelector('div').innerHTML=copy.items.map(question=>`<button type="button" data-chat-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`).join('')}
 $('#chatSuggestions').onclick=e=>{const button=e.target.closest('[data-chat-question]');if(!button)return;$('#chatInput').value=button.dataset.chatQuestion;sendChat()};
+const chatSuggestionTrack=$('#chatSuggestions>div');
+chatSuggestionTrack.addEventListener('wheel',e=>{if(chatSuggestionTrack.scrollWidth<=chatSuggestionTrack.clientWidth)return;e.preventDefault();chatSuggestionTrack.scrollBy({left:e.deltaX||e.deltaY,behavior:'smooth'})},{passive:false});
+chatSuggestionTrack.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();chatSuggestionTrack.scrollBy({left:e.key==='ArrowRight'?220:-220,behavior:'smooth'})});
 const applyLanguageWithSuggestions=applyLanguage;
 applyLanguage=function(){applyLanguageWithSuggestions();renderChatSuggestions()};
