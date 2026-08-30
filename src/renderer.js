@@ -80,7 +80,7 @@ window.addEventListener('error',event=>{bubble.textContent=`3D错误：${event.m
 window.addEventListener('unhandledrejection',event=>{bubble.textContent=`3D错误：${event.reason?.message||event.reason}`;bubble.classList.add('show')});
 let typingTimer, actionTimer, bubbleTimer, pointerDown, movePending = false;
 let rotating3d = false, rotateLastX = 0, rotateLastY = 0, rotateMoved = false;
-let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false;
+let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false, manualWheelUntil = 0;
 let idleAdventure = false;
 let lastAdventure = 0;
 let scale = Number(localStorage.getItem('petScale') || 1);
@@ -346,6 +346,7 @@ function say(text, duration = 1900) {
 function keyboardActivity() {
   idleSeconds = 0;
   if (idleAdventure) { idleAdventure = false; window.petAPI.wanderStop(); }
+  if (Date.now() < manualWheelUntil) return;
   if (!appSettings.keyboardReaction) return;
   if (state === 'happy' || pointerDown) return; setState('typing'); clearTimeout(typingTimer);
   typingTimer = setTimeout(() => setState('idle'), 820);
@@ -355,6 +356,7 @@ window.petAPI.onKeyboard(keyboardActivity);
 window.petAPI.onIdle((seconds) => {
   idleSeconds = seconds;
   if (pointerDown) return;
+  if (Date.now() < manualWheelUntil) return;
   if (appSettings.idleWheel && seconds > appSettings.idleDelay && !idleAdventure && Date.now() - lastAdventure > 45000) {
     idleAdventure = true;
     lastAdventure = Date.now();
@@ -362,6 +364,7 @@ window.petAPI.onIdle((seconds) => {
     say('夜晚才是跑轮时间！', 1800);
     setTimeout(() => {
       window.petAPI.wanderStop(); idleAdventure = false;
+      if (Date.now() < manualWheelUntil) return;
       setState(idleSeconds > 45 ? 'sleep' : 'loafing');
     }, 11000 + Math.random() * 5000);
     return;
@@ -372,7 +375,7 @@ window.petAPI.onIdle((seconds) => {
 });
 function scheduleLife() {
   setTimeout(() => {
-    if (!pointerDown && idleSeconds < 16 && !['typing', 'happy'].includes(state)) {
+    if (Date.now() >= manualWheelUntil && !pointerDown && idleSeconds < 16 && !['typing', 'happy', 'wheel'].includes(state)) {
       const next = randomActions[Math.floor(Math.random() * randomActions.length)];
       setState(next, next === 'stretch' ? 1900 : 2400);
       if (appSettings.randomTalk && Math.random() < .2) say(daydreams[Math.floor(Math.random() * daydreams.length)], 1500);
@@ -504,7 +507,14 @@ window.petAPI.onFed((payload)=>{const food=typeof payload==='string'?payload:pay
 window.petAPI.onPetCommand(command=>{
   if(command==='visual-resume'){resumePetVisual();return}
   if(command==='pet'){happyInteraction();return}
-  if(command==='wheel'){setState('wheel');say('出发！今晚也要跑得飞快～',1800);setTimeout(()=>setState('idle'),5000);return}
+  if(command==='wheel'){
+    idleAdventure=false;
+    window.petAPI.wanderStop();
+    manualWheelUntil=Date.now()+12000;
+    setState('wheel',12000);
+    say('出发！今晚也要跑得飞快～',2500);
+    return;
+  }
   if(command?.startsWith('say:')){say(command.slice(4),Math.max(3200,Math.min(9000,command.length*95)));return}
   if(command?.startsWith('action:')){
     const action=command.slice(7);
