@@ -204,3 +204,50 @@ chatSuggestionTrack.addEventListener('pointercancel',finishSuggestionDrag);
 chatSuggestionTrack.addEventListener('click',e=>{if(!suppressSuggestionClick)return;e.preventDefault();e.stopImmediatePropagation()},{capture:true});
 const applyLanguageWithSuggestions=applyLanguage;
 applyLanguage=function(){applyLanguageWithSuggestions();renderChatSuggestions()};
+
+const defaultShortcutMap={togglePet:'Alt+Shift+H',openControl:'Ctrl+Alt+H',pet:'Ctrl+Alt+P',feed:'Ctrl+Alt+E',wheel:'Ctrl+Alt+W',switchForm:'Ctrl+Alt+F'};
+const shortcutTranslations={
+  zh:{title:'便捷键',subtitle:'在其他应用里也可以快速照顾鼠鼠',reset:'恢复默认',hint:'点击按键框，然后按下新的组合键',recording:'请按下新的组合键，Esc 取消',saved:'便捷键已保存并立即生效',resetDone:'已恢复默认便捷键',conflict:'这个组合键已被其他功能使用',invalid:'请使用包含 Ctrl、Alt 或 Shift 的组合键',unavailable:'该组合键被系统或其他应用占用，请换一个',actions:{togglePet:['显示或隐藏鼠鼠','无需打开控制中心'],openControl:['打开控制中心','查看功能与设置'],pet:['摸摸鼠鼠','快速增加一次互动'],feed:['喂一口菜叶','直接投喂常用食物'],wheel:['让鼠鼠跑轮','立即播放跑轮动作'],switchForm:['切换鼠鼠形态','在 3D 与真实动态间切换']}},
+  en:{title:'Keyboard shortcuts',subtitle:'Care for Hamster while using other apps',reset:'Restore defaults',hint:'Select a shortcut, then press a new key combination',recording:'Press a new combination, or Esc to cancel',saved:'Shortcut saved and active',resetDone:'Default shortcuts restored',conflict:'This combination is already used by another action',invalid:'Include Ctrl, Alt, or Shift in the shortcut',unavailable:'This shortcut is occupied by the system or another app',actions:{togglePet:['Show or hide Hamster','No need to open the control center'],openControl:['Open control center','View features and settings'],pet:['Pet Hamster','Quickly add one interaction'],feed:['Feed a leafy bite','Give Hamster the usual snack'],wheel:['Run on the wheel','Play the wheel action now'],switchForm:['Switch Hamster form','Toggle between 3D and real motion']}},
+  es:{title:'Atajos de teclado',subtitle:'Cuida a Hámster mientras usas otras aplicaciones',reset:'Restaurar valores',hint:'Selecciona un atajo y pulsa una nueva combinación',recording:'Pulsa una combinación nueva o Esc para cancelar',saved:'Atajo guardado y activo',resetDone:'Se restauraron los atajos predeterminados',conflict:'Esta combinación ya está asignada a otra acción',invalid:'Incluye Ctrl, Alt o Shift en el atajo',unavailable:'El sistema u otra aplicación ya usa este atajo',actions:{togglePet:['Mostrar u ocultar a Hámster','Sin abrir el centro de control'],openControl:['Abrir el centro de control','Ver funciones y ajustes'],pet:['Acariciar a Hámster','Añadir rápidamente una interacción'],feed:['Dar una hoja','Ofrecer su comida habitual'],wheel:['Correr en la rueda','Iniciar ahora la animación'],switchForm:['Cambiar forma de Hámster','Alternar entre 3D y movimiento real']}}
+};
+let recordingShortcut='';
+const currentShortcuts=()=>({...defaultShortcutMap,...(settings?.shortcuts||{})});
+function shortcutStatus(message,state=''){
+  const node=$('#shortcutStatus');if(!node)return;
+  node.textContent=message;node.dataset.state=state;
+}
+function renderShortcutSettings(){
+  const grid=$('#shortcutGrid');if(!grid||!settings)return;
+  const lang=settings.interfaceLanguage||'zh',copy=shortcutTranslations[lang]||shortcutTranslations.zh,shortcuts=currentShortcuts();
+  const heading=$('.shortcut-heading');heading.querySelector('b').textContent=copy.title;heading.querySelector('span').textContent=copy.subtitle;$('#resetShortcuts').textContent=copy.reset;
+  grid.innerHTML=Object.entries(copy.actions).map(([action,[label,description]])=>`<article class="shortcut-item"><span><b>${escapeHtml(label)}</b><small>${escapeHtml(description)}</small></span><button type="button" class="shortcut-key${recordingShortcut===action?' recording':''}" data-shortcut-action="${action}">${recordingShortcut===action?'…':escapeHtml(shortcuts[action])}</button></article>`).join('');
+  if(!recordingShortcut&&!$('#shortcutStatus').dataset.state)shortcutStatus(copy.hint);
+}
+function eventToAccelerator(event){
+  const modifierNames=['Control','Alt','Shift','Meta'];if(modifierNames.includes(event.key))return '';
+  const parts=[];if(event.ctrlKey)parts.push('Ctrl');if(event.altKey)parts.push('Alt');if(event.shiftKey)parts.push('Shift');if(event.metaKey)parts.push('Super');
+  const aliases={' ':'Space',ArrowUp:'Up',ArrowDown:'Down',ArrowLeft:'Left',ArrowRight:'Right',Escape:'Esc'};
+  let key=aliases[event.key]||event.key;if(key.length===1)key=key.toUpperCase();parts.push(key);return parts.join('+');
+}
+$('#shortcutGrid')?.addEventListener('click',event=>{
+  const button=event.target.closest('[data-shortcut-action]');if(!button)return;
+  recordingShortcut=button.dataset.shortcutAction;shortcutStatus((shortcutTranslations[settings.interfaceLanguage||'zh']||shortcutTranslations.zh).recording,'recording');renderShortcutSettings();
+});
+document.addEventListener('keydown',async event=>{
+  if(!recordingShortcut)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const copy=shortcutTranslations[settings.interfaceLanguage||'zh']||shortcutTranslations.zh;
+  if(event.key==='Escape'){recordingShortcut='';shortcutStatus(copy.hint,'');renderShortcutSettings();return}
+  const accelerator=eventToAccelerator(event);if(!accelerator)return;
+  if(!(event.ctrlKey||event.altKey||event.shiftKey||event.metaKey)&&!/^F(?:[1-9]|1[0-2])$/i.test(event.key)){shortcutStatus(copy.invalid,'error');return}
+  const action=recordingShortcut,shortcuts=currentShortcuts(),duplicate=Object.entries(shortcuts).find(([key,value])=>key!==action&&value.toLowerCase()===accelerator.toLowerCase());
+  if(duplicate){shortcutStatus(copy.conflict,'error');return}
+  recordingShortcut='';const result=await window.petAPI.saveShortcuts({...shortcuts,[action]:accelerator});settings=result.settings;
+  const registration=result.results?.[action];shortcutStatus(registration?.ok?copy.saved:copy.unavailable,registration?.ok?'success':'error');renderShortcutSettings();
+},{capture:true});
+$('#resetShortcuts')?.addEventListener('click',async()=>{
+  recordingShortcut='';const copy=shortcutTranslations[settings.interfaceLanguage||'zh']||shortcutTranslations.zh,result=await window.petAPI.resetShortcuts();settings=result.settings;shortcutStatus(copy.resetDone,'success');renderShortcutSettings();
+});
+const applyLanguageWithShortcuts=applyLanguage;
+applyLanguage=function(){applyLanguageWithShortcuts();renderShortcutSettings()};

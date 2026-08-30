@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('petAPI', {
   ,onWanderDirection: (callback) => ipcRenderer.on('wander-direction', (_event, direction) => callback(direction))
   ,getSettings: () => ipcRenderer.invoke('settings-get')
   ,saveSettings: (settings) => ipcRenderer.invoke('settings-save', settings)
+  ,saveShortcuts: (shortcuts) => ipcRenderer.invoke('shortcuts-save', shortcuts)
+  ,resetShortcuts: () => ipcRenderer.invoke('shortcuts-reset')
   ,onSettings: (callback) => ipcRenderer.on('settings-updated', (_event, settings) => callback(settings))
   ,feed: (food, portion = 1) => ipcRenderer.invoke('feed-pet', food, portion)
   ,onFed: (callback) => ipcRenderer.on('fed', (_event, payload) => callback(payload))

@@ -28,16 +28,29 @@ let petHiddenByUser = false;
 const sessionStartedAt = Date.now();
 const isDashboardQa = Boolean(process.env.DASHBOARD_PANELS_CAPTURE_DIR || process.env.DASHBOARD_TEST_REPORT);
 const hasSingleInstanceLock = isDashboardQa ? true : app.requestSingleInstanceLock();
+const defaultShortcuts = {
+  togglePet: 'Alt+Shift+H',
+  openControl: 'Ctrl+Alt+H',
+  pet: 'Ctrl+Alt+P',
+  feed: 'Ctrl+Alt+E',
+  wheel: 'Ctrl+Alt+W',
+  switchForm: 'Ctrl+Alt+F'
+};
 const defaultSettings = {
   idleWheel: true, keyboardReaction: true, randomTalk: true, soundEnabled: true,
   idleDelay: 22, outfit: 'none', petForm: '3d', hunger: 78, mood: 92, customLines: [], customActions: [], actionNames: {}, activity: {}, diaries: {},
-  chatMode: 'local', aiBaseUrl: 'https://api.openai.com/v1', aiModel: 'gpt-4o-mini', aiApiKey: '', chatHistory: []
+  chatMode: 'local', aiBaseUrl: 'https://api.openai.com/v1', aiModel: 'gpt-4o-mini', aiApiKey: '', chatHistory: [],
+  shortcuts: { ...defaultShortcuts }
 };
 let settings = { ...defaultSettings };
+let shortcutRegistration = {};
 
 function settingsPath() { return path.join(app.getPath('userData'), 'tuantuan-settings.json'); }
 function loadSettings() {
-  try { settings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(settingsPath(), 'utf8')) }; } catch {}
+  try {
+    const stored=JSON.parse(fs.readFileSync(settingsPath(), 'utf8'));
+    settings = { ...defaultSettings, ...stored, shortcuts: { ...defaultShortcuts, ...(stored.shortcuts||{}) } };
+  } catch {}
 }
 function saveSettings(next = {}) {
   settings = { ...settings, ...next };
@@ -81,6 +94,48 @@ function togglePet() {
   if (!win) return;
   if (win.isVisible()) { petHiddenByUser = true; win.hide(); }
   else { petHiddenByUser = false; win.show(); win.focus(); }
+}
+
+function showPetCommand(command) {
+  petHiddenByUser=false;
+  win?.show();
+  win?.focus();
+  win?.webContents.send('pet-command',command);
+}
+
+function runShortcutAction(action) {
+  if(action==='togglePet')return togglePet();
+  if(action==='openControl')return showControl();
+  if(action==='pet')return showPetCommand('pet');
+  if(action==='wheel')return showPetCommand('wheel');
+  if(action==='switchForm'){
+    saveSettings({petForm:(settings.petForm||'3d')==='3d'?'real':'3d'});
+    return showPetCommand('visual-resume');
+  }
+  if(action==='feed'){
+    saveSettings({hunger:Math.min(100,settings.hunger+8),mood:Math.min(100,settings.mood+4),lastFood:'leaf'});
+    petHiddenByUser=false;
+    win?.show();
+    win?.webContents.send('fed',{food:'leaf',portion:1});
+    recordActivity('feed:leaf');
+    return;
+  }
+}
+
+function registerConfiguredShortcuts() {
+  globalShortcut.unregisterAll();
+  shortcutRegistration={};
+  const used=new Set();
+  for(const action of Object.keys(defaultShortcuts)){
+    const accelerator=String(settings.shortcuts?.[action]||defaultShortcuts[action]).trim();
+    if(!accelerator||used.has(accelerator.toLowerCase())){shortcutRegistration[action]={ok:false,accelerator,error:'duplicate'};continue}
+    used.add(accelerator.toLowerCase());
+    try{
+      const ok=globalShortcut.register(accelerator,()=>runShortcutAction(action));
+      shortcutRegistration[action]={ok,accelerator,error:ok?'':'unavailable'};
+    }catch{shortcutRegistration[action]={ok:false,accelerator,error:'invalid'}}
+  }
+  return shortcutRegistration;
 }
 
 function showControl() {
@@ -368,7 +423,7 @@ app.whenReady().then(() => {
   }
   createTray();
   watchKeyboardActivity();
-  globalShortcut.register('Alt+Shift+H', togglePet);
+  registerConfiguredShortcuts();
   setInterval(() => win?.webContents.send('idle-seconds', powerMonitor.getSystemIdleTime()), 1000);
   app.on('activate', () => { if (!win) createWindow(); else win.show(); });
 });
@@ -379,6 +434,16 @@ ipcMain.on('hide-pet', () => { petHiddenByUser=true; win?.hide(); });
 ipcMain.on('mouse-passthrough', (_event, passthrough) => win?.setIgnoreMouseEvents(passthrough, { forward: true }));
 ipcMain.handle('settings-get', () => settings);
 ipcMain.handle('settings-save', (_event, next) => saveSettings(next));
+ipcMain.handle('shortcuts-save', (_event, requested) => {
+  const shortcuts={...defaultShortcuts};
+  for(const action of Object.keys(defaultShortcuts))if(typeof requested?.[action]==='string'&&requested[action].trim())shortcuts[action]=requested[action].trim();
+  saveSettings({shortcuts});
+  return {settings,results:registerConfiguredShortcuts()};
+});
+ipcMain.handle('shortcuts-reset', () => {
+  saveSettings({shortcuts:{...defaultShortcuts}});
+  return {settings,results:registerConfiguredShortcuts()};
+});
 ipcMain.handle('ai-chat-clear', () => saveSettings({ chatHistory: [] }));
 function localHamsterReply(message){
   const normalize=value=>String(value||'').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿?¡!。，,、~～.'"“”]/g,' ').replace(/\s+/g,' ').trim();
