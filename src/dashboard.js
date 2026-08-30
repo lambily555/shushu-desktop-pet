@@ -177,5 +177,30 @@ $('#chatSuggestions').onclick=e=>{const button=e.target.closest('[data-chat-ques
 const chatSuggestionTrack=$('#chatSuggestions>div');
 chatSuggestionTrack.addEventListener('wheel',e=>{if(chatSuggestionTrack.scrollWidth<=chatSuggestionTrack.clientWidth)return;e.preventDefault();chatSuggestionTrack.scrollBy({left:e.deltaX||e.deltaY,behavior:'smooth'})},{passive:false});
 chatSuggestionTrack.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();chatSuggestionTrack.scrollBy({left:e.key==='ArrowRight'?220:-220,behavior:'smooth'})});
+let chatSuggestionDrag=null;
+let suppressSuggestionClick=false;
+chatSuggestionTrack.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='mouse'||e.button!==0||chatSuggestionTrack.scrollWidth<=chatSuggestionTrack.clientWidth)return;
+  chatSuggestionDrag={id:e.pointerId,x:e.clientX,scrollLeft:chatSuggestionTrack.scrollLeft,moved:false};
+  chatSuggestionTrack.setPointerCapture(e.pointerId);
+  chatSuggestionTrack.classList.add('dragging');
+});
+chatSuggestionTrack.addEventListener('pointermove',e=>{
+  if(!chatSuggestionDrag||chatSuggestionDrag.id!==e.pointerId)return;
+  const distance=e.clientX-chatSuggestionDrag.x;
+  if(Math.abs(distance)>4)chatSuggestionDrag.moved=true;
+  chatSuggestionTrack.scrollLeft=chatSuggestionDrag.scrollLeft-distance;
+});
+function finishSuggestionDrag(e){
+  if(!chatSuggestionDrag||chatSuggestionDrag.id!==e.pointerId)return;
+  suppressSuggestionClick=chatSuggestionDrag.moved;
+  chatSuggestionDrag=null;
+  chatSuggestionTrack.classList.remove('dragging');
+  if(chatSuggestionTrack.hasPointerCapture(e.pointerId))chatSuggestionTrack.releasePointerCapture(e.pointerId);
+  if(suppressSuggestionClick)setTimeout(()=>{suppressSuggestionClick=false},0);
+}
+chatSuggestionTrack.addEventListener('pointerup',finishSuggestionDrag);
+chatSuggestionTrack.addEventListener('pointercancel',finishSuggestionDrag);
+chatSuggestionTrack.addEventListener('click',e=>{if(!suppressSuggestionClick)return;e.preventDefault();e.stopImmediatePropagation()},{capture:true});
 const applyLanguageWithSuggestions=applyLanguage;
 applyLanguage=function(){applyLanguageWithSuggestions();renderChatSuggestions()};
