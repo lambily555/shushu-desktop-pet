@@ -109,7 +109,8 @@ function runShortcutAction(action) {
   if(action==='pet')return showPetCommand('pet');
   if(action==='wheel')return showPetCommand('wheel');
   if(action==='switchForm'){
-    saveSettings({petForm:(settings.petForm||'3d')==='3d'?'real':'3d'});
+    const forms=['3d','ai-drama','real'],current=forms.indexOf(settings.petForm||'3d');
+    saveSettings({petForm:forms[(current+1)%forms.length]});
     return showPetCommand('visual-resume');
   }
   if(action==='feed'){
@@ -213,7 +214,7 @@ function createWindow() {
   },900).unref();
   if (process.env.PET_CAPTURE_PATH) win.webContents.once('did-finish-load', () => setTimeout(async () => {
     if (process.env.PET_CAPTURE_STATE) {
-      await win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('pet-state',{detail:${JSON.stringify(process.env.PET_CAPTURE_STATE)}}))`);
+      await win.webContents.executeJavaScript(`if(typeof setState==='function')setState(${JSON.stringify(process.env.PET_CAPTURE_STATE)});window.dispatchEvent(new CustomEvent('pet-state',{detail:${JSON.stringify(process.env.PET_CAPTURE_STATE)}}))`);
       await new Promise(resolve => setTimeout(resolve, 900));
     }
     const image = await win.webContents.capturePage();

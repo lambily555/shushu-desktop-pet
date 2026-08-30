@@ -6,6 +6,7 @@ const sizeTip = document.querySelector('#sizeTip');
 const realVideoCanvas = document.querySelector('#realVideo');
 const realVideoContext = realVideoCanvas.getContext('2d');
 const realCutout = document.querySelector('#realCutout');
+const aiDramaCutout = document.querySelector('#aiDramaCutout');
 const foodProp = document.querySelector('#foodProp');
 const foodCanvas = document.querySelector('#foodCanvas');
 const foodCrumbs = document.querySelector('#foodCrumbs');
@@ -75,6 +76,18 @@ function isRealCutoutPoint(x,y) {
     realHitContext.drawImage(realCutout,0,0,290,290);
     return realHitContext.getImageData(Math.min(289,Math.floor(nx*290)),Math.min(289,Math.floor(ny*290)),1,1).data[3]>42;
   }catch{return false;}
+}
+const aiHitCanvas=document.createElement('canvas');
+aiHitCanvas.width=290;aiHitCanvas.height=290;
+const aiHitContext=aiHitCanvas.getContext('2d',{willReadFrequently:true});
+function isAiDramaPoint(x,y){
+  const r=aiDramaCutout.getBoundingClientRect();
+  const nx=(x-r.left)/r.width,ny=(y-r.top)/r.height;
+  if(nx<0||nx>1||ny<0||ny>1||!aiDramaCutout.complete||!aiDramaCutout.naturalWidth)return false;
+  try{
+    aiHitContext.clearRect(0,0,290,290);aiHitContext.drawImage(aiDramaCutout,0,0,290,290);
+    return aiHitContext.getImageData(Math.min(289,Math.floor(nx*290)),Math.min(289,Math.floor(ny*290)),1,1).data[3]>35;
+  }catch{return false}
 }
 window.addEventListener('error',event=>{bubble.textContent=`3D错误：${event.message}`;bubble.classList.add('show')});
 window.addEventListener('unhandledrejection',event=>{bubble.textContent=`3D错误：${event.reason?.message||event.reason}`;bubble.classList.add('show')});
@@ -154,7 +167,8 @@ function isOpaqueHit(event) {
   if(appSettings.petForm === 'real'){
     return isRealCutoutPoint(event.clientX,event.clientY);
   }
-  if(appSettings.petForm !== 'real'){
+  if(appSettings.petForm === 'ai-drama')return isAiDramaPoint(event.clientX,event.clientY);
+  if(appSettings.petForm === '3d'){
     const r=sprite.getBoundingClientRect(),nx=(event.clientX-r.left)/r.width,ny=(event.clientY-r.top)/r.height;
     return Math.pow((nx-.5)/.42,2)+Math.pow((ny-.56)/.44,2)<=1;
   }
@@ -178,7 +192,8 @@ function pointInElement(x,y,element,padding=0){
 }
 function isOpaquePoint(x,y){
   if(appSettings.petForm === 'real')return isRealCutoutPoint(x,y);
-  if(appSettings.petForm !== 'real'){const r=sprite.getBoundingClientRect(),nx=(x-r.left)/r.width,ny=(y-r.top)/r.height;return Math.pow((nx-.5)/.42,2)+Math.pow((ny-.56)/.44,2)<=1;}
+  if(appSettings.petForm === 'ai-drama')return isAiDramaPoint(x,y);
+  if(appSettings.petForm === '3d'){const r=sprite.getBoundingClientRect(),nx=(x-r.left)/r.width,ny=(y-r.top)/r.height;return Math.pow((nx-.5)/.42,2)+Math.pow((ny-.56)/.44,2)<=1;}
   const cell=stateCell[state]||stateCell.idle,canvas=spriteSheets[cell[0]],r=sprite.getBoundingClientRect();
   const nx=(x-r.left)/r.width,ny=(y-r.top)/r.height;
   if(nx<0||nx>1||ny<0||ny>1)return false;
@@ -217,6 +232,7 @@ window.addEventListener('blur',()=>{if(movingPetWindow){movingPetWindow=false;wi
 function setState(next, duration = 0) {
   state = next; pet.className = `pet ${next}`; clearTimeout(actionTimer);
   syncRealCutout();
+  syncAiDramaCutout();
   window.dispatchEvent(new CustomEvent('pet-state',{detail:next}));
   const names={idle:'正在陪伴',typing:'正在和你一起打字',loafing:'正在摸鱼',happy:'心情很好',stretch:'正在伸懒腰',groom:'正在理毛',look:'正在观察你',sleep:'正在睡觉',wheel:'正在跑跑轮'};
   window.petAPI.reportStatus(names[next]||'正在陪伴');
@@ -228,6 +244,21 @@ const realCutoutActions = {
   happy:['idle-b','groom-b'], stretch:['idle-b'], groom:['groom-a','groom-b'],
   look:['idle-a','idle-b'], sleep:['idle-a'], wheel:['groom-b']
 };
+const aiDramaActions={
+  idle:'idle-breathe/idle-breathe',typing:'happy/happy',loafing:'lie-down/lie-down',
+  happy:'happy/happy',stretch:'hop/hop',groom:'idle-breathe/idle-breathe',
+  look:'idle-breathe/idle-breathe',sleep:'sleep/sleep',wheel:'crawl/crawl',
+  crawl:'crawl/crawl',feeding:'happy/happy',preview:'idle-breathe/idle-breathe'
+};
+const aiDramaPreload=[...new Set(Object.values(aiDramaActions))].map(action=>{const image=new Image();image.src=`../assets/ai-drama-pet/${action}-v1.webp`;return image});
+let activeAiDrama='';
+function syncAiDramaCutout(force=false){
+  if(appSettings.petForm!=='ai-drama')return;
+  const action=aiDramaActions[state]||aiDramaActions.idle;
+  if(!force&&action===activeAiDrama)return;
+  activeAiDrama=action;
+  aiDramaCutout.src=`../assets/ai-drama-pet/${action}-v1.webp?play=${Date.now()}`;
+}
 const realCutoutNames = [...new Set(Object.values(realCutoutActions).flat())];
 const realCutoutPreload = realCutoutNames.map(action => {
   const image = new Image(); image.src = `../assets/videos/matted/${action}.webp`; return image;
@@ -254,18 +285,22 @@ function recoverRealCutout(){
     recoveryImage.src=resumedSource;
   },120);
 }
-window.addEventListener('blur',()=>{document.body.dataset.visualPaused='1';if(appSettings.petForm==='real')document.body.dataset.realPaused='1'});
+window.addEventListener('blur',()=>{document.body.dataset.visualPaused='1';if(appSettings.petForm==='real')document.body.dataset.realPaused='1';if(appSettings.petForm==='ai-drama')document.body.dataset.aiDramaPaused='1'});
 window.addEventListener('focus',()=>resumePetVisual());
 window.addEventListener('pageshow',recoverRealCutout);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)recoverRealCutout()});
 realCutout.addEventListener('error',()=>{if(appSettings.petForm==='real'&&!realRecoveryLoading){activeRealCutout='idle-a';setTimeout(recoverRealCutout,180)}});
 function resumePetVisual(){
-  if(!document.body.dataset.visualPaused&&!document.body.dataset.realPaused)return;
+  if(!document.body.dataset.visualPaused&&!document.body.dataset.realPaused&&!document.body.dataset.aiDramaPaused)return;
   delete document.body.dataset.visualPaused;
   if(appSettings.petForm==='real'){
     delete document.body.dataset.realPaused;
     realCutout.style.visibility='visible';
     recoverRealCutout();
+  }else if(appSettings.petForm==='ai-drama'){
+    delete document.body.dataset.aiDramaPaused;
+    aiDramaCutout.style.visibility='visible';
+    syncAiDramaCutout(true);
   }else{
     window.dispatchEvent(new Event('resize'));
     window.dispatchEvent(new CustomEvent('pet-3d-resume'));
@@ -397,7 +432,7 @@ sprite.addEventListener('pointermove', (event) => {
 });
 sprite.addEventListener('pointerdown', event => {
   if (event.button !== 0 || !isOpaqueHit(event)) return;
-  if (appSettings.petForm === 'real') return;
+  if (appSettings.petForm !== '3d') return;
   event.preventDefault(); event.stopPropagation();
   rotating3d = true; rotateMoved = false; rotateLastX = event.clientX; rotateLastY = event.clientY;
   sprite.setPointerCapture(event.pointerId);
@@ -440,14 +475,16 @@ window.petAPI.onScale((value) => {
 });
 function applySettings(next) {
   appSettings = { ...appSettings, ...next };
-  appSettings.petForm=appSettings.petForm==='real'?'real':'3d';
+  appSettings.petForm=['3d','ai-drama','real'].includes(appSettings.petForm)?appSettings.petForm:'3d';
   customCutoutActions=Object.fromEntries((appSettings.customActions||[]).map(action=>[action.id,action]));
   Object.values(customCutoutActions).forEach(action=>{const image=new Image();image.src=action.src});
   document.body.classList.toggle('mode-real', appSettings.petForm === 'real');
-  document.body.classList.toggle('mode-3d', appSettings.petForm !== 'real');
+  document.body.classList.toggle('mode-ai-drama', appSettings.petForm === 'ai-drama');
+  document.body.classList.toggle('mode-3d', appSettings.petForm === '3d');
   realCutout.style.visibility='visible';
   for (const video of Object.values(realVideos)) video.pause();
   if (appSettings.petForm === 'real') syncRealCutout(true);
+  if (appSettings.petForm === 'ai-drama') syncAiDramaCutout(true);
   const outfit = document.querySelector('#outfit');
   outfit.className = `outfit ${appSettings.outfit || 'none'}`;
 }
@@ -531,5 +568,5 @@ let closeArmedAt=0;
 closeButton.addEventListener('pointerdown',()=>{if(document.hasFocus())closeArmedAt=Date.now()});
 closeButton.addEventListener('click', (event) => { event.stopPropagation();if(document.hasFocus()&&Date.now()-closeArmedAt<900)window.petAPI.hide();closeArmedAt=0; });
 window.petAPI.setScale(scale);
-setTimeout(() => say(appSettings.petForm === 'real' ? '点我互动 · 拖动底部按钮移动 · 滚轮缩放' : '点我互动 · 按住鼠鼠拖动旋转 · 滚轮缩放', 3800), 450);
+setTimeout(() => say(appSettings.petForm === '3d' ? '点我互动 · 按住鼠鼠拖动旋转 · 滚轮缩放' : '点我互动 · 拖动底部按钮移动 · 滚轮缩放', 3800), 450);
 scheduleLife();

@@ -1,0 +1,45 @@
+{
+  "form": "ai-drama",
+  "displayName": {
+    "zh-CN": "AI漫剧形态",
+    "en": "AI Drama",
+    "es": "Drama IA"
+  },
+  "canvas": {
+    "width": 480,
+    "height": 480,
+    "transparent": true
+  },
+  "actions": {
+    "idle": {
+      "file": "idle-breathe/idle-breathe-v1.webp",
+      "loop": true,
+      "description": "呼吸、眨眼、轻微歪头"
+    },
+    "hop": {
+      "file": "hop/hop-v1.webp",
+      "loop": false,
+      "description": "下蹲、离地、腾空、落地"
+    },
+    "sleep": {
+      "file": "sleep/sleep-v1.webp",
+      "loop": true,
+      "description": "趴下、闭眼、睡眠呼吸与耳朵轻动"
+    },
+    "lieDown": {
+      "file": "lie-down/lie-down-v1.webp",
+      "loop": false,
+      "description": "降低身体、侧躺、放松、起身"
+    },
+    "happy": {
+      "file": "happy/happy-v1.webp",
+      "loop": false,
+      "description": "眼神变亮、微笑、开心拍爪"
+    },
+    "crawl": {
+      "file": "crawl/crawl-v1.webp",
+      "loop": true,
+      "description": "右向低趴四足爬行循环"
+    }
+  }
+}
