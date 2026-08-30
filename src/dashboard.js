@@ -165,3 +165,14 @@ $('#feedbackForm').onsubmit=async e=>{e.preventDefault();const payload=feedbackP
 window.petAPI.getSettings().then(()=>restoreFeedbackDraft());
 Object.assign(exactUiText.en,{'反馈':'Feedback','问题反馈':'Feedback','告诉我们哪里需要改进':'Tell us what we can improve','查看公开反馈 ↗':'View public feedback ↗','反馈类型':'Feedback type','功能异常':'Bug','使用建议':'Suggestion','界面问题':'Interface issue','其他':'Other','问题描述':'Description','请描述你遇到的问题，以及你希望看到的效果……':'Describe what happened and what you expected…','联系方式（选填）':'Contact (optional)','邮箱或其他联系方式':'Email or another contact method','添加截图或视频':'Add screenshots or video','附件不会自动上传，请在打开的 GitHub 页面中确认后添加':'Attachments are not uploaded automatically. Add them on the GitHub page.','选择附件':'Choose files','填写问题描述后即可提交':'Add a description to submit','保存草稿':'Save draft','提交反馈':'Submit feedback'});
 Object.assign(exactUiText.es,{'反馈':'Comentarios','问题反馈':'Comentarios','告诉我们哪里需要改进':'Dinos qué podemos mejorar','查看公开反馈 ↗':'Ver comentarios públicos ↗','反馈类型':'Tipo de comentario','功能异常':'Error','使用建议':'Sugerencia','界面问题':'Problema de interfaz','其他':'Otro','问题描述':'Descripción','请描述你遇到的问题，以及你希望看到的效果……':'Describe lo ocurrido y el resultado esperado…','联系方式（选填）':'Contacto (opcional)','邮箱或其他联系方式':'Correo u otro medio de contacto','添加截图或视频':'Añadir capturas o vídeo','附件不会自动上传，请在打开的 GitHub 页面中确认后添加':'Los archivos no se suben automáticamente. Añádelos en GitHub.','选择附件':'Elegir archivos','填写问题描述后即可提交':'Añade una descripción para enviar','保存草稿':'Guardar borrador','提交反馈':'Enviar comentario'});
+
+/* v18: multilingual local-chat prompts */
+const localChatSuggestions={
+  zh:{title:'可以问鼠鼠',items:['你今天心情怎么样？','你饿了吗？','你最喜欢吃什么？','你在做什么？','你什么时候生日？','你为什么喜欢跑轮？','可以陪我一会儿吗？','我今天很累，安慰我一下']},
+  en:{title:'Ask Hamster',items:['How are you feeling today?','Are you hungry?','What is your favorite food?','What are you doing?','When is your birthday?','Why do you like your wheel?','Can you stay with me?','I had a hard day. Can you comfort me?']},
+  es:{title:'Pregunta a Hámster',items:['¿Cómo te sientes hoy?','¿Tienes hambre?','¿Cuál es tu comida favorita?','¿Qué estás haciendo?','¿Cuándo es tu cumpleaños?','¿Por qué te gusta la rueda?','¿Puedes acompañarme?','Tuve un día difícil. ¿Puedes animarme?']}
+};
+function renderChatSuggestions(){const root=$('#chatSuggestions');if(!root||!settings)return;const copy=localChatSuggestions[settings.interfaceLanguage||'zh']||localChatSuggestions.zh;root.querySelector('b').textContent=copy.title;root.querySelector('div').innerHTML=copy.items.map(question=>`<button type="button" data-chat-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`).join('')}
+$('#chatSuggestions').onclick=e=>{const button=e.target.closest('[data-chat-question]');if(!button)return;$('#chatInput').value=button.dataset.chatQuestion;sendChat()};
+const applyLanguageWithSuggestions=applyLanguage;
+applyLanguage=function(){applyLanguageWithSuggestions();renderChatSuggestions()};

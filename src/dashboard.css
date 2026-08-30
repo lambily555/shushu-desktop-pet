@@ -143,6 +143,7 @@ header:after{color:#8380a553}.live{background:#e2f3ea;color:#56816f}.live i{back
 .ai-chat .chat-compose textarea,.ai-chat .ai-settings input{background:#fff!important;border-color:#cfd9e5!important;color:#4e5968!important}
 .ai-chat #sendChat,.ai-chat #saveAI{background:linear-gradient(135deg,#8d82b8,#709db8)!important;color:#fff!important}
 .ai-chat #clearChat{background:#fff!important;border-color:#cfd7e5!important;color:#706897!important}
+.chat-suggestions{margin:4px 2px 12px}.chat-suggestions>b{display:block;margin-bottom:7px;color:#697587;font-size:10px}.chat-suggestions>div{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 6px;scrollbar-width:none}.chat-suggestions>div::-webkit-scrollbar{display:none}.chat-suggestions button{flex:0 0 auto;max-width:230px;padding:7px 11px;border:1px solid #d7ddeb;border-radius:999px;background:rgba(255,255,255,.8);color:#66617d;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}.chat-suggestions button:hover{background:#ebe8f5;border-color:#c7c1dc;transform:translateY(-1px)}.ai-chat:has([data-chat-mode="ai"].active) .chat-suggestions{display:none}
 
 /* Action library */
 .action-library.card{background:linear-gradient(145deg,#f9f8ff,#f1f7f8)!important;border-color:#d5dce8!important}
