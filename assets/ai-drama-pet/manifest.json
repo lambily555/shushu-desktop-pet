@@ -12,34 +12,39 @@
   },
   "actions": {
     "idle": {
-      "file": "idle-breathe/idle-breathe-v1.webp",
+      "file": "idle-breathe/idle-breathe-v2.webp",
       "loop": true,
       "description": "呼吸、眨眼、轻微歪头"
     },
-    "hop": {
-      "file": "hop/hop-v1.webp",
+    "happy": {
+      "file": "happy/happy-v2.webp",
       "loop": false,
-      "description": "下蹲、离地、腾空、落地"
+      "description": "直立观察、开心互动"
     },
     "sleep": {
-      "file": "sleep/sleep-v1.webp",
+      "file": "sleep/sleep-v2.webp",
       "loop": true,
       "description": "趴下、闭眼、睡眠呼吸与耳朵轻动"
     },
     "lieDown": {
-      "file": "lie-down/lie-down-v1.webp",
+      "file": "lie-down/lie-down-v2.webp",
       "loop": false,
       "description": "降低身体、侧躺、放松、起身"
     },
-    "happy": {
-      "file": "happy/happy-v1.webp",
-      "loop": false,
-      "description": "眼神变亮、微笑、开心拍爪"
-    },
     "crawl": {
-      "file": "crawl/crawl-v1.webp",
+      "file": "crawl/crawl-v2.webp",
       "loop": true,
-      "description": "右向低趴四足爬行循环"
+      "description": "趴卧、爬行与轻微探视"
+    },
+    "feeding": {
+      "file": "feeding/feeding-v2.webp",
+      "loop": false,
+      "description": "进食后掉进食盆，保留食盆互动"
+    },
+    "wheel": {
+      "file": "wheel/wheel-smooth-v1.webp",
+      "loop": true,
+      "description": "流畅跑轮动作"
     }
   }
 }

@@ -245,12 +245,12 @@ const realCutoutActions = {
   look:['idle-a','idle-b'], sleep:['idle-a'], wheel:['groom-b']
 };
 const aiDramaActions={
-  idle:'idle-breathe/idle-breathe',typing:'happy/happy',loafing:'lie-down/lie-down',
-  happy:'happy/happy',stretch:'hop/hop',groom:'idle-breathe/idle-breathe',
-  look:'idle-breathe/idle-breathe',sleep:'sleep/sleep',wheel:'wheel/wheel-smooth',
-  crawl:'crawl/crawl',feeding:'happy/happy',preview:'idle-breathe/idle-breathe'
+  idle:'idle-breathe/idle-breathe-v2',typing:'happy/happy-v2',loafing:'lie-down/lie-down-v2',
+  happy:'happy/happy-v2',stretch:'happy/happy-v2',groom:'idle-breathe/idle-breathe-v2',
+  look:'idle-breathe/idle-breathe-v2',sleep:'sleep/sleep-v2',wheel:'wheel/wheel-smooth-v1',
+  crawl:'crawl/crawl-v2',feeding:'feeding/feeding-v2',preview:'idle-breathe/idle-breathe-v2'
 };
-const aiDramaSource=action=>`../assets/ai-drama-pet/${action}-v1.webp`;
+const aiDramaSource=action=>`../assets/ai-drama-pet/${action}.webp`;
 const aiDramaPreload=[...new Set(Object.values(aiDramaActions))].map(action=>{const image=new Image();image.src=aiDramaSource(action);return image});
 let activeAiDrama='';
 function syncAiDramaCutout(force=false){
