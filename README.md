@@ -1,8 +1,8 @@
 # 鼠鼠桌面小宠
 
-一只会在 Windows 桌面陪伴你的小仓鼠。它能回应点击和键盘输入，在 3D、真实动态与 AI 漫剧三种形态之间切换，还能跑跑轮、接受投喂、换装、说话，并记录每日互动日记。
+一只会在 Windows 桌面陪伴你的小仓鼠。它能回应点击和键盘输入，在 3D、真实动态与仿真形态之间切换，还能跑跑轮、接受投喂、换装、说话，并记录每日互动日记。
 
-A Windows desktop hamster companion with interactive 3D, real-motion, and AI Drama forms, feeding, outfits, dialogue, a running wheel, and daily journals.
+A Windows desktop hamster companion with interactive 3D, real-motion, and lifelike forms, feeding, outfits, dialogue, a running wheel, and daily journals.
 
 ## 主页展示 / Home Preview
 
@@ -13,18 +13,18 @@ A Windows desktop hamster companion with interactive 3D, real-motion, and AI Dra
 - 透明桌面小宠窗口与系统托盘
 - 点击、键盘输入和闲置状态反馈
 - 真实动态动作库与自定义动作导入
-- 可在可旋转的 CC0 3D 模型、真实动态和 AI 漫剧三种形态间切换
-- AI 漫剧形态包含待机呼吸、蹦跳、睡眠、侧躺、开心和爬行六套透明动画
+- 可在可旋转的 CC0 3D 模型、真实动态和仿真形态之间切换
+- 仿真形态包含待机呼吸、打字、睡眠、侧躺、开心、爬行、进食和跑轮等透明动画
 - 菜叶、面包虫、小饼干、营养糊糊投喂互动
 - 跑轮、装扮、自定义对话和开心叫声
 - 每日互动统计和小鼠日记
 - 大小调节、位置拖动与开机后的快捷启动
 
-## AI Drama Form / AI 漫剧形态
+## Lifelike Form / 仿真形态
 
-The AI Drama form includes six transparent animations: idle breathing, hopping, sleeping, lying down, happiness, and crawling. Only the final runtime WebP files and manifest are published; source photos, frame projects, generation sheets, and test captures remain private.
+The lifelike form includes transparent animations for idle breathing, typing, sleeping, lying down, happiness, crawling, feeding, and running on the wheel. Only final runtime WebP files and the manifest are published; source videos, frame projects, generation sheets, and test captures remain private.
 
-AI 漫剧形态包含待机呼吸、蹦跳、睡眠、侧躺、开心和爬行六套透明动画。公开仓库只提供运行所需的最终 WebP 与动作清单，原始照片、逐帧工程、生成母版和测试截图不会公开。
+仿真形态包含待机呼吸、打字、睡眠、侧躺、开心、爬行、进食和跑轮等透明动画。公开仓库只提供运行所需的最终 WebP 与动作清单，原始视频、逐帧工程、生成母版和测试截图不会公开。
 
 ## 快速开始
 

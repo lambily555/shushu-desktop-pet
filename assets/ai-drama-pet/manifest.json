@@ -1,9 +1,9 @@
 {
   "form": "ai-drama",
   "displayName": {
-    "zh-CN": "AI漫剧形态",
-    "en": "AI Drama",
-    "es": "Drama IA"
+    "zh-CN": "仿真形态",
+    "en": "Lifelike form",
+    "es": "Forma realista"
   },
   "canvas": {
     "width": 480,
