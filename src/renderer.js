@@ -7,6 +7,7 @@ const realVideoCanvas = document.querySelector('#realVideo');
 const realVideoContext = realVideoCanvas.getContext('2d');
 const realCutout = document.querySelector('#realCutout');
 const aiDramaCutout = document.querySelector('#aiDramaCutout');
+const aiDramaPawOverlay = document.querySelector('#aiDramaPawOverlay');
 const foodProp = document.querySelector('#foodProp');
 const foodCanvas = document.querySelector('#foodCanvas');
 const foodCrumbs = document.querySelector('#foodCrumbs');
@@ -62,7 +63,8 @@ function animateFoodBeingEaten(food,portion=1){
     setTimeout(bite,420);
   };
   image.onerror=()=>{if(token===feedingAnimationToken){foodCanvas.className='food-canvas';foodProp.src=image.src;foodProp.className=`food-prop show ${food}`}};
-  image.src=`../assets/foods/${food}.png`;
+  const foodFolder=appSettings.petForm==='ai-drama'?'simulation/':'';
+  image.src=`../assets/foods/${foodFolder}${food}.png`;
 }
 const realHitCanvas = document.createElement('canvas');
 realHitCanvas.width = 290; realHitCanvas.height = 290;
@@ -248,7 +250,7 @@ const aiDramaActions={
   idle:'idle-breathe/idle-breathe-v2',typing:'typing/typing-v2',loafing:'lie-down/lie-down-v2',
   happy:'happy/happy-v2',stretch:'happy/happy-v2',groom:'idle-breathe/idle-breathe-v2',
   look:'idle-breathe/idle-breathe-v2',sleep:'sleep/sleep-v2',wheel:'wheel/wheel-smooth-v1',
-  crawl:'crawl/crawl-v2',feeding:'feeding/feeding-v2',preview:'idle-breathe/idle-breathe-v2'
+  crawl:'crawl/crawl-v2',feeding:'feeding/feeding-v2','feeding-held':'idle-breathe/idle-breathe-v2',preview:'idle-breathe/idle-breathe-v2'
 };
 const aiDramaSource=action=>`../assets/ai-drama-pet/${action}.webp`;
 const aiDramaPreload=[...new Set(Object.values(aiDramaActions))].map(action=>{const image=new Image();image.src=aiDramaSource(action);return image});
@@ -258,7 +260,9 @@ function syncAiDramaCutout(force=false){
   const action=aiDramaActions[state]||aiDramaActions.idle;
   if(!force&&action===activeAiDrama)return;
   activeAiDrama=action;
-  aiDramaCutout.src=`${aiDramaSource(action)}?play=${Date.now()}`;
+  const source=`${aiDramaSource(action)}?play=${Date.now()}`;
+  aiDramaCutout.src=source;
+  aiDramaPawOverlay.src=source;
 }
 const realCutoutNames = [...new Set(Object.values(realCutoutActions).flat())];
 const realCutoutPreload = realCutoutNames.map(action => {
@@ -547,7 +551,28 @@ async function playHappySound(){
 }
 window.petAPI.getSettings().then(applySettings);
 window.petAPI.onSettings(applySettings);
-window.petAPI.onFed((payload)=>{const food=typeof payload==='string'?payload:payload?.food,portion=typeof payload==='object'?payload.portion||1:1,names={leaf:'菜叶',worm:'面包虫',cookie:'小饼干',paste:'营养糊糊'};setState('feeding');pet.classList.add(`feeding-${food}`);animateFoodBeingEaten(food,portion);if(appSettings.petForm==='real'){activeRealCutout='eat-a';realCutout.src=cutoutSource('eat-a')}const eatingLines={leaf:'我抱好啦，咔嚓咔嚓慢慢吃～',worm:'是面包虫！我要从这一头慢慢吃～',cookie:'小饼干脆脆的，我一口一口啃～',paste:'营养糊糊软软的，我慢慢舔干净～'};say(eatingLines[food]||`谢谢！${names[food]||'好吃的'}真香～`,4200);playHappySound();clearTimeout(actionTimer);actionTimer=setTimeout(()=>{feedingAnimationToken++;foodProp.className='food-prop';foodCanvas.className='food-canvas';foodCrumbs.className='food-crumbs';foodCrumbs.replaceChildren();setState(idleSeconds>25?'sleep':'idle')},5100+portion*520)});
+window.petAPI.onFed((payload)=>{
+  const food=typeof payload==='string'?payload:payload?.food;
+  const portion=typeof payload==='object'?payload.portion||1:1;
+  const names={leaf:'菜叶',worm:'面包虫',cookie:'小饼干',paste:'营养糊糊'};
+  const heldBySimulation=appSettings.petForm==='ai-drama';
+  setState(heldBySimulation?'feeding-held':'feeding');
+  pet.classList.add(`feeding-${food}`);
+  animateFoodBeingEaten(food,portion);
+  if(appSettings.petForm==='real'){activeRealCutout='eat-a';realCutout.src=cutoutSource('eat-a')}
+  const eatingLines={leaf:'我抱好啦，咔嚓咔嚓慢慢吃～',worm:'是面包虫！我要从这一头慢慢吃～',cookie:'小饼干脆脆的，我一口一口啃～',paste:'营养糊糊软软的，我慢慢舔干净～'};
+  say(eatingLines[food]||`谢谢！${names[food]||'好吃的'}真香～`,4200);
+  playHappySound();
+  clearTimeout(actionTimer);
+  actionTimer=setTimeout(()=>{
+    feedingAnimationToken++;
+    foodProp.className='food-prop';
+    foodCanvas.className='food-canvas';
+    foodCrumbs.className='food-crumbs';
+    foodCrumbs.replaceChildren();
+    setState(idleSeconds>25?'sleep':'idle');
+  },5100+portion*520);
+});
 window.petAPI.onPetCommand(command=>{
   if(command==='visual-resume'){resumePetVisual();return}
   if(command==='pet'){happyInteraction();return}

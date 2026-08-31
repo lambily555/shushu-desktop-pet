@@ -9,11 +9,18 @@ body { -webkit-app-region:no-drag; }
 #realVideo{display:none;position:absolute;left:5px;bottom:15px;width:290px;height:290px;z-index:3;pointer-events:none;filter:drop-shadow(0 12px 9px rgba(42,30,24,.28));transform-origin:50% 82%}
 #realCutout{display:none;position:absolute;left:5px;bottom:15px;width:290px;height:290px;object-fit:contain;z-index:3;pointer-events:none;filter:drop-shadow(0 10px 8px rgba(42,30,24,.22));transform-origin:50% 82%;will-change:transform;image-rendering:auto}
 #aiDramaCutout{display:none;position:absolute;left:5px;bottom:15px;width:290px;height:290px;object-fit:contain;z-index:3;pointer-events:none;filter:drop-shadow(0 11px 8px rgba(42,30,24,.24));transform-origin:50% 82%;will-change:transform;image-rendering:auto}
+#aiDramaPawOverlay{display:none;position:absolute;left:5px;bottom:15px;width:290px;height:290px;object-fit:contain;z-index:8;pointer-events:none;transform-origin:50% 82%;will-change:transform;image-rendering:auto;mask-image:radial-gradient(ellipse 12% 9% at 41% 66%,#000 56%,transparent 72%),radial-gradient(ellipse 12% 9% at 59% 66%,#000 56%,transparent 72%);-webkit-mask-image:radial-gradient(ellipse 12% 9% at 41% 66%,#000 56%,transparent 72%),radial-gradient(ellipse 12% 9% at 59% 66%,#000 56%,transparent 72%)}
 .food-prop{display:none;position:absolute;z-index:6;left:117px;bottom:69px;width:76px;height:76px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 3px rgba(48,31,19,.28));transform-origin:50% 78%}.food-prop.show{display:block}
 .food-canvas{display:none;position:absolute;z-index:7;width:98px;height:98px;left:101px;bottom:112px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(48,31,19,.3));transform-origin:50% 18%}.food-canvas.show{display:block;animation:foodArrive .42s ease-out both}.food-canvas.leaf{width:104px;height:122px;left:98px;bottom:91px}.food-canvas.worm{width:94px;height:64px;left:103px;bottom:127px}.food-canvas.cookie{width:72px;height:72px;left:114px;bottom:119px}.food-canvas.paste{width:68px;height:68px;left:116px;bottom:122px}.food-canvas.bite-pulse{animation:nibbleTug .16s ease-in-out}
 .food-crumbs{display:none;position:absolute;z-index:8;left:102px;bottom:95px;width:96px;height:130px;pointer-events:none}.food-crumbs.show{display:block}.food-crumbs i{position:absolute;border-radius:55% 45% 60% 40%;box-shadow:0 1px 1px #38271f24;animation:crumbFall .78s cubic-bezier(.25,.5,.45,1) forwards}
 body.mode-real .food-canvas{bottom:116px}body.mode-real .food-canvas.leaf{bottom:95px}body.mode-real .food-canvas.worm{bottom:131px}body.mode-real .food-canvas.cookie{bottom:123px}body.mode-real .food-canvas.paste{bottom:126px}
-.feeding #realCutout,.feeding #aiDramaCutout{animation:feedingBob .28s ease-in-out infinite alternate!important}.feeding #hamster3d{animation:feedingBob .28s ease-in-out infinite alternate}.feeding .outfit{display:none!important}
+.feeding #realCutout,.feeding #aiDramaCutout,.feeding-held #aiDramaCutout{animation:feedingBob .28s ease-in-out infinite alternate!important}.feeding #hamster3d{animation:feedingBob .28s ease-in-out infinite alternate}.feeding .outfit,.feeding-held .outfit{display:none!important}
+body.mode-ai-drama .feeding-held .food-canvas{z-index:6;filter:drop-shadow(0 2px 2px rgba(48,31,19,.22));transform-origin:50% 82%}
+body.mode-ai-drama .feeding-held .food-canvas.leaf{width:82px;height:128px;left:109px;bottom:64px}
+body.mode-ai-drama .feeding-held .food-canvas.worm{width:76px;height:92px;left:112px;bottom:75px}
+body.mode-ai-drama .feeding-held .food-canvas.cookie{width:72px;height:100px;left:114px;bottom:67px}
+body.mode-ai-drama .feeding-held .food-canvas.paste{width:66px;height:110px;left:117px;bottom:65px}
+body.mode-ai-drama .feeding-held .food-crumbs{left:111px;bottom:98px;width:78px;height:116px}
 @keyframes foodArrive{0%{opacity:0;transform:translateY(16px) rotate(-9deg)}100%{opacity:1;transform:translateY(0) rotate(-4deg)}}@keyframes nibbleTug{0%,100%{transform:translate(0) rotate(-4deg)}50%{transform:translate(1px,-7px) rotate(-6deg)}}@keyframes crumbFall{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:.9}100%{opacity:0;transform:translate(var(--crumb-x),58px) rotate(var(--crumb-r))}}@keyframes feedingBob{from{transform:translateY(0) rotate(-.5deg)}to{transform:translateY(2px) rotate(.5deg)}}
 .sprite { position:absolute; left:5px; bottom:15px; width:290px; height:290px; cursor:pointer; background:none!important; z-index:4; transform-origin:50% 82%; }
 body.mode-real #hamster3d{display:none}
@@ -25,6 +32,7 @@ body.mode-real .wheelProp{display:none!important}
 body.mode-3d #hamster3d{display:block}
 body.mode-ai-drama #hamster3d,body.mode-ai-drama #realVideo,body.mode-ai-drama #realCutout{display:none}
 body.mode-ai-drama #aiDramaCutout{display:block}
+body.mode-ai-drama .feeding-held #aiDramaPawOverlay{display:block;animation:feedingBob .28s ease-in-out infinite alternate!important}
 body.mode-ai-drama .sprite{background:none!important;filter:none!important;animation:none!important}
 body.mode-ai-drama .outfit{display:none!important}
 body.mode-ai-drama .actor.face-left #aiDramaCutout{transform:scaleX(-1)}
