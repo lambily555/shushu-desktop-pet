@@ -493,13 +493,9 @@ function applySettings(next) {
 }
 let happyAudioBuffer;
 let happyAudioContext;
-const realHamsterClickAudio=new Audio('../assets/audio/hamster-happy.mp3');
-realHamsterClickAudio.preload='auto';
 function playRealHamsterSound(){
   if(!appSettings.soundEnabled)return;
-  const clip=realHamsterClickAudio.cloneNode();
-  clip.volume=1;
-  clip.play().catch(()=>playHappySound());
+  playHappySound();
 }
 async function cleanHappyBuffer(input){
   const gated=new AudioBuffer({length:input.length,numberOfChannels:input.numberOfChannels,sampleRate:input.sampleRate});
@@ -531,8 +527,8 @@ async function playHappySound(){
     const compressor=happyAudioContext.createDynamicsCompressor();
     const now=happyAudioContext.currentTime;
     const duration=Math.min(4.5,happyAudioBuffer.duration);
-    gain.gain.setValueAtTime(1.65,now);
-    gain.gain.setValueAtTime(1.65,now+Math.max(0,duration-.3));
+    gain.gain.setValueAtTime(2.35,now);
+    gain.gain.setValueAtTime(2.35,now+Math.max(0,duration-.3));
     gain.gain.linearRampToValueAtTime(0.001,now+duration);
     compressor.threshold.value=-10;
     compressor.knee.value=10;
