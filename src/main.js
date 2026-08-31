@@ -218,10 +218,6 @@ function createWindow() {
       await win.webContents.executeJavaScript(`if(typeof setState==='function')setState(${JSON.stringify(process.env.PET_CAPTURE_STATE)});window.dispatchEvent(new CustomEvent('pet-state',{detail:${JSON.stringify(process.env.PET_CAPTURE_STATE)}}))`);
       await new Promise(resolve => setTimeout(resolve, 900));
     }
-    if (process.env.PET_CAPTURE_FOOD) {
-      await win.webContents.executeJavaScript(`if(typeof animateFoodBeingEaten==='function')animateFoodBeingEaten(${JSON.stringify(process.env.PET_CAPTURE_FOOD)},1)`);
-      await new Promise(resolve => setTimeout(resolve, 760));
-    }
     const image = await win.webContents.capturePage();
     fs.writeFileSync(process.env.PET_CAPTURE_PATH, image.toPNG());
     app.quit();
