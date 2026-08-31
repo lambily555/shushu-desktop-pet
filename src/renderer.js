@@ -554,6 +554,18 @@ window.petAPI.onPetCommand(command=>{
     return;
   }
   if(command?.startsWith('say:')){say(command.slice(4),Math.max(3200,Math.min(9000,command.length*95)));return}
+  if(command?.startsWith('motion:')){
+    const [,form,action]=command.split(':');
+    if(form!==appSettings.petForm)return;
+    if(form==='real'){
+      if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
+      clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;realCutout.src=cutoutSource(action);
+      actionTimer=setTimeout(()=>setState('idle'),4500);return;
+    }
+    const allowed=form==='ai-drama'?['idle','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
+    if(!allowed.includes(action))return;
+    idleAdventure=false;window.petAPI.wanderStop();setState(action,action==='wheel'?12000:action==='feeding'?6200:5200);return;
+  }
   if(command?.startsWith('action:')){
     const action=command.slice(7);
     if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
