@@ -16,6 +16,11 @@
       "loop": true,
       "description": "呼吸、眨眼、轻微歪头"
     },
+    "typing": {
+      "file": "typing/typing-v2.webp",
+      "loop": true,
+      "description": "抱着小键盘，在用户输入时自动触发"
+    },
     "happy": {
       "file": "happy/happy-v2.webp",
       "loop": false,

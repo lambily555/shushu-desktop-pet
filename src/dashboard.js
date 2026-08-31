@@ -66,7 +66,7 @@ const formActionLibrary={
     {id:'wheel',icon:'◎',name:'跑跑轮',desc:'立即开始跑轮运动'}
   ],
   'ai-drama':[
-    {id:'idle',icon:'🐹',name:'站立观察',desc:'流畅站立并观察周围'},{id:'happy',icon:'💗',name:'开心互动',desc:'抬头靠近并开心回应'},
+    {id:'idle',icon:'🐹',name:'站立观察',desc:'流畅站立并观察周围'},{id:'typing',icon:'⌨',name:'陪你打字',desc:'抱着小键盘跟随主人输入'},{id:'happy',icon:'💗',name:'开心互动',desc:'抬头靠近并开心回应'},
     {id:'loafing',icon:'☁',name:'侧躺休息',desc:'在柔软垫面上放松躺下'},{id:'sleep',icon:'🌙',name:'仰睡做梦',desc:'翻着肚皮安心睡觉'},
     {id:'crawl',icon:'↝',name:'趴卧爬行',desc:'贴着垫面缓慢探索'},{id:'feeding',icon:'🥣',name:'掉进食盆',desc:'吃着吃着掉进食盆，食盆完整保留'},
     {id:'wheel',icon:'◎',name:'流畅跑轮',desc:'连续播放高帧率跑轮动作'}
@@ -149,6 +149,8 @@ Object.assign(exactUiText.es,{'AI 漫剧':'Drama IA','AI 漫剧形态':'Forma Dr
 Object.assign(exactUiText.en,{'安静陪伴':'Quiet company','自然呼吸并安静待在桌面':'Breathes naturally and stays quietly on the desktop','开心回应':'Happy response','开心地回应主人的互动':'Responds happily to your interaction','伸懒腰':'Stretch','舒展身体恢复精神':'Stretches to feel refreshed','整理毛发':'Groom','认真清洁自己的毛发':'Carefully cleans its fur','四处观察':'Look around','好奇地看看桌面周围':'Curiously observes the desktop','安心睡觉':'Sleep','趴下来进入睡眠状态':'Lies down and falls asleep','跑跑轮':'Run on wheel','立即开始跑轮运动':'Starts running on the wheel','站立观察':'Stand and observe','流畅站立并观察周围':'Stands smoothly and looks around','开心互动':'Happy interaction','抬头靠近并开心回应':'Looks up and comes closer happily','侧躺休息':'Lie down','在柔软垫面上放松躺下':'Relaxes on a soft surface','仰睡做梦':'Dreaming sleep','翻着肚皮安心睡觉':'Sleeps peacefully on its back','趴卧爬行':'Crawl','贴着垫面缓慢探索':'Explores slowly along the surface','掉进食盆':'Fall into bowl','吃着吃着掉进食盆，食盆完整保留':'Falls into the bowl while eating, with the bowl preserved','流畅跑轮':'Smooth wheel run','连续播放高帧率跑轮动作':'Plays the high-frame-rate wheel action'});
 Object.assign(exactUiText.es,{'安静陪伴':'Compañía tranquila','自然呼吸并安静待在桌面':'Respira con naturalidad y permanece tranquilo','开心回应':'Respuesta alegre','开心地回应主人的互动':'Responde con alegría a tu interacción','伸懒腰':'Estirarse','舒展身体恢复精神':'Se estira para recuperar energía','整理毛发':'Asearse','认真清洁自己的毛发':'Limpia cuidadosamente su pelaje','四处观察':'Mirar alrededor','Observa el escritorio con curiosidad':'Observa el escritorio con curiosidad','安心睡觉':'Dormir','趴下来进入睡眠状态':'Se tumba y se duerme','跑跑轮':'Correr en la rueda','立即开始跑轮运动':'Empieza a correr en la rueda','站立观察':'Observar de pie','流畅站立并观察周围':'Se pone de pie y mira alrededor','开心互动':'Interacción alegre','抬头靠近并开心回应':'Levanta la cabeza y se acerca feliz','侧躺休息':'Descansar tumbado','在柔软垫面上放松躺下':'Se relaja sobre una superficie suave','仰睡做梦':'Dormir y soñar','翻着肚皮安心睡觉':'Duerme tranquilamente boca arriba','趴卧爬行':'Gatear','贴着垫面缓慢探索':'Explora lentamente sobre la superficie','掉进食盆':'Caer en el cuenco','吃着吃着掉进食盆，食盆完整保留':'Cae en el cuenco mientras come y el cuenco se conserva','流畅跑轮':'Carrera fluida','连续播放高帧率跑轮动作':'Reproduce la acción fluida de la rueda'});
 exactUiText.en['▶ 预览']='▶ Preview';
+Object.assign(exactUiText.en,{'陪你打字':'Type with you','抱着小键盘跟随主人输入':'Holds a tiny keyboard and types along with you'});
+Object.assign(exactUiText.es,{'陪你打字':'Escribir contigo','抱着小键盘跟随主人输入':'Sostiene un pequeño teclado y escribe contigo'});
 exactUiText.es['好奇地看看桌面周围']='Observa el escritorio con curiosidad';
 exactUiText.es['▶ 预览']='▶ Vista previa';
 exactUiText.en['鼠标移动特效']='Pointer move effect';

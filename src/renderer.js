@@ -245,7 +245,7 @@ const realCutoutActions = {
   look:['idle-a','idle-b'], sleep:['idle-a'], wheel:['groom-b']
 };
 const aiDramaActions={
-  idle:'idle-breathe/idle-breathe-v2',typing:'happy/happy-v2',loafing:'lie-down/lie-down-v2',
+  idle:'idle-breathe/idle-breathe-v2',typing:'typing/typing-v2',loafing:'lie-down/lie-down-v2',
   happy:'happy/happy-v2',stretch:'happy/happy-v2',groom:'idle-breathe/idle-breathe-v2',
   look:'idle-breathe/idle-breathe-v2',sleep:'sleep/sleep-v2',wheel:'wheel/wheel-smooth-v1',
   crawl:'crawl/crawl-v2',feeding:'feeding/feeding-v2',preview:'idle-breathe/idle-breathe-v2'
@@ -562,7 +562,7 @@ window.petAPI.onPetCommand(command=>{
       clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;realCutout.src=cutoutSource(action);
       actionTimer=setTimeout(()=>setState('idle'),4500);return;
     }
-    const allowed=form==='ai-drama'?['idle','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
+    const allowed=form==='ai-drama'?['idle','typing','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
     if(!allowed.includes(action))return;
     idleAdventure=false;window.petAPI.wanderStop();setState(action,action==='wheel'?12000:action==='feeding'?6200:5200);return;
   }
