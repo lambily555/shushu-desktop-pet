@@ -452,7 +452,7 @@ function happyInteraction(){
   window.petAPI.recordActivity('interaction');
   const pool = [...lines, ...(appSettings.customLines || [])];
   say(clicks % 5 === 0 ? '好感度 +1 ♥' : pool[(clicks - 1) % pool.length]);
-  if(appSettings.petForm==='ai-drama')playRealHamsterSound();else playHappySound();
+  playRealHamsterSound();
 }
 sprite.addEventListener('click', (event) => {
   if (!isOpaqueHit(event)) return;
