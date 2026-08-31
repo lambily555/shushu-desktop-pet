@@ -93,7 +93,7 @@ window.addEventListener('error',event=>{bubble.textContent=`3D错误：${event.m
 window.addEventListener('unhandledrejection',event=>{bubble.textContent=`3D错误：${event.reason?.message||event.reason}`;bubble.classList.add('show')});
 let typingTimer, actionTimer, bubbleTimer, pointerDown, movePending = false;
 let rotating3d = false, rotateLastX = 0, rotateLastY = 0, rotateMoved = false;
-let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false, manualWheelUntil = 0;
+let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false, manualWheelUntil = 0, manualActionUntil = 0;
 let idleAdventure = false;
 let lastAdventure = 0;
 let scale = Number(localStorage.getItem('petScale') || 1);
@@ -382,6 +382,7 @@ function say(text, duration = 1900) {
 function keyboardActivity() {
   idleSeconds = 0;
   if (idleAdventure) { idleAdventure = false; window.petAPI.wanderStop(); }
+  if (Date.now() < manualActionUntil) return;
   if (Date.now() < manualWheelUntil) return;
   if (!appSettings.keyboardReaction) return;
   if (state === 'happy' || pointerDown) return; setState('typing'); clearTimeout(typingTimer);
@@ -392,6 +393,7 @@ window.petAPI.onKeyboard(keyboardActivity);
 window.petAPI.onIdle((seconds) => {
   idleSeconds = seconds;
   if (pointerDown) return;
+  if (Date.now() < manualActionUntil) return;
   if (Date.now() < manualWheelUntil) return;
   if (appSettings.idleWheel && seconds > appSettings.idleDelay && !idleAdventure && Date.now() - lastAdventure > 45000) {
     idleAdventure = true;
@@ -411,7 +413,7 @@ window.petAPI.onIdle((seconds) => {
 });
 function scheduleLife() {
   setTimeout(() => {
-    if (Date.now() >= manualWheelUntil && !pointerDown && idleSeconds < 16 && !['typing', 'happy', 'wheel'].includes(state)) {
+    if (Date.now() >= manualWheelUntil && Date.now() >= manualActionUntil && !pointerDown && idleSeconds < 16 && !['typing', 'happy', 'wheel'].includes(state)) {
       const next = randomActions[Math.floor(Math.random() * randomActions.length)];
       setState(next, next === 'stretch' ? 1900 : 2400);
       if (appSettings.randomTalk && Math.random() < .2) say(daydreams[Math.floor(Math.random() * daydreams.length)], 1500);
@@ -446,11 +448,11 @@ sprite.addEventListener('pointerup', event => {
 sprite.addEventListener('pointercancel', () => { rotating3d = false; });
 sprite.addEventListener('contextmenu', event => event.preventDefault());
 function happyInteraction(){
-  clicks += 1; idleSeconds = 0; setState('happy', 1500);
+  clicks += 1; idleSeconds = 0; manualActionUntil=0; setState('happy', 1500);
   window.petAPI.recordActivity('interaction');
   const pool = [...lines, ...(appSettings.customLines || [])];
   say(clicks % 5 === 0 ? '好感度 +1 ♥' : pool[(clicks - 1) % pool.length]);
-  playHappySound();
+  if(appSettings.petForm==='ai-drama')playRealHamsterSound();else playHappySound();
 }
 sprite.addEventListener('click', (event) => {
   if (!isOpaqueHit(event)) return;
@@ -491,6 +493,14 @@ function applySettings(next) {
 }
 let happyAudioBuffer;
 let happyAudioContext;
+const realHamsterClickAudio=new Audio('../assets/audio/hamster-happy.mp3');
+realHamsterClickAudio.preload='auto';
+function playRealHamsterSound(){
+  if(!appSettings.soundEnabled)return;
+  const clip=realHamsterClickAudio.cloneNode();
+  clip.volume=1;
+  clip.play().catch(()=>playHappySound());
+}
 async function cleanHappyBuffer(input){
   const gated=new AudioBuffer({length:input.length,numberOfChannels:input.numberOfChannels,sampleRate:input.sampleRate});
   const frame=Math.max(128,Math.floor(input.sampleRate*.012));
@@ -559,12 +569,15 @@ window.petAPI.onPetCommand(command=>{
     if(form!==appSettings.petForm)return;
     if(form==='real'){
       if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
+      manualActionUntil=Date.now()+6000;
       clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;realCutout.src=cutoutSource(action);
-      actionTimer=setTimeout(()=>setState('idle'),4500);return;
+      actionTimer=setTimeout(()=>setState('idle'),6000);return;
     }
     const allowed=form==='ai-drama'?['idle','typing','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
     if(!allowed.includes(action))return;
-    idleAdventure=false;window.petAPI.wanderStop();setState(action,action==='wheel'?12000:action==='feeding'?6200:5200);return;
+    const previewDuration=form==='ai-drama'?(action==='wheel'?12000:6100):(action==='wheel'?12000:5200);
+    manualActionUntil=Date.now()+previewDuration;
+    idleAdventure=false;window.petAPI.wanderStop();setState(action,previewDuration);return;
   }
   if(command?.startsWith('action:')){
     const action=command.slice(7);
