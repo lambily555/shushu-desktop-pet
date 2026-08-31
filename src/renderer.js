@@ -247,17 +247,18 @@ const realCutoutActions = {
 const aiDramaActions={
   idle:'idle-breathe/idle-breathe',typing:'happy/happy',loafing:'lie-down/lie-down',
   happy:'happy/happy',stretch:'hop/hop',groom:'idle-breathe/idle-breathe',
-  look:'idle-breathe/idle-breathe',sleep:'sleep/sleep',wheel:'crawl/crawl',
+  look:'idle-breathe/idle-breathe',sleep:'sleep/sleep',wheel:'wheel/wheel-smooth',
   crawl:'crawl/crawl',feeding:'happy/happy',preview:'idle-breathe/idle-breathe'
 };
-const aiDramaPreload=[...new Set(Object.values(aiDramaActions))].map(action=>{const image=new Image();image.src=`../assets/ai-drama-pet/${action}-v1.webp`;return image});
+const aiDramaSource=action=>`../assets/ai-drama-pet/${action}-v1.webp`;
+const aiDramaPreload=[...new Set(Object.values(aiDramaActions))].map(action=>{const image=new Image();image.src=aiDramaSource(action);return image});
 let activeAiDrama='';
 function syncAiDramaCutout(force=false){
   if(appSettings.petForm!=='ai-drama')return;
   const action=aiDramaActions[state]||aiDramaActions.idle;
   if(!force&&action===activeAiDrama)return;
   activeAiDrama=action;
-  aiDramaCutout.src=`../assets/ai-drama-pet/${action}-v1.webp?play=${Date.now()}`;
+  aiDramaCutout.src=`${aiDramaSource(action)}?play=${Date.now()}`;
 }
 const realCutoutNames = [...new Set(Object.values(realCutoutActions).flat())];
 const realCutoutPreload = realCutoutNames.map(action => {

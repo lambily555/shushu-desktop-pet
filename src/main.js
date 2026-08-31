@@ -19,6 +19,7 @@ let tray;
 let inputWatcher;
 let dragOrigin;
 let dragTimer;
+let idleSecondsTimer;
 let dragActive = false;
 let watcherBuffer = '';
 let isQuitting = false;
@@ -425,12 +426,15 @@ app.whenReady().then(() => {
   createTray();
   watchKeyboardActivity();
   registerConfiguredShortcuts();
-  setInterval(() => win?.webContents.send('idle-seconds', powerMonitor.getSystemIdleTime()), 1000);
+  idleSecondsTimer = setInterval(() => {
+    if (!win || win.isDestroyed() || win.webContents.isDestroyed()) return;
+    win.webContents.send('idle-seconds', powerMonitor.getSystemIdleTime());
+  }, 1000);
   app.on('activate', () => { if (!win) createWindow(); else win.show(); });
 });
 
 app.on('window-all-closed', (event) => event.preventDefault());
-app.on('before-quit', () => { isQuitting = true; clearInterval(dragTimer); stopWandering(); inputWatcher?.kill(); globalShortcut.unregisterAll(); });
+app.on('before-quit', () => { isQuitting = true; clearInterval(dragTimer); clearInterval(idleSecondsTimer); stopWandering(); inputWatcher?.kill(); globalShortcut.unregisterAll(); });
 ipcMain.on('hide-pet', () => { petHiddenByUser=true; win?.hide(); });
 ipcMain.on('mouse-passthrough', (_event, passthrough) => win?.setIgnoreMouseEvents(passthrough, { forward: true }));
 ipcMain.handle('settings-get', () => settings);
@@ -536,7 +540,11 @@ ipcMain.handle('ai-chat', async (_event, rawMessage) => {
   if(!message)return {ok:false,error:'先和鼠鼠说点什么吧。'};
   if((settings.chatMode||'local')==='local'){
     const recent=(settings.chatHistory||[]).filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-18),reply=localHamsterReply(message),chatHistory=[...recent,{role:'user',content:message},{role:'assistant',content:reply}].slice(-20);
-    saveSettings({chatHistory});win?.show();win?.webContents.send('pet-command',`say:${reply.slice(0,120)}`);return {ok:true,reply,history:chatHistory,mode:'local'};
+    saveSettings({chatHistory});
+    if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed()){
+      try{win.show();win.webContents.send('pet-command',`say:${reply.slice(0,120)}`)}catch{}
+    }
+    return {ok:true,reply,history:chatHistory,mode:'local'};
   }
   const apiKey=String(settings.aiApiKey||'').trim(),base=String(settings.aiBaseUrl||'').trim().replace(/\/+$/,''),model=String(settings.aiModel||'').trim();
   if(!apiKey||!base||!model)return {ok:false,error:'请先填写并保存 API 地址、模型和 API Key。'};
@@ -550,7 +558,9 @@ ipcMain.handle('ai-chat', async (_event, rawMessage) => {
     if(!reply)throw new Error('接口没有返回鼠鼠的回复');
     const chatHistory=[...recent,{role:'user',content:message},{role:'assistant',content:reply}].slice(-20);
     saveSettings({chatHistory});
-    win?.show();win?.webContents.send('pet-command',`say:${reply.slice(0,120)}`);
+    if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed()){
+      try{win.show();win.webContents.send('pet-command',`say:${reply.slice(0,120)}`)}catch{}
+    }
     return {ok:true,reply,history:chatHistory};
   }catch(error){return {ok:false,error:error?.name==='TimeoutError'?'等待回复超时，请检查网络后重试。':String(error?.message||error)};}
 });

@@ -739,3 +739,17 @@ body[data-current-panel="feedback"] main>header .effect-settings-button{display:
 .shortcut-status{min-height:14px;margin:8px 2px 0!important;font-size:8px!important;color:#858a98!important}.shortcut-status[data-state="success"]{color:#568b78!important}.shortcut-status[data-state="error"]{color:#bd6868!important}.shortcut-status[data-state="recording"]{color:#70688e!important}
 @keyframes shortcutPulse{50%{box-shadow:0 0 0 4px rgba(126,118,158,.12)}}
 @media(max-width:780px){.shortcut-grid{grid-template-columns:1fr}.shortcut-key{min-width:100px}}
+
+/* Chat controls must remain above decorative layers and fully interactive. */
+body[data-current-panel="chat"] .ai-chat{position:relative!important;z-index:20!important;isolation:isolate;pointer-events:auto!important}
+body[data-current-panel="chat"] .ai-chat .chat-head,
+body[data-current-panel="chat"] .ai-chat .chat-mode,
+body[data-current-panel="chat"] .ai-chat .ai-settings,
+body[data-current-panel="chat"] .ai-chat .key-note,
+body[data-current-panel="chat"] .ai-chat .chat-suggestions,
+body[data-current-panel="chat"] .ai-chat .chat-messages,
+body[data-current-panel="chat"] .ai-chat .chat-compose,
+body[data-current-panel="chat"] .ai-chat .result{position:relative;z-index:2;pointer-events:auto!important}
+body[data-current-panel="chat"] .ai-chat button,
+body[data-current-panel="chat"] .ai-chat input,
+body[data-current-panel="chat"] .ai-chat textarea{pointer-events:auto!important}
