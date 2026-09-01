@@ -46,6 +46,21 @@
       "loop": false,
       "description": "进食后掉进食盆，保留食盆互动"
     },
+    "feedingLeaf": {
+      "file": "feeding-leaf/feeding-leaf-v2.webp",
+      "loop": false,
+      "description": "抱着青菜真实进食"
+    },
+    "feedingWorm": {
+      "file": "feeding-worm/feeding-worm-v2.webp",
+      "loop": false,
+      "description": "抱着面包虫真实进食"
+    },
+    "feedingCookie": {
+      "file": "feeding-cookie/feeding-cookie-v2.webp",
+      "loop": false,
+      "description": "抱着饼干真实进食"
+    },
     "wheel": {
       "file": "wheel/wheel-smooth-v1.webp",
       "loop": true,
