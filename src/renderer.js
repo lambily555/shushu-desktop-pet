@@ -256,13 +256,23 @@ const aiDramaFeedingActions={
   cookie:'feeding-cookie/feeding-cookie-v2',
   paste:'feeding-paste/feeding-paste-v2'
 };
+const aiDramaOutfitActions={
+  leaf:'outfit-leaf/outfit-leaf-v2',
+  bow:'outfit-bow/outfit-bow-v2',
+  glasses:'outfit-glasses/outfit-glasses-v2',
+  party:'outfit-party/outfit-party-v2'
+};
+const aiDramaOutfitStates=new Set(['idle','look','groom','loafing']);
 let activeFeedingFood='paste';
 const aiDramaSource=action=>`../assets/ai-drama-pet/${action}.webp`;
-const aiDramaPreload=[...new Set([...Object.values(aiDramaActions),...Object.values(aiDramaFeedingActions)])].map(action=>{const image=new Image();image.src=aiDramaSource(action);return image});
+const aiDramaPreload=[...new Set([...Object.values(aiDramaActions),...Object.values(aiDramaFeedingActions),...Object.values(aiDramaOutfitActions)])].map(action=>{const image=new Image();image.src=aiDramaSource(action);return image});
 let activeAiDrama='';
 function syncAiDramaCutout(force=false){
   if(appSettings.petForm!=='ai-drama')return;
-  const action=state==='feeding'?(aiDramaFeedingActions[activeFeedingFood]||aiDramaActions.feeding):(aiDramaActions[state]||aiDramaActions.idle);
+  const outfitAction=aiDramaOutfitActions[appSettings.outfit];
+  const action=state==='feeding'
+    ?(aiDramaFeedingActions[activeFeedingFood]||aiDramaActions.feeding)
+    :(outfitAction&&aiDramaOutfitStates.has(state)?outfitAction:(aiDramaActions[state]||aiDramaActions.idle));
   if(!force&&action===activeAiDrama)return;
   activeAiDrama=action;
   aiDramaCutout.src=`${aiDramaSource(action)}?play=${Date.now()}`;

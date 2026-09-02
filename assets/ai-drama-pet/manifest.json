@@ -66,6 +66,26 @@
       "loop": false,
       "description": "抱着营养糊糊真实进食"
     },
+    "outfitLeaf": {
+      "file": "outfit-leaf/outfit-leaf-v2.webp",
+      "loop": true,
+      "description": "佩戴叶子帽的仿真待机动作"
+    },
+    "outfitBow": {
+      "file": "outfit-bow/outfit-bow-v2.webp",
+      "loop": true,
+      "description": "佩戴蓝领结的仿真待机动作"
+    },
+    "outfitGlasses": {
+      "file": "outfit-glasses/outfit-glasses-v2.webp",
+      "loop": true,
+      "description": "佩戴圆眼镜的仿真待机动作"
+    },
+    "outfitParty": {
+      "file": "outfit-party/outfit-party-v2.webp",
+      "loop": true,
+      "description": "佩戴生日帽的仿真待机动作"
+    },
     "wheel": {
       "file": "wheel/wheel-smooth-v1.webp",
       "loop": true,
