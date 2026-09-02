@@ -578,6 +578,7 @@ window.petAPI.onPetCommand(command=>{
     }
     const allowed=form==='ai-drama'?['idle','typing','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
     if(!allowed.includes(action))return;
+    if(form==='ai-drama'&&action==='feeding')activeFeedingFood='bowl';
     const previewDuration=form==='ai-drama'?(action==='wheel'?12000:6100):(action==='wheel'?12000:5200);
     manualActionUntil=Date.now()+previewDuration;
     idleAdventure=false;window.petAPI.wanderStop();setState(action,previewDuration);return;
