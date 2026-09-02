@@ -18,7 +18,7 @@ body.mode-real .food-canvas{bottom:116px}body.mode-real .food-canvas.leaf{bottom
 .sprite { position:absolute; left:5px; bottom:15px; width:290px; height:290px; cursor:pointer; background:none!important; z-index:4; transform-origin:50% 82%; }
 body.mode-real #hamster3d{display:none}
 body.mode-real #realVideo{display:none}
-body.mode-real #realCutout{display:block;animation:breathe 2.8s ease-in-out infinite}
+body.mode-real #realCutout{display:block;animation:none;transform:none}
 body.mode-real .sprite{background:none!important;filter:none!important;animation:none!important}
 body.mode-real .outfit{display:none!important}
 body.mode-real .wheelProp{display:none!important}
