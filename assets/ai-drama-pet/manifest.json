@@ -61,6 +61,11 @@
       "loop": false,
       "description": "抱着饼干真实进食"
     },
+    "feedingPaste": {
+      "file": "feeding-paste/feeding-paste-v2.webp",
+      "loop": false,
+      "description": "抱着营养糊糊真实进食"
+    },
     "wheel": {
       "file": "wheel/wheel-smooth-v1.webp",
       "loop": true,

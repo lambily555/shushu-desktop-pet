@@ -253,7 +253,8 @@ const aiDramaActions={
 const aiDramaFeedingActions={
   leaf:'feeding-leaf/feeding-leaf-v2',
   worm:'feeding-worm/feeding-worm-v2',
-  cookie:'feeding-cookie/feeding-cookie-v2'
+  cookie:'feeding-cookie/feeding-cookie-v2',
+  paste:'feeding-paste/feeding-paste-v2'
 };
 let activeFeedingFood='paste';
 const aiDramaSource=action=>`../assets/ai-drama-pet/${action}.webp`;
