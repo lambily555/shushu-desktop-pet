@@ -271,12 +271,31 @@ function resize() {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 }
+const anchorVector = new THREE.Vector3();
+function projectedBone(name,fallbackY){
+  const bone=bones[name];
+  if(bone)bone.getWorldPosition(anchorVector);else anchorVector.set(0,fallbackY,0);
+  anchorVector.project(camera);
+  return [(anchorVector.x*.5+.5)*canvas.clientWidth,(-anchorVector.y*.5+.5)*canvas.clientHeight];
+}
+function publishOutfitAnchors(){
+  if(!model)return;
+  model.updateMatrixWorld(true);
+  const head=projectedBone('mixamorig:Head',1.65);
+  const neck=projectedBone('mixamorig:Neck',1.2);
+  window.dispatchEvent(new CustomEvent('pet-3d-anchors',{detail:{
+    head:[head[0],head[1]-16],
+    face:[head[0],head[1]+10],
+    neck:[neck[0],neck[1]+8]
+  }}));
+}
 new ResizeObserver(resize).observe(canvas);
 resize();
 window.addEventListener('pet-3d-resume',()=>{resize();renderer.resetState();renderer.render(scene,camera)});
 function animate(now) {
   requestAnimationFrame(animate);
   pose(now * 0.001, (now - stateAt) * 0.001);
+  publishOutfitAnchors();
   renderer.render(scene, camera);
 }
 requestAnimationFrame(animate);
