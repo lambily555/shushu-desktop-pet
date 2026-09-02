@@ -35154,7 +35154,7 @@ void main() {
     group.add(cone, brim, pom);
     group.position.set(0, unit * 0.29, unit * 0.18);
     group.rotation.z = -0.07;
-    group.scale.setScalar(0.48);
+    group.scale.setScalar(0.4);
     return finishOutfit(group);
   }
   function makeLeafHat(unit) {
@@ -35183,6 +35183,10 @@ void main() {
     outfitMeshes.bow = makeBow(unit);
     head.add(outfitMeshes.glasses, outfitMeshes.party, outfitMeshes.leaf);
     neck.add(outfitMeshes.bow);
+    model.updateMatrixWorld(true);
+    const headWorld = head.getWorldPosition(new Vector3());
+    const partyWorld = headWorld.clone().add(new Vector3(0, 0.47, 0.2));
+    outfitMeshes.party.position.copy(head.worldToLocal(partyWorld));
     updateOutfitVisibility();
   }
   function updateOutfitVisibility() {

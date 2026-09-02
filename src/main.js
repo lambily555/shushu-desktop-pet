@@ -153,10 +153,12 @@ function stopDragging() {
 }
 
 function clampPetPosition(bounds, area, wantedX, wantedY) {
-  const keepVisible = 54;
+  const scale = Math.max(1, bounds.width / 310);
+  const sideTransparency = 5 * scale;
+  const topTransparency = 80 * scale;
   return {
-    x: Math.max(area.x - bounds.width + keepVisible, Math.min(wantedX, area.x + area.width - keepVisible)),
-    y: Math.max(area.y - bounds.height + keepVisible, Math.min(wantedY, area.y + area.height - keepVisible))
+    x: Math.max(area.x - sideTransparency, Math.min(wantedX, area.x + area.width - bounds.width + sideTransparency)),
+    y: Math.max(area.y - topTransparency, Math.min(wantedY, area.y + area.height - bounds.height))
   };
 }
 
