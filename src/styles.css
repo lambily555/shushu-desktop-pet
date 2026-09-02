@@ -23,6 +23,7 @@ body.mode-real .sprite{background:none!important;filter:none!important;animation
 body.mode-real .outfit{display:none!important}
 body.mode-real .wheelProp{display:none!important}
 body.mode-3d #hamster3d{display:block}
+body.mode-3d .outfit{display:none!important}
 body.mode-ai-drama #hamster3d,body.mode-ai-drama #realVideo,body.mode-ai-drama #realCutout{display:none}
 body.mode-ai-drama #aiDramaCutout{display:block}
 body.mode-ai-drama .sprite{background:none!important;filter:none!important;animation:none!important}

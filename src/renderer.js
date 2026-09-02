@@ -497,6 +497,8 @@ function applySettings(next) {
   if (appSettings.petForm === 'ai-drama') syncAiDramaCutout(true);
   const outfit = document.querySelector('#outfit');
   outfit.className = `outfit ${appSettings.outfit || 'none'}`;
+  window.__pet3dOutfit={outfit:appSettings.outfit||'none',form:appSettings.petForm};
+  window.dispatchEvent(new CustomEvent('pet-outfit',{detail:window.__pet3dOutfit}));
 }
 let happyAudioBuffer;
 let happyAudioContext;

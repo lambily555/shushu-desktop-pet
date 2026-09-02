@@ -264,6 +264,7 @@ app.whenReady().then(() => {
   if (!hasSingleInstanceLock) return;
   loadSettings();
   if (process.env.PET_CAPTURE_FORM) settings.petForm = process.env.PET_CAPTURE_FORM;
+  if (process.env.PET_CAPTURE_OUTFIT) settings.outfit = process.env.PET_CAPTURE_OUTFIT;
   createWindow();
   if (process.env.PET_POSITION_TEST_PATH) {
     win.webContents.once('did-finish-load', () => setTimeout(async () => {

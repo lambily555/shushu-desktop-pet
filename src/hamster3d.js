@@ -55,12 +55,103 @@ const whiskerMaterial = new THREE.MeshStandardMaterial({ color: 0xd8d4cc, roughn
 let model = null;
 const bones = {};
 const base = new Map();
+let selectedOutfit = window.__pet3dOutfit?.form === '3d' ? (window.__pet3dOutfit.outfit || 'none') : 'none';
+const outfitMeshes = {};
 const wantedBones = [
   'mixamorig:Hips', 'mixamorig:Spine', 'mixamorig:Spine1', 'mixamorig:Spine2',
   'mixamorig:Neck', 'mixamorig:Head', 'mixamorig:LeftArm', 'mixamorig:RightArm',
   'mixamorig:LeftForeArm', 'mixamorig:RightForeArm', 'mixamorig:LeftHand', 'mixamorig:RightHand',
   'mixamorig:LeftUpLeg', 'mixamorig:RightUpLeg', 'mixamorig:LeftLeg', 'mixamorig:RightLeg'
 ];
+
+const outfitMaterials = {
+  blue: new THREE.MeshStandardMaterial({ color:0x718fb7, roughness:.56, metalness:.04 }),
+  blueDark: new THREE.MeshStandardMaterial({ color:0x425b83, roughness:.48, metalness:.08 }),
+  green: new THREE.MeshStandardMaterial({ color:0x789765, roughness:.72, metalness:0 }),
+  greenLight: new THREE.MeshStandardMaterial({ color:0xa8bc87, roughness:.76, metalness:0 }),
+  yellow: new THREE.MeshStandardMaterial({ color:0xe8c979, roughness:.64, metalness:.02 }),
+  purple: new THREE.MeshStandardMaterial({ color:0x9a88b5, roughness:.58, metalness:.03 }),
+  cream: new THREE.MeshStandardMaterial({ color:0xfff4df, roughness:.72, metalness:0 })
+};
+function finishOutfit(group){
+  group.visible=false;
+  group.traverse(child=>{if(child.isMesh){child.castShadow=true;child.receiveShadow=true}});
+  return group;
+}
+function makeGlasses(unit){
+  const group=new THREE.Group(),ringGeometry=new THREE.TorusGeometry(unit*.118,unit*.016,10,38);
+  const left=new THREE.Mesh(ringGeometry,outfitMaterials.blueDark),right=left.clone();
+  left.position.x=-unit*.135;right.position.x=unit*.135;
+  const bridge=new THREE.Mesh(new THREE.CylinderGeometry(unit*.012,unit*.012,unit*.075,10),outfitMaterials.blueDark);
+  bridge.rotation.z=Math.PI/2;
+  const leftArm=bridge.clone(),rightArm=bridge.clone();
+  leftArm.position.set(-unit*.245,0,-unit*.035);rightArm.position.set(unit*.245,0,-unit*.035);
+  leftArm.rotation.set(0,.62,Math.PI/2);rightArm.rotation.set(0,-.62,Math.PI/2);
+  group.add(left,right,bridge,leftArm,rightArm);
+  group.position.set(0,unit*.17,unit*.31);
+  group.scale.setScalar(.43);
+  return finishOutfit(group);
+}
+function makeBow(unit){
+  const group=new THREE.Group();
+  const wingGeometry=new THREE.SphereGeometry(unit*.12,20,14);
+  wingGeometry.scale(1.35,.72,.45);
+  const left=new THREE.Mesh(wingGeometry,outfitMaterials.blue),right=left.clone();
+  left.position.x=-unit*.12;right.position.x=unit*.12;
+  left.rotation.z=-.18;right.rotation.z=.18;
+  const knot=new THREE.Mesh(new THREE.SphereGeometry(unit*.068,18,12),outfitMaterials.yellow);
+  group.add(left,right,knot);
+  group.position.set(0,-unit*.025,unit*.28);
+  group.scale.setScalar(.4);
+  return finishOutfit(group);
+}
+function makePartyHat(unit){
+  const group=new THREE.Group();
+  const cone=new THREE.Mesh(new THREE.ConeGeometry(unit*.19,unit*.52,32),outfitMaterials.purple);
+  cone.position.y=unit*.26;
+  const brim=new THREE.Mesh(new THREE.TorusGeometry(unit*.19,unit*.024,10,36),outfitMaterials.yellow);
+  brim.rotation.x=Math.PI/2;
+  const pom=new THREE.Mesh(new THREE.SphereGeometry(unit*.052,18,12),outfitMaterials.cream);
+  pom.position.y=unit*.53;
+  group.add(cone,brim,pom);
+  group.position.set(0,unit*.31,unit*.03);
+  group.rotation.z=-.07;
+  return finishOutfit(group);
+}
+function makeLeafHat(unit){
+  const group=new THREE.Group();
+  const shape=new THREE.Shape();
+  shape.moveTo(0,-unit*.18);shape.bezierCurveTo(unit*.28,-unit*.08,unit*.3,unit*.18,0,unit*.25);
+  shape.bezierCurveTo(-unit*.3,unit*.18,-unit*.28,-unit*.08,0,-unit*.18);
+  const leaf=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:unit*.026,bevelEnabled:true,bevelSize:unit*.012,bevelThickness:unit*.008,bevelSegments:2}),outfitMaterials.green);
+  const vein=new THREE.Mesh(new THREE.CylinderGeometry(unit*.012,unit*.012,unit*.39,9),outfitMaterials.greenLight);
+  vein.rotation.z=-.12;
+  vein.position.z=unit*.045;
+  group.add(leaf,vein);
+  group.position.set(-unit*.12,unit*.34,unit*.08);
+  group.rotation.set(-.42,0,-.38);
+  group.scale.setScalar(.43);
+  return finishOutfit(group);
+}
+function attachOutfits(size){
+  const head=bones['mixamorig:Head'],neck=bones['mixamorig:Neck'];
+  if(!head||!neck)return;
+  const unit=size.y;
+  outfitMeshes.glasses=makeGlasses(unit);
+  outfitMeshes.party=makePartyHat(unit);
+  outfitMeshes.leaf=makeLeafHat(unit);
+  outfitMeshes.bow=makeBow(unit);
+  head.add(outfitMeshes.glasses,outfitMeshes.party,outfitMeshes.leaf);
+  neck.add(outfitMeshes.bow);
+  updateOutfitVisibility();
+}
+function updateOutfitVisibility(){
+  for(const [name,group] of Object.entries(outfitMeshes))group.visible=name===selectedOutfit;
+}
+window.addEventListener('pet-outfit',event=>{
+  selectedOutfit=event.detail?.form==='3d'?(event.detail.outfit||'none'):'none';
+  updateOutfitVisibility();
+});
 
 new FBXLoader().load('../assets/models/booth-hamster/restored/Assets/Ham/Mesh/Ham.fbx', object => {
   model = object;
@@ -139,6 +230,7 @@ new FBXLoader().load('../assets/models/booth-hamster/restored/Assets/Ham/Mesh/Ha
   };
   tuckForearm('mixamorig:LeftForeArm', 'mixamorig:LeftHand');
   tuckForearm('mixamorig:RightForeArm', 'mixamorig:RightHand');
+  attachOutfits(size);
 }, undefined, error => console.error('鼠鼠3D模型加载失败', error));
 
 const shadow = new THREE.Mesh(
