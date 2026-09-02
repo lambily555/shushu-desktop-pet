@@ -114,9 +114,9 @@ function makePartyHat(unit){
   const pom=new THREE.Mesh(new THREE.SphereGeometry(unit*.052,18,12),outfitMaterials.cream);
   pom.position.y=unit*.53;
   group.add(cone,brim,pom);
-  group.position.set(0,unit*.29,unit*.055);
+  group.position.set(0,unit*.29,unit*.18);
   group.rotation.z=-.07;
-  group.scale.setScalar(.65);
+  group.scale.setScalar(.48);
   return finishOutfit(group);
 }
 function makeLeafHat(unit){

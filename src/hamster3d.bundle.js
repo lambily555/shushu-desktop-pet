@@ -35152,9 +35152,9 @@ void main() {
     const pom = new Mesh(new SphereGeometry(unit * 0.052, 18, 12), outfitMaterials.cream);
     pom.position.y = unit * 0.53;
     group.add(cone, brim, pom);
-    group.position.set(0, unit * 0.29, unit * 0.055);
+    group.position.set(0, unit * 0.29, unit * 0.18);
     group.rotation.z = -0.07;
-    group.scale.setScalar(0.65);
+    group.scale.setScalar(0.48);
     return finishOutfit(group);
   }
   function makeLeafHat(unit) {

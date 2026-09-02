@@ -183,9 +183,9 @@ function createWindow() {
   const area = screen.getPrimaryDisplay().workArea;
   win = new BrowserWindow({
     width: 310,
-    height: 350,
+    height: 400,
     x: area.x + area.width - 330,
-    y: area.y + area.height - 370,
+    y: area.y + area.height - 420,
     frame: false,
     transparent: true,
     resizable: false,
@@ -690,7 +690,7 @@ ipcMain.on('pet-scale', (_event, scale) => {
   if (!win) return;
   const old = win.getBounds();
   const width = Math.round(310 * Math.max(1, scale));
-  const height = Math.round(350 * Math.max(1, scale));
+  const height = Math.round(400 * Math.max(1, scale));
   win.webContents.setZoomFactor(1);
   win.setBounds({ x: old.x + old.width - width, y: old.y + old.height - height, width, height });
   win.webContents.send('scale-applied', scale);

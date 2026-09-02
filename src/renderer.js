@@ -480,7 +480,7 @@ sprite.addEventListener('wheel', (event) => {
 window.petAPI.onScale((value) => {
   const root = document.documentElement.style;
   root.setProperty('--pet-scale', value);
-  root.setProperty('--pet-top', `${305 * value}px`);
+  root.setProperty('--pet-top', `${350 * value}px`);
   root.setProperty('--control-inverse', 1 / Math.max(.25, Number(value) || 1));
 });
 function applySettings(next) {
