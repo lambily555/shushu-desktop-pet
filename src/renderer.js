@@ -10,8 +10,6 @@ const aiDramaCutout = document.querySelector('#aiDramaCutout');
 const foodProp = document.querySelector('#foodProp');
 const foodCanvas = document.querySelector('#foodCanvas');
 const foodCrumbs = document.querySelector('#foodCrumbs');
-const outfitAnchor = document.querySelector('#outfitAnchor');
-const outfit = document.querySelector('#outfit');
 let feedingAnimationToken=0;
 
 const foodBiteProfiles={
@@ -96,8 +94,6 @@ window.addEventListener('unhandledrejection',event=>{bubble.textContent=`3D错�
 let typingTimer, actionTimer, bubbleTimer, pointerDown, movePending = false;
 let rotating3d = false, rotateLastX = 0, rotateLastY = 0, rotateMoved = false;
 let clicks = 0, state = 'idle', idleSeconds = 0, dragged = false, manualWheelUntil = 0, manualActionUntil = 0;
-let stateStartedAt = performance.now();
-let projected3dAnchors = null;
 let idleAdventure = false;
 let lastAdventure = 0;
 let scale = Number(localStorage.getItem('petScale') || 1);
@@ -234,7 +230,7 @@ dragHandle.addEventListener('pointercancel',finishPetWindowMove);
 window.addEventListener('blur',()=>{if(movingPetWindow){movingPetWindow=false;window.petAPI.dragEnd()}});
 
 function setState(next, duration = 0) {
-  state = next; stateStartedAt = performance.now(); pet.className = `pet ${next}`; clearTimeout(actionTimer);
+  state = next; pet.className = `pet ${next}`; clearTimeout(actionTimer);
   syncRealCutout();
   syncAiDramaCutout();
   window.dispatchEvent(new CustomEvent('pet-state',{detail:next}));
@@ -242,54 +238,6 @@ function setState(next, duration = 0) {
   window.petAPI.reportStatus(names[next]||'正在陪伴');
   if (duration) actionTimer = setTimeout(() => setState(idleSeconds > 25 ? 'sleep' : 'idle'), duration);
 }
-
-// Outfit coordinates live in the actor's 300x320 local space.  The outfit is
-// therefore parented to the same transform as the hamster instead of to the
-// desktop window.  3D uses projected bones; frame/video forms use state tracks.
-window.addEventListener('pet-3d-anchors',event=>{projected3dAnchors=event.detail});
-const outfitBase={
-  leaf:{anchor:'head',dx:-38,dy:-46,scale:.82,rotation:-13},
-  party:{anchor:'head',dx:0,dy:-58,scale:.9,rotation:0},
-  glasses:{anchor:'face',dx:0,dy:1,scale:.82,rotation:0},
-  bow:{anchor:'neck',dx:0,dy:3,scale:.78,rotation:0}
-};
-const localAnchors={
-  idle:{head:[150,72],face:[150,112],neck:[150,153]},
-  typing:{head:[150,75],face:[150,114],neck:[150,155]},
-  loafing:{head:[150,91],face:[150,127],neck:[150,164]},
-  happy:{head:[150,69],face:[150,108],neck:[150,150]},
-  stretch:{head:[150,62],face:[150,101],neck:[150,146]},
-  groom:{head:[146,76],face:[146,115],neck:[148,155]},
-  look:{head:[150,73],face:[150,112],neck:[150,153]},
-  sleep:{head:[144,103],face:[145,137],neck:[148,171]},
-  wheel:{head:[150,99],face:[150,130],neck:[150,166]},
-  crawl:{head:[150,119],face:[150,148],neck:[150,178]},
-  feeding:{head:[150,76],face:[150,115],neck:[150,155]}
-};
-function updateOutfitRig(now){
-  requestAnimationFrame(updateOutfitRig);
-  const selected=appSettings.outfit||'none',spec=outfitBase[selected];
-  if(!spec){outfitAnchor.classList.remove('active');return}
-  let point;
-  if(appSettings.petForm==='3d'&&projected3dAnchors?.[spec.anchor])point=projected3dAnchors[spec.anchor];
-  else point=(localAnchors[state]||localAnchors.idle)[spec.anchor];
-  if(!point)return;
-  const elapsed=(now-stateStartedAt)/1000;
-  let bob=Math.sin(elapsed*2.25)*1.6,tilt=0,motionScale=1;
-  if(state==='typing'){bob=-2+Math.sin(elapsed*38)*2;tilt=Math.sin(elapsed*38)*.8}
-  else if(state==='happy'){bob=-Math.abs(Math.sin(elapsed*8))*7;tilt=Math.sin(elapsed*10)*4}
-  else if(state==='groom'){bob=Math.sin(elapsed*10)*2;tilt=Math.sin(elapsed*10)*1.5}
-  else if(state==='look'){bob=Math.sin(elapsed*3.5)*2;tilt=Math.sin(elapsed*2.7)*2}
-  else if(state==='sleep'||state==='loafing'){bob=2+Math.sin(elapsed*1.9)*1.5;tilt=Math.sin(elapsed*1.9)}
-  else if(state==='wheel'){bob=-Math.abs(Math.sin(elapsed*15))*3;tilt=Math.sin(elapsed*15)*1.5}
-  else if(state==='stretch')motionScale=1.04;
-  const facingLeft=document.querySelector('.actor').classList.contains('face-left');
-  const dx=facingLeft?-spec.dx:spec.dx;
-  outfitAnchor.classList.add('active');
-  outfitAnchor.style.transform=`translate3d(${point[0]+dx}px,${point[1]+spec.dy+bob}px,0) rotate(${(facingLeft?-spec.rotation:spec.rotation)+tilt}deg) scale(${spec.scale*motionScale})`;
-  outfit.style.transform=`scaleX(${facingLeft?-1:1})`;
-}
-requestAnimationFrame(updateOutfitRig);
 
 const realCutoutActions = {
   idle:['idle-a','idle-b'], typing:['groom-a','groom-b'], loafing:['eat-a','eat-b'],
@@ -547,8 +495,8 @@ function applySettings(next) {
   for (const video of Object.values(realVideos)) video.pause();
   if (appSettings.petForm === 'real') syncRealCutout(true);
   if (appSettings.petForm === 'ai-drama') syncAiDramaCutout(true);
+  const outfit = document.querySelector('#outfit');
   outfit.className = `outfit ${appSettings.outfit || 'none'}`;
-  outfitAnchor.classList.toggle('active',!!outfitBase[appSettings.outfit]);
 }
 let happyAudioBuffer;
 let happyAudioContext;
