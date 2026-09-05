@@ -205,13 +205,14 @@ function isOpaquePoint(x,y){
 }
 let mousePassthrough, hoverUiTimer;
 window.addEventListener('mousemove',event=>{
+  if(movingPetWindow){mousePassthrough=false;window.petAPI.setMousePassthrough(false);return;}
   const dragHandle=document.querySelector('#dragHandle'),overActor=isOpaquePoint(event.clientX,event.clientY),overClose=pointInElement(event.clientX,event.clientY,closeButton,5),overDrag=pointInElement(event.clientX,event.clientY,dragHandle,6),overUi=overActor||overClose||overDrag;
   if(overUi){clearTimeout(hoverUiTimer);pet.classList.add('pointer-over')}else if(pet.classList.contains('pointer-over')&&!hoverUiTimer){hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000)}
   const interactive=overUi||pet.classList.contains('pointer-over');
   const next=!interactive;
   if(next!==mousePassthrough){mousePassthrough=next;window.petAPI.setMousePassthrough(next)}
 });
-window.addEventListener('mouseleave',()=>{clearTimeout(hoverUiTimer);hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000);mousePassthrough=true;window.petAPI.setMousePassthrough(true)});
+window.addEventListener('mouseleave',()=>{if(movingPetWindow)return;clearTimeout(hoverUiTimer);hoverUiTimer=setTimeout(()=>{pet.classList.remove('pointer-over');hoverUiTimer=null},1000);mousePassthrough=true;window.petAPI.setMousePassthrough(true)});
 const dragHandle=document.querySelector('#dragHandle');
 let movingPetWindow=false;
 dragHandle.addEventListener('pointerdown',event=>{

@@ -152,7 +152,15 @@ function stopDragging() {
   dragActive = false;
 }
 
-function clampPetPosition(bounds, area, wantedX, wantedY) {
+function clampPetPosition(bounds, area, wantedX, wantedY, anchor = null) {
+  // Transparent padding is not the pet. Keep its grabbed point reachable,
+  // rather than forcing the entire (minimum 310 x 400) window onto the screen.
+  if (anchor) {
+    return {
+      x: Math.max(area.x - anchor.x, Math.min(wantedX, area.x + area.width - 1 - anchor.x)),
+      y: Math.max(area.y - anchor.y, Math.min(wantedY, area.y + area.height - 1 - anchor.y))
+    };
+  }
   const scale = Math.max(1, bounds.width / 310);
   const sideTransparency = 5 * scale;
   const topTransparency = 80 * scale;
@@ -270,27 +278,38 @@ app.whenReady().then(() => {
   createWindow();
   if (process.env.PET_POSITION_TEST_PATH) {
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
-      const area = screen.getPrimaryDisplay().workArea;
+      const testDisplay = screen.getPrimaryDisplay();
+      const freeDrag = settings.petForm === 'ai-drama';
+      const area = freeDrag ? testDisplay.bounds : testDisplay.workArea;
       const bounds = win.getBounds();
+      const anchor = freeDrag ? { x: bounds.width / 2, y: bounds.height - 57 } : null;
       const targets = [
         { name: 'top-left', x: area.x, y: area.y },
         { name: 'top-center', x: area.x + Math.round((area.width - bounds.width) / 2), y: area.y },
         { name: 'top-right', x: area.x + area.width - bounds.width, y: area.y },
         { name: 'bottom-center', x: area.x + Math.round((area.width - bounds.width) / 2), y: area.y + area.height - bounds.height }
       ];
+      if (freeDrag) {
+        targets.splice(0, targets.length, ...[
+          ['top-left', area.x, area.y], ['top-right', area.x + area.width - 1, area.y],
+          ['bottom-left', area.x, area.y + area.height - 1],
+          ['bottom-right', area.x + area.width - 1, area.y + area.height - 1]
+        ].map(([name, px, py]) => ({ name, ...clampPetPosition(bounds, area, px - anchor.x, py - anchor.y, anchor) })));
+      }
       const results = [];
       for (const target of targets) {
         win.setPosition(target.x, target.y, false);
         await new Promise(resolve => setTimeout(resolve, 120));
         const [actualX, actualY] = win.getPosition();
-        results.push({ ...target, actualX, actualY, passed: actualX === target.x && actualY === target.y });
+        // Windows can round DIP coordinates by one pixel at fractional DPI.
+        results.push({ ...target, actualX, actualY, passed: Math.abs(actualX - target.x) <= 1 && Math.abs(actualY - target.y) <= 1 });
       }
       const clampChecks = [
         { name: 'above-top', wantedX: area.x, wantedY: area.y - bounds.height },
         { name: 'past-left', wantedX: area.x - bounds.width, wantedY: area.y },
         { name: 'past-right', wantedX: area.x + area.width, wantedY: area.y },
         { name: 'past-bottom', wantedX: area.x, wantedY: area.y + area.height }
-      ].map(test => ({ ...test, result: clampPetPosition(bounds, area, test.wantedX, test.wantedY) }));
+      ].map(test => ({ ...test, result: clampPetPosition(bounds, area, test.wantedX, test.wantedY, anchor) }));
       const holdTarget = targets[1];
       win.setPosition(holdTarget.x, Math.round(area.y + area.height / 3), false);
       await new Promise(resolve => setTimeout(resolve, 120));
@@ -439,7 +458,7 @@ app.whenReady().then(() => {
 app.on('window-all-closed', (event) => event.preventDefault());
 app.on('before-quit', () => { isQuitting = true; clearInterval(dragTimer); clearInterval(idleSecondsTimer); stopWandering(); inputWatcher?.kill(); globalShortcut.unregisterAll(); });
 ipcMain.on('hide-pet', () => { petHiddenByUser=true; win?.hide(); });
-ipcMain.on('mouse-passthrough', (_event, passthrough) => win?.setIgnoreMouseEvents(passthrough, { forward: true }));
+ipcMain.on('mouse-passthrough', (_event, passthrough) => win?.setIgnoreMouseEvents(dragActive ? false : passthrough, { forward: true }));
 ipcMain.handle('settings-get', () => settings);
 ipcMain.handle('settings-save', (_event, next) => saveSettings(next));
 ipcMain.handle('shortcuts-save', (_event, requested) => {
@@ -659,7 +678,8 @@ ipcMain.on('drag-start', () => {
   const [x, y] = win.getPosition();
   const pointer = screen.getCursorScreenPoint();
   dragActive = true;
-  dragOrigin = { pointer, lastPointer: pointer, x, y };
+  win.setIgnoreMouseEvents(false, { forward: true });
+  dragOrigin = { pointer, lastPointer: pointer, x, y, anchor: { x: pointer.x - x, y: pointer.y - y } };
   dragTimer = setInterval(() => {
     if (!win || !dragOrigin || win.isDestroyed()) return stopDragging();
     const pointer = process.env.PET_TEST_FIXED_POINTER ? dragOrigin.pointer : screen.getCursorScreenPoint();
@@ -670,21 +690,23 @@ ipcMain.on('drag-start', () => {
     if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) return;
     const bounds = win.getBounds();
     const display = screen.getDisplayNearestPoint(pointer);
-    const area = display.workArea;
+    const freeDrag = settings.petForm === 'ai-drama';
+    const area = freeDrag ? display.bounds : display.workArea;
     const wantedX = dragOrigin.x + deltaX;
     const wantedY = dragOrigin.y + deltaY;
-    const { x, y } = clampPetPosition(bounds, area, wantedX, wantedY);
+    const { x, y } = clampPetPosition(bounds, area, wantedX, wantedY, freeDrag ? dragOrigin.anchor : null);
     win.setPosition(Math.round(x), Math.round(y), false);
   }, 16);
 });
 ipcMain.handle('drag-move', () => {
   if (!win || !dragOrigin) return false;
   const pointer = screen.getCursorScreenPoint();
-  win.setPosition(
-    Math.round(dragOrigin.x + pointer.x - dragOrigin.pointer.x),
-    Math.round(dragOrigin.y + pointer.y - dragOrigin.pointer.y),
-    false
-  );
+  const display = screen.getDisplayNearestPoint(pointer);
+  const freeDrag = settings.petForm === 'ai-drama';
+  const position = clampPetPosition(win.getBounds(), freeDrag ? display.bounds : display.workArea,
+    dragOrigin.x + pointer.x - dragOrigin.pointer.x,
+    dragOrigin.y + pointer.y - dragOrigin.pointer.y, freeDrag ? dragOrigin.anchor : null);
+  win.setPosition(Math.round(position.x), Math.round(position.y), false);
   return true;
 });
 ipcMain.on('drag-end', stopDragging);
