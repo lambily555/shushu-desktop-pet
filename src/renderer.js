@@ -237,14 +237,17 @@ function setState(next, duration = 0) {
   window.dispatchEvent(new CustomEvent('pet-state',{detail:next}));
   const names={idle:'正在陪伴',typing:'正在和你一起打字',loafing:'正在摸鱼',happy:'心情很好',stretch:'正在伸懒腰',groom:'正在理毛',look:'正在观察你',sleep:'正在睡觉',wheel:'正在跑跑轮'};
   window.petAPI.reportStatus(names[next]||'正在陪伴');
-  if (duration) actionTimer = setTimeout(() => setState(idleSeconds > 25 ? 'sleep' : 'idle'), duration);
+  if (duration) actionTimer = setTimeout(() => setState(idleSeconds > 25 ? 'sleep' : 'idle'), appSettings.petForm==='real'?Math.max(5000,duration):duration);
 }
 
 const realCutoutActions = {
   idle:['idle-a','idle-b'], typing:['groom-a','groom-b'], loafing:['eat-a','eat-b'],
-  happy:['idle-b','groom-b'], stretch:['idle-b'], groom:['groom-a','groom-b'],
-  look:['idle-a','idle-b'], sleep:['idle-a'], wheel:['groom-b']
+  happy:['idle-a','idle-b'], stretch:['idle-b'], groom:['groom-a','groom-b'],
+  look:['idle-a','idle-b'], sleep:['idle-a'], wheel:['idle-b']
 };
+const realCutoutDurations={'groom-a':11600,'eat-a':10033,'eat-b':10000,'idle-a':9200,'idle-b':5000,'groom-b':6467};
+// Match median hamster silhouette area, excluding the leaf; keep each clip's scale fixed.
+const realCutoutScales={'groom-a':0.5714,'eat-a':1.1495,'eat-b':0.6273,'idle-a':0.5481,'idle-b':0.6138,'groom-b':0.5883};
 const aiDramaActions={
   idle:'idle-breathe/idle-breathe-v2',typing:'typing/typing-v2',loafing:'lie-down/lie-down-v2',
   happy:'happy/happy-v2',stretch:'happy/happy-v2',groom:'idle-breathe/idle-breathe-v2',
@@ -285,6 +288,12 @@ const realCutoutPreload = realCutoutNames.map(action => {
 let customCutoutActions = {};
 function cutoutSource(action){return customCutoutActions[action]?.src||`../assets/videos/matted/${action}.webp`}
 let activeRealCutout = '';
+let realCutoutStartedAt=0,realCutoutTimer;
+realCutout.addEventListener('load',()=>{
+  realCutout.style.transformOrigin='50% 50%';
+  realCutout.style.transform=`scale(${realCutoutScales[activeRealCutout]||1})`;
+  realCutoutStartedAt=Date.now();
+});
 const realCutoutCursor = {};
 let realRecoveryTimer;
 let realRecoveryLoading = false;
@@ -326,11 +335,15 @@ function resumePetVisual(){
   }
 }
 function syncRealCutout(force=false) {
+  if(appSettings.petForm!=='real'||state==='preview')return;
+  clearTimeout(realCutoutTimer);
   const choices = realCutoutActions[state] || realCutoutActions.idle;
   const cursor = realCutoutCursor[state] || 0;
   const action = choices[cursor % choices.length];
-  realCutoutCursor[state] = cursor + 1;
   if (!force && action === activeRealCutout) return;
+  const remaining=5000-(Date.now()-realCutoutStartedAt);
+  if(!force&&activeRealCutout&&remaining>0){realCutoutTimer=setTimeout(()=>syncRealCutout(),remaining);return}
+  realCutoutCursor[state] = cursor + 1;
   activeRealCutout = action;
   realCutout.src = cutoutSource(action);
 }
@@ -495,6 +508,7 @@ window.petAPI.onScale((value) => {
   root.setProperty('--control-inverse', 1 / Math.max(.25, Number(value) || 1));
 });
 function applySettings(next) {
+  const previousForm=appSettings.petForm;
   appSettings = { ...appSettings, ...next };
   appSettings.petForm=['3d','ai-drama','real'].includes(appSettings.petForm)?appSettings.petForm:'3d';
   customCutoutActions=Object.fromEntries((appSettings.customActions||[]).map(action=>[action.id,action]));
@@ -504,7 +518,7 @@ function applySettings(next) {
   document.body.classList.toggle('mode-3d', appSettings.petForm === '3d');
   realCutout.style.visibility='visible';
   for (const video of Object.values(realVideos)) video.pause();
-  if (appSettings.petForm === 'real') syncRealCutout(true);
+  if (appSettings.petForm === 'real') syncRealCutout(previousForm!=='real');
   if (appSettings.petForm === 'ai-drama') syncAiDramaCutout(true);
   const outfit = document.querySelector('#outfit');
   outfit.className = `outfit ${appSettings.outfit || 'none'}`;
@@ -585,9 +599,11 @@ window.petAPI.onPetCommand(command=>{
     if(form!==appSettings.petForm)return;
     if(form==='real'){
       if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
-      manualActionUntil=Date.now()+6000;
-      clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;realCutout.src=cutoutSource(action);
-      actionTimer=setTimeout(()=>setState('idle'),6000);return;
+      const previewDuration=realCutoutDurations[action]||6000;
+      manualActionUntil=Date.now()+previewDuration;
+      clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;
+      const source=cutoutSource(action);realCutout.src=source.startsWith('data:')?source:`${source}${source.includes('?')?'&':'?'}play=${Date.now()}`;
+      actionTimer=setTimeout(()=>setState('idle'),previewDuration);return;
     }
     const allowed=form==='ai-drama'?['idle','typing','happy','loafing','sleep','crawl','feeding','wheel']:['idle','happy','stretch','groom','look','sleep','wheel'];
     if(!allowed.includes(action))return;
@@ -600,11 +616,13 @@ window.petAPI.onPetCommand(command=>{
     const action=command.slice(7);
     if(!realCutoutNames.includes(action)&&!customCutoutActions[action])return;
     clearTimeout(actionTimer);state='preview';pet.className='pet preview';activeRealCutout=action;
-    realCutout.src=cutoutSource(action);
-    const names={'idle-a':'安静坐着','idle-b':'侧头观察','groom-a':'低头理毛','groom-b':'转身整理','eat-a':'认真吃菜','eat-b':'继续加餐'};
+    const source=cutoutSource(action);realCutout.src=source.startsWith('data:')?source:`${source}${source.includes('?')?'&':'?'}play=${Date.now()}`;
+    const names={'groom-a':'01 正面理毛','eat-a':'02 抱菜进食','eat-b':'03 低头进食','idle-a':'04 坐着观察','idle-b':'05 转身活动','groom-b':'06 近景理毛'};
     const actionName=appSettings.actionNames?.[action]||names[action]||customCutoutActions[action]?.name||'鼠鼠动作';
     say(`正在预览：${actionName}`,1800);window.petAPI.reportStatus(`正在预览${actionName}`);
-    actionTimer=setTimeout(()=>setState('idle'),4500);
+    const previewDuration=realCutoutDurations[action]||4500;
+    manualActionUntil=Date.now()+previewDuration;
+    actionTimer=setTimeout(()=>setState('idle'),previewDuration);
   }
 });
 let closeArmedAt=0;

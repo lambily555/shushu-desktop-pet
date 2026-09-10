@@ -51,12 +51,12 @@ const unifiedSettingsPanel=$('#effectSettings');if(unifiedSettingsPanel&&$('.gri
 const unifiedProfilePanel=$('#mouseProfilePopover');if(unifiedProfilePanel&&$('.grid')){unifiedProfilePanel.className='card panel-section wide mouse-profile-page';unifiedProfilePanel.dataset.section='profile';unifiedProfilePanel.removeAttribute('aria-hidden');$('.grid').prepend(unifiedProfilePanel)}
 const sidebarProfile=document.querySelector('aside small');if(sidebarProfile){sidebarProfile.className='mouse-id-card';sidebarProfile.innerHTML='<span class="mouse-id-title"><i>🐹</i>鼠鼠身份卡</span><span class="mouse-id-grid"><span><b>🎂 出生日期</b><em>2024.06.09</em></span><span><b>⚖️ 体重</b><em>六十多克</em></span><span><b>♂ 性别</b><em>小男鼠</em></span><span><b>🌙 作息</b><em>夜间活跃</em></span></span><span class="mouse-id-foot">♥ 你的小仓鼠桌面伙伴</span>'}
 const hamsterActions=[
-  {id:'idle-a',icon:'🐹',name:'安静坐着',desc:'正面静置，轻轻活动小手'},
-  {id:'idle-b',icon:'👀',name:'侧头观察',desc:'换一个角度看看桌面'},
-  {id:'groom-a',icon:'🧼',name:'低头理毛',desc:'低头整理自己的毛发'},
-  {id:'groom-b',icon:'🌀',name:'转身整理',desc:'转身后继续清洁身体'},
-  {id:'eat-a',icon:'🥬',name:'认真吃菜',desc:'抱着菜叶慢慢咀嚼'},
-  {id:'eat-b',icon:'😋',name:'继续加餐',desc:'另一段真实吃菜动作'}
+  {id:'groom-a',icon:'🧼',name:'01 正面理毛',desc:'正面对着你，整理脸颊和小爪'},
+  {id:'eat-a',icon:'🥬',name:'02 抱菜进食',desc:'抱着绿色菜叶慢慢吃'},
+  {id:'eat-b',icon:'😋',name:'03 低头进食',desc:'低下头认真吃东西'},
+  {id:'idle-a',icon:'🐹',name:'04 坐着观察',desc:'坐在中央，轻轻转头观察'},
+  {id:'idle-b',icon:'👀',name:'05 转身活动',desc:'转动身体，保留完整主体片段'},
+  {id:'groom-b',icon:'🌀',name:'06 近景理毛',desc:'近距离整理脸部毛发'}
 ];
 const formActionLibrary={
   '3d':[

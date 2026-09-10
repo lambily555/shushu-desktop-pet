@@ -279,7 +279,7 @@ app.whenReady().then(() => {
   if (process.env.PET_POSITION_TEST_PATH) {
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
       const testDisplay = screen.getPrimaryDisplay();
-      const freeDrag = settings.petForm === 'ai-drama';
+      const freeDrag = settings.petForm === 'ai-drama' || settings.petForm === 'real';
       const area = freeDrag ? testDisplay.bounds : testDisplay.workArea;
       const bounds = win.getBounds();
       const anchor = freeDrag ? { x: bounds.width / 2, y: bounds.height - 57 } : null;
@@ -690,7 +690,7 @@ ipcMain.on('drag-start', () => {
     if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) return;
     const bounds = win.getBounds();
     const display = screen.getDisplayNearestPoint(pointer);
-    const freeDrag = settings.petForm === 'ai-drama';
+    const freeDrag = settings.petForm === 'ai-drama' || settings.petForm === 'real';
     const area = freeDrag ? display.bounds : display.workArea;
     const wantedX = dragOrigin.x + deltaX;
     const wantedY = dragOrigin.y + deltaY;
@@ -702,7 +702,7 @@ ipcMain.handle('drag-move', () => {
   if (!win || !dragOrigin) return false;
   const pointer = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(pointer);
-  const freeDrag = settings.petForm === 'ai-drama';
+  const freeDrag = settings.petForm === 'ai-drama' || settings.petForm === 'real';
   const position = clampPetPosition(win.getBounds(), freeDrag ? display.bounds : display.workArea,
     dragOrigin.x + pointer.x - dragOrigin.pointer.x,
     dragOrigin.y + pointer.y - dragOrigin.pointer.y, freeDrag ? dragOrigin.anchor : null);
