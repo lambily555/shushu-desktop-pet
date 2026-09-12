@@ -125,7 +125,30 @@ document.querySelectorAll('[data-form]').forEach(b=>b.onclick=async()=>{await sa
 $('#addLine').onclick=()=>{const v=$('#newLine').value.trim();if(!v)return;save({customLines:[...(settings.customLines||[]),v]});$('#newLine').value=''};$('#lineList').onclick=e=>{if(e.target.dataset.remove!==undefined){const a=[...settings.customLines];a.splice(Number(e.target.dataset.remove),1);save({customLines:a})}};$('#togglePet').onclick=()=>window.petAPI.togglePet();
 $('#saveAI').onclick=async()=>{await save({aiBaseUrl:$('#aiBaseUrl').value.trim(),aiModel:$('#aiModel').value.trim(),aiApiKey:$('#aiApiKey').value.trim()});$('#chatStatus').textContent='AI 对话设置已保存在这台电脑。'};
 document.querySelectorAll('[data-chat-mode]').forEach(button=>button.onclick=async()=>{await save({chatMode:button.dataset.chatMode});$('#chatStatus').textContent=button.dataset.chatMode==='local'?'已切换到免费本地聊天，不会产生费用。':'已切换到 AI 智能聊天，请确认接口设置可用。'});
-async function sendChat(){const message=$('#chatInput').value.trim();if(!message||$('#sendChat').disabled)return;$('#chatInput').value='';$('#sendChat').disabled=true;$('#chatStatus').textContent=(settings.chatMode||'local')==='local'?'鼠鼠正在认真理解你说的话……':'鼠鼠正在通过 AI 思考怎么回答……';const pending={role:'user',content:message};settings={...settings,chatHistory:[...(settings.chatHistory||[]),pending]};renderChat();try{const result=await window.petAPI.chat(message);if(result?.ok){settings={...settings,chatHistory:result.history};renderChat();$('#chatStatus').textContent=result.mode==='local'?'鼠鼠已用免费本地模式回答。':'鼠鼠已经通过 AI 回答你啦。'}else{settings={...settings,chatHistory:(settings.chatHistory||[]).slice(0,-1)};renderChat();$('#chatStatus').textContent=`没有收到回复：${result?.error||'本地聊天暂时没有响应'}`}}catch(error){settings={...settings,chatHistory:(settings.chatHistory||[]).slice(0,-1)};renderChat();$('#chatStatus').textContent=`聊天连接已恢复，请再发送一次：${error?.message||'未知错误'}`}finally{$('#sendChat').disabled=false}}
+async function sendChat(){
+  const input=$('#chatInput'),message=input.value.trim();
+  if(!message||$('#sendChat').disabled)return;
+  $('#sendChat').disabled=true;
+  $('#chatStatus').textContent=(settings.chatMode||'local')==='local'?'鼠鼠正在认真理解你说的话……':'鼠鼠正在通过 AI 思考怎么回答……';
+  const pending={role:'user',content:message};
+  settings={...settings,chatHistory:[...(settings.chatHistory||[]),pending]};renderChat();
+  try{
+    const result=await window.petAPI.chat(message);
+    if(result?.ok){
+      settings={...settings,chatHistory:result.history};renderChat();
+      if(input.value.trim()===message)input.value='';
+      $('#chatStatus').textContent=result.mode==='local'?'鼠鼠已用免费本地模式回答。':'鼠鼠已经通过 AI 回答你啦。';
+    }else{
+      settings={...settings,chatHistory:(settings.chatHistory||[]).slice(0,-1)};renderChat();
+      input.value=message;input.focus();
+      $('#chatStatus').textContent=`发送失败，原消息已保留：${result?.error||'聊天暂时没有响应'}`;
+    }
+  }catch(error){
+    settings={...settings,chatHistory:(settings.chatHistory||[]).slice(0,-1)};renderChat();
+    input.value=message;input.focus();
+    $('#chatStatus').textContent=`发送失败，原消息已保留：${error?.message||'未知错误'}`;
+  }finally{$('#sendChat').disabled=false}
+}
 $('#sendChat').onclick=sendChat;$('#chatInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}};$('#clearChat').onclick=async()=>{settings=await window.petAPI.clearChat();renderChat();$('#chatStatus').textContent='聊天记录已清空。'};
 $('#heroPet').onclick=()=>{window.petAPI.petCommand('pet');$('#heroBubble').textContent='嘿嘿，摸到我啦～';$('#heroBubble').classList.add('pop');setTimeout(()=>{$('#heroBubble').classList.remove('pop');$('#heroBubble').textContent='我在这里陪你～'},2200)};
 document.querySelectorAll('.nav button').forEach(button=>button.onclick=()=>{setPanel(button.dataset.panel);if(button.dataset.panel==='diary')showDiary($('#diaryDate').value||today())});
