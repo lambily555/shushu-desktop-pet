@@ -145,6 +145,34 @@ function showControl() {
   controlWin.show(); controlWin.focus();
 }
 
+function enableEditingShortcuts(window) {
+  const commands = {
+    a: 'selectAll', c: 'copy', v: 'paste', x: 'cut',
+    z: 'undo', y: 'redo'
+  };
+  window.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown' || (!input.control && !input.meta) || input.alt) return;
+    const command = commands[String(input.key).toLowerCase()];
+    if (!command) return;
+    event.preventDefault();
+    window.webContents[command]();
+  });
+  window.webContents.on('context-menu', (_event, params) => {
+    if (!params.isEditable && !params.selectionText) return;
+    const flags = params.editFlags || {};
+    Menu.buildFromTemplate([
+      { label: '撤销', role: 'undo', enabled: !!flags.canUndo },
+      { label: '重做', role: 'redo', enabled: !!flags.canRedo },
+      { type: 'separator' },
+      { label: '剪切', role: 'cut', enabled: !!flags.canCut },
+      { label: '复制', role: 'copy', enabled: !!flags.canCopy },
+      { label: '粘贴', role: 'paste', enabled: !!flags.canPaste },
+      { type: 'separator' },
+      { label: '全选', role: 'selectAll', enabled: params.isEditable || !!params.selectionText }
+    ]).popup({ window });
+  });
+}
+
 function stopDragging() {
   clearInterval(dragTimer);
   dragTimer = null;
@@ -186,6 +214,7 @@ function createControlWindow() {
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
   controlWin.loadFile(path.join(__dirname, 'dashboard.html'));
+  enableEditingShortcuts(controlWin);
   controlWin.on('close', (event) => { if (!isQuitting) { event.preventDefault(); controlWin.hide(); } });
 }
 
