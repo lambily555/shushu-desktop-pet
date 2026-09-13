@@ -380,3 +380,6 @@ $('#townSpeed')?.addEventListener('change',e=>{townState.speed=Number(e.target.v
 $('#townSettingsButton')?.addEventListener('click',()=>{$('#townSettings').hidden=!$('#townSettings').hidden});
 document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{townState[input.dataset.townSetting]=input.checked;localStorage.setItem('shushu-town',JSON.stringify(townState))}));
 renderTown();setInterval(renderTown,30000);setInterval(settleTown,300000);window.addEventListener('beforeunload',settleTown);
+const townExit=document.createElement('button');townExit.className='town-exit';townExit.textContent='← 返回桌面主页';townExit.onclick=()=>setPanel('home');document.querySelector('.town-page').appendChild(townExit);
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.dataset.currentPanel==='town')setPanel('home')});
+document.body.appendChild(document.querySelector('.town-page'));

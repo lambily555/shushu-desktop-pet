@@ -371,11 +371,26 @@ app.whenReady().then(() => {
           document.querySelector('#townButton').click();
           await new Promise(resolve=>setTimeout(resolve,650));
           const scene=document.querySelector('#townScene'),canvas=scene.querySelector('canvas');
-          return {panel:document.body.dataset.currentPanel,sceneVisible:getComputedStyle(scene).display!=='none',canvas:{width:canvas.width,height:canvas.height},placeCount:9,headerCentered};
+          return {panel:document.body.dataset.currentPanel,sceneVisible:getComputedStyle(scene).display!=='none',canvas:{width:canvas.width,height:canvas.height},placeCount:9,headerCentered,town:window.TownApp?.inspect?.()};
         })()`);
         const townImage = await controlWin.webContents.capturePage();
         fs.writeFileSync(process.env.DASHBOARD_TOWN_CAPTURE_PATH, townImage.toPNG());
         fs.writeFileSync(`${process.env.DASHBOARD_TOWN_CAPTURE_PATH}.json`, JSON.stringify(townReport,null,2));
+        if(process.env.TOWN_INTERIOR_TEST_DIR){
+          const reports=[];
+          for(const name of ['鼠鼠小屋','诊所','零食铺','纪念馆','殡仪馆','跑轮公园','小菜园','墓地','中心广场']){
+            const before=await controlWin.webContents.executeJavaScript('window.TownApp.inspect().camera');
+            await controlWin.webContents.executeJavaScript(`window.TownApp.enterPlace(${JSON.stringify(name)})`);
+            await new Promise(resolve=>setTimeout(resolve,180));
+            const entered=await controlWin.webContents.executeJavaScript('window.TownApp.inspect()');
+            fs.writeFileSync(path.join(process.env.TOWN_INTERIOR_TEST_DIR,`${name}.png`),(await controlWin.webContents.capturePage()).toPNG());
+            await controlWin.webContents.executeJavaScript("document.querySelector('.town-room-return').click()");
+            const after=await controlWin.webContents.executeJavaScript('window.TownApp.inspect()');
+            reports.push({name,entered,returned:!after.activePlace,cameraRestored:JSON.stringify(before)===JSON.stringify(after.camera)});
+          }
+          fs.writeFileSync(path.join(process.env.TOWN_INTERIOR_TEST_DIR,'report.json'),JSON.stringify(reports,null,2));
+        }
+
         await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
       }
       if (process.env.DASHBOARD_PROFILE_CAPTURE_PATH) {
