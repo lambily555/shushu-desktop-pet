@@ -1,8 +1,8 @@
 # 鼠鼠桌面小宠
 
-一只会在 Windows 桌面陪伴你的小仓鼠。它能回应点击和键盘输入，在 3D、真实动态与仿真形态之间切换，还能跑跑轮、接受投喂、换装、说话，并记录每日互动日记。
+一只会在 Windows 桌面陪伴你的小仓鼠。它能回应点击和键盘输入，在 3D、真实动态与仿真形态之间切换，还能跑跑轮、接受投喂、换装、说话，并在可交互的 3D 鼠鼠小镇里经营自己的生活。
 
-A Windows desktop hamster companion with interactive 3D, real-motion, and lifelike forms, feeding, outfits, dialogue, a running wheel, and daily journals.
+A Windows desktop hamster companion with interactive 3D, real-motion, and lifelike forms, feeding, outfits, dialogue, a running wheel, daily journals, and an autonomous 3D hamster town.
 
 ## 主页展示 / Home Preview
 
@@ -18,6 +18,7 @@ A Windows desktop hamster companion with interactive 3D, real-motion, and lifeli
 - 菜叶、面包虫、小饼干、营养糊糊投喂互动
 - 跑轮、装扮、自定义对话和开心叫声
 - 每日互动统计和小鼠日记
+- 可旋转、缩放和点击地点的 3D 鼠鼠小镇，包含现实昼夜、离线生活结算和独立生命设置
 - 大小调节、位置拖动与开机后的快捷启动
 
 ## Lifelike Form / 仿真形态

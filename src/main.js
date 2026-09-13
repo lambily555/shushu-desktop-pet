@@ -365,6 +365,19 @@ app.whenReady().then(() => {
       }
       const image = await controlWin.webContents.capturePage();
       fs.writeFileSync(process.env.DASHBOARD_CAPTURE_PATH, image.toPNG());
+      if (process.env.DASHBOARD_TOWN_CAPTURE_PATH) {
+        const townReport = await controlWin.webContents.executeJavaScript(`(async()=>{
+          const homeActions=document.querySelector('.header-actions').getBoundingClientRect(),headerCentered=Math.abs((homeActions.left+homeActions.width/2)-(document.documentElement.clientWidth/2))<6;
+          document.querySelector('#townButton').click();
+          await new Promise(resolve=>setTimeout(resolve,650));
+          const scene=document.querySelector('#townScene'),canvas=scene.querySelector('canvas');
+          return {panel:document.body.dataset.currentPanel,sceneVisible:getComputedStyle(scene).display!=='none',canvas:{width:canvas.width,height:canvas.height},placeCount:9,headerCentered};
+        })()`);
+        const townImage = await controlWin.webContents.capturePage();
+        fs.writeFileSync(process.env.DASHBOARD_TOWN_CAPTURE_PATH, townImage.toPNG());
+        fs.writeFileSync(`${process.env.DASHBOARD_TOWN_CAPTURE_PATH}.json`, JSON.stringify(townReport,null,2));
+        await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
+      }
       if (process.env.DASHBOARD_PROFILE_CAPTURE_PATH) {
         await controlWin.webContents.executeJavaScript(`document.querySelector('#homeBrand').click()`);
         await new Promise(resolve => setTimeout(resolve, 180));
