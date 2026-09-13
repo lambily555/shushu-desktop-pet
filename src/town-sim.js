@@ -1,0 +1,53 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.TownSimulation=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  const DAY=86400000,HOUR=3600000,VERSION=1;
+  const paceDays={1:365,4:90,12:30,48:7};
+  const roles=['跑轮管理员','医生','零食店主','广场邻居','纪念馆管理员','小屋邻居','园丁','礼仪师','守墓人'];
+  const rolePlaces=['跑轮公园','诊所','零食铺','中心广场','纪念馆','鼠鼠小屋','小菜园','殡仪馆','墓地'];
+  const clamp=(value,min=0,max=100)=>Math.max(min,Math.min(max,value));
+  const hash=text=>{let h=2166136261;for(const c of String(text)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+  const seeded=(seed,index=0)=>((hash(`${seed}:${index}`)%10000)/10000);
+  const dateKey=time=>{const d=new Date(time);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+  function daypart(time){const h=new Date(time).getHours();if(h>=6&&h<17)return '白天';if(h<19&&h>=17)return '傍晚';if(h>=19)return '夜晚';return '深夜'}
+  function weather(time){const month=new Date(time).getMonth(),n=seeded(dateKey(time),month);if(n<.14)return {name:'小雨',icon:'🌦️',sky:0x91a9a2,light:.72};if(n<.32)return {name:'多云',icon:'🌤️',sky:0xb8c5b2,light:.86};if(n<.45)return {name:'微风',icon:'🍃',sky:0xb7cfad,light:.94};return {name:'晴朗',icon:'☀️',sky:0xcbd7a9,light:1}}
+  function hamster(name,role,place,index){return {id:`npc-${index}`,name,role,place,ageYears:.55+index*.06,alive:true,health:92,relationship:index===5?30:10,stage:'成年',generation:1}}
+  function defaults(now=Date.now()){
+    return {version:VERSION,lastSettledAt:now,lastOpenedAt:now,fullness:78,health:96,mood:92,food:12,seeds:30,speed:12,aging:true,mortality:false,illness:false,ageYearsValue:.7,alive:true,lifeStage:'成年',currentActivity:'休息',currentPlace:'鼠鼠小屋',activityUntil:now,events:[],memorials:[],offspring:[],furniture:{bed:{owned:true,slot:'bed'},table:{owned:true,slot:'table'},cushion:{owned:true,slot:'cushion'}},garden:{plantedAt:now-DAY*.5,ready:false},npcs:roles.map((role,i)=>hamster(['轮轮','白大夫','栗子','团团','念念','安安','芽芽','礼礼','石头'][i],role,rolePlaces[i],i)),pendingFarewell:null};
+  }
+  function migrate(value,now=Date.now()){const base=defaults(now),state=value&&typeof value==='object'?{...base,...value}:base;state.version=VERSION;state.lastSettledAt=Number(state.lastSettledAt)||now;if(value?.ageYearsValue==null&&Number.isFinite(value?.ageDays))state.ageYearsValue=value.ageDays/(paceDays[state.speed]||30);state.fullness=clamp(Number(state.fullness ?? state.hunger ?? 78));state.health=clamp(Number(state.health)||96);state.mood=clamp(Number(state.mood)||92);state.food=Math.max(0,Math.floor(Number(state.food)||0));state.seeds=Math.max(0,Math.floor(Number(state.seeds)||0));state.events=Array.isArray(state.events)?state.events.slice(-80):[];state.npcs=Array.isArray(state.npcs)&&state.npcs.length?state.npcs:base.npcs;state.memorials=Array.isArray(state.memorials)?state.memorials:[];state.offspring=Array.isArray(state.offspring)?state.offspring:[];state.furniture={...base.furniture,...(state.furniture||{})};state.garden={...base.garden,...(state.garden||{})};return state}
+  function event(state,time,type,text,place=state.currentPlace){state.events.push({id:`${time}-${type}-${state.events.length}`,time,type,text,place});state.events=state.events.slice(-80)}
+  function ageYears(state){return Number(state.ageYearsValue)||0}
+  function stageFor(years){if(years<.18)return '幼鼠';if(years<.65)return '少年';if(years<1.8)return '成年';return '老年'}
+  function chooseActivity(state,time){const part=daypart(time),r=seeded(dateKey(time)+Math.floor(time/HOUR),'activity'),low=part==='白天';if(state.fullness<28)return ['寻找食物','鼠鼠小屋'];if(state.health<55)return ['休息','诊所'];const list=low?[['睡觉','鼠鼠小屋'],['理毛','鼠鼠小屋'],['进食','鼠鼠小屋'],['菜园散步','小菜园']]:[['跑轮','跑轮公园'],['探索','中心广场'],['社交','中心广场'],['进食','鼠鼠小屋'],['饮水','鼠鼠小屋'],['照看菜园','小菜园']];return list[Math.floor(r*list.length)]}
+  function settle(stateInput,now=Date.now()){
+    const state=migrate(stateInput,now),from=Math.min(state.lastSettledAt,now),hours=Math.min(24*365*3,Math.max(0,(now-from)/HOUR));if(hours<=0)return state;
+    const steps=Math.ceil(hours),stepHours=hours/steps;
+    for(let i=0;i<steps;i++){
+      const time=from+(i+1)*stepHours*HOUR;
+      if(!state.alive&&state.pendingFarewell?.phase==='resting'&&time-state.pendingFarewell.startedAt>=HOUR){state.pendingFarewell.phase='collected';event(state,time,'farewell','礼仪师来到小屋，陪鼠鼠前往墓地。','殡仪馆')}
+      if(!state.alive&&state.pendingFarewell?.phase==='collected'&&time-state.pendingFarewell.startedAt>=2*HOUR){state.memorials.push({id:`main-${time}`,name:'鼠鼠',role:'你的小宠物',time,epitaph:'鼠鼠曾认真地陪伴主人度过每一天。',album:state.events.slice(-12)});state.pendingFarewell={phase:'buried',startedAt:state.pendingFarewell.startedAt,finishedAt:time};event(state,time,'memorial','礼仪师将鼠鼠送到墓地，纪念馆保存了生平卡片和相册。','墓地')}
+      if(state.alive){
+        state.fullness=clamp(state.fullness-stepHours*1.05);let meals=0;
+        while(state.fullness<45&&state.food>0&&meals<3){state.food--;state.fullness=clamp(state.fullness+24);meals++}
+        if(meals)event(state,time,'feed',`鼠鼠从粮仓吃了${meals}份粮食。`,'鼠鼠小屋');
+        const poor=state.fullness<18;state.health=clamp(state.health+(poor?-0.12:0.012)*stepHours);state.mood=clamp(state.mood+(poor?-.1:.015)*stepHours,20,100);
+        if(state.aging)state.ageYearsValue+=stepHours/(24*(paceDays[state.speed]||30));
+        state.lifeStage=stageFor(ageYears(state));if(ageYears(state)>1.8)state.health=clamp(state.health-stepHours*.025);
+        if(state.illness&&seeded(dateKey(time),'ill')<.004*stepHours&&state.health>55){state.health=clamp(state.health-8);event(state,time,'health','鼠鼠有些不舒服，去诊所检查了。','诊所')}
+        if(time>=state.activityUntil){const [activity,place]=chooseActivity(state,time);state.currentActivity=activity;state.currentPlace=place;state.activityUntil=time+HOUR*(1+seeded(time,'duration')*3);event(state,time,'activity',`鼠鼠${activity==='睡觉'?'在小屋睡了一觉':`去了${place}${activity}`}。`,place);if(activity==='跑轮'){state.health=clamp(state.health+.6);state.mood=clamp(state.mood+1);state.seeds+=1}}
+        if(state.garden.ready===false&&time-state.garden.plantedAt>=DAY){state.garden.ready=true;event(state,time,'garden','小菜园的嫩叶成熟了。','小菜园')}
+        if(state.mortality&&state.aging&&ageYears(state)>=2+seeded('lifespan')&&state.health<80){state.alive=false;state.currentActivity='安静休息';state.currentPlace='鼠鼠小屋';state.pendingFarewell={phase:'resting',startedAt:time};event(state,time,'farewell','鼠鼠回到小屋安静地趴下休息。','鼠鼠小屋')}
+      }
+      for(let n=0;n<state.npcs.length;n++){const npc=state.npcs[n];if(!npc.alive)continue;npc.ageYears=(Number(npc.ageYears)||.5)+stepHours/(24*(paceDays[state.speed]||30));npc.stage=stageFor(npc.ageYears);if(npc.ageYears>=2.1+seeded(npc.id)*.9){npc.alive=false;state.memorials.push({id:npc.id,name:npc.name,role:npc.role,time,epitaph:`${npc.name}曾在${npc.place}认真生活。`});event(state,time,'memorial',`${npc.name}走完了小镇的一生，墓地增加了一块纪念碑。`,'墓地');state.npcs[n]={id:`${npc.id}-g${(npc.generation||1)+1}`,name:`${npc.name}的继任者`,role:npc.role,place:npc.place,ageYears:.22,alive:true,health:94,relationship:5,stage:'少年',generation:(npc.generation||1)+1};event(state,time,'resident',`${npc.role}迎来了新的继任者。`,npc.place)}}
+      for(const pup of state.offspring){pup.ageYears=(Number(pup.ageYears)||0)+stepHours/(24*(paceDays[state.speed]||30));pup.stage=stageFor(pup.ageYears)}
+    }
+    state.lastSettledAt=now;return state;
+  }
+  function buyFood(stateInput,amount=5){const state=migrate(stateInput),cost=amount*2;if(state.seeds<cost)return {state,ok:false,message:'瓜子不够。'};state.seeds-=cost;state.food+=amount;event(state,Date.now(),'buy',`在零食铺买了${amount}份粮食。`,'零食铺');return {state,ok:true,message:`粮仓增加${amount}份粮食。`}}
+  function harvest(stateInput){const state=migrate(stateInput);if(!state.garden.ready)return {state,ok:false,message:'嫩叶还没有成熟。'};state.garden={plantedAt:Date.now(),ready:false};state.food+=3;state.seeds+=4;event(state,Date.now(),'garden','收获嫩叶，获得3份粮食和4颗瓜子。','小菜园');return {state,ok:true,message:'收获3份粮食和4颗瓜子。'}}
+  function interact(stateInput,npcId){const state=migrate(stateInput),npc=state.npcs.find(x=>x.id===npcId&&x.alive);if(!npc)return {state,ok:false,message:'这位居民现在不在。'};npc.relationship=clamp(npc.relationship+5);state.mood=clamp(state.mood+2);state.seeds+=1;event(state,Date.now(),'social',`和${npc.name}聊了一会儿。`,'中心广场');return {state,ok:true,message:`与${npc.name}的关系增加了。`}}
+  function relationship(value){return value>=80?'伴侣':value>=60?'亲密':value>=35?'朋友':value>=15?'认识':'陌生'}
+  function breed(stateInput,npcId){const state=migrate(stateInput),npc=state.npcs.find(x=>x.id===npcId&&x.alive);if(!state.alive||state.lifeStage!=='成年'||state.health<70)return {state,ok:false,message:'鼠鼠成年且健康时才适合繁育。'};if(!npc||npc.relationship<80||npc.stage!=='成年')return {state,ok:false,message:'需要先与一位成年居民成为伴侣。'};if(state.offspring.some(x=>x.stage==='幼鼠'))return {state,ok:false,message:'先照顾正在成长的幼鼠。'};const count=1+Math.floor(seeded(Date.now(),'litter')*3),names=['小米','豆豆','花生'],time=Date.now();for(let i=0;i<count;i++)state.offspring.push({id:`pup-${time}-${i}`,name:names[i],ageYears:0,stage:'幼鼠',parent:npc.name,generation:2,trait:i%2?'亲人':'好奇',favorite:i%2?'菜叶':'面包虫'});event(state,time,'family',`鼠鼠和${npc.name}迎来了${count}只幼鼠。`,'鼠鼠小屋');return {state,ok:true,message:`小屋迎来了${count}只幼鼠。`}}
+  function finishFarewell(stateInput,at=Date.now()){const state=migrate(stateInput,at);if(!state.pendingFarewell||state.pendingFarewell.phase==='buried')return {state,ok:false};const time=at;state.memorials.push({id:`main-${time}`,name:'鼠鼠',role:'你的小宠物',time,epitaph:'鼠鼠曾认真地陪伴主人度过每一天。',album:state.events.slice(-12)});state.pendingFarewell={phase:'buried',startedAt:state.pendingFarewell.startedAt,finishedAt:time};event(state,time,'memorial','礼仪师将鼠鼠送到墓地，纪念馆保存了生平卡片和相册。','墓地');return {state,ok:true}}
+  function adopt(stateInput,id){const state=migrate(stateInput),pup=state.offspring.find(x=>x.id===id)||state.npcs.find(x=>x.id===id&&x.alive);if(!pup)return {state,ok:false,message:'请选择一只仍在小镇生活的鼠鼠。'};state.alive=true;state.fullness=80;state.health=95;state.mood=75;state.ageYearsValue=Number(pup.ageYears)||0;state.lifeStage=stageFor(ageYears(state));state.pendingFarewell=null;event(state,Date.now(),'family',`${pup.name}成为了新的桌面伙伴。`,'鼠鼠小屋');return {state,ok:true,message:`现在由${pup.name}继续陪伴你。`}}
+  return {defaults,migrate,settle,daypart,weather,ageYears,stageFor,buyFood,harvest,interact,relationship,breed,finishFarewell,adopt,paceDays};
+});

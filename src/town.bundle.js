@@ -13211,6 +13211,148 @@
       object
     };
   }
+  var PointsMaterial = class extends Material {
+    /**
+     * Constructs a new points material.
+     *
+     * @param {Object} [parameters] - An object with one or more properties
+     * defining the material's appearance. Any property of the material
+     * (including any property from inherited materials) can be passed
+     * in here. Color values can be passed any type of value accepted
+     * by {@link Color#set}.
+     */
+    constructor(parameters) {
+      super();
+      this.isPointsMaterial = true;
+      this.type = "PointsMaterial";
+      this.color = new Color(16777215);
+      this.map = null;
+      this.alphaMap = null;
+      this.size = 1;
+      this.sizeAttenuation = true;
+      this.fog = true;
+      this.setValues(parameters);
+    }
+    copy(source) {
+      super.copy(source);
+      this.color.copy(source.color);
+      this.map = source.map;
+      this.alphaMap = source.alphaMap;
+      this.size = source.size;
+      this.sizeAttenuation = source.sizeAttenuation;
+      this.fog = source.fog;
+      return this;
+    }
+  };
+  var _inverseMatrix = /* @__PURE__ */ new Matrix4();
+  var _ray = /* @__PURE__ */ new Ray();
+  var _sphere = /* @__PURE__ */ new Sphere();
+  var _position$3 = /* @__PURE__ */ new Vector3();
+  var Points = class extends Object3D {
+    /**
+     * Constructs a new point cloud.
+     *
+     * @param {BufferGeometry} [geometry] - The points geometry.
+     * @param {Material|Array<Material>} [material] - The points material.
+     */
+    constructor(geometry = new BufferGeometry(), material = new PointsMaterial()) {
+      super();
+      this.isPoints = true;
+      this.type = "Points";
+      this.geometry = geometry;
+      this.material = material;
+      this.morphTargetDictionary = void 0;
+      this.morphTargetInfluences = void 0;
+      this.updateMorphTargets();
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      this.material = Array.isArray(source.material) ? source.material.slice() : source.material;
+      this.geometry = source.geometry;
+      return this;
+    }
+    /**
+     * Computes intersection points between a casted ray and this point cloud.
+     *
+     * @param {Raycaster} raycaster - The raycaster.
+     * @param {Array<Object>} intersects - The target array that holds the intersection points.
+     */
+    raycast(raycaster, intersects2) {
+      const geometry = this.geometry;
+      const matrixWorld = this.matrixWorld;
+      const threshold = raycaster.params.Points.threshold;
+      const drawRange = geometry.drawRange;
+      if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
+      _sphere.copy(geometry.boundingSphere);
+      _sphere.applyMatrix4(matrixWorld);
+      _sphere.radius += threshold;
+      if (raycaster.ray.intersectsSphere(_sphere) === false) return;
+      _inverseMatrix.copy(matrixWorld).invert();
+      _ray.copy(raycaster.ray).applyMatrix4(_inverseMatrix);
+      const localThreshold = threshold / ((this.scale.x + this.scale.y + this.scale.z) / 3);
+      const localThresholdSq = localThreshold * localThreshold;
+      const index = geometry.index;
+      const attributes = geometry.attributes;
+      const positionAttribute = attributes.position;
+      if (index !== null) {
+        const start = Math.max(0, drawRange.start);
+        const end = Math.min(index.count, drawRange.start + drawRange.count);
+        for (let i2 = start, il = end; i2 < il; i2++) {
+          const a = index.getX(i2);
+          _position$3.fromBufferAttribute(positionAttribute, a);
+          testPoint(_position$3, a, localThresholdSq, matrixWorld, raycaster, intersects2, this);
+        }
+      } else {
+        const start = Math.max(0, drawRange.start);
+        const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
+        for (let i2 = start, l = end; i2 < l; i2++) {
+          _position$3.fromBufferAttribute(positionAttribute, i2);
+          testPoint(_position$3, i2, localThresholdSq, matrixWorld, raycaster, intersects2, this);
+        }
+      }
+    }
+    /**
+     * Sets the values of {@link Points#morphTargetDictionary} and {@link Points#morphTargetInfluences}
+     * to make sure existing morph targets can influence this 3D object.
+     */
+    updateMorphTargets() {
+      const geometry = this.geometry;
+      const morphAttributes = geometry.morphAttributes;
+      const keys = Object.keys(morphAttributes);
+      if (keys.length > 0) {
+        const morphAttribute = morphAttributes[keys[0]];
+        if (morphAttribute !== void 0) {
+          this.morphTargetInfluences = [];
+          this.morphTargetDictionary = {};
+          for (let m = 0, ml = morphAttribute.length; m < ml; m++) {
+            const name = morphAttribute[m].name || String(m);
+            this.morphTargetInfluences.push(0);
+            this.morphTargetDictionary[name] = m;
+          }
+        }
+      }
+    }
+  };
+  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, intersects2, object) {
+    const rayPointDistanceSq = _ray.distanceSqToPoint(point);
+    if (rayPointDistanceSq < localThresholdSq) {
+      const intersectPoint = new Vector3();
+      _ray.closestPointToPoint(point, intersectPoint);
+      intersectPoint.applyMatrix4(matrixWorld);
+      const distance = raycaster.ray.origin.distanceTo(intersectPoint);
+      if (distance < raycaster.near || distance > raycaster.far) return;
+      intersects2.push({
+        distance,
+        distanceToRay: Math.sqrt(rayPointDistanceSq),
+        point: intersectPoint,
+        index,
+        face: null,
+        faceIndex: null,
+        barycoord: null,
+        object
+      });
+    }
+  }
   var CubeTexture = class extends Texture {
     /**
      * Constructs a new cube texture.
@@ -33808,7 +33950,8 @@ void main() {
     renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    scene.add(new HemisphereLight(16774367, 6714989, 2.4));
+    const ambient = new HemisphereLight(16774367, 6714989, 2.4);
+    scene.add(ambient);
     const sun = new DirectionalLight(16770237, 3.1);
     sun.position.set(-8, 15, -7);
     sun.castShadow = true;
@@ -33881,11 +34024,13 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null;
+    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, worldState = {};
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
     scene.add(room);
+    const weatherFx = new Group(), memorialFx = new Group();
+    scene.add(weatherFx, memorialFx);
     const roomLabels = [];
     const returnButton = document.createElement("button");
     returnButton.className = "town-room-return";
@@ -33961,10 +34106,18 @@ void main() {
         add(0.07, 0.3, 0.07, 2.9, 0.36, -1.05, 12304321);
         label("\u6C34\u58F6", 2.9, -1.2);
         shelf(0.2, -2.4, "\u7CAE\u4ED3");
-        add(1, 0.55, 0.75, -2.3, 0.3, 1.1, 10188881);
-        label("\u6728\u684C", -2.3, 1.1);
-        add(0.65, 0.15, 0.65, -1.3, 0.1, 1.3, 9609346);
-        label("\u5750\u57AB", -1.3, 1.3);
+        const moved = worldState.furniture?.table?.slot === "window", tableX = moved ? 2.2 : -2.3, tableZ = moved ? -0.8 : 1.1;
+        add(1, 0.55, 0.75, tableX, 0.3, tableZ, 10188881);
+        label("\u6728\u684C", tableX, tableZ);
+        add(0.65, 0.15, 0.65, tableX + 1, 0.1, tableZ + 0.2, 9609346);
+        label("\u5750\u57AB", tableX + 1, tableZ + 0.2);
+        if (worldState.furniture?.lamp?.owned) {
+          add(0.08, 0.65, 0.08, tableX, 0.9, tableZ, 7299404);
+          const shade = new Mesh(new ConeGeometry(0.28, 0.35, 16), new MeshStandardMaterial({ color: 14993006, emissive: 8085024, emissiveIntensity: 0.35 }));
+          shade.position.set(tableX, 1.25, tableZ);
+          room.add(shade);
+          label("\u53F0\u706F", tableX, tableZ);
+        }
       } else if (name === "\u8BCA\u6240") {
         bed(-1.9, -0.8, "\u8BCA\u7597\u5E8A");
         shelf(1.6, -2.4, "\u836F\u67DC");
@@ -34056,16 +34209,22 @@ void main() {
       camera.lookAt(target);
     }
     positionCamera();
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
-      drag = { x: e.clientX, y: e.clientY, yaw, pitch, moved: false };
+      drag = { x: e.clientX, y: e.clientY, yaw, pitch, target: target.clone(), button: e.button, moved: false };
       canvas.setPointerCapture(e.pointerId);
     });
     canvas.addEventListener("pointermove", (e) => {
       if (!drag) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
-      yaw = drag.yaw - dx * 8e-3;
-      pitch = Math.max(0.34, Math.min(1.18, drag.pitch + dy * 6e-3));
+      if (drag.button === 2 || e.shiftKey) {
+        const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
+        target.copy(drag.target).addScaledVector(right, -dx * distance * 15e-4).addScaledVector(forward, dy * distance * 15e-4);
+      } else {
+        yaw = drag.yaw - dx * 8e-3;
+        pitch = Math.max(0.34, Math.min(1.18, drag.pitch + dy * 6e-3));
+      }
       positionCamera();
     });
     canvas.addEventListener("pointerup", (e) => {
@@ -34096,14 +34255,16 @@ void main() {
     const clock = new Clock();
     function draw() {
       requestAnimationFrame(draw);
-      const t = clock.getElapsedTime();
-      walk(pet, t, 0, 2.3, 2.3);
+      const t = clock.getElapsedTime(), home = pet.userData.home || { x: 2.3, z: 2.3 };
+      walk(pet, t, 0, home.x, home.z);
+      weatherFx.rotation.y = t * 0.025;
+      if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
       residents.forEach((npc) => {
         walk(npc.rig, t, npc.phase, npc.x, npc.z);
         const p = npc.rig.position.clone().add(new Vector3(0, 0.8, 0)).project(camera);
         npc.tag.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
         npc.tag.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
-        npc.tag.hidden = p.z > 1 || !!activePlace;
+        npc.tag.hidden = !npc.rig.visible || p.z > 1 || !!activePlace;
       });
       labels.forEach(({ button, point }) => {
         const p = point.clone().project(camera);
@@ -34119,7 +34280,56 @@ void main() {
       if (document.body.dataset.currentPanel === "town") renderer.render(scene, camera);
     }
     draw();
-    window.TownApp = { resize, enterPlace, leavePlace, inspect: () => ({ activePlace, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    function applyWorld(next = {}) {
+      worldState = next;
+      const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), sky = new Color(next.weather?.sky || 13359017);
+      if (night) sky.multiplyScalar(0.3);
+      scene.background.copy(sky);
+      scene.fog.color.copy(sky);
+      ambient.intensity = (night ? 0.65 : 2.4) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.55 : 3.1) * (next.weather?.light || 1);
+      sun.color.set(night ? 10401759 : 16770237);
+      document.body.dataset.townPart = next.part || "";
+      pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
+      residents.forEach((resident, i2) => {
+        const data = next.npcs?.[i2];
+        resident.rig.visible = data?.alive !== false;
+        resident.tag.hidden = !resident.rig.visible;
+        resident.tag.textContent = data?.role || roles[i2];
+      });
+      while (weatherFx.children.length) {
+        const child = weatherFx.children[0];
+        child.geometry.dispose();
+        child.material.dispose();
+        weatherFx.remove(child);
+      }
+      if (next.weather?.name === "\u5C0F\u96E8") {
+        const points = [];
+        for (let i2 = 0; i2 < 260; i2++) points.push((Math.random() - 0.5) * 25, Math.random() * 12, (Math.random() - 0.5) * 25);
+        const geometry = new BufferGeometry();
+        geometry.setAttribute("position", new Float32BufferAttribute(points, 3));
+        weatherFx.add(new Points(geometry, new PointsMaterial({ color: 14216688, size: 0.055, transparent: true, opacity: 0.72 })));
+      }
+      while (memorialFx.children.length) {
+        const child = memorialFx.children[0];
+        child.geometry?.dispose();
+        child.material?.dispose();
+        memorialFx.remove(child);
+      }
+      (next.memorials || []).slice(-6).forEach((item, i2) => {
+        const stone = new Mesh(new BoxGeometry(0.3, 0.42, 0.12), new MeshStandardMaterial({ color: 11449258, roughness: 1 }));
+        stone.position.set(2.05 + i2 * 0.36, 0.24, 5.8);
+        memorialFx.add(stone);
+      });
+      const location = places.find((p) => p[0] === next.place);
+      if (location && !activePlace) {
+        pet.userData.home = { x: location[1] + 0.7, z: location[2] + 1.3 };
+      }
+      if (activePlace === "\u9F20\u9F20\u5C0F\u5C4B") {
+        buildRoom(activePlace);
+      }
+    }
+    window.TownApp = { resize, enterPlace, leavePlace, applyWorld, inspect: () => ({ activePlace, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

@@ -350,36 +350,36 @@ $('#resetShortcuts')?.addEventListener('click',async()=>{
 const applyLanguageWithShortcuts=applyLanguage;
 applyLanguage=function(){applyLanguageWithShortcuts();renderShortcutSettings()};
 
-/* Mouse Town: local-first autonomous life simulation. */
-const townDefaults={lastSeen:Date.now(),hunger:78,health:96,mood:92,food:12,speed:12,aging:true,mortality:false,illness:false};
-function readTown(){try{return {...townDefaults,...JSON.parse(localStorage.getItem('shushu-town')||'{}')}}catch{return {...townDefaults}}}
+/* Mouse Town: the same deterministic simulation drives online and offline life. */
+const townSim=window.TownSimulation;
+function readTown(){try{return townSim.migrate(JSON.parse(localStorage.getItem('shushu-town-v1')||localStorage.getItem('shushu-town')||'{}'))}catch{return townSim.defaults()}}
 let townState=readTown();
-function settleTown(){
-  const now=Date.now(),hours=Math.min(168,Math.max(0,(now-townState.lastSeen)/36e5));
-  if(hours>.08){
-    const selfFed=Math.min(townState.food,Math.floor(hours/8));townState.food-=selfFed;
-    townState.hunger=Math.max(0,Math.min(100,townState.hunger-hours*1.15+selfFed*18));
-    townState.mood=Math.max(35,Math.min(100,townState.mood+Math.min(hours,12)*.12-(townState.hunger<25?hours*.3:0)));
-    townState.health=Math.max(40,Math.min(100,townState.health-(townState.hunger<15?hours*.18:hours*.008)));
-    const story=hours>=4?`你离开了 ${Math.floor(hours)} 小时。鼠鼠${selfFed?`从粮仓吃了 ${selfFed} 份粮食，`:''}睡了一觉，还去中心广场转了转。`:'鼠鼠在小屋和广场之间散了一会儿步。';
-    if($('#townStory'))$('#townStory').textContent=story;
-  }
-  townState.lastSeen=now;localStorage.setItem('shushu-town',JSON.stringify(townState));renderTown();
-}
-function townPeriod(hour){return hour>=6&&hour<17?'白天':hour<19?'傍晚':hour<24?'夜晚':'深夜'}
+function saveTown(){localStorage.setItem('shushu-town-v1',JSON.stringify(townState))}
+function settleTown(now=Date.now()){townState=townSim.settle(townState,now);saveTown();renderTown()}
+const formatTownTime=time=>new Date(time).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 function renderTown(){
-  if(!$('#townTime'))return;const now=new Date(),hour=now.getHours(),day=Math.floor(now.getTime()/864e5),weather=['☀️ 晴朗','🌤️ 多云','🌦️ 小雨','🍃 微风'][Math.abs(day*17+now.getMonth()*7)%4];
-  $('#townTime').textContent=`${String(hour).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} · ${townPeriod(hour)}`;$('#townWeather').textContent=weather;
-  $('#townHunger').textContent=Math.round(townState.hunger);$('#townHealth').textContent=Math.round(townState.health);$('#townMood').textContent=Math.round(townState.mood);$('#townFood').textContent=townState.food;$('#townSpeed').value=String(townState.speed);
-  const activities=hour>=19||hour<6?['鼠鼠正在跑轮公园活动。','鼠鼠在零食铺门口闻到了香味。','鼠鼠沿着小路探索夜晚的小镇。']:['鼠鼠正在小屋里打盹。','鼠鼠短暂醒来整理了一会儿毛。','鼠鼠慢慢走到菜园看看嫩叶。'];
-  $('#townActivity').textContent=activities[Math.floor(Date.now()/36e5)%activities.length];
+  if(!$('#townTime'))return;const now=Date.now(),date=new Date(now),weather=townSim.weather(now),age=townSim.ageYears(townState);
+  $('#townTime').textContent=`${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')} · ${townSim.daypart(now)}`;$('#townWeather').textContent=`${weather.icon} ${weather.name}`;
+  $('#townHunger').textContent=Math.round(townState.fullness);$('#townHealth').textContent=Math.round(townState.health);$('#townMood').textContent=Math.round(townState.mood);$('#townAge').textContent=`${townState.lifeStage} ${age.toFixed(1)}岁`;$('#townFood').textContent=townState.food;$('#townSeeds').textContent=townState.seeds;$('#townSpeed').value=String(townState.speed);
+  $('#townActivity').textContent=townState.alive?`鼠鼠正在${townState.currentPlace}${townState.currentActivity}。`:'鼠鼠的生活已经珍藏在纪念馆。';
+  const recent=townState.events.slice(-1)[0];$('#townStory').textContent=recent?.text||'鼠鼠正在经营自己的小生活。';
   document.querySelectorAll('[data-town-setting]').forEach(input=>input.checked=!!townState[input.dataset.townSetting]);
+  $('#townResidents').innerHTML=townState.npcs.filter(n=>n.alive).map(n=>`<article><span><b>${escapeHtml(n.name)}</b><small>${escapeHtml(n.role)} · ${townSim.relationship(n.relationship)}</small></span><button data-town-social="${n.id}">聊一会儿</button>${n.relationship>=80?`<button data-town-breed="${n.id}">繁育后代</button>`:''}</article>`).join('');
+  const candidates=[...townState.offspring,...townState.npcs.filter(n=>n.alive)];$('#townFamily').innerHTML=`${townState.offspring.map(p=>`<span>${escapeHtml(p.name)} · ${p.stage} · ${escapeHtml(p.trait)} · 喜欢${escapeHtml(p.favorite)}</span>`).join('')||'<span>还没有后代</span>'}${!townState.alive?`<label>选择新的桌面伙伴<select id="townAdoptChoice"><option value="">请选择</option>${candidates.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select><button data-town-action="adopt">确认接续</button></label>`:''}`;
+  const highlights=townState.events.slice(-5).reverse();$('#townHighlights').innerHTML=highlights.map(e=>`<article><b>${escapeHtml(e.text)}</b><span>${formatTownTime(e.time)} · ${escapeHtml(e.place)}</span></article>`).join('')||'<p>鼠鼠的小镇生活刚刚开始。</p>';
+  $('#townDiary').innerHTML=townState.events.slice().reverse().map(e=>`<p><time>${formatTownTime(e.time)}</time>${escapeHtml(e.text)}</p>`).join('');
+  $('#townMemorials').innerHTML=townState.memorials.length?`<h4>纪念资料</h4>${townState.memorials.map(m=>`<article><b>${escapeHtml(m.name)}</b><p>${escapeHtml(m.epitaph)}</p><small>${formatTownTime(m.time)}</small></article>`).join('')}`:'';
+  window.TownApp?.applyWorld?.({weather,part:townSim.daypart(now),activity:townState.currentActivity,place:townState.currentPlace,memorials:townState.memorials,furniture:townState.furniture,npcs:townState.npcs,alive:townState.alive,pendingFarewell:townState.pendingFarewell});
 }
-$('#townButton')?.addEventListener('click',()=>{settleTown();setPanel('town');setTimeout(()=>window.TownApp?.resize(),50)});
-$('#townSpeed')?.addEventListener('change',e=>{townState.speed=Number(e.target.value);localStorage.setItem('shushu-town',JSON.stringify(townState))});
-$('#townSettingsButton')?.addEventListener('click',()=>{$('#townSettings').hidden=!$('#townSettings').hidden});
-document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{townState[input.dataset.townSetting]=input.checked;localStorage.setItem('shushu-town',JSON.stringify(townState))}));
-renderTown();setInterval(renderTown,30000);setInterval(settleTown,300000);window.addEventListener('beforeunload',settleTown);
+function openTownOverlay(id){document.querySelectorAll('.town-overlay').forEach(x=>x.hidden=x.id!==id);renderTown()}
+$('#townButton')?.addEventListener('click',()=>{const wasAway=Date.now()-townState.lastOpenedAt>=4*3600000;settleTown();townState.lastOpenedAt=Date.now();saveTown();setPanel('town');if(wasAway)openTownOverlay('townJournal');setTimeout(()=>window.TownApp?.resize(),50)});
+$('#townSpeed')?.addEventListener('change',e=>{settleTown();townState.speed=Number(e.target.value);saveTown();renderTown()});
+$('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSettings'));$('#townCareButton')?.addEventListener('click',()=>openTownOverlay('townCare'));$('#townJournalButton')?.addEventListener('click',()=>openTownOverlay('townJournal'));
+document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
+document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{settleTown();townState[input.dataset.townSetting]=input.checked;saveTown();renderTown()}));
+$('#townCare')?.addEventListener('click',event=>{const social=event.target.closest('[data-town-social]'),breed=event.target.closest('[data-town-breed]'),action=event.target.closest('[data-town-action]');let result;if(social)result=townSim.interact(townState,social.dataset.townSocial);else if(breed)result=townSim.breed(townState,breed.dataset.townBreed);else if(action?.dataset.townAction==='buy-food')result=townSim.buyFood(townState);else if(action?.dataset.townAction==='harvest')result=townSim.harvest(townState);else if(action?.dataset.townAction==='farewell')result=townSim.finishFarewell(townState);else if(action?.dataset.townAction==='adopt')result=townSim.adopt(townState,$('#townAdoptChoice')?.value);else if(action?.dataset.townAction==='furniture'){const table=townState.furniture.table;table.slot=table.slot==='table'?'window':'table';result={state:townState,ok:true,message:'木桌和坐垫已换到新的摆放点。'}}if(!result)return;townState=result.state;saveTown();renderTown();$('#townActionResult').textContent=result.message|| (result.ok?'操作完成。':'暂时不能这样做。')});
+const townFurnitureButton=document.querySelector('[data-town-action="furniture"]');if(townFurnitureButton){townFurnitureButton.dataset.townAction='furniture-buy';townFurnitureButton.innerHTML='<b>购买或布置家具</b><span>12颗瓜子购买台灯，之后移动家具</span>';townFurnitureButton.addEventListener('click',()=>{const lamp=townState.furniture.lamp||(townState.furniture.lamp={owned:false,slot:'window'});let message;if(!lamp.owned){if(townState.seeds<12){message='购买台灯需要12颗瓜子。'}else{townState.seeds-=12;lamp.owned=true;message='台灯已送到小屋。'}}else{const table=townState.furniture.table;table.slot=table.slot==='table'?'window':'table';message='木桌、坐垫和台灯已换到另一个摆放点。'}saveTown();renderTown();$('#townActionResult').textContent=message})}
+renderTown();setInterval(()=>{if(document.body.dataset.currentPanel==='town')settleTown()},60000);window.addEventListener('beforeunload',()=>{settleTown();saveTown()});
 const townExit=document.createElement('button');townExit.className='town-exit';townExit.textContent='← 返回桌面主页';townExit.onclick=()=>setPanel('home');document.querySelector('.town-page').appendChild(townExit);
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.dataset.currentPanel==='town')setPanel('home')});
 document.body.appendChild(document.querySelector('.town-page'));

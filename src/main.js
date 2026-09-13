@@ -393,6 +393,10 @@ app.whenReady().then(() => {
 
         await controlWin.webContents.executeJavaScript(`document.querySelector('#backHome').click()`);
       }
+      if (process.env.TOWN_FEATURE_CAPTURE_PATH) {
+        const featureReport=await controlWin.webContents.executeJavaScript(`(async()=>{document.querySelector('#townButton').click();await new Promise(r=>setTimeout(r,500));document.querySelector('#townCareButton').click();await new Promise(r=>setTimeout(r,100));const state={panel:document.body.dataset.currentPanel,careVisible:!document.querySelector('#townCare').hidden,residents:document.querySelectorAll('#townResidents article').length,actions:document.querySelectorAll('[data-town-action]').length,status:[...document.querySelectorAll('.town-status b')].map(x=>x.textContent)};return state})()`);
+        fs.writeFileSync(process.env.TOWN_FEATURE_CAPTURE_PATH,(await controlWin.webContents.capturePage()).toPNG());fs.writeFileSync(`${process.env.TOWN_FEATURE_CAPTURE_PATH}.json`,JSON.stringify(featureReport,null,2));
+      }
       if (process.env.DASHBOARD_PROFILE_CAPTURE_PATH) {
         await controlWin.webContents.executeJavaScript(`document.querySelector('#homeBrand').click()`);
         await new Promise(resolve => setTimeout(resolve, 180));
