@@ -41,6 +41,25 @@ pnpm start
 pnpm dist
 ```
 
+## AI 聊天 API 兼容性
+
+AI 聊天只支持采用 OpenAI **Chat Completions** 请求格式的接口。程序会向配置地址发送 `POST /chat/completions`，使用 `Authorization: Bearer <API Key>` 鉴权，并读取 `choices[0].message.content`。可以填写服务商提供的 API 根地址，也可以填写以 `/chat/completions` 结尾的完整接口地址。
+
+| 服务 | API 地址示例 | 模型示例 | 状态 |
+| --- | --- | --- | --- |
+| Groq | `https://api.groq.com/openai/v1` | `openai/gpt-oss-20b` | 已实测 |
+| 本地模拟接口 | `http://127.0.0.1:<端口>/v1` | 由本地服务决定 | 已用于自动测试 |
+| OpenAI | `https://api.openai.com/v1` | 以服务商当前模型列表为准 | 按官方兼容协议支持，未在本项目中使用付费 Key 实测 |
+| Gemini OpenAI 兼容层 | `https://generativelanguage.googleapis.com/v1beta/openai` | 以 Google 当前模型列表为准 | 按官方兼容协议支持，未实测 |
+| DeepSeek | `https://api.deepseek.com` | `deepseek-chat` | 按官方兼容协议支持，未实测 |
+| Ollama 本地服务 | `http://localhost:11434/v1` | 已在 Ollama 下载的模型名 | 按官方兼容协议支持，未实测 |
+
+不支持直接填写 Anthropic Messages API、Gemini 原生 API、OpenAI Responses API 或其他非 Chat Completions 格式。第三方服务可能调整模型名、免费额度、地区限制或兼容行为，请以服务商当前文档为准。遇到 `401`/`403` 时检查 Key、账户权限和地区网络；遇到 `404` 时检查地址和模型名；遇到 `429` 时表示已达到服务商速率或额度限制。
+
+相关官方文档：[OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat)、[Groq OpenAI Compatibility](https://console.groq.com/docs/openai)、[Gemini OpenAI Compatibility](https://ai.google.dev/gemini-api/docs/openai)、[DeepSeek API](https://api-docs.deepseek.com/zh-cn/)、[Ollama OpenAI Compatibility](https://docs.ollama.com/api/openai-compatibility)。
+
+API Key 保存在当前电脑的应用设置中，不会由本项目主动上传到其他位置。请勿在公共电脑保存 Key，也不要把配置文件、Key 或含 Key 的截图提交到 GitHub。
+
 ## 自定义鼠鼠
 
 在“鼠鼠动作库”中可以导入透明背景的 WebP、GIF、APNG 或 PNG。为了获得自然效果，建议使用已经抠好主体、动作长度为 3 至 8 秒的素材。

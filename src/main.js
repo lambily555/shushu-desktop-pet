@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, powerMonitor, globalShortcut, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, powerMonitor, globalShortcut, dialog, shell, net } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
@@ -586,6 +586,15 @@ function localHamsterReply(message){
   if(has('你记得','刚才说','前面说')){const last=(settings.chatHistory||[]).filter(x=>x.role==='user').slice(-1)[0]?.content;return last?`我记得你刚才说的是“${last.slice(0,45)}”。你想接着聊哪一部分？`:'我们才刚开始聊，我还没有上一句话可以回忆。'}
   return `我认真看了你说的“${message.slice(0,38)}”，但我还没有完全听懂你的意思。你可以说得具体一点，或者问我心情、吃饭、跑轮和今天在做什么。`;
 }
+function chatCompletionUrl(value){
+  const base=String(value||'').trim().replace(/\/+$/,'');
+  return /\/chat\/completions$/i.test(base)?base:`${base}/chat/completions`;
+}
+function chatCompletionText(content){
+  if(typeof content==='string')return content.trim();
+  if(!Array.isArray(content))return '';
+  return content.map(part=>typeof part==='string'?part:(typeof part?.text==='string'?part.text:'')).join('').trim();
+}
 ipcMain.handle('ai-chat', async (_event, rawMessage) => {
   const message=String(rawMessage||'').trim().slice(0,500);
   if(!message)return {ok:false,error:'先和鼠鼠说点什么吧。'};
@@ -602,10 +611,10 @@ ipcMain.handle('ai-chat', async (_event, rawMessage) => {
   const recent=(settings.chatHistory||[]).filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-20);
   const system=`你是用户真实养过的桌面仓鼠“鼠鼠”，一只六十多克的小男鼠，2024年6月9日出生，背部灰色、腹部白色，喜欢小木屋，晚上活跃、爱跑轮。当前心情${settings.mood}%，饱食度${settings.hunger}%。你必须先理解用户最后一句话再回答，紧扣当前话题并参考上下文；不知道就坦白说没听懂，绝不随机换话题或编造事实。语气亲近自然，像可爱但不幼稚的小仓鼠，每次用简短中文回答，通常1至3句，不要使用Markdown，不要声称自己能做现实中做不到的事。`;
   try{
-    const response=await fetch(`${base}/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'system',content:system},...recent,{role:'user',content:message}],temperature:.65,max_tokens:220}),signal:AbortSignal.timeout(30000)});
+    const response=await net.fetch(chatCompletionUrl(base),{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'system',content:system},...recent,{role:'user',content:message}]}),signal:AbortSignal.timeout(30000)});
     const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data?.error?.message||`接口请求失败（${response.status}）`);
-    const reply=String(data?.choices?.[0]?.message?.content||'').trim();
+    const reply=chatCompletionText(data?.choices?.[0]?.message?.content);
     if(!reply)throw new Error('接口没有返回鼠鼠的回复');
     const chatHistory=[...recent,{role:'user',content:message},{role:'assistant',content:reply}].slice(-20);
     saveSettings({chatHistory});
