@@ -62,14 +62,14 @@ function hamster(tone=0x9b9d98) {
   const eye=new THREE.MeshPhysicalMaterial({color:0x080706,roughness:.08,clearcoat:1});
   const whisker=new THREE.MeshStandardMaterial({color:0xd8d4cc,transparent:true,opacity:.78,side:THREE.DoubleSide});
   hamsterAsset.then(asset=>{
-    const model=clone(asset),joints=[];
-    model.traverse(child=>{if(child.isBone&&/Arm|Leg|Hand|Foot/.test(child.name))joints.push({bone:child,base:child.quaternion.clone()});if(!child.isMesh)return;child.castShadow=true;child.receiveShadow=true;
+    const model=clone(asset),joints=[],bones={};
+    model.traverse(child=>{if(child.isBone){const name=child.name.startsWith('mixamorig')&&!child.name.startsWith('mixamorig:')?child.name.replace(/^mixamorig/,'mixamorig:'):child.name;bones[name]={bone:child,base:child.quaternion.clone()};if(/Arm|Leg|Hand|Foot/.test(name))joints.push(bones[name])}if(!child.isMesh)return;child.castShadow=true;child.receiveShadow=true;
       const material=original=>{const name=(child.name+' '+(original?.name||'')).toLowerCase();return name.includes('eye')?eye:name.includes('hige')||name.includes('whisk')?whisker:fur};
       child.material=Array.isArray(child.material)?child.material.map(material):material(child.material);
     });
     const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),scale=.62/Math.max(size.x,size.y,size.z);
     model.scale.setScalar(scale);model.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);rig.add(model);
-    rig.userData.joints=joints;rig.userData.loaded=true;
+    rig.userData.joints=joints;rig.userData.bones=bones;rig.userData.model=model;rig.userData.modelBase=model.rotation.clone();rig.userData.loaded=true;
     document.querySelector('#townScene').dataset.model='loaded';
   }).catch(()=>{document.querySelector('#townActivity').textContent='鼠鼠模型加载失败，请返回后重新进入。'});
   return rig;
@@ -93,18 +93,24 @@ function init() {
     tag.onclick=()=>focusResident(i);
     return {rig:npc,x:x+(place==='中心广场'?1.9:0),z:z+1.7,phase:i*1.8,tag};
   });
-  const gaitAxis=new THREE.Vector3(1,0,0),rotation=new THREE.Quaternion();
+  const gaitRotation=new THREE.Quaternion(),gaitEuler=new THREE.Euler();
+  function poseBone(rig,name,x=0,y=0,z=0){const joint=rig.userData.bones?.[`mixamorig:${name}`];if(!joint)return;joint.bone.quaternion.copy(joint.base).multiply(gaitRotation.setFromEuler(gaitEuler.set(x,y,z)))}
   function walk(rig,time,phase,x,z){
-    const cycle=(time+phase)%16,moving=cycle<10,progress=Math.min(cycle,10)/10*Math.PI*2;
+    const cycle=(time+phase)%14,travel=9.5,raw=Math.min(cycle,travel)/travel,eased=raw*raw*(3-2*raw),progress=eased*Math.PI*2,moving=cycle<travel,blend=moving?Math.min(1,Math.sin(raw*Math.PI)*4):0;
     rig.position.set(x+Math.sin(progress)*.55,.035,z+Math.cos(progress)*.22);
-    if(moving)rig.rotation.y=Math.atan2(.55*Math.cos(progress),-.22*Math.sin(progress));
-    const stride=moving?Math.sin(progress*14):0;
-    rig.position.y+=moving?Math.abs(stride)*.008:0;
-    for(const {bone,base} of rig.userData.joints||[]){
-      const side=bone.name.includes('Left')?1:-1,front=/Arm|Hand/.test(bone.name);
-      const bend=/ForeArm|Leg/.test(bone.name)?Math.max(0,stride*side)*.18:stride*side*(front?-.28:.28);
-      bone.quaternion.copy(base).multiply(rotation.setFromAxisAngle(gaitAxis,bend));
-    }
+    if(moving&&blend>.03)rig.rotation.y=Math.atan2(.55*Math.cos(progress),-.22*Math.sin(progress));
+    const step=progress*5.5,frontLeft=Math.sin(step)*blend,frontRight=-frontLeft,hindLeft=frontRight,hindRight=frontLeft;
+    const lift=value=>Math.max(0,value),plant=value=>Math.max(0,-value);
+    rig.position.y+=Math.abs(Math.sin(step*2))*.012*blend;
+    const model=rig.userData.model;if(model){const base=rig.userData.modelBase;model.rotation.set(base.x+.035*blend,base.y,base.z+Math.sin(step)*.025*blend)}
+    poseBone(rig,'LeftArm',frontLeft*.48-.08*blend,0,-.05*blend);poseBone(rig,'RightArm',frontRight*.48-.08*blend,0,.05*blend);
+    poseBone(rig,'LeftForeArm',-.12*blend-lift(frontLeft)*.58+plant(frontLeft)*.1);poseBone(rig,'RightForeArm',-.12*blend-lift(frontRight)*.58+plant(frontRight)*.1);
+    poseBone(rig,'LeftHand',lift(frontLeft)*.34);poseBone(rig,'RightHand',lift(frontRight)*.34);
+    poseBone(rig,'LeftUpLeg',hindLeft*.55+.1*blend);poseBone(rig,'RightUpLeg',hindRight*.55+.1*blend);
+    poseBone(rig,'LeftLeg',lift(hindLeft)*.68-plant(hindLeft)*.12);poseBone(rig,'RightLeg',lift(hindRight)*.68-plant(hindRight)*.12);
+    poseBone(rig,'LeftFoot',-lift(hindLeft)*.42);poseBone(rig,'RightFoot',-lift(hindRight)*.42);
+    poseBone(rig,'Spine',0,0,-Math.sin(step)*.035*blend);poseBone(rig,'Spine1',0,0,-Math.sin(step)*.025*blend);poseBone(rig,'Neck',-.035*blend,0,Math.sin(step)*.025*blend);poseBone(rig,'Head',-.035*blend,0,Math.sin(step)*.035*blend);
+    rig.userData.gaitSample={moving,blend:Number(blend.toFixed(2)),frontLeft:Number(frontLeft.toFixed(2)),hindLeft:Number(hindLeft.toFixed(2)),lift:Number(Math.max(lift(frontLeft),lift(frontRight),lift(hindLeft),lift(hindRight)).toFixed(2))};
   }
   const labels=places.map(([name,x,z])=>{const button=document.createElement('button');button.className='town-label';button.textContent=name;button.onclick=()=>enterPlace(name);host.appendChild(button);return {button,point:new THREE.Vector3(x,name==='中心广场'?.5:2.1,z)}});
   const landscape=new THREE.Mesh(new THREE.PlaneGeometry(160,160),new THREE.MeshStandardMaterial({color:0x92ad7e,roughness:1}));landscape.rotation.x=-Math.PI/2;landscape.position.y=-.7;scene.add(landscape);
@@ -176,6 +182,6 @@ function init() {
     const location=places.find(p=>p[0]===next.place);if(location&&!activePlace){pet.userData.home={x:location[1]+.7,z:location[2]+1.3}}
     if(activePlace==='鼠鼠小屋'){buildRoom(activePlace)}
   }
-  window.TownApp={resize,enterPlace,leavePlace,focusResident,clearFocus,sayToResident,applyWorld,inspect:()=>({activePlace,focusedResident,interiorVisible:room.visible,furniture:roomLabels.map(x=>x.button.textContent),camera:{yaw,pitch,distance,target:target.toArray()},npcCount:residents.filter(n=>n.rig.userData.loaded).length,petLoaded:!!pet.userData.loaded,jointCount:pet.userData.joints?.length||0,petHeight:new THREE.Box3().setFromObject(pet).getSize(new THREE.Vector3()).y,positions:residents.map(n=>n.rig.position.toArray())})};
+  window.TownApp={resize,enterPlace,leavePlace,focusResident,clearFocus,sayToResident,applyWorld,inspect:()=>({activePlace,focusedResident,interiorVisible:room.visible,furniture:roomLabels.map(x=>x.button.textContent),camera:{yaw,pitch,distance,target:target.toArray()},npcCount:residents.filter(n=>n.rig.userData.loaded).length,petLoaded:!!pet.userData.loaded,jointCount:pet.userData.joints?.length||0,gaitBoneCount:Object.keys(pet.userData.bones||{}).filter(name=>/Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length,gaitSample:pet.userData.gaitSample,petHeight:new THREE.Box3().setFromObject(pet).getSize(new THREE.Vector3()).y,positions:residents.map(n=>n.rig.position.toArray())})};
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

@@ -33911,9 +33911,13 @@ void main() {
     const eye = new MeshPhysicalMaterial({ color: 526086, roughness: 0.08, clearcoat: 1 });
     const whisker = new MeshStandardMaterial({ color: 14210252, transparent: true, opacity: 0.78, side: DoubleSide });
     hamsterAsset.then((asset) => {
-      const model = clone(asset), joints = [];
+      const model = clone(asset), joints = [], bones = {};
       model.traverse((child) => {
-        if (child.isBone && /Arm|Leg|Hand|Foot/.test(child.name)) joints.push({ bone: child, base: child.quaternion.clone() });
+        if (child.isBone) {
+          const name = child.name.startsWith("mixamorig") && !child.name.startsWith("mixamorig:") ? child.name.replace(/^mixamorig/, "mixamorig:") : child.name;
+          bones[name] = { bone: child, base: child.quaternion.clone() };
+          if (/Arm|Leg|Hand|Foot/.test(name)) joints.push(bones[name]);
+        }
         if (!child.isMesh) return;
         child.castShadow = true;
         child.receiveShadow = true;
@@ -33928,6 +33932,9 @@ void main() {
       model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
       rig.add(model);
       rig.userData.joints = joints;
+      rig.userData.bones = bones;
+      rig.userData.model = model;
+      rig.userData.modelBase = model.rotation.clone();
       rig.userData.loaded = true;
       document.querySelector("#townScene").dataset.model = "loaded";
     }).catch(() => {
@@ -33990,18 +33997,41 @@ void main() {
       tag.onclick = () => focusResident(i2);
       return { rig: npc, x: x2 + (place === "\u4E2D\u5FC3\u5E7F\u573A" ? 1.9 : 0), z: z + 1.7, phase: i2 * 1.8, tag };
     });
-    const gaitAxis = new Vector3(1, 0, 0), rotation = new Quaternion();
+    const gaitRotation = new Quaternion(), gaitEuler = new Euler();
+    function poseBone(rig, name, x2 = 0, y = 0, z = 0) {
+      const joint = rig.userData.bones?.[`mixamorig:${name}`];
+      if (!joint) return;
+      joint.bone.quaternion.copy(joint.base).multiply(gaitRotation.setFromEuler(gaitEuler.set(x2, y, z)));
+    }
     function walk(rig, time, phase, x2, z) {
-      const cycle = (time + phase) % 16, moving = cycle < 10, progress = Math.min(cycle, 10) / 10 * Math.PI * 2;
+      const cycle = (time + phase) % 14, travel = 9.5, raw = Math.min(cycle, travel) / travel, eased = raw * raw * (3 - 2 * raw), progress = eased * Math.PI * 2, moving = cycle < travel, blend = moving ? Math.min(1, Math.sin(raw * Math.PI) * 4) : 0;
       rig.position.set(x2 + Math.sin(progress) * 0.55, 0.035, z + Math.cos(progress) * 0.22);
-      if (moving) rig.rotation.y = Math.atan2(0.55 * Math.cos(progress), -0.22 * Math.sin(progress));
-      const stride = moving ? Math.sin(progress * 14) : 0;
-      rig.position.y += moving ? Math.abs(stride) * 8e-3 : 0;
-      for (const { bone, base } of rig.userData.joints || []) {
-        const side = bone.name.includes("Left") ? 1 : -1, front = /Arm|Hand/.test(bone.name);
-        const bend = /ForeArm|Leg/.test(bone.name) ? Math.max(0, stride * side) * 0.18 : stride * side * (front ? -0.28 : 0.28);
-        bone.quaternion.copy(base).multiply(rotation.setFromAxisAngle(gaitAxis, bend));
+      if (moving && blend > 0.03) rig.rotation.y = Math.atan2(0.55 * Math.cos(progress), -0.22 * Math.sin(progress));
+      const step = progress * 5.5, frontLeft = Math.sin(step) * blend, frontRight = -frontLeft, hindLeft = frontRight, hindRight = frontLeft;
+      const lift = (value) => Math.max(0, value), plant = (value) => Math.max(0, -value);
+      rig.position.y += Math.abs(Math.sin(step * 2)) * 0.012 * blend;
+      const model = rig.userData.model;
+      if (model) {
+        const base = rig.userData.modelBase;
+        model.rotation.set(base.x + 0.035 * blend, base.y, base.z + Math.sin(step) * 0.025 * blend);
       }
+      poseBone(rig, "LeftArm", frontLeft * 0.48 - 0.08 * blend, 0, -0.05 * blend);
+      poseBone(rig, "RightArm", frontRight * 0.48 - 0.08 * blend, 0, 0.05 * blend);
+      poseBone(rig, "LeftForeArm", -0.12 * blend - lift(frontLeft) * 0.58 + plant(frontLeft) * 0.1);
+      poseBone(rig, "RightForeArm", -0.12 * blend - lift(frontRight) * 0.58 + plant(frontRight) * 0.1);
+      poseBone(rig, "LeftHand", lift(frontLeft) * 0.34);
+      poseBone(rig, "RightHand", lift(frontRight) * 0.34);
+      poseBone(rig, "LeftUpLeg", hindLeft * 0.55 + 0.1 * blend);
+      poseBone(rig, "RightUpLeg", hindRight * 0.55 + 0.1 * blend);
+      poseBone(rig, "LeftLeg", lift(hindLeft) * 0.68 - plant(hindLeft) * 0.12);
+      poseBone(rig, "RightLeg", lift(hindRight) * 0.68 - plant(hindRight) * 0.12);
+      poseBone(rig, "LeftFoot", -lift(hindLeft) * 0.42);
+      poseBone(rig, "RightFoot", -lift(hindRight) * 0.42);
+      poseBone(rig, "Spine", 0, 0, -Math.sin(step) * 0.035 * blend);
+      poseBone(rig, "Spine1", 0, 0, -Math.sin(step) * 0.025 * blend);
+      poseBone(rig, "Neck", -0.035 * blend, 0, Math.sin(step) * 0.025 * blend);
+      poseBone(rig, "Head", -0.035 * blend, 0, Math.sin(step) * 0.035 * blend);
+      rig.userData.gaitSample = { moving, blend: Number(blend.toFixed(2)), frontLeft: Number(frontLeft.toFixed(2)), hindLeft: Number(hindLeft.toFixed(2)), lift: Number(Math.max(lift(frontLeft), lift(frontRight), lift(hindLeft), lift(hindRight)).toFixed(2)) };
     }
     const labels = places.map(([name, x2, z]) => {
       const button = document.createElement("button");
@@ -34390,7 +34420,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
