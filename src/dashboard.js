@@ -365,6 +365,7 @@ function renderTown(){
   $('#townActivity').textContent=townState.alive?`鼠鼠正在${townState.currentPlace}${townState.currentActivity}。`:'鼠鼠的生活已经珍藏在纪念馆。';
   const recent=townState.events.slice(-1)[0];$('#townStory').textContent=recent?.text||'鼠鼠正在经营自己的小生活。';
   document.querySelectorAll('[data-town-setting]').forEach(input=>input.checked=!!townState[input.dataset.townSetting]);
+  if($('#townMainSex'))$('#townMainSex').value=townState.mainSex;
   const highlights=townState.events.slice(-5).reverse();$('#townHighlights').innerHTML=highlights.map(e=>`<article><b>${escapeHtml(e.text)}</b><span>${formatTownTime(e.time)} · ${escapeHtml(e.place)}</span></article>`).join('')||'<p>鼠鼠的小镇生活刚刚开始。</p>';
   $('#townDiary').innerHTML=townState.events.slice().reverse().map(e=>`<p><time>${formatTownTime(e.time)}</time>${escapeHtml(e.text)}</p>`).join('');
   $('#townMemorials').innerHTML=townState.memorials.length?`<h4>纪念资料</h4>${townState.memorials.map(m=>`<article><b>${escapeHtml(m.name)}</b><p>${escapeHtml(m.epitaph)}</p><small>${formatTownTime(m.time)}</small></article>`).join('')}`:'';
@@ -381,13 +382,13 @@ function renderTownContext(){
   const panel=$('#townContext');if(!panel||panel.hidden)return;const title=$('#townContextTitle'),kicker=$('#townContextKicker'),body=$('#townContextBody');
   if(townContext.type==='npc'){
     const index=townState.npcs.findIndex(n=>n.id===townContext.npcId),npc=townState.npcs[index];if(!npc){panel.hidden=true;return}const profile=townNpcProfiles[index]||['在小镇散步','一位正在认真生活的小镇居民。'];
-    const allowance=townSim.socialAllowance(townState,npc.id),socialDetail=allowance.stamina<12?'体力不足，需要12点体力':allowance.npcRemaining<=0?'今天和这位居民的2次交流已用完':allowance.totalRemaining<=0?'今天的6次社交已全部用完':`今天还可社交${allowance.totalRemaining}次，与${escapeHtml(npc.name)}还可聊${allowance.npcRemaining}次`;
-    kicker.textContent='居民资料';title.textContent=npc.name;body.innerHTML=`<div class="town-npc-card"><div class="town-npc-portrait">🐹</div><div><b>${escapeHtml(npc.name)}</b><span>${escapeHtml(npc.role)} · ${escapeHtml(npc.stage)}</span></div></div><dl><div><dt>对鼠鼠的好感度</dt><dd><b>${Math.round(npc.relationship)}</b> / 100 · ${townSim.relationship(npc.relationship)}</dd></div><div><dt>今日社交</dt><dd>${socialDetail}</dd></div><div><dt>爱好</dt><dd>${profile[0]}</dd></div><div><dt>居住与工作</dt><dd>${escapeHtml(npc.place)}</dd></div><div><dt>个人介绍</dt><dd>${profile[1]}</dd></div></dl><div class="town-context-actions">${contextButton('social','聊一会儿',socialDetail,!allowance.allowed)}${npc.relationship>=80?contextButton('breed','繁育后代','消耗25点体力；双方成年健康时可迎来幼鼠',townState.stamina<25):''}</div>`;
+    const allowance=townSim.socialAllowance(townState,npc.id),socialDetail=allowance.stamina<12?'体力不足，需要12点体力':allowance.npcRemaining<=0?'今天和这位居民的2次交流已用完':allowance.totalRemaining<=0?'今天的6次社交已全部用完':`今天还可社交${allowance.totalRemaining}次，与${escapeHtml(npc.name)}还可聊${allowance.npcRemaining}次`,breeding=townSim.breedingEligibility(townState,npc.id),sexText=npc.sex==='male'?'公鼠 ♂':'母鼠 ♀';
+    kicker.textContent='居民资料';title.textContent=`${npc.name} ${npc.sex==='male'?'♂':'♀'}`;body.innerHTML=`<div class="town-npc-card"><div class="town-npc-portrait">🐹</div><div><b>${escapeHtml(npc.name)} ${npc.sex==='male'?'♂':'♀'}</b><span>${escapeHtml(npc.role)} · ${escapeHtml(npc.stage)} · ${sexText}</span></div></div><div class="town-context-actions town-npc-actions">${contextButton('social','聊一会儿',socialDetail,!allowance.allowed)}${contextButton('breed','繁育后代',breeding.reason,!breeding.allowed)}</div><dl><div><dt>性别</dt><dd>${sexText}</dd></div><div><dt>对鼠鼠的好感度</dt><dd><b>${Math.round(npc.relationship)}</b> / 100 · ${townSim.relationship(npc.relationship)}</dd></div><div><dt>繁育条件</dt><dd>${escapeHtml(breeding.reason)}</dd></div><div><dt>今日社交</dt><dd>${socialDetail}</dd></div><div><dt>爱好</dt><dd>${profile[0]}</dd></div><div><dt>居住与工作</dt><dd>${escapeHtml(npc.place)}</dd></div><div><dt>个人介绍</dt><dd>${profile[1]}</dd></div></dl>`;
     return;
   }
   const place=townContext.place||'中心广场';kicker.textContent='地点任务';title.textContent=place;
   const memorials=townState.memorials.map(m=>`<li><b>${escapeHtml(m.name)}</b><span>${escapeHtml(m.epitaph)}</span></li>`).join('')||'<li>这里还没有纪念资料。</li>';
-  const family=townState.offspring.map(p=>`<li><b>${escapeHtml(p.name)}</b><span>${escapeHtml(p.stage)} · ${escapeHtml(p.trait)} · 喜欢${escapeHtml(p.favorite)}</span></li>`).join('')||'<li>小屋里暂时没有幼鼠。</li>';
+  const family=townState.offspring.map(p=>`<li><b>${escapeHtml(p.name)} ${p.sex==='male'?'♂':'♀'}</b><span>${escapeHtml(p.stage)} · ${p.sex==='male'?'公鼠':'母鼠'} · ${escapeHtml(p.trait)} · 喜欢${escapeHtml(p.favorite)}</span></li>`).join('')||'<li>小屋里暂时没有幼鼠。</li>';
   const candidates=[...townState.offspring,...townState.npcs.filter(n=>n.alive)],adoption=!townState.alive?`<label class="town-adopt">选择新的桌面伙伴<select id="townAdoptChoice"><option value="">请选择</option>${candidates.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select><button data-town-action="adopt">确认接续</button></label>`:'';
   const pages={
     '跑轮公园':`<div class="town-place-stat"><span>当前体力</span><b>${Math.round(townState.stamina)}</b></div><p>在公园锻炼会改善健康和心情，但需要消耗体力。</p>${contextButton('exercise','跑一会儿跑轮','健康 +1，心情 +2，体力 -18',townState.stamina<18)}`,
@@ -422,6 +423,7 @@ $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSett
 document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
 document.querySelector('[data-town-context-close]')?.addEventListener('click',()=>{window.TownApp?.clearFocus?.();$('#townContext').hidden=true});
 document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{settleTown();townState[input.dataset.townSetting]=input.checked;saveTown();renderTown()}));
+$('#townMainSex')?.addEventListener('change',event=>{townState.mainSex=event.target.value;saveTown();renderTown();renderTownContext()});
 $('#townContext')?.addEventListener('click',event=>{
   const action=event.target.closest('[data-town-action]')?.dataset.townAction;if(!action)return;
   if(action==='buy-food')townResult(townSim.buyFood(townState));

@@ -34356,7 +34356,7 @@ void main() {
         const data = next.npcs?.[i2];
         resident.rig.visible = data?.alive !== false;
         resident.tag.hidden = !resident.rig.visible;
-        resident.tag.textContent = data?.name || roles[i2];
+        resident.tag.textContent = data ? `${data.name} ${data.sex === "male" ? "\u2642" : "\u2640"}` : roles[i2];
       });
       while (weatherFx.children.length) {
         const child = weatherFx.children[0];
