@@ -13385,6 +13385,26 @@
       this.image = value;
     }
   };
+  var CanvasTexture = class extends Texture {
+    /**
+     * Constructs a new texture.
+     *
+     * @param {HTMLCanvasElement} [canvas] - The HTML canvas element.
+     * @param {number} [mapping=Texture.DEFAULT_MAPPING] - The texture mapping.
+     * @param {number} [wrapS=ClampToEdgeWrapping] - The wrapS value.
+     * @param {number} [wrapT=ClampToEdgeWrapping] - The wrapT value.
+     * @param {number} [magFilter=LinearFilter] - The mag filter value.
+     * @param {number} [minFilter=LinearMipmapLinearFilter] - The min filter value.
+     * @param {number} [format=RGBAFormat] - The texture format.
+     * @param {number} [type=UnsignedByteType] - The texture type.
+     * @param {number} [anisotropy=Texture.DEFAULT_ANISOTROPY] - The anisotropy value.
+     */
+    constructor(canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy) {
+      super(canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy);
+      this.isCanvasTexture = true;
+      this.needsUpdate = true;
+    }
+  };
   var DepthTexture = class extends Texture {
     /**
      * Constructs a new depth texture.
@@ -13575,6 +13595,69 @@
      */
     static fromJSON(data) {
       return new _BoxGeometry(data.width, data.height, data.depth, data.widthSegments, data.heightSegments, data.depthSegments);
+    }
+  };
+  var CircleGeometry = class _CircleGeometry extends BufferGeometry {
+    /**
+     * Constructs a new circle geometry.
+     *
+     * @param {number} [radius=1] - Radius of the circle.
+     * @param {number} [segments=32] - Number of segments (triangles), minimum = `3`.
+     * @param {number} [thetaStart=0] - Start angle for first segment in radians.
+     * @param {number} [thetaLength=Math.PI*2] - The central angle, often called theta,
+     * of the circular sector in radians. The default value results in a complete circle.
+     */
+    constructor(radius = 1, segments = 32, thetaStart = 0, thetaLength = Math.PI * 2) {
+      super();
+      this.type = "CircleGeometry";
+      this.parameters = {
+        radius,
+        segments,
+        thetaStart,
+        thetaLength
+      };
+      segments = Math.max(3, segments);
+      const indices = [];
+      const vertices = [];
+      const normals = [];
+      const uvs = [];
+      const vertex2 = new Vector3();
+      const uv = new Vector2();
+      vertices.push(0, 0, 0);
+      normals.push(0, 0, 1);
+      uvs.push(0.5, 0.5);
+      for (let s = 0, i2 = 3; s <= segments; s++, i2 += 3) {
+        const segment = thetaStart + s / segments * thetaLength;
+        vertex2.x = radius * Math.cos(segment);
+        vertex2.y = radius * Math.sin(segment);
+        vertices.push(vertex2.x, vertex2.y, vertex2.z);
+        normals.push(0, 0, 1);
+        uv.x = (vertices[i2] / radius + 1) / 2;
+        uv.y = (vertices[i2 + 1] / radius + 1) / 2;
+        uvs.push(uv.x, uv.y);
+      }
+      for (let i2 = 1; i2 <= segments; i2++) {
+        indices.push(i2, i2 + 1, 0);
+      }
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @return {CircleGeometry} A new instance.
+     */
+    static fromJSON(data) {
+      return new _CircleGeometry(data.radius, data.segments, data.thetaStart, data.thetaLength);
     }
   };
   var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
@@ -33999,9 +34082,18 @@ void main() {
       m.receiveShadow = true;
       scene.add(m);
     });
-    const streetLights = new Group(), lampBulbs = [];
-    function streetLamp(x2, z) {
-      const lamp = new Group(), metal = new MeshStandardMaterial({ color: 5002571, roughness: 0.72 }), shade = new MeshStandardMaterial({ color: 7107423, roughness: 0.7 }), bulbMaterial = new MeshStandardMaterial({ color: 16769956, emissive: 16762726, emissiveIntensity: 0 });
+    const streetLights = new Group(), lampBulbs = [], lampPositions = [], poolCanvas = document.createElement("canvas");
+    poolCanvas.width = poolCanvas.height = 128;
+    const poolContext = poolCanvas.getContext("2d"), poolGradient = poolContext.createRadialGradient(64, 64, 4, 64, 64, 64);
+    poolGradient.addColorStop(0, "rgba(255,224,158,.9)");
+    poolGradient.addColorStop(0.38, "rgba(255,213,128,.48)");
+    poolGradient.addColorStop(1, "rgba(255,205,110,0)");
+    poolContext.fillStyle = poolGradient;
+    poolContext.fillRect(0, 0, 128, 128);
+    const poolTexture = new CanvasTexture(poolCanvas);
+    poolTexture.colorSpace = SRGBColorSpace;
+    function streetLamp(x2, z, yaw2) {
+      const lamp = new Group(), metal = new MeshStandardMaterial({ color: 3159603, roughness: 0.76 }), shade = new MeshStandardMaterial({ color: 5067593, roughness: 0.72 }), bulbMaterial = new MeshStandardMaterial({ color: 16769956, emissive: 16762726, emissiveIntensity: 0 });
       const pole = new Mesh(new CylinderGeometry(0.045, 0.065, 1.65, 10), metal);
       pole.position.y = 0.83;
       const arm = new Mesh(new BoxGeometry(0.48, 0.055, 0.055), metal);
@@ -34011,15 +34103,19 @@ void main() {
       cap.rotation.z = Math.PI;
       const bulb = new Mesh(new SphereGeometry(0.105, 14, 10), bulbMaterial);
       bulb.position.set(0.41, 1.42, 0);
-      const light = new PointLight(16763256, 0, 4.8, 2);
+      const light = new PointLight(16763256, 0, 3.2, 2);
       light.position.copy(bulb.position);
-      lamp.add(pole, arm, cap, bulb, light);
+      const pool = new Mesh(new CircleGeometry(1.55, 32), new MeshBasicMaterial({ map: poolTexture, color: 16769184, transparent: true, opacity: 0, depthWrite: false, blending: AdditiveBlending }));
+      pool.rotation.x = -Math.PI / 2;
+      pool.position.set(0.41, 0.025, 0);
+      lamp.add(pole, arm, cap, bulb, light, pool);
       lamp.position.set(x2, 0, z);
-      lamp.rotation.y = (x2 + z) % 2 ? Math.PI : 0;
+      lamp.rotation.y = yaw2;
       streetLights.add(lamp);
-      lampBulbs.push({ material: bulbMaterial, light });
+      lampBulbs.push({ material: bulbMaterial, light, pool });
+      lampPositions.push([x2, z]);
     }
-    [[-4, -0.75], [0, -0.75], [4, -0.75], [-0.8, -4], [-0.8, 3.8], [0.8, -2.2], [0.8, 5.2], [-5.2, 2.25], [5.2, 2.25]].forEach(([x2, z]) => streetLamp(x2, z));
+    [[-3.45, -0.82, -Math.PI / 2], [-3.45, 0.82, Math.PI / 2], [3.45, -0.82, -Math.PI / 2], [3.45, 0.82, Math.PI / 2], [-0.82, -3.15, 0], [0.82, -3.15, Math.PI], [-0.82, 4.15, 0], [0.82, 4.15, Math.PI]].forEach((args) => streetLamp(...args));
     scene.add(streetLights);
     const clickable = [];
     places.forEach((place) => {
@@ -34443,16 +34539,17 @@ void main() {
     function applyWorld(next = {}) {
       worldState = next;
       const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
-      if (night) sky.multiplyScalar(0.38);
-      else if (dusk) sky.multiplyScalar(0.72);
+      if (night) sky.multiplyScalar(0.12);
+      else if (dusk) sky.multiplyScalar(0.55);
       scene.background.copy(sky);
       scene.fog.color.copy(sky);
-      ambient.intensity = (night ? 0.9 : dusk ? 1.65 : 2.4) * (next.weather?.light || 1);
-      sun.intensity = (night ? 0.72 : dusk ? 1.8 : 3.1) * (next.weather?.light || 1);
-      sun.color.set(night ? 11454191 : dusk ? 16762251 : 16770237);
-      lampBulbs.forEach(({ material, light }) => {
-        material.emissiveIntensity = lampsOn ? night ? 2.8 : 1.7 : 0;
-        light.intensity = lampsOn ? night ? 12 : 7 : 0;
+      ambient.intensity = (night ? 0.28 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.18 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
+      sun.color.set(night ? 7968194 : dusk ? 16758383 : 16770237);
+      lampBulbs.forEach(({ material, light, pool }) => {
+        material.emissiveIntensity = lampsOn ? night ? 3.4 : 1.6 : 0;
+        light.intensity = lampsOn ? night ? 18 : 7 : 0;
+        pool.material.opacity = lampsOn ? night ? 0.16 : 0.07 : 0;
       });
       document.body.dataset.townPart = next.part || "";
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
@@ -34494,7 +34591,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
