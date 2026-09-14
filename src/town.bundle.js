@@ -34543,13 +34543,13 @@ void main() {
       else if (dusk) sky.multiplyScalar(0.55);
       scene.background.copy(sky);
       scene.fog.color.copy(sky);
-      ambient.intensity = (night ? 0.28 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
-      sun.intensity = (night ? 0.18 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
+      ambient.intensity = (night ? 0.35 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.22 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
       sun.color.set(night ? 7968194 : dusk ? 16758383 : 16770237);
       lampBulbs.forEach(({ material, light, pool }) => {
-        material.emissiveIntensity = lampsOn ? night ? 3.4 : 1.6 : 0;
-        light.intensity = lampsOn ? night ? 18 : 7 : 0;
-        pool.material.opacity = lampsOn ? night ? 0.16 : 0.07 : 0;
+        material.emissiveIntensity = lampsOn ? night ? 1.8 : 1.6 : 0;
+        light.intensity = lampsOn ? night ? 7 : 7 : 0;
+        pool.material.opacity = lampsOn ? night ? 0.04 : 0.07 : 0;
       });
       document.body.dataset.townPart = next.part || "";
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
