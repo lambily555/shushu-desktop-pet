@@ -403,7 +403,18 @@ function showPlaceContext(place){townContext={type:'place',place,npcId:null};ope
 function showNpcContext(npcIndex){const npc=townState.npcs[npcIndex];if(!npc?.alive)return;townContext={type:'npc',place:npc.place,npcId:npc.id};openTownOverlay('townContext');renderTownContext()}
 function townResult(result){if(!result)return;townState=result.state||townState;saveTown();renderTown();renderTownContext();$('#townActionResult').textContent=result.message||(result.ok?'操作完成。':'现在还不能这样做。')}
 function localTownAction(text,place,change){change();townState.events.push({id:`${Date.now()}-local`,time:Date.now(),type:'activity',text,place});townState.events=townState.events.slice(-80);townResult({state:townState,ok:true,message:text})}
-$('#townButton')?.addEventListener('click',()=>{const wasAway=Date.now()-townState.lastOpenedAt>=4*3600000;settleTown();townState.lastOpenedAt=Date.now();saveTown();setPanel('town');if(wasAway)openTownOverlay('townJournal');setTimeout(()=>window.TownApp?.resize(),50)});
+let townReturnDismissed=false;
+function townWasAway(now=Date.now()){const last=Number(townState.lastOpenedAt)||now,calendarDay=new Date(last).toDateString()!==new Date(now).toDateString();return calendarDay||now-last>=4*3600000}
+function ensureTownReturnNotice(){
+  let notice=$('#townReturnNotice');if(notice)return notice;
+  notice=document.createElement('section');notice.id='townReturnNotice';notice.className='town-return-notice';notice.hidden=true;notice.innerHTML='<header><span>🐾 鼠鼠回来找你啦</span><button data-town-return-later>稍后</button></header><h3>你不在的时候，鼠鼠也认真生活了</h3><div id="townReturnCards"></div><button class="town-return-open" data-town-return-open>查看完整生活记录</button>';document.body.appendChild(notice);
+  notice.querySelector('[data-town-return-later]').onclick=()=>{townReturnDismissed=true;notice.hidden=true};notice.querySelector('[data-town-return-open]').onclick=()=>enterTown(true);return notice;
+}
+function checkTownReturn(){
+  if(townReturnDismissed||!townWasAway())return;const since=Number(townState.lastOpenedAt)||Date.now();townState=townSim.settle(townState,Date.now());saveTown();renderTown();const events=townState.events.filter(e=>e.time>since).slice(-3).reverse(),notice=ensureTownReturnNotice();$('#townReturnCards').innerHTML=(events.length?events:[{text:'鼠鼠在小镇里安静地照顾着自己的生活。',place:'鼠鼠小屋',time:Date.now()}]).map(e=>`<article><b>${escapeHtml(e.text)}</b><span>${escapeHtml(e.place)} · ${formatTownTime(e.time)}</span></article>`).join('');notice.hidden=false;
+}
+function enterTown(forceJournal=false){const wasAway=townWasAway();townState=townSim.settle(townState,Date.now());townState.lastOpenedAt=Date.now();saveTown();ensureTownReturnNotice().hidden=true;townReturnDismissed=false;setPanel('town');if(forceJournal||wasAway)openTownOverlay('townJournal');setTimeout(()=>window.TownApp?.resize(),50)}
+$('#townButton')?.addEventListener('click',()=>enterTown(false));
 $('#townSpeed')?.addEventListener('change',e=>{settleTown();townState.speed=Number(e.target.value);saveTown();renderTown()});
 $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSettings'));$('#townJournalButton')?.addEventListener('click',()=>openTownOverlay('townJournal'));
 document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
@@ -430,3 +441,4 @@ renderTown();setInterval(()=>{if(document.body.dataset.currentPanel==='town')set
 const townExit=document.createElement('button');townExit.className='town-exit';townExit.textContent='← 返回桌面主页';townExit.onclick=()=>setPanel('home');document.querySelector('.town-page').appendChild(townExit);
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.dataset.currentPanel==='town')setPanel('home')});
 document.body.appendChild(document.querySelector('.town-page'));
+setTimeout(checkTownReturn,450);window.addEventListener('focus',()=>setTimeout(checkTownReturn,120));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(checkTownReturn,120)});

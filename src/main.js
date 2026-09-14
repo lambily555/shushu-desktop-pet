@@ -3,6 +3,7 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 const fs = require('fs');
+if (process.env.DASHBOARD_CAPTURE_PATH) app.setPath('userData', path.join(path.dirname(process.env.DASHBOARD_CAPTURE_PATH), '.dashboard-qa-profile'));
 if (process.env.DASHBOARD_PANELS_CAPTURE_DIR || process.env.DASHBOARD_TEST_REPORT) {
   app.disableHardwareAcceleration();
   app.commandLine.appendSwitch('disable-gpu');
@@ -396,6 +397,11 @@ app.whenReady().then(() => {
       if (process.env.TOWN_FEATURE_CAPTURE_PATH) {
         const featureReport=await controlWin.webContents.executeJavaScript(`(async()=>{document.querySelector('#townButton').click();await new Promise(r=>setTimeout(r,500));window.TownApp.enterPlace('小菜园');const garden={title:document.querySelector('#townContextTitle').textContent,progress:document.querySelector('.town-growth b')?.textContent};window.TownApp.leavePlace();window.TownApp.enterPlace('鼠鼠小屋');const supplyLabel=[...document.querySelectorAll('.town-furniture-label')].some(x=>x.textContent.includes('点击补给'));window.TownApp.leavePlace();window.TownApp.focusResident(0);await new Promise(r=>setTimeout(r,100));const state={panel:document.body.dataset.currentPanel,contextVisible:!document.querySelector('#townContext').hidden,contextTitle:document.querySelector('#townContextTitle').textContent,focusedResident:window.TownApp.inspect().focusedResident,actions:document.querySelectorAll('#townContext [data-town-action]').length,statusRows:getComputedStyle(document.querySelector('.town-status')).gridTemplateRows,status:[...document.querySelectorAll('.town-status b')].map(x=>x.textContent),garden,supplyLabel};return state})()`);
         fs.writeFileSync(process.env.TOWN_FEATURE_CAPTURE_PATH,(await controlWin.webContents.capturePage()).toPNG());fs.writeFileSync(`${process.env.TOWN_FEATURE_CAPTURE_PATH}.json`,JSON.stringify(featureReport,null,2));
+      }
+      if (process.env.TOWN_RETURN_CAPTURE_PATH) {
+        const returnReport=await controlWin.webContents.executeJavaScript(`(()=>{window.TownApp?.clearFocus?.();document.querySelector('#backHome')?.click();townState.lastOpenedAt=Date.now()-26*3600000;townState.lastSettledAt=townState.lastOpenedAt;townState.activityUntil=townState.lastOpenedAt;townState.events=[];townReturnDismissed=false;saveTown();checkTownReturn();const notice=document.querySelector('#townReturnNotice'),style=getComputedStyle(notice),rect=notice.getBoundingClientRect();return {visible:!notice.hidden,display:style.display,zIndex:style.zIndex,rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},cards:notice.querySelectorAll('#townReturnCards article').length,title:notice.querySelector('h3').textContent,lastOpenedAt:townState.lastOpenedAt}})()`);
+        await new Promise(resolve=>setTimeout(resolve,200));
+        fs.writeFileSync(process.env.TOWN_RETURN_CAPTURE_PATH,(await controlWin.webContents.capturePage()).toPNG());fs.writeFileSync(`${process.env.TOWN_RETURN_CAPTURE_PATH}.json`,JSON.stringify(returnReport,null,2));
       }
       if (process.env.DASHBOARD_PROFILE_CAPTURE_PATH) {
         await controlWin.webContents.executeJavaScript(`document.querySelector('#homeBrand').click()`);
