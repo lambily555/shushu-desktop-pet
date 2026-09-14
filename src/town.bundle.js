@@ -33979,15 +33979,15 @@ void main() {
     const roles = ["\u8DD1\u8F6E\u7BA1\u7406\u5458", "\u533B\u751F", "\u96F6\u98DF\u5E97\u4E3B", "\u5E7F\u573A\u90BB\u5C45", "\u7EAA\u5FF5\u9986\u7BA1\u7406\u5458", "\u5C0F\u5C4B\u90BB\u5C45", "\u56ED\u4E01", "\u793C\u4EEA\u5E08", "\u5B88\u5893\u4EBA"];
     const residents = places.map(([place, x2, z], i2) => {
       const npc = hamster([12297610, 13158587, 10786690][i2 % 3]);
+      npc.userData.npcIndex = i2;
+      npc.traverse((child) => child.userData.npcIndex = i2);
       scene.add(npc);
+      clickable.push(npc);
       const tag = document.createElement("button");
       tag.className = "town-label town-npc-label";
       tag.textContent = roles[i2];
       host.appendChild(tag);
-      tag.onclick = () => {
-        document.querySelector("#townPlace b").textContent = roles[i2];
-        document.querySelector("#townPlace span").textContent = place + "\u7684\u5C45\u6C11\uFF0C\u6B63\u5728\u9644\u8FD1\u6563\u6B65\u4F11\u606F\u3002";
-      };
+      tag.onclick = () => focusResident(i2);
       return { rig: npc, x: x2 + (place === "\u4E2D\u5FC3\u5E7F\u573A" ? 1.9 : 0), z: z + 1.7, phase: i2 * 1.8, tag };
     });
     const gaitAxis = new Vector3(1, 0, 0), rotation = new Quaternion();
@@ -34024,7 +34024,7 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, savedFocusCamera = null, worldState = {};
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
@@ -34037,6 +34037,10 @@ void main() {
     returnButton.textContent = "\u2190 \u8FD4\u56DE\u5C0F\u9547";
     returnButton.hidden = true;
     host.appendChild(returnButton);
+    const speech = document.createElement("div");
+    speech.className = "town-npc-speech";
+    speech.hidden = true;
+    host.appendChild(speech);
     const indoorNames = ["\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"];
     function clearRoom() {
       roomLabels.splice(0).forEach((item) => item.button.remove());
@@ -34062,10 +34066,11 @@ void main() {
         room.add(mesh);
         return mesh;
       };
-      const label = (text, x2, z) => {
-        const button = document.createElement("span");
+      const label = (text, x2, z, action) => {
+        const button = document.createElement(action ? "button" : "span");
         button.className = "town-label town-furniture-label";
         button.textContent = text;
+        if (action) button.onclick = () => window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action, place: name } }));
         host.appendChild(button);
         roomLabels.push({ button, point: new Vector3(x2, 0.95, z) });
       };
@@ -34106,6 +34111,9 @@ void main() {
         add(0.07, 0.3, 0.07, 2.9, 0.36, -1.05, 12304321);
         label("\u6C34\u58F6", 2.9, -1.2);
         shelf(0.2, -2.4, "\u7CAE\u4ED3");
+        roomLabels.at(-1).button.remove();
+        roomLabels.pop();
+        label("\u7CAE\u4ED3 \xB7 \u70B9\u51FB\u8865\u7ED9", 0.2, -2.4, "supply");
         const moved = worldState.furniture?.table?.slot === "window", tableX = moved ? 2.2 : -2.3, tableZ = moved ? -0.8 : 1.1;
         add(1, 0.55, 0.75, tableX, 0.3, tableZ, 10188881);
         label("\u6728\u684C", tableX, tableZ);
@@ -34148,6 +34156,7 @@ void main() {
       }
     }
     function enterPlace(name) {
+      clearFocus(false);
       if (activePlace) leavePlace();
       savedCamera = { yaw, pitch, distance, target: target.clone() };
       activePlace = name;
@@ -34174,6 +34183,7 @@ void main() {
       returnButton.hidden = false;
       host.dataset.place = name;
       positionCamera();
+      window.dispatchEvent(new CustomEvent("town-place-select", { detail: { place: name } }));
     }
     function leavePlace() {
       if (!activePlace) return;
@@ -34192,7 +34202,51 @@ void main() {
       delete host.dataset.place;
       positionCamera();
     }
-    returnButton.onclick = leavePlace;
+    function focusResident(index) {
+      const npc = residents[index];
+      if (!npc?.rig.visible) return;
+      if (activePlace) leavePlace();
+      if (focusedResident < 0) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      focusedResident = index;
+      target.set(npc.x + 1.15, 0.25, npc.z);
+      yaw = 0.15;
+      pitch = 0.68;
+      distance = 5.4;
+      returnButton.hidden = false;
+      host.dataset.resident = String(index);
+      document.querySelector("#townPlace b").textContent = worldState.npcs?.[index]?.name || roles[index];
+      document.querySelector("#townPlace span").textContent = places[index][0] + "\u7684\u5C45\u6C11";
+      positionCamera();
+      sayToResident(index, "\u4ECA\u5929\u4E5F\u5F88\u9AD8\u5174\u89C1\u5230\u4F60\uFF01");
+      window.dispatchEvent(new CustomEvent("town-npc-select", { detail: { index } }));
+    }
+    function clearFocus(restore = true) {
+      if (focusedResident < 0) return;
+      focusedResident = -1;
+      speech.hidden = true;
+      delete host.dataset.resident;
+      document.querySelector("#townPlace b").textContent = "\u4E2D\u5FC3\u5E7F\u573A";
+      document.querySelector("#townPlace span").textContent = "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
+      if (restore && savedFocusCamera) {
+        yaw = savedFocusCamera.yaw;
+        pitch = savedFocusCamera.pitch;
+        distance = savedFocusCamera.distance;
+        target.copy(savedFocusCamera.target);
+        positionCamera();
+      }
+      savedFocusCamera = null;
+      if (!activePlace) returnButton.hidden = true;
+    }
+    function sayToResident(index, text) {
+      if (index !== focusedResident) focusResident(index);
+      speech.textContent = text || "\u5431\u5431\uFF0C\u6B22\u8FCE\u6765\u627E\u6211\u804A\u5929\u3002";
+      speech.hidden = false;
+      clearTimeout(speech._timer);
+      speech._timer = setTimeout(() => {
+        speech.hidden = true;
+      }, 4200);
+    }
+    returnButton.onclick = () => focusedResident >= 0 ? clearFocus() : leavePlace();
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && activePlace && document.body.dataset.currentPanel === "town") {
         e.preventDefault();
@@ -34232,8 +34286,11 @@ void main() {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
         const hit = ray.intersectObjects(clickable, true)[0];
-        if (hit) {
-          if (!activePlace) enterPlace(hit.object.userData.place);
+        if (hit && !activePlace) {
+          let object = hit.object;
+          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.place) object = object.parent;
+          if (Number.isInteger(object?.userData.npcIndex)) focusResident(object.userData.npcIndex);
+          else if (object?.userData.place) enterPlace(object.userData.place);
         }
       }
       drag = null;
@@ -34252,6 +34309,16 @@ void main() {
     }
     new ResizeObserver(resize).observe(host);
     resize();
+    function placeLabel(button, point, occupied, hidden = false) {
+      const p = point.clone().project(camera);
+      let x2 = (p.x + 1) * host.clientWidth / 2, y = (-p.y + 1) * host.clientHeight / 2;
+      button.hidden = hidden || p.z > 1;
+      if (button.hidden) return;
+      for (let tries = 0; tries < 5 && occupied.some((o) => Math.abs(o.x - x2) < 82 && Math.abs(o.y - y) < 28); tries++) y += 24;
+      occupied.push({ x: x2, y });
+      button.style.left = x2 + "px";
+      button.style.top = y + "px";
+    }
     const clock = new Clock();
     function draw() {
       requestAnimationFrame(draw);
@@ -34259,24 +34326,18 @@ void main() {
       walk(pet, t, 0, home.x, home.z);
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
-      residents.forEach((npc) => {
+      const occupied = [];
+      labels.forEach(({ button, point }) => placeLabel(button, point, occupied, !!activePlace || focusedResident >= 0));
+      residents.forEach((npc, index) => {
         walk(npc.rig, t, npc.phase, npc.x, npc.z);
-        const p = npc.rig.position.clone().add(new Vector3(0, 0.8, 0)).project(camera);
-        npc.tag.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
-        npc.tag.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
-        npc.tag.hidden = !npc.rig.visible || p.z > 1 || !!activePlace;
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || !!activePlace || focusedResident >= 0 && focusedResident !== index);
       });
-      labels.forEach(({ button, point }) => {
-        const p = point.clone().project(camera);
-        button.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
-        button.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
-        button.hidden = p.z > 1 || !!activePlace;
-      });
-      roomLabels.forEach(({ button, point }) => {
-        const p = point.clone().project(camera);
-        button.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
-        button.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
-      });
+      roomLabels.forEach(({ button, point }) => placeLabel(button, point, occupied, false));
+      if (focusedResident >= 0 && !speech.hidden) {
+        const p = residents[focusedResident].rig.position.clone().add(new Vector3(0, 1.05, 0)).project(camera);
+        speech.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
+        speech.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
+      }
       if (document.body.dataset.currentPanel === "town") renderer.render(scene, camera);
     }
     draw();
@@ -34295,7 +34356,7 @@ void main() {
         const data = next.npcs?.[i2];
         resident.rig.visible = data?.alive !== false;
         resident.tag.hidden = !resident.rig.visible;
-        resident.tag.textContent = data?.role || roles[i2];
+        resident.tag.textContent = data?.name || roles[i2];
       });
       while (weatherFx.children.length) {
         const child = weatherFx.children[0];
@@ -34329,7 +34390,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, applyWorld, inspect: () => ({ activePlace, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
