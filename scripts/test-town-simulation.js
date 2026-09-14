@@ -20,10 +20,12 @@ for(const aging of [false,true])for(const mortality of [false,true])for(const il
 
 let economy=sim.defaults(start);economy.seeds=20;({state:economy}=sim.buyFood(economy));assert.equal(economy.food,17);assert.equal(economy.seeds,10);
 economy.garden.ready=true;({state:economy}=sim.harvest(economy));assert.equal(economy.food,20);assert.equal(economy.seeds,14);
-let social=sim.defaults(start);for(let i=0;i<14;i++)({state:social}=sim.interact(social,'npc-0'));assert.equal(sim.relationship(social.npcs[0].relationship),'伴侣');
+let social=sim.defaults(start);social.npcs[0].relationship=75;({state:social}=sim.interact(social,'npc-0',start));assert.equal(sim.relationship(social.npcs[0].relationship),'伴侣');
 const family=sim.breed(social,'npc-0');assert.equal(family.ok,true);assert.ok(family.state.offspring.length>=1&&family.state.offspring.length<=3);
+
+let limited=sim.defaults(start);let socialResult;for(const id of ['npc-0','npc-0','npc-1','npc-1','npc-2','npc-2']){socialResult=sim.interact(limited,id,start);assert.equal(socialResult.ok,true);limited=socialResult.state}socialResult=sim.interact(limited,'npc-3',start);assert.equal(socialResult.ok,false);assert.equal(limited.social.total,6);assert.equal(limited.stamina,16);
+let rested=sim.settle(limited,start+12*HOUR);assert.ok(rested.stamina>limited.stamina);const workout=sim.exercise(rested,start+12*HOUR);assert.equal(workout.ok,true);assert.ok(workout.state.stamina<rested.stamina);
 
 let farewell=sim.defaults(start);Object.assign(farewell,{mortality:true,ageYearsValue:3,health:70});farewell=sim.settle(farewell,start+HOUR);assert.equal(farewell.alive,false);farewell=sim.finishFarewell(farewell).state;assert.equal(farewell.memorials.length,1);assert.equal(farewell.pendingFarewell.phase,'buried');const adopted=sim.adopt(farewell,'npc-0');assert.equal(adopted.ok,true);assert.equal(adopted.state.alive,true);
 
-console.log(JSON.stringify({passed:true,dayparts:4,toggleCombinations:8,offlineEquivalenceHours:72,economy:true,family:true,farewell:true},null,2));
-
+console.log(JSON.stringify({passed:true,dayparts:4,toggleCombinations:8,offlineEquivalenceHours:72,economy:true,family:true,farewell:true,stamina:true,dailySocialLimit:6,perNpcSocialLimit:2},null,2));

@@ -361,7 +361,7 @@ const formatTownTime=time=>new Date(time).toLocaleString('zh-CN',{month:'numeric
 function renderTown(){
   if(!$('#townTime'))return;const now=Date.now(),date=new Date(now),weather=townSim.weather(now),age=townSim.ageYears(townState);
   $('#townTime').textContent=`${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')} · ${townSim.daypart(now)}`;$('#townWeather').textContent=`${weather.icon} ${weather.name}`;
-  $('#townHunger').textContent=Math.round(townState.fullness);$('#townHealth').textContent=Math.round(townState.health);$('#townMood').textContent=Math.round(townState.mood);$('#townAge').textContent=`${townState.lifeStage} ${age.toFixed(1)}岁`;$('#townFood').textContent=townState.food;$('#townSeeds').textContent=townState.seeds;$('#townSpeed').value=String(townState.speed);
+  $('#townHunger').textContent=Math.round(townState.fullness);$('#townHealth').textContent=Math.round(townState.health);$('#townMood').textContent=Math.round(townState.mood);$('#townStamina').textContent=Math.round(townState.stamina);$('#townAge').textContent=`${townState.lifeStage} ${age.toFixed(1)}岁`;$('#townFood').textContent=townState.food;$('#townSeeds').textContent=townState.seeds;$('#townSpeed').value=String(townState.speed);
   $('#townActivity').textContent=townState.alive?`鼠鼠正在${townState.currentPlace}${townState.currentActivity}。`:'鼠鼠的生活已经珍藏在纪念馆。';
   const recent=townState.events.slice(-1)[0];$('#townStory').textContent=recent?.text||'鼠鼠正在经营自己的小生活。';
   document.querySelectorAll('[data-town-setting]').forEach(input=>input.checked=!!townState[input.dataset.townSetting]);
@@ -376,12 +376,13 @@ const townNpcProfiles=[
 ];
 let townContext={type:'place',place:'中心广场',npcId:null};
 const gardenProgress=()=>Math.max(0,Math.min(100,Math.round((Date.now()-townState.garden.plantedAt)/864000)));
-function contextButton(action,title,detail){return `<button class="town-task" data-town-action="${action}"><b>${title}</b><span>${detail}</span></button>`}
+function contextButton(action,title,detail,disabled=false){return `<button class="town-task" data-town-action="${action}"${disabled?' disabled':''}><b>${title}</b><span>${detail}</span></button>`}
 function renderTownContext(){
   const panel=$('#townContext');if(!panel||panel.hidden)return;const title=$('#townContextTitle'),kicker=$('#townContextKicker'),body=$('#townContextBody');
   if(townContext.type==='npc'){
     const index=townState.npcs.findIndex(n=>n.id===townContext.npcId),npc=townState.npcs[index];if(!npc){panel.hidden=true;return}const profile=townNpcProfiles[index]||['在小镇散步','一位正在认真生活的小镇居民。'];
-    kicker.textContent='居民资料';title.textContent=npc.name;body.innerHTML=`<div class="town-npc-card"><div class="town-npc-portrait">🐹</div><div><b>${escapeHtml(npc.name)}</b><span>${escapeHtml(npc.role)} · ${escapeHtml(npc.stage)}</span></div></div><dl><div><dt>对鼠鼠的好感度</dt><dd><b>${Math.round(npc.relationship)}</b> / 100 · ${townSim.relationship(npc.relationship)}</dd></div><div><dt>爱好</dt><dd>${profile[0]}</dd></div><div><dt>居住与工作</dt><dd>${escapeHtml(npc.place)}</dd></div><div><dt>个人介绍</dt><dd>${profile[1]}</dd></div></dl><div class="town-context-actions">${contextButton('social','聊一会儿','增加彼此好感，听听居民今天想说什么')}${npc.relationship>=80?contextButton('breed','繁育后代','双方成年健康时可迎来幼鼠'):''}</div>`;
+    const allowance=townSim.socialAllowance(townState,npc.id),socialDetail=allowance.stamina<12?'体力不足，需要12点体力':allowance.npcRemaining<=0?'今天和这位居民的2次交流已用完':allowance.totalRemaining<=0?'今天的6次社交已全部用完':`今天还可社交${allowance.totalRemaining}次，与${escapeHtml(npc.name)}还可聊${allowance.npcRemaining}次`;
+    kicker.textContent='居民资料';title.textContent=npc.name;body.innerHTML=`<div class="town-npc-card"><div class="town-npc-portrait">🐹</div><div><b>${escapeHtml(npc.name)}</b><span>${escapeHtml(npc.role)} · ${escapeHtml(npc.stage)}</span></div></div><dl><div><dt>对鼠鼠的好感度</dt><dd><b>${Math.round(npc.relationship)}</b> / 100 · ${townSim.relationship(npc.relationship)}</dd></div><div><dt>今日社交</dt><dd>${socialDetail}</dd></div><div><dt>爱好</dt><dd>${profile[0]}</dd></div><div><dt>居住与工作</dt><dd>${escapeHtml(npc.place)}</dd></div><div><dt>个人介绍</dt><dd>${profile[1]}</dd></div></dl><div class="town-context-actions">${contextButton('social','聊一会儿',socialDetail,!allowance.allowed)}${npc.relationship>=80?contextButton('breed','繁育后代','消耗25点体力；双方成年健康时可迎来幼鼠',townState.stamina<25):''}</div>`;
     return;
   }
   const place=townContext.place||'中心广场';kicker.textContent='地点任务';title.textContent=place;
@@ -389,7 +390,7 @@ function renderTownContext(){
   const family=townState.offspring.map(p=>`<li><b>${escapeHtml(p.name)}</b><span>${escapeHtml(p.stage)} · ${escapeHtml(p.trait)} · 喜欢${escapeHtml(p.favorite)}</span></li>`).join('')||'<li>小屋里暂时没有幼鼠。</li>';
   const candidates=[...townState.offspring,...townState.npcs.filter(n=>n.alive)],adoption=!townState.alive?`<label class="town-adopt">选择新的桌面伙伴<select id="townAdoptChoice"><option value="">请选择</option>${candidates.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select><button data-town-action="adopt">确认接续</button></label>`:'';
   const pages={
-    '跑轮公园':`<p>在公园锻炼会改善健康和心情。</p>${contextButton('exercise','跑一会儿跑轮','健康 +1，心情 +2')}`,
+    '跑轮公园':`<div class="town-place-stat"><span>当前体力</span><b>${Math.round(townState.stamina)}</b></div><p>在公园锻炼会改善健康和心情，但需要消耗体力。</p>${contextButton('exercise','跑一会儿跑轮','健康 +1，心情 +2，体力 -18',townState.stamina<18)}`,
     '诊所':`<div class="town-place-stat"><span>当前健康</span><b>${Math.round(townState.health)}</b></div><p>${townState.health<70?'白大夫建议做一次温和治疗。':'白大夫检查后说，鼠鼠现在状态不错。'}</p>${townState.health<95?contextButton('treat','接受诊疗','花费 6 颗瓜子，恢复健康'):''}`,
     '零食铺':`<div class="town-place-stat"><span>粮仓存量</span><b>${townState.food} 份</b></div>${contextButton('buy-food','购买 5 份粮食','花费 10 颗瓜子，直接送入粮仓')}`,
     '中心广场':'<p>点击场景中的居民鼠鼠，可以聚焦查看资料、爱好和好感度，并与它单独交流。</p>',
@@ -429,7 +430,7 @@ $('#townContext')?.addEventListener('click',event=>{
   else if(action==='adopt')townResult(townSim.adopt(townState,$('#townAdoptChoice')?.value));
   else if(action==='social'){const result=townSim.interact(townState,townContext.npcId);window.TownApp?.sayToResident?.(townState.npcs.findIndex(n=>n.id===townContext.npcId),result.message);townResult(result)}
   else if(action==='breed')townResult(townSim.breed(townState,townContext.npcId));
-  else if(action==='exercise')localTownAction('鼠鼠在跑轮公园认真锻炼了一会儿。','跑轮公园',()=>{townState.health=Math.min(100,townState.health+1);townState.mood=Math.min(100,townState.mood+2)});
+  else if(action==='exercise')townResult(townSim.exercise(townState));
   else if(action==='treat'){if(townState.seeds<6)townResult({state:townState,ok:false,message:'诊疗需要 6 颗瓜子。'});else localTownAction('白大夫为鼠鼠完成了一次温和诊疗。','诊所',()=>{townState.seeds-=6;townState.health=Math.min(100,townState.health+12)})}
   else if(action==='furniture'){
     const lamp=townState.furniture.lamp||(townState.furniture.lamp={owned:false,slot:'window'});
