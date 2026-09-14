@@ -33931,10 +33931,34 @@ void main() {
       model.scale.setScalar(scale);
       model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
       rig.add(model);
+      model.updateMatrixWorld(true);
+      const tuckShoulder = (armName, foreArmName) => {
+        const arm = bones[armName], foreArm = bones[foreArmName];
+        if (!arm || !foreArm || !arm.bone.parent) return;
+        const shoulder = model.worldToLocal(arm.bone.getWorldPosition(new Vector3())), chest = new Vector3(shoulder.x * 0.72, shoulder.y - size.y * 0.16, shoulder.z + size.z * 0.035), target = arm.bone.parent.worldToLocal(model.localToWorld(chest)), current = foreArm.bone.position.clone().normalize().applyQuaternion(arm.base), desired = target.sub(arm.bone.position).normalize(), correction = new Quaternion().setFromUnitVectors(current, desired);
+        arm.base = correction.multiply(arm.base.clone());
+        arm.bone.quaternion.copy(arm.base);
+      };
+      tuckShoulder("mixamorig:LeftArm", "mixamorig:LeftForeArm");
+      tuckShoulder("mixamorig:RightArm", "mixamorig:RightForeArm");
+      model.updateMatrixWorld(true);
+      const tuckForearm = (foreArmName, handName) => {
+        const foreArm = bones[foreArmName], hand = bones[handName];
+        if (!foreArm || !hand || !foreArm.bone.parent) return;
+        const elbow = model.worldToLocal(foreArm.bone.getWorldPosition(new Vector3())), side = Math.sign(elbow.x) || (foreArmName.includes("Left") ? 1 : -1), paw = new Vector3(side * size.x * 0.105, center.y + size.y * 0.035, box.max.z + size.z * 0.035), target = foreArm.bone.parent.worldToLocal(model.localToWorld(paw)), current = hand.bone.position.clone().normalize().applyQuaternion(foreArm.base), desired = target.sub(foreArm.bone.position).normalize(), correction = new Quaternion().setFromUnitVectors(current, desired);
+        foreArm.base = correction.multiply(foreArm.base.clone());
+        foreArm.bone.quaternion.copy(foreArm.base);
+      };
+      tuckForearm("mixamorig:LeftForeArm", "mixamorig:LeftHand");
+      tuckForearm("mixamorig:RightForeArm", "mixamorig:RightHand");
+      model.updateMatrixWorld(true);
+      const leftHand = bones["mixamorig:LeftHand"]?.bone, rightHand = bones["mixamorig:RightHand"]?.bone, forepawSpan = leftHand && rightHand ? leftHand.getWorldPosition(new Vector3()).distanceTo(rightHand.getWorldPosition(new Vector3())) : null;
       rig.userData.joints = joints;
       rig.userData.bones = bones;
       rig.userData.model = model;
       rig.userData.modelBase = model.rotation.clone();
+      rig.userData.armTucked = true;
+      rig.userData.forepawSpan = forepawSpan;
       rig.userData.loaded = true;
       document.querySelector("#townScene").dataset.model = "loaded";
     }).catch(() => {
@@ -34420,7 +34444,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
