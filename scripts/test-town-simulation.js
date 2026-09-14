@@ -9,7 +9,7 @@ assert.equal(sim.daypart(new Date(2026,8,13,22).getTime()),'夜晚');
 assert.deepEqual(sim.weather(start),sim.weather(start));
 assert.equal(sim.migrate({...sim.defaults(start),version:1,stamina:88},start).stamina,100);
 assert.equal(sim.migrate({...sim.defaults(start),version:2,stamina:42},start).stamina,42);
-const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,3);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));
+const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,4);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));assert.deepEqual(migrated.npcBonds[0],[0,1]);
 const sexes=new Set(sim.defaults(start).npcs.map(n=>n.sex));assert.deepEqual([...sexes].sort(),['female','male']);
 
 const initial=sim.defaults(start);initial.food=30;
@@ -28,6 +28,7 @@ let social=sim.defaults(start);social.npcs[0].relationship=75;({state:social}=si
 assert.equal(sim.breedingEligibility(social,'npc-0',start).allowed,true);const sameSex=structuredClone(social);sameSex.npcs[0].sex=sameSex.mainSex;assert.equal(sim.breedingEligibility(sameSex,'npc-0',start).allowed,false);assert.match(sim.breed(sameSex,'npc-0').message,/性别相同/);
 const family=sim.breed(social,'npc-0');assert.equal(family.ok,true);assert.ok(family.state.offspring.length>=1&&family.state.offspring.length<=3);
 assert.ok(family.state.offspring.every(p=>['male','female'].includes(p.sex)));
+const npcFamily=sim.breedNpcPair(sim.defaults(start),'npc-0','npc-1',start);assert.equal(npcFamily.ok,true);assert.ok(npcFamily.state.npcOffspring.length>=1&&npcFamily.state.npcOffspring.length<=2);assert.equal(npcFamily.state.stamina,100);assert.ok(npcFamily.state.npcOffspring.every(p=>p.parents.includes('轮轮')&&p.parents.includes('白大夫')));assert.equal(sim.breedNpcPair(npcFamily.state,'npc-0','npc-1',start).ok,false);
 
 let limited=sim.defaults(start);assert.equal(limited.stamina,100);let socialResult;for(const id of ['npc-0','npc-0','npc-1','npc-1','npc-2','npc-2']){socialResult=sim.interact(limited,id,start);assert.equal(socialResult.ok,true);limited=socialResult.state}socialResult=sim.interact(limited,'npc-3',start);assert.equal(socialResult.ok,false);assert.equal(limited.social.total,6);assert.equal(limited.stamina,28);
 let rested=sim.settle(limited,start+12*HOUR);assert.ok(rested.stamina>limited.stamina);const workout=sim.exercise(rested,start+12*HOUR);assert.equal(workout.ok,true);assert.ok(workout.state.stamina<rested.stamina);
@@ -35,4 +36,4 @@ let rested=sim.settle(limited,start+12*HOUR);assert.ok(rested.stamina>limited.st
 let farewell=sim.defaults(start);Object.assign(farewell,{mortality:true,ageYearsValue:3,health:70});farewell=sim.settle(farewell,start+HOUR);assert.equal(farewell.alive,false);farewell=sim.finishFarewell(farewell).state;assert.equal(farewell.memorials.length,1);assert.equal(farewell.pendingFarewell.phase,'buried');const adopted=sim.adopt(farewell,'npc-0');assert.equal(adopted.ok,true);assert.equal(adopted.state.alive,true);
 assert.equal(adopted.state.mainSex,adopted.state.npcs[0].sex);
 
-console.log(JSON.stringify({passed:true,dayparts:4,toggleCombinations:8,offlineEquivalenceHours:72,economy:true,family:true,sexes:true,breedingEligibility:true,farewell:true,stamina:true,dailySocialLimit:6,perNpcSocialLimit:2},null,2));
+console.log(JSON.stringify({passed:true,dayparts:4,toggleCombinations:8,offlineEquivalenceHours:72,economy:true,family:true,npcFamily:true,sexes:true,breedingEligibility:true,farewell:true,stamina:true,dailySocialLimit:6,perNpcSocialLimit:2},null,2));

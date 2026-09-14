@@ -34006,7 +34006,9 @@ void main() {
       scene.add(obj);
     });
     const pet = hamster();
+    pet.userData.mainPet = true;
     scene.add(pet);
+    clickable.push(pet);
     const roles = ["\u8DD1\u8F6E\u7BA1\u7406\u5458", "\u533B\u751F", "\u96F6\u98DF\u5E97\u4E3B", "\u5E7F\u573A\u90BB\u5C45", "\u7EAA\u5FF5\u9986\u7BA1\u7406\u5458", "\u5C0F\u5C4B\u90BB\u5C45", "\u56ED\u4E01", "\u793C\u4EEA\u5E08", "\u5B88\u5893\u4EBA"];
     const residents = places.map(([place, x2, z], i2) => {
       const npc = hamster([12297610, 13158587, 10786690][i2 % 3]);
@@ -34223,6 +34225,9 @@ void main() {
           if (!child.isLight && child !== room) child.visible = false;
         });
         room.visible = true;
+        pet.visible = worldState.alive !== false || worldState.pendingFarewell?.phase !== "buried";
+        const residentIndex = places.findIndex((place) => place[0] === name), resident = residents[residentIndex];
+        if (resident) resident.rig.visible = worldState.npcs?.[residentIndex]?.alive !== false;
         target.set(0, 0, 0);
         distance = 13;
         pitch = 0.92;
@@ -34254,15 +34259,15 @@ void main() {
       savedCamera = null;
       returnButton.hidden = true;
       delete host.dataset.place;
+      applyWorld(worldState);
       positionCamera();
     }
     function focusResident(index) {
       const npc = residents[index];
       if (!npc?.rig.visible) return;
-      if (activePlace) leavePlace();
-      if (focusedResident < 0) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
       focusedResident = index;
-      target.set(npc.x + 1.15, 0.25, npc.z);
+      target.copy(npc.rig.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
       distance = 5.4;
@@ -34274,13 +34279,29 @@ void main() {
       sayToResident(index, "\u4ECA\u5929\u4E5F\u5F88\u9AD8\u5174\u89C1\u5230\u4F60\uFF01");
       window.dispatchEvent(new CustomEvent("town-npc-select", { detail: { index } }));
     }
+    function focusPet() {
+      if (!pet.visible) return;
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      focusedResident = -2;
+      target.copy(pet.position).add(new Vector3(1.05, 0.25, 0));
+      yaw = 0.15;
+      pitch = 0.68;
+      distance = 5.4;
+      returnButton.hidden = false;
+      host.dataset.resident = "main";
+      speech.hidden = true;
+      document.querySelector("#townPlace b").textContent = "\u6211\u7684\u9F20\u9F20";
+      document.querySelector("#townPlace span").textContent = "\u4F60\u6B63\u5728\u966A\u4F34\u7684\u684C\u9762\u4F19\u4F34";
+      positionCamera();
+      window.dispatchEvent(new CustomEvent("town-main-select"));
+    }
     function clearFocus(restore = true) {
-      if (focusedResident < 0) return;
+      if (focusedResident === -1) return;
       focusedResident = -1;
       speech.hidden = true;
       delete host.dataset.resident;
-      document.querySelector("#townPlace b").textContent = "\u4E2D\u5FC3\u5E7F\u573A";
-      document.querySelector("#townPlace span").textContent = "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
+      document.querySelector("#townPlace b").textContent = activePlace || "\u4E2D\u5FC3\u5E7F\u573A";
+      document.querySelector("#townPlace span").textContent = activePlace ? "\u6B63\u5728\u67E5\u770B\u8FD9\u91CC\u7684\u9F20\u9F20\u548C\u8BBE\u65BD" : "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
       if (restore && savedFocusCamera) {
         yaw = savedFocusCamera.yaw;
         pitch = savedFocusCamera.pitch;
@@ -34300,7 +34321,7 @@ void main() {
         speech.hidden = true;
       }, 4200);
     }
-    returnButton.onclick = () => focusedResident >= 0 ? clearFocus() : leavePlace();
+    returnButton.onclick = () => focusedResident !== -1 ? clearFocus() : leavePlace();
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && activePlace && document.body.dataset.currentPanel === "town") {
         e.preventDefault();
@@ -34340,11 +34361,12 @@ void main() {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
         const hit = ray.intersectObjects(clickable, true)[0];
-        if (hit && !activePlace) {
+        if (hit) {
           let object = hit.object;
-          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.place) object = object.parent;
-          if (Number.isInteger(object?.userData.npcIndex)) focusResident(object.userData.npcIndex);
-          else if (object?.userData.place) enterPlace(object.userData.place);
+          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.place) object = object.parent;
+          if (object?.userData.mainPet) focusPet();
+          else if (Number.isInteger(object?.userData.npcIndex)) focusResident(object.userData.npcIndex);
+          else if (!activePlace && object?.userData.place) enterPlace(object.userData.place);
         }
       }
       drag = null;
@@ -34376,15 +34398,16 @@ void main() {
     const clock = new Clock();
     function draw() {
       requestAnimationFrame(draw);
-      const t = clock.getElapsedTime(), home = pet.userData.home || { x: 2.3, z: 2.3 };
+      const t = clock.getElapsedTime(), inside = indoorNames.includes(activePlace), home = inside ? { x: -1.15, z: 0.85 } : pet.userData.home || { x: 2.3, z: 2.3 };
       walk(pet, t, 0, home.x, home.z);
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
       const occupied = [];
-      labels.forEach(({ button, point }) => placeLabel(button, point, occupied, !!activePlace || focusedResident >= 0));
+      labels.forEach(({ button, point }) => placeLabel(button, point, occupied, !!activePlace || focusedResident !== -1));
       residents.forEach((npc, index) => {
-        walk(npc.rig, t, npc.phase, npc.x, npc.z);
-        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || !!activePlace || focusedResident >= 0 && focusedResident !== index);
+        const isIndoorResident = inside && places[index][0] === activePlace;
+        walk(npc.rig, t, npc.phase, isIndoorResident ? 1.15 : npc.x, isIndoorResident ? 0.55 : npc.z);
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || !!activePlace || focusedResident !== -1 && focusedResident !== index);
       });
       roomLabels.forEach(({ button, point }) => placeLabel(button, point, occupied, false));
       if (focusedResident >= 0 && !speech.hidden) {
@@ -34407,8 +34430,8 @@ void main() {
       document.body.dataset.townPart = next.part || "";
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
       residents.forEach((resident, i2) => {
-        const data = next.npcs?.[i2];
-        resident.rig.visible = data?.alive !== false;
+        const data = next.npcs?.[i2], inside = indoorNames.includes(activePlace);
+        resident.rig.visible = data?.alive !== false && (!inside || places[i2][0] === activePlace);
         resident.tag.hidden = !resident.rig.visible;
         resident.tag.textContent = data ? `${data.name} ${data.sex === "male" ? "\u2642" : "\u2640"}` : roles[i2];
       });
@@ -34444,7 +34467,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
