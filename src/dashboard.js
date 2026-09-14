@@ -362,6 +362,7 @@ function renderTown(){
   if(!$('#townTime'))return;const now=Date.now(),date=new Date(now),weather=townSim.weather(now),age=townSim.ageYears(townState);
   $('#townTime').textContent=`${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')} · ${townSim.daypart(now)}`;$('#townWeather').textContent=`${weather.icon} ${weather.name}`;
   $('#townHunger').textContent=Math.round(townState.fullness);$('#townHealth').textContent=Math.round(townState.health);$('#townMood').textContent=Math.round(townState.mood);$('#townStamina').textContent=Math.round(townState.stamina);$('#townAge').textContent=`${townState.lifeStage} ${age.toFixed(1)}岁`;$('#townFood').textContent=townState.food;$('#townSeeds').textContent=townState.seeds;$('#townSpeed').value=String(townState.speed);
+  const speedText={1:'写实：约365个现实日成长1岁；仅影响成长',4:'悠闲：约90个现实日成长1岁；仅影响成长',12:'标准：约30个现实日成长1岁；仅影响成长',48:'快速：约7个现实日成长1岁；仅影响成长'};if($('#townSpeedHint'))$('#townSpeedHint').textContent=speedText[townState.speed]||speedText[12];
   $('#townActivity').textContent=townState.alive?`鼠鼠正在${townState.currentPlace}${townState.currentActivity}。`:'鼠鼠的生活已经珍藏在纪念馆。';
   const recent=townState.events.slice(-1)[0];$('#townStory').textContent=recent?.text||'鼠鼠正在经营自己的小生活。';
   document.querySelectorAll('[data-town-setting]').forEach(input=>input.checked=!!townState[input.dataset.townSetting]);

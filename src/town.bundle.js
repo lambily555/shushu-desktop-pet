@@ -33999,6 +33999,28 @@ void main() {
       m.receiveShadow = true;
       scene.add(m);
     });
+    const streetLights = new Group(), lampBulbs = [];
+    function streetLamp(x2, z) {
+      const lamp = new Group(), metal = new MeshStandardMaterial({ color: 5002571, roughness: 0.72 }), shade = new MeshStandardMaterial({ color: 7107423, roughness: 0.7 }), bulbMaterial = new MeshStandardMaterial({ color: 16769956, emissive: 16762726, emissiveIntensity: 0 });
+      const pole = new Mesh(new CylinderGeometry(0.045, 0.065, 1.65, 10), metal);
+      pole.position.y = 0.83;
+      const arm = new Mesh(new BoxGeometry(0.48, 0.055, 0.055), metal);
+      arm.position.set(0.2, 1.61, 0);
+      const cap = new Mesh(new ConeGeometry(0.22, 0.2, 16), shade);
+      cap.position.set(0.41, 1.49, 0);
+      cap.rotation.z = Math.PI;
+      const bulb = new Mesh(new SphereGeometry(0.105, 14, 10), bulbMaterial);
+      bulb.position.set(0.41, 1.42, 0);
+      const light = new PointLight(16763256, 0, 4.8, 2);
+      light.position.copy(bulb.position);
+      lamp.add(pole, arm, cap, bulb, light);
+      lamp.position.set(x2, 0, z);
+      lamp.rotation.y = (x2 + z) % 2 ? Math.PI : 0;
+      streetLights.add(lamp);
+      lampBulbs.push({ material: bulbMaterial, light });
+    }
+    [[-4, -0.75], [0, -0.75], [4, -0.75], [-0.8, -4], [-0.8, 3.8], [0.8, -2.2], [0.8, 5.2], [-5.2, 2.25], [5.2, 2.25]].forEach(([x2, z]) => streetLamp(x2, z));
+    scene.add(streetLights);
     const clickable = [];
     places.forEach((place) => {
       const obj = roundedBuilding(...place);
@@ -34420,13 +34442,18 @@ void main() {
     draw();
     function applyWorld(next = {}) {
       worldState = next;
-      const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), sky = new Color(next.weather?.sky || 13359017);
-      if (night) sky.multiplyScalar(0.3);
+      const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
+      if (night) sky.multiplyScalar(0.38);
+      else if (dusk) sky.multiplyScalar(0.72);
       scene.background.copy(sky);
       scene.fog.color.copy(sky);
-      ambient.intensity = (night ? 0.65 : 2.4) * (next.weather?.light || 1);
-      sun.intensity = (night ? 0.55 : 3.1) * (next.weather?.light || 1);
-      sun.color.set(night ? 10401759 : 16770237);
+      ambient.intensity = (night ? 0.9 : dusk ? 1.65 : 2.4) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.72 : dusk ? 1.8 : 3.1) * (next.weather?.light || 1);
+      sun.color.set(night ? 11454191 : dusk ? 16762251 : 16770237);
+      lampBulbs.forEach(({ material, light }) => {
+        material.emissiveIntensity = lampsOn ? night ? 2.8 : 1.7 : 0;
+        light.intensity = lampsOn ? night ? 12 : 7 : 0;
+      });
       document.body.dataset.townPart = next.part || "";
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
       residents.forEach((resident, i2) => {
@@ -34467,7 +34494,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
