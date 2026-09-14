@@ -352,6 +352,7 @@ applyLanguage=function(){applyLanguageWithShortcuts();renderShortcutSettings()};
 
 /* Mouse Town: the same deterministic simulation drives online and offline life. */
 const townSim=window.TownSimulation;
+const hadTownSave=Boolean(localStorage.getItem('shushu-town-v1')||localStorage.getItem('shushu-town'));
 function readTown(){try{return townSim.migrate(JSON.parse(localStorage.getItem('shushu-town-v1')||localStorage.getItem('shushu-town')||'{}'))}catch{return townSim.defaults()}}
 let townState=readTown();
 function saveTown(){localStorage.setItem('shushu-town-v1',JSON.stringify(townState))}
@@ -411,9 +412,9 @@ function ensureTownReturnNotice(){
   notice.querySelector('[data-town-return-later]').onclick=()=>{townReturnDismissed=true;notice.hidden=true};notice.querySelector('[data-town-return-open]').onclick=()=>enterTown(true);return notice;
 }
 function checkTownReturn(){
-  if(townReturnDismissed||!townWasAway())return;const since=Number(townState.lastOpenedAt)||Date.now();townState=townSim.settle(townState,Date.now());saveTown();renderTown();const events=townState.events.filter(e=>e.time>since).slice(-3).reverse(),notice=ensureTownReturnNotice();$('#townReturnCards').innerHTML=(events.length?events:[{text:'鼠鼠在小镇里安静地照顾着自己的生活。',place:'鼠鼠小屋',time:Date.now()}]).map(e=>`<article><b>${escapeHtml(e.text)}</b><span>${escapeHtml(e.place)} · ${formatTownTime(e.time)}</span></article>`).join('');notice.hidden=false;
+  const upgradeReturn=hadTownSave&&localStorage.getItem('shushu-town-return-v2-seen')!=='1';if(townReturnDismissed||(!townWasAway()&&!upgradeReturn))return;const since=upgradeReturn?Date.now()-24*3600000:Number(townState.lastOpenedAt)||Date.now();townState=townSim.settle(townState,Date.now());saveTown();renderTown();const events=townState.events.filter(e=>e.time>since).slice(-3).reverse(),notice=ensureTownReturnNotice();$('#townReturnCards').innerHTML=(events.length?events:[{text:'鼠鼠在小镇里安静地照顾着自己的生活。',place:'鼠鼠小屋',time:Date.now()}]).map(e=>`<article><b>${escapeHtml(e.text)}</b><span>${escapeHtml(e.place)} · ${formatTownTime(e.time)}</span></article>`).join('');notice.hidden=false;
 }
-function enterTown(forceJournal=false){const wasAway=townWasAway();townState=townSim.settle(townState,Date.now());townState.lastOpenedAt=Date.now();saveTown();ensureTownReturnNotice().hidden=true;townReturnDismissed=false;setPanel('town');if(forceJournal||wasAway)openTownOverlay('townJournal');setTimeout(()=>window.TownApp?.resize(),50)}
+function enterTown(forceJournal=false){const wasAway=townWasAway();townState=townSim.settle(townState,Date.now());townState.lastOpenedAt=Date.now();saveTown();localStorage.setItem('shushu-town-return-v2-seen','1');ensureTownReturnNotice().hidden=true;townReturnDismissed=false;setPanel('town');if(forceJournal||wasAway)openTownOverlay('townJournal');setTimeout(()=>window.TownApp?.resize(),50)}
 $('#townButton')?.addEventListener('click',()=>enterTown(false));
 $('#townSpeed')?.addEventListener('change',e=>{settleTown();townState.speed=Number(e.target.value);saveTown();renderTown()});
 $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSettings'));$('#townJournalButton')?.addEventListener('click',()=>openTownOverlay('townJournal'));
