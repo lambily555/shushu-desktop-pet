@@ -35743,6 +35743,7 @@ void main() {
       scene.add(tree);
     }
     let yaw = 0, pitch = 0.83, distance2 = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
+    let hoverPointer = null, hoveredActor = null, speechCount = 0;
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
@@ -35828,7 +35829,9 @@ void main() {
         lifeBubbles.set(actor.id, bubble);
       }
       bubble.textContent = actor.speech;
-      placeLabel(bubble, rig.position.clone().add(new Vector3(0, 1.12 * rig.scale.x, 0)), [], !rig.visible || !actor.speech || focusedResident !== -1, true);
+      const turn = actor.phase === "talking" && actor.id.localeCompare(actor.partner || "") < 0 === (Math.floor(actor.wait / 3) % 2 === 0);
+      bubble.hidden = !rig.visible || !actor.speech || focusedResident !== -1 || !turn && hoveredActor !== actor.id || speechCount >= 2;
+      if (!bubble.hidden) speechCount++;
     }
     const returnButton = document.createElement("button");
     returnButton.className = "town-room-return";
@@ -36113,6 +36116,14 @@ void main() {
       camera.updateMatrixWorld();
     }
     positionCamera();
+    host.addEventListener("pointermove", (e) => {
+      const rect = host.getBoundingClientRect();
+      hoverPointer = { x: (e.clientX - rect.left) * host.clientWidth / rect.width, y: (e.clientY - rect.top) * host.clientHeight / rect.height };
+    });
+    host.addEventListener("pointerleave", () => {
+      hoverPointer = null;
+      hoveredActor = null;
+    });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
       drag = { x: e.clientX, y: e.clientY, yaw, pitch, target: target.clone(), button: e.button, moved: false };
@@ -36175,6 +36186,33 @@ void main() {
       button.style.left = x2 + "px";
       button.style.top = y + "px";
     }
+    function layoutSpeech() {
+      const tags = [mainTag, ...residents.map((n) => n.tag), ...[...pups.values()].map((p) => p.tag), ...labels.map((l) => l.button), ...roomLabels.map((l) => l.button)];
+      const bounds = (el) => ({ left: el.offsetLeft - el.offsetWidth / 2, right: el.offsetLeft + el.offsetWidth / 2, top: el.offsetTop - el.offsetHeight, bottom: el.offsetTop });
+      const occupied = tags.filter((tag) => !tag.hidden).map(bounds);
+      function above(bubble, tag) {
+        if (bubble.hidden) return;
+        if (!tag || tag.hidden) {
+          bubble.hidden = true;
+          return;
+        }
+        const anchor = bounds(tag), width = bubble.offsetWidth, height = bubble.offsetHeight;
+        const x2 = Math.max(width / 2 + 6, Math.min(host.clientWidth - width / 2 - 6, tag.offsetLeft));
+        let bottom = anchor.top - 8;
+        for (let i2 = 0; i2 <= occupied.length; i2++) {
+          const hits = occupied.filter((r) => x2 + width / 2 > r.left - 6 && x2 - width / 2 < r.right + 6 && bottom > r.top - 6 && bottom - height < r.bottom + 6);
+          if (!hits.length) break;
+          bottom = Math.min(...hits.map((r) => r.top)) - 8;
+        }
+        bubble.style.left = x2 + "px";
+        bubble.style.top = bottom + "px";
+        occupied.push({ left: x2 - width / 2, right: x2 + width / 2, top: bottom - height, bottom });
+      }
+      above(lifeBubbles.get("main") || { hidden: true }, mainTag);
+      residents.forEach((n) => above(lifeBubbles.get(n.lifeId) || { hidden: true }, n.tag));
+      pups.forEach((p) => above(lifeBubbles.get(p.data.id) || { hidden: true }, p.tag));
+      if (focusedResident >= 0) above(speech, residents[focusedResident].tag);
+    }
     function syncPups() {
       const list = worldState.offspring || [], ids = new Set(list.map((p) => p.id));
       for (const [id, item] of pups) {
@@ -36225,9 +36263,22 @@ void main() {
         window.dispatchEvent(new CustomEvent("town-view-close"));
       }
       const occupied = [];
+      hoveredActor = null;
+      speechCount = 0;
+      if (hoverPointer && !drag) {
+        let nearest = 32;
+        for (const [id, rig] of [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])]) {
+          if (!rig.visible) continue;
+          const p = rig.position.clone().add(new Vector3(0, 0.4 * rig.scale.x, 0)).project(camera), d = Math.hypot((p.x + 1) * host.clientWidth / 2 - hoverPointer.x, (-p.y + 1) * host.clientHeight / 2 - hoverPointer.y);
+          if (d < nearest) {
+            nearest = d;
+            hoveredActor = id;
+          }
+        }
+      }
       renderActor(pet, life.actors.get("main"), t);
       const main = life.actors.get("main");
-      mainTag.textContent = "\u9F20\u9F20 \xB7 " + (main?.action || "\u4F11\u606F");
+      mainTag.textContent = "\u9F20\u9F20";
       placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !pet.visible || focusedResident !== -1, true);
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
       weatherFx.rotation.y = t * 0.025;
@@ -36237,18 +36288,14 @@ void main() {
         const actor = life.actors.get(npc.lifeId);
         renderActor(npc.rig, actor, t);
         npc.tag.textContent = (worldState.npcs?.[index]?.name || roles[index]) + " " + (worldState.npcs?.[index]?.sex === "male" ? "\u2642" : "\u2640");
-        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || focusedResident !== -1 && focusedResident !== index, true);
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || (focusedResident !== -1 ? focusedResident !== index : hoveredActor !== npc.lifeId && lifeBubbles.get(npc.lifeId)?.hidden !== false), true);
       });
       pups.forEach((item) => {
         renderActor(item.rig, life.actors.get(item.data.id), t);
-        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || focusedResident !== -1 && focusedPup !== item.data.id, true);
+        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id && lifeBubbles.get(item.data.id)?.hidden !== false), true);
       });
       roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, false));
-      if (focusedResident >= 0 && !speech.hidden) {
-        const p = residents[focusedResident].rig.position.clone().add(new Vector3(0, 1.05, 0)).project(camera);
-        speech.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
-        speech.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
-      }
+      layoutSpeech();
       renderer.render(scene, camera);
     }
     draw();
