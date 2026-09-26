@@ -191,15 +191,15 @@ function init() {
   canvas.addEventListener('pointerup',e=>{if(drag&&!drag.moved){const rect=canvas.getBoundingClientRect(),mouse=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height)*2+1),ray=new THREE.Raycaster();ray.setFromCamera(mouse,camera);const hit=ray.intersectObjects(clickable,true).find(hit=>{for(let node=hit.object;node;node=node.parent)if(!node.visible)return false;return true});if(hit){let object=hit.object;while(object&&!Number.isInteger(object.userData.npcIndex)&&!object.userData.mainPet&&!object.userData.pupId&&!object.userData.roomAction&&!object.userData.place)object=object.parent;if(object?.userData.roomAction)window.dispatchEvent(new CustomEvent("town-object-action",{detail:{action:object.userData.roomAction}}));else if(object?.userData.pupId)focusPup(object.userData.pupId);else if(object?.userData.mainPet)focusPet();else if(Number.isInteger(object?.userData.npcIndex))focusResident(object.userData.npcIndex);else if(!activePlace&&object?.userData.place)enterPlace(object.userData.place)}}drag=null});
   canvas.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(activePlace?5:14,Math.min(activePlace?20:31,distance+e.deltaY*.015));positionCamera()},{passive:false});
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(host);resize();
-  function placeLabel(button,point,occupied,hidden=false,anchored=false){const p=point.clone().project(camera);let x=(p.x+1)*host.clientWidth/2,y=(-p.y+1)*host.clientHeight/2;button.hidden=hidden||p.z>1;if(button.hidden)return;for(let tries=0;!anchored&&tries<5&&occupied.some(o=>Math.abs(o.x-x)<82&&Math.abs(o.y-y)<28);tries++)y+=24;occupied.push({x,y});button.style.left=x+'px';button.style.top=y+'px'}
+  function placeLabel(button,point,occupied,hidden=false,anchored=false){const p=point.clone().project(camera);let x=(p.x+1)*host.clientWidth/2,y=(-p.y+1)*host.clientHeight/2;button.hidden=hidden||p.z>1;if(button.hidden){button.style.left=x+'px';button.style.top=y+'px';return}for(let tries=0;!anchored&&tries<5&&occupied.some(o=>Math.abs(o.x-x)<82&&Math.abs(o.y-y)<28);tries++)y+=24;occupied.push({x,y});button.style.left=x+'px';button.style.top=y+'px'}
   function layoutSpeech(){
     const tags=[mainTag,...residents.map(n=>n.tag),...[...pups.values()].map(p=>p.tag),...labels.map(l=>l.button),...roomLabels.map(l=>l.button)];
     const bounds=el=>({left:el.offsetLeft-el.offsetWidth/2,right:el.offsetLeft+el.offsetWidth/2,top:el.offsetTop-el.offsetHeight,bottom:el.offsetTop});
     const occupied=tags.filter(tag=>!tag.hidden).map(bounds);
     function above(bubble,tag){
-      if(bubble.hidden)return;if(!tag||tag.hidden){bubble.hidden=true;return}
-      const anchor=bounds(tag),width=bubble.offsetWidth,height=bubble.offsetHeight;
-      const x=Math.max(width/2+6,Math.min(host.clientWidth-width/2-6,tag.offsetLeft));let bottom=anchor.top-8;
+      if(bubble.hidden)return;if(!tag){bubble.hidden=true;return}
+      const anchor=tag.hidden?{top:parseFloat(tag.style.top)-20}:bounds(tag),width=bubble.offsetWidth,height=bubble.offsetHeight;
+      const x=Math.max(width/2+6,Math.min(host.clientWidth-width/2-6,parseFloat(tag.style.left)));let bottom=anchor.top-8;
       for(let i=0;i<=occupied.length;i++){const hits=occupied.filter(r=>x+width/2>r.left-6&&x-width/2<r.right+6&&bottom>r.top-6&&bottom-height<r.bottom+6);if(!hits.length)break;bottom=Math.min(...hits.map(r=>r.top))-8}
       bubble.style.left=x+'px';bubble.style.top=bottom+'px';occupied.push({left:x-width/2,right:x+width/2,top:bottom-height,bottom});
     }
@@ -215,8 +215,8 @@ function init() {
     if(main)document.querySelector('#townActivity').textContent='鼠鼠'+(main.phase==='moving'?'正在前往'+main.destination:'正在'+main.place+main.action)+'。';
     weatherFx.rotation.y=t*.025;if(weatherFx.children[0])weatherFx.children[0].position.y=-(t*2)%4;
     labels.forEach(({button,point})=>placeLabel(button,point,occupied,!!activePlace||focusedResident!==-1));
-    residents.forEach((npc,index)=>{const actor=life.actors.get(npc.lifeId);renderActor(npc.rig,actor,t);npc.tag.textContent=(worldState.npcs?.[index]?.name||roles[index])+' '+(worldState.npcs?.[index]?.sex==='male'?'♂':'♀');placeLabel(npc.tag,npc.rig.position.clone().add(new THREE.Vector3(0,.8,0)),occupied,!npc.rig.visible||(focusedResident!==-1?focusedResident!==index:hoveredActor!==npc.lifeId&&lifeBubbles.get(npc.lifeId)?.hidden!==false),true)});
-    pups.forEach(item=>{renderActor(item.rig,life.actors.get(item.data.id),t);placeLabel(item.tag,item.rig.position.clone().add(new THREE.Vector3(0,.75*item.rig.scale.x,0)),occupied,!item.rig.visible||(focusedResident!==-1?focusedPup!==item.data.id:hoveredActor!==item.data.id&&lifeBubbles.get(item.data.id)?.hidden!==false),true)});
+    residents.forEach((npc,index)=>{const actor=life.actors.get(npc.lifeId);renderActor(npc.rig,actor,t);npc.tag.textContent=(worldState.npcs?.[index]?.name||roles[index])+' '+(worldState.npcs?.[index]?.sex==='male'?'♂':'♀');placeLabel(npc.tag,npc.rig.position.clone().add(new THREE.Vector3(0,.8,0)),occupied,!npc.rig.visible||(focusedResident!==-1?focusedResident!==index:hoveredActor!==npc.lifeId),true)});
+    pups.forEach(item=>{renderActor(item.rig,life.actors.get(item.data.id),t);placeLabel(item.tag,item.rig.position.clone().add(new THREE.Vector3(0,.75*item.rig.scale.x,0)),occupied,!item.rig.visible||(focusedResident!==-1?focusedPup!==item.data.id:hoveredActor!==item.data.id),true)});
     roomLabels.forEach(({button,point})=>placeLabel(button,point,occupied,false));
     layoutSpeech();
     renderer.render(scene,camera);

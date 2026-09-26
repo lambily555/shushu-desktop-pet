@@ -36180,7 +36180,11 @@ void main() {
       const p = point2.clone().project(camera);
       let x2 = (p.x + 1) * host.clientWidth / 2, y = (-p.y + 1) * host.clientHeight / 2;
       button.hidden = hidden || p.z > 1;
-      if (button.hidden) return;
+      if (button.hidden) {
+        button.style.left = x2 + "px";
+        button.style.top = y + "px";
+        return;
+      }
       for (let tries = 0; !anchored && tries < 5 && occupied.some((o) => Math.abs(o.x - x2) < 82 && Math.abs(o.y - y) < 28); tries++) y += 24;
       occupied.push({ x: x2, y });
       button.style.left = x2 + "px";
@@ -36192,12 +36196,12 @@ void main() {
       const occupied = tags.filter((tag) => !tag.hidden).map(bounds);
       function above(bubble, tag) {
         if (bubble.hidden) return;
-        if (!tag || tag.hidden) {
+        if (!tag) {
           bubble.hidden = true;
           return;
         }
-        const anchor = bounds(tag), width = bubble.offsetWidth, height = bubble.offsetHeight;
-        const x2 = Math.max(width / 2 + 6, Math.min(host.clientWidth - width / 2 - 6, tag.offsetLeft));
+        const anchor = tag.hidden ? { top: parseFloat(tag.style.top) - 20 } : bounds(tag), width = bubble.offsetWidth, height = bubble.offsetHeight;
+        const x2 = Math.max(width / 2 + 6, Math.min(host.clientWidth - width / 2 - 6, parseFloat(tag.style.left)));
         let bottom = anchor.top - 8;
         for (let i2 = 0; i2 <= occupied.length; i2++) {
           const hits = occupied.filter((r) => x2 + width / 2 > r.left - 6 && x2 - width / 2 < r.right + 6 && bottom > r.top - 6 && bottom - height < r.bottom + 6);
@@ -36288,11 +36292,11 @@ void main() {
         const actor = life.actors.get(npc.lifeId);
         renderActor(npc.rig, actor, t);
         npc.tag.textContent = (worldState.npcs?.[index]?.name || roles[index]) + " " + (worldState.npcs?.[index]?.sex === "male" ? "\u2642" : "\u2640");
-        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || (focusedResident !== -1 ? focusedResident !== index : hoveredActor !== npc.lifeId && lifeBubbles.get(npc.lifeId)?.hidden !== false), true);
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || (focusedResident !== -1 ? focusedResident !== index : hoveredActor !== npc.lifeId), true);
       });
       pups.forEach((item) => {
         renderActor(item.rig, life.actors.get(item.data.id), t);
-        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id && lifeBubbles.get(item.data.id)?.hidden !== false), true);
+        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
       });
       roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, false));
       layoutSpeech();
