@@ -34205,7 +34205,7 @@ void main() {
     scene.add(room);
     const weatherFx = new Group(), memorialFx = new Group();
     scene.add(weatherFx, memorialFx);
-    const roomLabels = [];
+    const roomLabels = [], pups = /* @__PURE__ */ new Map();
     const returnButton = document.createElement("button");
     returnButton.className = "town-room-return";
     returnButton.textContent = "\u2190 \u8FD4\u56DE\u5C0F\u9547";
@@ -34217,6 +34217,7 @@ void main() {
     host.appendChild(speech);
     const indoorNames = ["\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"];
     function clearRoom() {
+      for (let i2 = clickable.length - 1; i2 >= 0; i2--) if (clickable[i2].userData.roomAction) clickable.splice(i2, 1);
       roomLabels.splice(0).forEach((item) => item.button.remove());
       while (room.children.length) {
         const child = room.children[0];
@@ -34278,12 +34279,19 @@ void main() {
         room.add(bowl);
         add(0.5, 0.06, 0.5, 1.8, 0.1, 1.2, 10123588);
         label("\u98DF\u76C6", 1.8, 1.2);
-        add(0.16, 1.2, 0.16, 2.9, 0.6, -1.2, 9139029);
+        add(0.16, 1.2, 0.16, 1.7, 0.6, -1.2, 9139029);
         const bottle = new Mesh(new CylinderGeometry(0.2, 0.2, 0.65, 20), new MeshStandardMaterial({ color: 11589080, transparent: true, opacity: 0.72 }));
-        bottle.position.set(2.9, 0.82, -1.2);
+        bottle.position.set(1.7, 0.82, -1.2);
         room.add(bottle);
-        add(0.07, 0.3, 0.07, 2.9, 0.36, -1.05, 12304321);
-        label("\u6C34\u58F6", 2.9, -1.2);
+        bottle.userData.roomAction = "water";
+        clickable.push(bottle);
+        add(0.07, 0.3, 0.07, 1.7, 0.36, -1.05, 12304321);
+        const water = worldState.water || { amount: 100, quality: "\u65B0\u9C9C" }, level = Math.max(1e-3, water.amount / 100);
+        const liquid = new Mesh(new CylinderGeometry(0.17, 0.17, 0.61, 20), new MeshStandardMaterial({ color: water.quality === "\u53D8\u8D28" ? 8750148 : 4628164, transparent: true, opacity: 0.85 }));
+        liquid.scale.y = level;
+        liquid.position.set(1.7, 0.505 + 0.305 * level, -1.2);
+        room.add(liquid);
+        label(`\u6C34\u58F6 ${Math.ceil(water.amount)}% \xB7 ${water.quality} \xB7 \u70B9\u51FB\u6362\u6C34`, 1.7, -1.2, "water");
         shelf(0.2, -2.4, "\u7CAE\u4ED3");
         roomLabels.at(-1).button.remove();
         roomLabels.pop();
@@ -34357,6 +34365,7 @@ void main() {
         pitch = 0.85;
         yaw = 0;
       }
+      syncPups();
       returnButton.hidden = false;
       host.dataset.place = name;
       positionCamera();
@@ -34364,6 +34373,7 @@ void main() {
     }
     function leavePlace() {
       if (!activePlace) return;
+      clearFocus(false);
       room.visible = false;
       clearRoom();
       scene.children.forEach((child) => {
@@ -34379,6 +34389,9 @@ void main() {
       delete host.dataset.place;
       applyWorld(worldState);
       positionCamera();
+      document.querySelector("#townPlace b").textContent = "\u4E2D\u5FC3\u5E7F\u573A";
+      document.querySelector("#townPlace span").textContent = "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
+      window.dispatchEvent(new CustomEvent("town-view-close"));
     }
     function focusResident(index) {
       const npc = residents[index];
@@ -34439,12 +34452,17 @@ void main() {
         speech.hidden = true;
       }, 4200);
     }
-    returnButton.onclick = () => focusedResident !== -1 ? clearFocus() : leavePlace();
+    function returnToTown() {
+      if (activePlace) leavePlace();
+      else clearFocus();
+      window.dispatchEvent(new CustomEvent("town-view-close"));
+    }
+    returnButton.onclick = returnToTown;
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && activePlace && document.body.dataset.currentPanel === "town") {
         e.preventDefault();
         e.stopImmediatePropagation();
-        leavePlace();
+        returnToTown();
       }
     }, true);
     new MutationObserver(() => {
@@ -34481,8 +34499,9 @@ void main() {
         const hit = ray.intersectObjects(clickable, true)[0];
         if (hit) {
           let object = hit.object;
-          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.place) object = object.parent;
-          if (object?.userData.mainPet) focusPet();
+          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.roomAction && !object.userData.place) object = object.parent;
+          if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
+          else if (object?.userData.mainPet) focusPet();
           else if (Number.isInteger(object?.userData.npcIndex)) focusResident(object.userData.npcIndex);
           else if (!activePlace && object?.userData.place) enterPlace(object.userData.place);
         }
@@ -34513,6 +34532,33 @@ void main() {
       button.style.left = x2 + "px";
       button.style.top = y + "px";
     }
+    function syncPups() {
+      const list = worldState.offspring || [], ids = new Set(list.map((p) => p.id));
+      for (const [id, item] of pups) {
+        if (!ids.has(id)) {
+          scene.remove(item.rig);
+          item.tag.remove();
+          pups.delete(id);
+        }
+      }
+      list.forEach((data, index) => {
+        let item = pups.get(data.id);
+        if (!item) {
+          const rig = hamster(), tag = document.createElement("span");
+          tag.className = "town-label town-npc-label";
+          host.appendChild(tag);
+          scene.add(rig);
+          item = { rig, tag };
+          pups.set(data.id, item);
+        }
+        item.data = data;
+        item.index = index;
+        item.rig.scale.setScalar(window.TownSimulation.growthScale(data.ageYears));
+        item.rig.visible = !indoorNames.includes(activePlace) || activePlace === "\u9F20\u9F20\u5C0F\u5C4B";
+        item.tag.textContent = `${data.name} \xB7 ${data.stage}`;
+        item.tag.title = `${(data.parents || ["\u9F20\u9F20", data.parent]).filter(Boolean).join("\u4E0E")}\u7684\u5B69\u5B50`;
+      });
+    }
     const clock = new Clock();
     function draw() {
       requestAnimationFrame(draw);
@@ -34526,6 +34572,11 @@ void main() {
         const isIndoorResident = inside && places[index][0] === activePlace;
         walk(npc.rig, t, npc.phase, isIndoorResident ? 1.15 : npc.x, isIndoorResident ? 0.55 : npc.z);
         placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || !!activePlace || focusedResident !== -1 && focusedResident !== index);
+      });
+      pups.forEach((item) => {
+        const insideHome = activePlace === "\u9F20\u9F20\u5C0F\u5C4B", i2 = item.index, x2 = insideHome ? -1.2 + i2 % 5 * 0.65 : -1.5 + i2 % 6 * 0.55, z = insideHome ? -0.35 + Math.floor(i2 / 5) * 0.65 : 3.5 + Math.floor(i2 / 6) * 0.5;
+        walk(item.rig, t, i2 * 1.4, x2, z);
+        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || focusedResident !== -1);
       });
       roomLabels.forEach(({ button, point }) => placeLabel(button, point, occupied, false));
       if (focusedResident >= 0 && !speech.hidden) {
@@ -34552,6 +34603,8 @@ void main() {
         pool.material.opacity = lampsOn ? night ? 0.04 : 0.07 : 0;
       });
       document.body.dataset.townPart = next.part || "";
+      syncPups();
+      pet.scale.setScalar(window.TownSimulation.growthScale(next.ageYears ?? 0.7));
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
       residents.forEach((resident, i2) => {
         const data = next.npcs?.[i2], inside = indoorNames.includes(activePlace);
@@ -34591,7 +34644,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, returnToTown, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

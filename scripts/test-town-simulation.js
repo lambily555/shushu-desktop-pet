@@ -9,7 +9,7 @@ assert.equal(sim.daypart(new Date(2026,8,13,22).getTime()),'夜晚');
 assert.deepEqual(sim.weather(start),sim.weather(start));
 assert.equal(sim.migrate({...sim.defaults(start),version:1,stamina:88},start).stamina,100);
 assert.equal(sim.migrate({...sim.defaults(start),version:2,stamina:42},start).stamina,42);
-const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,4);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));assert.deepEqual(migrated.npcBonds[0],[0,1]);
+const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,5);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));assert.deepEqual(migrated.npcBonds[0],[0,1]);
 const sexes=new Set(sim.defaults(start).npcs.map(n=>n.sex));assert.deepEqual([...sexes].sort(),['female','male']);
 
 const initial=sim.defaults(start);initial.food=30;
@@ -37,3 +37,18 @@ let farewell=sim.defaults(start);Object.assign(farewell,{mortality:true,ageYears
 assert.equal(adopted.state.mainSex,adopted.state.npcs[0].sex);
 
 console.log(JSON.stringify({passed:true,dayparts:4,toggleCombinations:8,offlineEquivalenceHours:72,economy:true,family:true,npcFamily:true,sexes:true,breedingEligibility:true,farewell:true,stamina:true,dailySocialLimit:6,perNpcSocialLimit:2},null,2));
+
+// Water follows real time, including offline periods, with safe migration.
+const oldSave=sim.defaults(start);delete oldSave.water;delete oldSave.waterChangedAt;oldSave.version=4;
+const upgraded=sim.settle(oldSave,start+7*DAY);assert.equal(upgraded.water,100);
+let water=sim.defaults(start);water.food=100;
+const dayWater=sim.settle(water,start+DAY);assert.ok(Math.abs(dayWater.water-200/3)<.001);assert.equal(sim.waterStatus(dayWater,start+DAY).quality,'待换水');
+const stale=sim.settle(water,start+2*DAY);assert.equal(sim.waterStatus(stale,start+2*DAY).quality,'变质');
+assert.equal(sim.settle(water,start+4*DAY).water,0);
+const fresh=sim.refillWater(stale,start+2*DAY).state;assert.equal(fresh.water,100);assert.equal(sim.waterStatus(fresh,start+2*DAY).quality,'新鲜');
+assert.ok(sim.settle(fresh,start+3*DAY).health>sim.settle(stale,start+3*DAY).health);
+assert.ok(Math.abs(continuous.water-segmented.water)<.001);
+for(const id of ['npc-0','npc-1'])assert.equal(sim.childrenOf(npcFamily.state,id).length,npcFamily.state.npcOffspring.length);
+const successor=structuredClone(npcFamily.state);successor.npcs[0].id='npc-0-g2';assert.equal(sim.childrenOf(successor,'npc-0-g2').length,0);
+assert.ok(sim.growthScale(0)<sim.growthScale(.18));assert.ok(sim.growthScale(.18)<sim.growthScale(.65));assert.equal(sim.growthScale(2),1);
+console.log('Water migration, offline consumption, freshness, parent identity and growth passed');
