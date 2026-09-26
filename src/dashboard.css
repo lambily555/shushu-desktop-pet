@@ -821,3 +821,5 @@ button.town-furniture-label{pointer-events:auto;cursor:pointer;box-shadow:0 5px 
 
 /* Pup labels stay anchored to their own model without position tweening. */
 .town-pup-label{transition:opacity .16s ease}
+
+.town-life-bubble{max-width:190px;white-space:normal;text-align:center;pointer-events:none;background:#fff9e9e8;font-size:11px;transition:none;z-index:5}

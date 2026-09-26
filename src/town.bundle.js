@@ -3100,17 +3100,17 @@
      * @return {Matrix3} A reference to this matrix.
      */
     transpose() {
-      let tmp;
+      let tmp3;
       const m = this.elements;
-      tmp = m[1];
+      tmp3 = m[1];
       m[1] = m[3];
-      m[3] = tmp;
-      tmp = m[2];
+      m[3] = tmp3;
+      tmp3 = m[2];
       m[2] = m[6];
-      m[6] = tmp;
-      tmp = m[5];
+      m[6] = tmp3;
+      tmp3 = m[5];
       m[5] = m[7];
-      m[7] = tmp;
+      m[7] = tmp3;
       return this;
     }
     /**
@@ -5537,25 +5537,25 @@
      */
     transpose() {
       const te = this.elements;
-      let tmp;
-      tmp = te[1];
+      let tmp3;
+      tmp3 = te[1];
       te[1] = te[4];
-      te[4] = tmp;
-      tmp = te[2];
+      te[4] = tmp3;
+      tmp3 = te[2];
       te[2] = te[8];
-      te[8] = tmp;
-      tmp = te[6];
+      te[8] = tmp3;
+      tmp3 = te[6];
       te[6] = te[9];
-      te[9] = tmp;
-      tmp = te[3];
+      te[9] = tmp3;
+      tmp3 = te[3];
       te[3] = te[12];
-      te[12] = tmp;
-      tmp = te[7];
+      te[12] = tmp3;
+      tmp3 = te[7];
       te[7] = te[13];
-      te[13] = tmp;
-      tmp = te[11];
+      te[13] = tmp3;
+      tmp3 = te[11];
       te[11] = te[14];
-      te[14] = tmp;
+      te[14] = tmp3;
       return this;
     }
     /**
@@ -5963,19 +5963,19 @@
       return this;
     }
     /**
-    	 * Creates a perspective projection matrix. This is used internally by
-    	 * {@link PerspectiveCamera#updateProjectionMatrix}.
-    
-    	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
-    	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
-    	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
-    	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-    	 * @param {number} near - The distance from the camera to the near plane.
-    	 * @param {number} far - The distance from the camera to the far plane.
-    	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-    	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-    	 * @return {Matrix4} A reference to this matrix.
-    	 */
+	 * Creates a perspective projection matrix. This is used internally by
+	 * {@link PerspectiveCamera#updateProjectionMatrix}.
+
+	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
+	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
+	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
+	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+	 * @param {number} near - The distance from the camera to the near plane.
+	 * @param {number} far - The distance from the camera to the far plane.
+	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+	 * @return {Matrix4} A reference to this matrix.
+	 */
     makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 * near / (right - left);
@@ -6016,19 +6016,19 @@
       return this;
     }
     /**
-    	 * Creates a orthographic projection matrix. This is used internally by
-    	 * {@link OrthographicCamera#updateProjectionMatrix}.
-    
-    	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
-    	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
-    	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
-    	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-    	 * @param {number} near - The distance from the camera to the near plane.
-    	 * @param {number} far - The distance from the camera to the far plane.
-    	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-    	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-    	 * @return {Matrix4} A reference to this matrix.
-    	 */
+	 * Creates a orthographic projection matrix. This is used internally by
+	 * {@link OrthographicCamera#updateProjectionMatrix}.
+
+	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
+	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
+	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
+	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+	 * @param {number} near - The distance from the camera to the near plane.
+	 * @param {number} far - The distance from the camera to the far plane.
+	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+	 * @return {Matrix4} A reference to this matrix.
+	 */
     makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 / (right - left);
@@ -6772,9 +6772,9 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateOnAxis(axis, distance) {
+    translateOnAxis(axis, distance2) {
       _v1$6.copy(axis).applyQuaternion(this.quaternion);
-      this.position.add(_v1$6.multiplyScalar(distance));
+      this.position.add(_v1$6.multiplyScalar(distance2));
       return this;
     }
     /**
@@ -6783,8 +6783,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateX(distance) {
-      return this.translateOnAxis(_xAxis, distance);
+    translateX(distance2) {
+      return this.translateOnAxis(_xAxis, distance2);
     }
     /**
      * Translate the 3D object by a distance along its Y-axis in local space.
@@ -6792,8 +6792,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateY(distance) {
-      return this.translateOnAxis(_yAxis, distance);
+    translateY(distance2) {
+      return this.translateOnAxis(_yAxis, distance2);
     }
     /**
      * Translate the 3D object by a distance along its Z-axis in local space.
@@ -6801,8 +6801,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateZ(distance) {
-      return this.translateOnAxis(_zAxis, distance);
+    translateZ(distance2) {
+      return this.translateOnAxis(_zAxis, distance2);
     }
     /**
      * Converts the given vector from this 3D object's local space to world space.
@@ -7128,11 +7128,11 @@
       this.matrix.compose(this.position, this.quaternion, this.scale);
       const pivot = this.pivot;
       if (pivot !== null) {
-        const px = pivot.x, py = pivot.y, pz = pivot.z;
+        const px2 = pivot.x, py2 = pivot.y, pz2 = pivot.z;
         const te = this.matrix.elements;
-        te[12] += px - te[0] * px - te[4] * py - te[8] * pz;
-        te[13] += py - te[1] * px - te[5] * py - te[9] * pz;
-        te[14] += pz - te[2] * px - te[6] * py - te[10] * pz;
+        te[12] += px2 - te[0] * px2 - te[4] * py2 - te[8] * pz2;
+        te[13] += py2 - te[1] * px2 - te[5] * py2 - te[9] * pz2;
+        te[14] += pz2 - te[2] * px2 - te[6] * py2 - te[10] * pz2;
       }
       this.matrixWorldNeedsUpdate = true;
     }
@@ -7584,17 +7584,17 @@
           }
           const indexTip = hand.joints["index-finger-tip"];
           const thumbTip = hand.joints["thumb-tip"];
-          const distance = indexTip.position.distanceTo(thumbTip.position);
+          const distance2 = indexTip.position.distanceTo(thumbTip.position);
           const distanceToPinch = 0.02;
           const threshold = 5e-3;
-          if (hand.inputState.pinching && distance > distanceToPinch + threshold) {
+          if (hand.inputState.pinching && distance2 > distanceToPinch + threshold) {
             hand.inputState.pinching = false;
             this.dispatchEvent({
               type: "pinchend",
               handedness: inputSource.handedness,
               target: this
             });
-          } else if (!hand.inputState.pinching && distance <= distanceToPinch - threshold) {
+          } else if (!hand.inputState.pinching && distance2 <= distanceToPinch - threshold) {
             hand.inputState.pinching = true;
             this.dispatchEvent({
               type: "pinchstart",
@@ -8579,10 +8579,10 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {?Vector3} The barycentric coordinates for the given point
      */
-    static getBarycoord(point, a, b, c, target) {
+    static getBarycoord(point2, a, b, c, target) {
       _v0$2.subVectors(c, a);
       _v1$5.subVectors(b, a);
-      _v2$4.subVectors(point, a);
+      _v2$4.subVectors(point2, a);
       const dot00 = _v0$2.dot(_v0$2);
       const dot01 = _v0$2.dot(_v1$5);
       const dot02 = _v0$2.dot(_v2$4);
@@ -8609,8 +8609,8 @@
      * @return {boolean} Whether the given point, when projected onto the plane of the
      * triangle, lies within the triangle or not.
      */
-    static containsPoint(point, a, b, c) {
-      if (this.getBarycoord(point, a, b, c, _v3$2) === null) {
+    static containsPoint(point2, a, b, c) {
+      if (this.getBarycoord(point2, a, b, c, _v3$2) === null) {
         return false;
       }
       return _v3$2.x >= 0 && _v3$2.y >= 0 && _v3$2.x + _v3$2.y <= 1;
@@ -8629,8 +8629,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {?Vector3} The interpolated value.
      */
-    static getInterpolation(point, p1, p2, p3, v1, v2, v3, target) {
-      if (this.getBarycoord(point, p1, p2, p3, _v3$2) === null) {
+    static getInterpolation(point2, p1, p2, p3, v1, v2, v3, target) {
+      if (this.getBarycoord(point2, p1, p2, p3, _v3$2) === null) {
         target.x = 0;
         target.y = 0;
         if ("z" in target) target.z = 0;
@@ -8790,8 +8790,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {?Vector3} The barycentric coordinates for the given point
      */
-    getBarycoord(point, target) {
-      return _Triangle.getBarycoord(point, this.a, this.b, this.c, target);
+    getBarycoord(point2, target) {
+      return _Triangle.getBarycoord(point2, this.a, this.b, this.c, target);
     }
     /**
      * Computes the value barycentrically interpolated for the given point on the
@@ -8804,8 +8804,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {?Vector3} The interpolated value.
      */
-    getInterpolation(point, v1, v2, v3, target) {
-      return _Triangle.getInterpolation(point, this.a, this.b, this.c, v1, v2, v3, target);
+    getInterpolation(point2, v1, v2, v3, target) {
+      return _Triangle.getInterpolation(point2, this.a, this.b, this.c, v1, v2, v3, target);
     }
     /**
      * Returns `true` if the given point, when projected onto the plane of the
@@ -8815,8 +8815,8 @@
      * @return {boolean} Whether the given point, when projected onto the plane of the
      * triangle, lies within the triangle or not.
      */
-    containsPoint(point) {
-      return _Triangle.containsPoint(point, this.a, this.b, this.c);
+    containsPoint(point2) {
+      return _Triangle.containsPoint(point2, this.a, this.b, this.c);
     }
     /**
      * Returns `true` if the triangle is oriented towards the given direction.
@@ -9060,9 +9060,9 @@
      * @param {Vector3} point - The point that should be included by the bounding box.
      * @return {Box3} A reference to this bounding box.
      */
-    expandByPoint(point) {
-      this.min.min(point);
-      this.max.max(point);
+    expandByPoint(point2) {
+      this.min.min(point2);
+      this.max.max(point2);
       return this;
     }
     /**
@@ -9146,8 +9146,8 @@
      * @param {Vector3} point - The point to test.
      * @return {boolean} Whether the bounding box contains the given point or not.
      */
-    containsPoint(point) {
-      return point.x >= this.min.x && point.x <= this.max.x && point.y >= this.min.y && point.y <= this.max.y && point.z >= this.min.z && point.z <= this.max.z;
+    containsPoint(point2) {
+      return point2.x >= this.min.x && point2.x <= this.max.x && point2.y >= this.min.y && point2.y <= this.max.y && point2.z >= this.min.z && point2.z <= this.max.z;
     }
     /**
      * Returns `true` if this bounding box includes the entirety of the given bounding box.
@@ -9166,11 +9166,11 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {Vector3} A point as a proportion of this box's width, height and depth.
      */
-    getParameter(point, target) {
+    getParameter(point2, target) {
       return target.set(
-        (point.x - this.min.x) / (this.max.x - this.min.x),
-        (point.y - this.min.y) / (this.max.y - this.min.y),
-        (point.z - this.min.z) / (this.max.z - this.min.z)
+        (point2.x - this.min.x) / (this.max.x - this.min.x),
+        (point2.y - this.min.y) / (this.max.y - this.min.y),
+        (point2.z - this.min.z) / (this.max.z - this.min.z)
       );
     }
     /**
@@ -9288,8 +9288,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {Vector3} The clamped point.
      */
-    clampPoint(point, target) {
-      return target.copy(point).clamp(this.min, this.max);
+    clampPoint(point2, target) {
+      return target.copy(point2).clamp(this.min, this.max);
     }
     /**
      * Returns the euclidean distance from any edge of this box to the specified point. If
@@ -9298,8 +9298,8 @@
      * @param {Vector3} point - The point to compute the distance to.
      * @return {number} The euclidean distance.
      */
-    distanceToPoint(point) {
-      return this.clampPoint(point, _vector$b).distanceTo(point);
+    distanceToPoint(point2) {
+      return this.clampPoint(point2, _vector$b).distanceTo(point2);
     }
     /**
      * Returns a bounding sphere that encloses this bounding box.
@@ -9984,8 +9984,8 @@
      * @param {Vector3} point - The point to check.
      * @return {boolean} Whether this sphere contains the given point or not.
      */
-    containsPoint(point) {
-      return point.distanceToSquared(this.center) <= this.radius * this.radius;
+    containsPoint(point2) {
+      return point2.distanceToSquared(this.center) <= this.radius * this.radius;
     }
     /**
      * Returns the closest distance from the boundary of the sphere to the
@@ -9995,8 +9995,8 @@
      * @param {Vector3} point - The point to compute the distance to.
      * @return {number} The distance to the point.
      */
-    distanceToPoint(point) {
-      return point.distanceTo(this.center) - this.radius;
+    distanceToPoint(point2) {
+      return point2.distanceTo(this.center) - this.radius;
     }
     /**
      * Returns `true` if this sphere intersects with the given one.
@@ -10035,9 +10035,9 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {Vector3} The clamped point.
      */
-    clampPoint(point, target) {
-      const deltaLengthSq = this.center.distanceToSquared(point);
-      target.copy(point);
+    clampPoint(point2, target) {
+      const deltaLengthSq = this.center.distanceToSquared(point2);
+      target.copy(point2);
       if (deltaLengthSq > this.radius * this.radius) {
         target.sub(this.center).normalize();
         target.multiplyScalar(this.radius).add(this.center);
@@ -10086,13 +10086,13 @@
      * @param {Vector3} point - The point to include.
      * @return {Sphere} A reference to this sphere.
      */
-    expandByPoint(point) {
+    expandByPoint(point2) {
       if (this.isEmpty()) {
-        this.center.copy(point);
+        this.center.copy(point2);
         this.radius = 0;
         return this;
       }
-      _v1$3.subVectors(point, this.center);
+      _v1$3.subVectors(point2, this.center);
       const lengthSq = _v1$3.lengthSq();
       if (lengthSq > this.radius * this.radius) {
         const length = Math.sqrt(lengthSq);
@@ -10463,15 +10463,15 @@
       if (positionAttribute === void 0) {
         const position = [];
         for (let i2 = 0, l = points.length; i2 < l; i2++) {
-          const point = points[i2];
-          position.push(point.x, point.y, point.z || 0);
+          const point2 = points[i2];
+          position.push(point2.x, point2.y, point2.z || 0);
         }
         this.setAttribute("position", new Float32BufferAttribute(position, 3));
       } else {
         const l = Math.min(points.length, positionAttribute.count);
         for (let i2 = 0; i2 < l; i2++) {
-          const point = points[i2];
-          positionAttribute.setXYZ(i2, point.x, point.y, point.z || 0);
+          const point2 = points[i2];
+          positionAttribute.setXYZ(i2, point2.x, point2.y, point2.z || 0);
         }
         if (points.length > positionAttribute.count) {
           warn("BufferGeometry: Buffer size too small for points data. Use .dispose() and create a new geometry.");
@@ -10652,18 +10652,18 @@
           );
         }
       }
-      const tmp = new Vector3(), tmp2 = new Vector3();
+      const tmp3 = new Vector3(), tmp22 = new Vector3();
       const n = new Vector3(), n2 = new Vector3();
       function handleVertex(v) {
         n.fromBufferAttribute(normalAttribute, v);
         n2.copy(n);
         const t = tan1[v];
-        tmp.copy(t);
-        tmp.sub(n.multiplyScalar(n.dot(t))).normalize();
-        tmp2.crossVectors(n2, t);
-        const test = tmp2.dot(tan2[v]);
+        tmp3.copy(t);
+        tmp3.sub(n.multiplyScalar(n.dot(t))).normalize();
+        tmp22.crossVectors(n2, t);
+        const test = tmp22.dot(tan2[v]);
         const w = test < 0 ? -1 : 1;
-        tangentAttribute.setXYZW(v, tmp.x, tmp.y, tmp.z, w);
+        tangentAttribute.setXYZW(v, tmp3.x, tmp3.y, tmp3.z, w);
       }
       for (let i2 = 0, il = groups.length; i2 < il; ++i2) {
         const group = groups[i2];
@@ -11579,8 +11579,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {Vector3} The closest point on this ray.
      */
-    closestPointToPoint(point, target) {
-      target.subVectors(point, this.origin);
+    closestPointToPoint(point2, target) {
+      target.subVectors(point2, this.origin);
       const directionDistance = target.dot(this.direction);
       if (directionDistance < 0) {
         return target.copy(this.origin);
@@ -11593,8 +11593,8 @@
      * @param {Vector3} point - A point in 3D space to compute the distance to.
      * @return {number} The distance.
      */
-    distanceToPoint(point) {
-      return Math.sqrt(this.distanceSqToPoint(point));
+    distanceToPoint(point2) {
+      return Math.sqrt(this.distanceSqToPoint(point2));
     }
     /**
      * Returns the squared distance of the closest approach between this ray and the given point.
@@ -11602,13 +11602,13 @@
      * @param {Vector3} point - A point in 3D space to compute the distance to.
      * @return {number} The squared distance.
      */
-    distanceSqToPoint(point) {
-      const directionDistance = _vector$7.subVectors(point, this.origin).dot(this.direction);
+    distanceSqToPoint(point2) {
+      const directionDistance = _vector$7.subVectors(point2, this.origin).dot(this.direction);
       if (directionDistance < 0) {
-        return this.origin.distanceToSquared(point);
+        return this.origin.distanceToSquared(point2);
       }
       _vector$7.copy(this.origin).addScaledVector(this.direction, directionDistance);
-      return _vector$7.distanceToSquared(point);
+      return _vector$7.distanceToSquared(point2);
     }
     /**
      * Returns the squared distance between this ray and the given line segment.
@@ -12141,20 +12141,20 @@
       }
     }
   };
-  function checkIntersection$1(object, material, raycaster, ray, pA, pB, pC, point) {
+  function checkIntersection$1(object, material, raycaster, ray, pA, pB, pC, point2) {
     let intersect2;
     if (material.side === BackSide) {
-      intersect2 = ray.intersectTriangle(pC, pB, pA, true, point);
+      intersect2 = ray.intersectTriangle(pC, pB, pA, true, point2);
     } else {
-      intersect2 = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
+      intersect2 = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point2);
     }
     if (intersect2 === null) return null;
-    _intersectionPointWorld.copy(point);
+    _intersectionPointWorld.copy(point2);
     _intersectionPointWorld.applyMatrix4(object.matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
-    if (distance < raycaster.near || distance > raycaster.far) return null;
+    const distance2 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
+    if (distance2 < raycaster.near || distance2 > raycaster.far) return null;
     return {
-      distance,
+      distance: distance2,
       point: _intersectionPointWorld.clone(),
       object
     };
@@ -12601,6 +12601,242 @@
       return data;
     }
   };
+  var InstancedBufferAttribute = class extends BufferAttribute {
+    /**
+     * Constructs a new instanced buffer attribute.
+     *
+     * @param {TypedArray} array - The array holding the attribute data.
+     * @param {number} itemSize - The item size.
+     * @param {boolean} [normalized=false] - Whether the data are normalized or not.
+     * @param {number} [meshPerAttribute=1] - How often a value of this buffer attribute should be repeated.
+     */
+    constructor(array, itemSize, normalized, meshPerAttribute = 1) {
+      super(array, itemSize, normalized);
+      this.isInstancedBufferAttribute = true;
+      this.meshPerAttribute = meshPerAttribute;
+    }
+    copy(source) {
+      super.copy(source);
+      this.meshPerAttribute = source.meshPerAttribute;
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.meshPerAttribute = this.meshPerAttribute;
+      data.isInstancedBufferAttribute = true;
+      return data;
+    }
+  };
+  var _instanceLocalMatrix = /* @__PURE__ */ new Matrix4();
+  var _instanceWorldMatrix = /* @__PURE__ */ new Matrix4();
+  var _instanceIntersects = [];
+  var _box3 = /* @__PURE__ */ new Box3();
+  var _identity = /* @__PURE__ */ new Matrix4();
+  var _mesh$1 = /* @__PURE__ */ new Mesh();
+  var _sphere$4 = /* @__PURE__ */ new Sphere();
+  var InstancedMesh = class extends Mesh {
+    /**
+     * Constructs a new instanced mesh.
+     *
+     * @param {BufferGeometry} [geometry] - The mesh geometry.
+     * @param {Material|Array<Material>} [material] - The mesh material.
+     * @param {number} count - The number of instances.
+     */
+    constructor(geometry, material, count) {
+      super(geometry, material);
+      this.isInstancedMesh = true;
+      this.instanceMatrix = new InstancedBufferAttribute(new Float32Array(count * 16), 16);
+      this.instanceColor = null;
+      this.morphTexture = null;
+      this.count = count;
+      this.boundingBox = null;
+      this.boundingSphere = null;
+      for (let i2 = 0; i2 < count; i2++) {
+        this.setMatrixAt(i2, _identity);
+      }
+    }
+    /**
+     * Computes the bounding box of the instanced mesh, and updates {@link InstancedMesh#boundingBox}.
+     * The bounding box is not automatically computed by the engine; this method must be called by your app.
+     * You may need to recompute the bounding box if an instance is transformed via {@link InstancedMesh#setMatrixAt}.
+     */
+    computeBoundingBox() {
+      const geometry = this.geometry;
+      const count = this.count;
+      if (this.boundingBox === null) {
+        this.boundingBox = new Box3();
+      }
+      if (geometry.boundingBox === null) {
+        geometry.computeBoundingBox();
+      }
+      this.boundingBox.makeEmpty();
+      for (let i2 = 0; i2 < count; i2++) {
+        this.getMatrixAt(i2, _instanceLocalMatrix);
+        _box3.copy(geometry.boundingBox).applyMatrix4(_instanceLocalMatrix);
+        this.boundingBox.union(_box3);
+      }
+    }
+    /**
+     * Computes the bounding sphere of the instanced mesh, and updates {@link InstancedMesh#boundingSphere}
+     * The engine automatically computes the bounding sphere when it is needed, e.g., for ray casting or view frustum culling.
+     * You may need to recompute the bounding sphere if an instance is transformed via {@link InstancedMesh#setMatrixAt}.
+     */
+    computeBoundingSphere() {
+      const geometry = this.geometry;
+      const count = this.count;
+      if (this.boundingSphere === null) {
+        this.boundingSphere = new Sphere();
+      }
+      if (geometry.boundingSphere === null) {
+        geometry.computeBoundingSphere();
+      }
+      this.boundingSphere.makeEmpty();
+      for (let i2 = 0; i2 < count; i2++) {
+        this.getMatrixAt(i2, _instanceLocalMatrix);
+        _sphere$4.copy(geometry.boundingSphere).applyMatrix4(_instanceLocalMatrix);
+        this.boundingSphere.union(_sphere$4);
+      }
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      this.instanceMatrix.copy(source.instanceMatrix);
+      if (source.morphTexture !== null) this.morphTexture = source.morphTexture.clone();
+      if (source.instanceColor !== null) this.instanceColor = source.instanceColor.clone();
+      this.count = source.count;
+      if (source.boundingBox !== null) this.boundingBox = source.boundingBox.clone();
+      if (source.boundingSphere !== null) this.boundingSphere = source.boundingSphere.clone();
+      return this;
+    }
+    /**
+     * Gets the color of the defined instance.
+     *
+     * @param {number} index - The instance index.
+     * @param {Color} color - The target object that is used to store the method's result.
+     * @return {Color} A reference to the target color.
+     */
+    getColorAt(index, color) {
+      if (this.instanceColor === null) {
+        return color.setRGB(1, 1, 1);
+      } else {
+        return color.fromArray(this.instanceColor.array, index * 3);
+      }
+    }
+    /**
+     * Gets the local transformation matrix of the defined instance.
+     *
+     * @param {number} index - The instance index.
+     * @param {Matrix4} matrix - The target object that is used to store the method's result.
+     * @return {Matrix4} A reference to the target matrix.
+     */
+    getMatrixAt(index, matrix) {
+      return matrix.fromArray(this.instanceMatrix.array, index * 16);
+    }
+    /**
+     * Gets the morph target weights of the defined instance.
+     *
+     * @param {number} index - The instance index.
+     * @param {Mesh} object - The target object that is used to store the method's result.
+     */
+    getMorphAt(index, object) {
+      const objectInfluences = object.morphTargetInfluences;
+      const array = this.morphTexture.source.data.data;
+      const len = objectInfluences.length + 1;
+      const dataIndex = index * len + 1;
+      for (let i2 = 0; i2 < objectInfluences.length; i2++) {
+        objectInfluences[i2] = array[dataIndex + i2];
+      }
+    }
+    raycast(raycaster, intersects2) {
+      const matrixWorld = this.matrixWorld;
+      const raycastTimes = this.count;
+      _mesh$1.geometry = this.geometry;
+      _mesh$1.material = this.material;
+      if (_mesh$1.material === void 0) return;
+      if (this.boundingSphere === null) this.computeBoundingSphere();
+      _sphere$4.copy(this.boundingSphere);
+      _sphere$4.applyMatrix4(matrixWorld);
+      if (raycaster.ray.intersectsSphere(_sphere$4) === false) return;
+      for (let instanceId = 0; instanceId < raycastTimes; instanceId++) {
+        this.getMatrixAt(instanceId, _instanceLocalMatrix);
+        _instanceWorldMatrix.multiplyMatrices(matrixWorld, _instanceLocalMatrix);
+        _mesh$1.matrixWorld = _instanceWorldMatrix;
+        _mesh$1.raycast(raycaster, _instanceIntersects);
+        for (let i2 = 0, l = _instanceIntersects.length; i2 < l; i2++) {
+          const intersect2 = _instanceIntersects[i2];
+          intersect2.instanceId = instanceId;
+          intersect2.object = this;
+          intersects2.push(intersect2);
+        }
+        _instanceIntersects.length = 0;
+      }
+    }
+    /**
+     * Sets the given color to the defined instance. Make sure you set the `needsUpdate` flag of
+     * {@link InstancedMesh#instanceColor} to `true` after updating all the colors.
+     *
+     * @param {number} index - The instance index.
+     * @param {Color} color - The instance color.
+     * @return {InstancedMesh} A reference to this instanced mesh.
+     */
+    setColorAt(index, color) {
+      if (this.instanceColor === null) {
+        this.instanceColor = new InstancedBufferAttribute(new Float32Array(this.instanceMatrix.count * 3).fill(1), 3);
+      }
+      color.toArray(this.instanceColor.array, index * 3);
+      return this;
+    }
+    /**
+     * Sets the given local transformation matrix to the defined instance. Make sure you set the `needsUpdate` flag of
+     * {@link InstancedMesh#instanceMatrix} to `true` after updating all the matrices.
+     *
+     * @param {number} index - The instance index.
+     * @param {Matrix4} matrix - The local transformation.
+     * @return {InstancedMesh} A reference to this instanced mesh.
+     */
+    setMatrixAt(index, matrix) {
+      matrix.toArray(this.instanceMatrix.array, index * 16);
+      return this;
+    }
+    /**
+     * Sets the morph target weights to the defined instance. Make sure you set the `needsUpdate` flag of
+     * {@link InstancedMesh#morphTexture} to `true` after updating all the influences.
+     *
+     * @param {number} index - The instance index.
+     * @param {Mesh} object -  A mesh which `morphTargetInfluences` property containing the morph target weights
+     * of a single instance.
+     * @return {InstancedMesh} A reference to this instanced mesh.
+     */
+    setMorphAt(index, object) {
+      const objectInfluences = object.morphTargetInfluences;
+      const len = objectInfluences.length + 1;
+      if (this.morphTexture === null) {
+        this.morphTexture = new DataTexture(new Float32Array(len * this.count), len, this.count, RedFormat, FloatType);
+      }
+      const array = this.morphTexture.source.data.data;
+      let morphInfluencesSum = 0;
+      for (let i2 = 0; i2 < objectInfluences.length; i2++) {
+        morphInfluencesSum += objectInfluences[i2];
+      }
+      const morphBaseInfluence = this.geometry.morphTargetsRelative ? 1 : 1 - morphInfluencesSum;
+      const dataIndex = len * index;
+      array[dataIndex] = morphBaseInfluence;
+      array.set(objectInfluences, dataIndex + 1);
+      return this;
+    }
+    updateMorphTargets() {
+    }
+    /**
+     * Frees the GPU-related resources allocated by this instance. Call this
+     * method whenever this instance is no longer used in your app.
+     */
+    dispose() {
+      this.dispatchEvent({ type: "dispose" });
+      if (this.morphTexture !== null) {
+        this.morphTexture.dispose();
+        this.morphTexture = null;
+      }
+    }
+  };
   var _vector1 = /* @__PURE__ */ new Vector3();
   var _vector2 = /* @__PURE__ */ new Vector3();
   var _normalMatrix = /* @__PURE__ */ new Matrix3();
@@ -12651,9 +12887,9 @@
      * @param {Vector3} point - A coplanar point.
      * @return {Plane} A reference to this plane.
      */
-    setFromNormalAndCoplanarPoint(normal, point) {
+    setFromNormalAndCoplanarPoint(normal, point2) {
       this.normal.copy(normal);
-      this.constant = -point.dot(this.normal);
+      this.constant = -point2.dot(this.normal);
       return this;
     }
     /**
@@ -12709,8 +12945,8 @@
      * @param {Vector3} point - The point to compute the distance for.
      * @return {number} The signed distance.
      */
-    distanceToPoint(point) {
-      return this.normal.dot(point) + this.constant;
+    distanceToPoint(point2) {
+      return this.normal.dot(point2) + this.constant;
     }
     /**
      * Returns the signed distance from the given sphere to this plane.
@@ -12728,8 +12964,8 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {Vector3} The projected point on the plane.
      */
-    projectPoint(point, target) {
-      return target.copy(point).addScaledVector(this.normal, -this.distanceToPoint(point));
+    projectPoint(point2, target) {
+      return target.copy(point2).addScaledVector(this.normal, -this.distanceToPoint(point2));
     }
     /**
      * Returns the intersection point of the passed line and the plane. Returns
@@ -12971,8 +13207,8 @@
       const center = sphere.center;
       const negRadius = -sphere.radius;
       for (let i2 = 0; i2 < 6; i2++) {
-        const distance = planes[i2].distanceToPoint(center);
-        if (distance < negRadius) {
+        const distance2 = planes[i2].distanceToPoint(center);
+        if (distance2 < negRadius) {
           return false;
         }
       }
@@ -13003,10 +13239,10 @@
      * @param {Vector3} point - The point to test.
      * @return {boolean} Whether the point lies within this frustum or not.
      */
-    containsPoint(point) {
+    containsPoint(point2) {
       const planes = this.planes;
       for (let i2 = 0; i2 < 6; i2++) {
-        if (planes[i2].distanceToPoint(point) < 0) {
+        if (planes[i2].distanceToPoint(point2) < 0) {
           return false;
         }
       }
@@ -13197,10 +13433,10 @@
     const distSq = ray.distanceSqToSegment(_vStart, _vEnd, _intersectPointOnRay, _intersectPointOnSegment);
     if (distSq > thresholdSq) return;
     _intersectPointOnRay.applyMatrix4(object.matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(_intersectPointOnRay);
-    if (distance < raycaster.near || distance > raycaster.far) return;
+    const distance2 = raycaster.ray.origin.distanceTo(_intersectPointOnRay);
+    if (distance2 < raycaster.near || distance2 > raycaster.far) return;
     return {
-      distance,
+      distance: distance2,
       // What do we want? intersection point on the ray or on the segment??
       // point: raycaster.ray.at( distance ),
       point: _intersectPointOnSegment.clone().applyMatrix4(object.matrixWorld),
@@ -13333,16 +13569,16 @@
       }
     }
   };
-  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, intersects2, object) {
-    const rayPointDistanceSq = _ray.distanceSqToPoint(point);
+  function testPoint(point2, index, localThresholdSq, matrixWorld, raycaster, intersects2, object) {
+    const rayPointDistanceSq = _ray.distanceSqToPoint(point2);
     if (rayPointDistanceSq < localThresholdSq) {
       const intersectPoint = new Vector3();
-      _ray.closestPointToPoint(point, intersectPoint);
+      _ray.closestPointToPoint(point2, intersectPoint);
       intersectPoint.applyMatrix4(matrixWorld);
-      const distance = raycaster.ray.origin.distanceTo(intersectPoint);
-      if (distance < raycaster.near || distance > raycaster.far) return;
+      const distance2 = raycaster.ray.origin.distanceTo(intersectPoint);
+      if (distance2 < raycaster.near || distance2 > raycaster.far) return;
       intersects2.push({
-        distance,
+        distance: distance2,
         distanceToRay: Math.sqrt(rayPointDistanceSq),
         point: intersectPoint,
         index,
@@ -13964,13 +14200,13 @@
      * @param {?number} distance - An optional distance on the curve.
      * @return {number} The updated interpolation factor.
      */
-    getUtoTmapping(u, distance = null) {
+    getUtoTmapping(u, distance2 = null) {
       const arcLengths = this.getLengths();
       let i2 = 0;
       const il = arcLengths.length;
       let targetArcLength;
-      if (distance) {
-        targetArcLength = distance;
+      if (distance2) {
+        targetArcLength = distance2;
       } else {
         targetArcLength = u * arcLengths[il - 1];
       }
@@ -14146,6 +14382,732 @@
       return this;
     }
   };
+  var EllipseCurve = class extends Curve {
+    /**
+     * Constructs a new ellipse curve.
+     *
+     * @param {number} [aX=0] - The X center of the ellipse.
+     * @param {number} [aY=0] - The Y center of the ellipse.
+     * @param {number} [xRadius=1] - The radius of the ellipse in the x direction.
+     * @param {number} [yRadius=1] - The radius of the ellipse in the y direction.
+     * @param {number} [aStartAngle=0] - The start angle of the curve in radians starting from the positive X axis.
+     * @param {number} [aEndAngle=Math.PI*2] - The end angle of the curve in radians starting from the positive X axis.
+     * @param {boolean} [aClockwise=false] - Whether the ellipse is drawn clockwise or not.
+     * @param {number} [aRotation=0] - The rotation angle of the ellipse in radians, counterclockwise from the positive X axis.
+     */
+    constructor(aX = 0, aY = 0, xRadius = 1, yRadius = 1, aStartAngle = 0, aEndAngle = Math.PI * 2, aClockwise = false, aRotation = 0) {
+      super();
+      this.isEllipseCurve = true;
+      this.type = "EllipseCurve";
+      this.aX = aX;
+      this.aY = aY;
+      this.xRadius = xRadius;
+      this.yRadius = yRadius;
+      this.aStartAngle = aStartAngle;
+      this.aEndAngle = aEndAngle;
+      this.aClockwise = aClockwise;
+      this.aRotation = aRotation;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector2} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector2()) {
+      const point2 = optionalTarget;
+      const twoPi = Math.PI * 2;
+      let deltaAngle = this.aEndAngle - this.aStartAngle;
+      const samePoints = Math.abs(deltaAngle) < Number.EPSILON;
+      while (deltaAngle < 0) deltaAngle += twoPi;
+      while (deltaAngle > twoPi) deltaAngle -= twoPi;
+      if (deltaAngle < Number.EPSILON) {
+        if (samePoints) {
+          deltaAngle = 0;
+        } else {
+          deltaAngle = twoPi;
+        }
+      }
+      if (this.aClockwise === true && !samePoints) {
+        if (deltaAngle === twoPi) {
+          deltaAngle = -twoPi;
+        } else {
+          deltaAngle = deltaAngle - twoPi;
+        }
+      }
+      const angle = this.aStartAngle + t * deltaAngle;
+      let x2 = this.aX + this.xRadius * Math.cos(angle);
+      let y = this.aY + this.yRadius * Math.sin(angle);
+      if (this.aRotation !== 0) {
+        const cos = Math.cos(this.aRotation);
+        const sin = Math.sin(this.aRotation);
+        const tx = x2 - this.aX;
+        const ty = y - this.aY;
+        x2 = tx * cos - ty * sin + this.aX;
+        y = tx * sin + ty * cos + this.aY;
+      }
+      return point2.set(x2, y);
+    }
+    copy(source) {
+      super.copy(source);
+      this.aX = source.aX;
+      this.aY = source.aY;
+      this.xRadius = source.xRadius;
+      this.yRadius = source.yRadius;
+      this.aStartAngle = source.aStartAngle;
+      this.aEndAngle = source.aEndAngle;
+      this.aClockwise = source.aClockwise;
+      this.aRotation = source.aRotation;
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.aX = this.aX;
+      data.aY = this.aY;
+      data.xRadius = this.xRadius;
+      data.yRadius = this.yRadius;
+      data.aStartAngle = this.aStartAngle;
+      data.aEndAngle = this.aEndAngle;
+      data.aClockwise = this.aClockwise;
+      data.aRotation = this.aRotation;
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.aX = json.aX;
+      this.aY = json.aY;
+      this.xRadius = json.xRadius;
+      this.yRadius = json.yRadius;
+      this.aStartAngle = json.aStartAngle;
+      this.aEndAngle = json.aEndAngle;
+      this.aClockwise = json.aClockwise;
+      this.aRotation = json.aRotation;
+      return this;
+    }
+  };
+  var ArcCurve = class extends EllipseCurve {
+    /**
+     * Constructs a new arc curve.
+     *
+     * @param {number} [aX=0] - The X center of the ellipse.
+     * @param {number} [aY=0] - The Y center of the ellipse.
+     * @param {number} [aRadius=1] - The radius of the ellipse in the x direction.
+     * @param {number} [aStartAngle=0] - The start angle of the curve in radians starting from the positive X axis.
+     * @param {number} [aEndAngle=Math.PI*2] - The end angle of the curve in radians starting from the positive X axis.
+     * @param {boolean} [aClockwise=false] - Whether the ellipse is drawn clockwise or not.
+     */
+    constructor(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise) {
+      super(aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise);
+      this.isArcCurve = true;
+      this.type = "ArcCurve";
+    }
+  };
+  function CubicPoly() {
+    let c0 = 0, c1 = 0, c2 = 0, c3 = 0;
+    function init2(x0, x1, t0, t1) {
+      c0 = x0;
+      c1 = t0;
+      c2 = -3 * x0 + 3 * x1 - 2 * t0 - t1;
+      c3 = 2 * x0 - 2 * x1 + t0 + t1;
+    }
+    return {
+      initCatmullRom: function(x0, x1, x2, x3, tension) {
+        init2(x1, x2, tension * (x2 - x0), tension * (x3 - x1));
+      },
+      initNonuniformCatmullRom: function(x0, x1, x2, x3, dt0, dt1, dt2) {
+        let t1 = (x1 - x0) / dt0 - (x2 - x0) / (dt0 + dt1) + (x2 - x1) / dt1;
+        let t2 = (x2 - x1) / dt1 - (x3 - x1) / (dt1 + dt2) + (x3 - x2) / dt2;
+        t1 *= dt1;
+        t2 *= dt1;
+        init2(x1, x2, t1, t2);
+      },
+      calc: function(t) {
+        const t2 = t * t;
+        const t3 = t2 * t;
+        return c0 + c1 * t + c2 * t2 + c3 * t3;
+      }
+    };
+  }
+  var tmp = /* @__PURE__ */ new Vector3();
+  var tmp2 = /* @__PURE__ */ new Vector3();
+  var px = /* @__PURE__ */ new CubicPoly();
+  var py = /* @__PURE__ */ new CubicPoly();
+  var pz = /* @__PURE__ */ new CubicPoly();
+  var CatmullRomCurve3 = class extends Curve {
+    /**
+     * Constructs a new Catmull-Rom curve.
+     *
+     * @param {Array<Vector3>} [points] - An array of 3D points defining the curve.
+     * @param {boolean} [closed=false] - Whether the curve is closed or not.
+     * @param {('centripetal'|'chordal'|'catmullrom')} [curveType='centripetal'] - The curve type.
+     * @param {number} [tension=0.5] - Tension of the curve.
+     */
+    constructor(points = [], closed = false, curveType = "centripetal", tension = 0.5) {
+      super();
+      this.isCatmullRomCurve3 = true;
+      this.type = "CatmullRomCurve3";
+      this.points = points;
+      this.closed = closed;
+      this.curveType = curveType;
+      this.tension = tension;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector3} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector3()) {
+      const point2 = optionalTarget;
+      const points = this.points;
+      const l = points.length;
+      const p = (l - (this.closed ? 0 : 1)) * t;
+      let intPoint = Math.floor(p);
+      let weight = p - intPoint;
+      if (this.closed) {
+        intPoint += intPoint > 0 ? 0 : (Math.floor(Math.abs(intPoint) / l) + 1) * l;
+      } else if (weight === 0 && intPoint === l - 1) {
+        intPoint = l - 2;
+        weight = 1;
+      }
+      let p0, p3;
+      if (this.closed || intPoint > 0) {
+        p0 = points[(intPoint - 1) % l];
+      } else {
+        tmp2.subVectors(points[0], points[1]).add(points[0]);
+        p0 = tmp2;
+      }
+      const p1 = points[intPoint % l];
+      const p2 = points[(intPoint + 1) % l];
+      if (this.closed || intPoint + 2 < l) {
+        p3 = points[(intPoint + 2) % l];
+      } else {
+        tmp.subVectors(points[l - 1], points[l - 2]).add(points[l - 1]);
+        p3 = tmp;
+      }
+      if (this.curveType === "centripetal" || this.curveType === "chordal") {
+        const pow = this.curveType === "chordal" ? 0.5 : 0.25;
+        let dt0 = Math.pow(p0.distanceToSquared(p1), pow);
+        let dt1 = Math.pow(p1.distanceToSquared(p2), pow);
+        let dt2 = Math.pow(p2.distanceToSquared(p3), pow);
+        if (dt1 < 1e-4) dt1 = 1;
+        if (dt0 < 1e-4) dt0 = dt1;
+        if (dt2 < 1e-4) dt2 = dt1;
+        px.initNonuniformCatmullRom(p0.x, p1.x, p2.x, p3.x, dt0, dt1, dt2);
+        py.initNonuniformCatmullRom(p0.y, p1.y, p2.y, p3.y, dt0, dt1, dt2);
+        pz.initNonuniformCatmullRom(p0.z, p1.z, p2.z, p3.z, dt0, dt1, dt2);
+      } else if (this.curveType === "catmullrom") {
+        px.initCatmullRom(p0.x, p1.x, p2.x, p3.x, this.tension);
+        py.initCatmullRom(p0.y, p1.y, p2.y, p3.y, this.tension);
+        pz.initCatmullRom(p0.z, p1.z, p2.z, p3.z, this.tension);
+      }
+      point2.set(
+        px.calc(weight),
+        py.calc(weight),
+        pz.calc(weight)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.points = [];
+      for (let i2 = 0, l = source.points.length; i2 < l; i2++) {
+        const point2 = source.points[i2];
+        this.points.push(point2.clone());
+      }
+      this.closed = source.closed;
+      this.curveType = source.curveType;
+      this.tension = source.tension;
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.points = [];
+      for (let i2 = 0, l = this.points.length; i2 < l; i2++) {
+        const point2 = this.points[i2];
+        data.points.push(point2.toArray());
+      }
+      data.closed = this.closed;
+      data.curveType = this.curveType;
+      data.tension = this.tension;
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.points = [];
+      for (let i2 = 0, l = json.points.length; i2 < l; i2++) {
+        const point2 = json.points[i2];
+        this.points.push(new Vector3().fromArray(point2));
+      }
+      this.closed = json.closed;
+      this.curveType = json.curveType;
+      this.tension = json.tension;
+      return this;
+    }
+  };
+  function CatmullRom(t, p0, p1, p2, p3) {
+    const v0 = (p2 - p0) * 0.5;
+    const v1 = (p3 - p1) * 0.5;
+    const t2 = t * t;
+    const t3 = t * t2;
+    return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+  }
+  function QuadraticBezierP0(t, p) {
+    const k = 1 - t;
+    return k * k * p;
+  }
+  function QuadraticBezierP1(t, p) {
+    return 2 * (1 - t) * t * p;
+  }
+  function QuadraticBezierP2(t, p) {
+    return t * t * p;
+  }
+  function QuadraticBezier(t, p0, p1, p2) {
+    return QuadraticBezierP0(t, p0) + QuadraticBezierP1(t, p1) + QuadraticBezierP2(t, p2);
+  }
+  function CubicBezierP0(t, p) {
+    const k = 1 - t;
+    return k * k * k * p;
+  }
+  function CubicBezierP1(t, p) {
+    const k = 1 - t;
+    return 3 * k * k * t * p;
+  }
+  function CubicBezierP2(t, p) {
+    return 3 * (1 - t) * t * t * p;
+  }
+  function CubicBezierP3(t, p) {
+    return t * t * t * p;
+  }
+  function CubicBezier(t, p0, p1, p2, p3) {
+    return CubicBezierP0(t, p0) + CubicBezierP1(t, p1) + CubicBezierP2(t, p2) + CubicBezierP3(t, p3);
+  }
+  var CubicBezierCurve = class extends Curve {
+    /**
+     * Constructs a new Cubic Bezier curve.
+     *
+     * @param {Vector2} [v0] - The start point.
+     * @param {Vector2} [v1] - The first control point.
+     * @param {Vector2} [v2] - The second control point.
+     * @param {Vector2} [v3] - The end point.
+     */
+    constructor(v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2(), v3 = new Vector2()) {
+      super();
+      this.isCubicBezierCurve = true;
+      this.type = "CubicBezierCurve";
+      this.v0 = v0;
+      this.v1 = v1;
+      this.v2 = v2;
+      this.v3 = v3;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector2} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector2()) {
+      const point2 = optionalTarget;
+      const v0 = this.v0, v1 = this.v1, v2 = this.v2, v3 = this.v3;
+      point2.set(
+        CubicBezier(t, v0.x, v1.x, v2.x, v3.x),
+        CubicBezier(t, v0.y, v1.y, v2.y, v3.y)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.v0.copy(source.v0);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      this.v3.copy(source.v3);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v0 = this.v0.toArray();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      data.v3 = this.v3.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v0.fromArray(json.v0);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      this.v3.fromArray(json.v3);
+      return this;
+    }
+  };
+  var CubicBezierCurve3 = class extends Curve {
+    /**
+     * Constructs a new Cubic Bezier curve.
+     *
+     * @param {Vector3} [v0] - The start point.
+     * @param {Vector3} [v1] - The first control point.
+     * @param {Vector3} [v2] - The second control point.
+     * @param {Vector3} [v3] - The end point.
+     */
+    constructor(v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3(), v3 = new Vector3()) {
+      super();
+      this.isCubicBezierCurve3 = true;
+      this.type = "CubicBezierCurve3";
+      this.v0 = v0;
+      this.v1 = v1;
+      this.v2 = v2;
+      this.v3 = v3;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector3} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector3()) {
+      const point2 = optionalTarget;
+      const v0 = this.v0, v1 = this.v1, v2 = this.v2, v3 = this.v3;
+      point2.set(
+        CubicBezier(t, v0.x, v1.x, v2.x, v3.x),
+        CubicBezier(t, v0.y, v1.y, v2.y, v3.y),
+        CubicBezier(t, v0.z, v1.z, v2.z, v3.z)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.v0.copy(source.v0);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      this.v3.copy(source.v3);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v0 = this.v0.toArray();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      data.v3 = this.v3.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v0.fromArray(json.v0);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      this.v3.fromArray(json.v3);
+      return this;
+    }
+  };
+  var LineCurve = class extends Curve {
+    /**
+     * Constructs a new line curve.
+     *
+     * @param {Vector2} [v1] - The start point.
+     * @param {Vector2} [v2] - The end point.
+     */
+    constructor(v1 = new Vector2(), v2 = new Vector2()) {
+      super();
+      this.isLineCurve = true;
+      this.type = "LineCurve";
+      this.v1 = v1;
+      this.v2 = v2;
+    }
+    /**
+     * Returns a point on the line.
+     *
+     * @param {number} t - A interpolation factor representing a position on the line. Must be in the range `[0,1]`.
+     * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector2} The position on the line.
+     */
+    getPoint(t, optionalTarget = new Vector2()) {
+      const point2 = optionalTarget;
+      if (t === 1) {
+        point2.copy(this.v2);
+      } else {
+        point2.copy(this.v2).sub(this.v1);
+        point2.multiplyScalar(t).add(this.v1);
+      }
+      return point2;
+    }
+    // Line curve is linear, so we can overwrite default getPointAt
+    getPointAt(u, optionalTarget) {
+      return this.getPoint(u, optionalTarget);
+    }
+    getTangent(t, optionalTarget = new Vector2()) {
+      return optionalTarget.subVectors(this.v2, this.v1).normalize();
+    }
+    getTangentAt(u, optionalTarget) {
+      return this.getTangent(u, optionalTarget);
+    }
+    copy(source) {
+      super.copy(source);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      return this;
+    }
+  };
+  var LineCurve3 = class extends Curve {
+    /**
+     * Constructs a new line curve.
+     *
+     * @param {Vector3} [v1] - The start point.
+     * @param {Vector3} [v2] - The end point.
+     */
+    constructor(v1 = new Vector3(), v2 = new Vector3()) {
+      super();
+      this.isLineCurve3 = true;
+      this.type = "LineCurve3";
+      this.v1 = v1;
+      this.v2 = v2;
+    }
+    /**
+     * Returns a point on the line.
+     *
+     * @param {number} t - A interpolation factor representing a position on the line. Must be in the range `[0,1]`.
+     * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector3} The position on the line.
+     */
+    getPoint(t, optionalTarget = new Vector3()) {
+      const point2 = optionalTarget;
+      if (t === 1) {
+        point2.copy(this.v2);
+      } else {
+        point2.copy(this.v2).sub(this.v1);
+        point2.multiplyScalar(t).add(this.v1);
+      }
+      return point2;
+    }
+    // Line curve is linear, so we can overwrite default getPointAt
+    getPointAt(u, optionalTarget) {
+      return this.getPoint(u, optionalTarget);
+    }
+    getTangent(t, optionalTarget = new Vector3()) {
+      return optionalTarget.subVectors(this.v2, this.v1).normalize();
+    }
+    getTangentAt(u, optionalTarget) {
+      return this.getTangent(u, optionalTarget);
+    }
+    copy(source) {
+      super.copy(source);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      return this;
+    }
+  };
+  var QuadraticBezierCurve = class extends Curve {
+    /**
+     * Constructs a new Quadratic Bezier curve.
+     *
+     * @param {Vector2} [v0] - The start point.
+     * @param {Vector2} [v1] - The control point.
+     * @param {Vector2} [v2] - The end point.
+     */
+    constructor(v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2()) {
+      super();
+      this.isQuadraticBezierCurve = true;
+      this.type = "QuadraticBezierCurve";
+      this.v0 = v0;
+      this.v1 = v1;
+      this.v2 = v2;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector2} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector2()) {
+      const point2 = optionalTarget;
+      const v0 = this.v0, v1 = this.v1, v2 = this.v2;
+      point2.set(
+        QuadraticBezier(t, v0.x, v1.x, v2.x),
+        QuadraticBezier(t, v0.y, v1.y, v2.y)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.v0.copy(source.v0);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v0 = this.v0.toArray();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v0.fromArray(json.v0);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      return this;
+    }
+  };
+  var QuadraticBezierCurve3 = class extends Curve {
+    /**
+     * Constructs a new Quadratic Bezier curve.
+     *
+     * @param {Vector3} [v0] - The start point.
+     * @param {Vector3} [v1] - The control point.
+     * @param {Vector3} [v2] - The end point.
+     */
+    constructor(v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3()) {
+      super();
+      this.isQuadraticBezierCurve3 = true;
+      this.type = "QuadraticBezierCurve3";
+      this.v0 = v0;
+      this.v1 = v1;
+      this.v2 = v2;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector3} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector3} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector3()) {
+      const point2 = optionalTarget;
+      const v0 = this.v0, v1 = this.v1, v2 = this.v2;
+      point2.set(
+        QuadraticBezier(t, v0.x, v1.x, v2.x),
+        QuadraticBezier(t, v0.y, v1.y, v2.y),
+        QuadraticBezier(t, v0.z, v1.z, v2.z)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.v0.copy(source.v0);
+      this.v1.copy(source.v1);
+      this.v2.copy(source.v2);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.v0 = this.v0.toArray();
+      data.v1 = this.v1.toArray();
+      data.v2 = this.v2.toArray();
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.v0.fromArray(json.v0);
+      this.v1.fromArray(json.v1);
+      this.v2.fromArray(json.v2);
+      return this;
+    }
+  };
+  var SplineCurve = class extends Curve {
+    /**
+     * Constructs a new 2D spline curve.
+     *
+     * @param {Array<Vector2>} [points] -  An array of 2D points defining the curve.
+     */
+    constructor(points = []) {
+      super();
+      this.isSplineCurve = true;
+      this.type = "SplineCurve";
+      this.points = points;
+    }
+    /**
+     * Returns a point on the curve.
+     *
+     * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
+     * @param {Vector2} [optionalTarget] - The optional target vector the result is written to.
+     * @return {Vector2} The position on the curve.
+     */
+    getPoint(t, optionalTarget = new Vector2()) {
+      const point2 = optionalTarget;
+      const points = this.points;
+      const p = (points.length - 1) * t;
+      const intPoint = Math.floor(p);
+      const weight = p - intPoint;
+      const p0 = points[intPoint === 0 ? intPoint : intPoint - 1];
+      const p1 = points[intPoint];
+      const p2 = points[intPoint > points.length - 2 ? points.length - 1 : intPoint + 1];
+      const p3 = points[intPoint > points.length - 3 ? points.length - 1 : intPoint + 2];
+      point2.set(
+        CatmullRom(weight, p0.x, p1.x, p2.x, p3.x),
+        CatmullRom(weight, p0.y, p1.y, p2.y, p3.y)
+      );
+      return point2;
+    }
+    copy(source) {
+      super.copy(source);
+      this.points = [];
+      for (let i2 = 0, l = source.points.length; i2 < l; i2++) {
+        const point2 = source.points[i2];
+        this.points.push(point2.clone());
+      }
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.points = [];
+      for (let i2 = 0, l = this.points.length; i2 < l; i2++) {
+        const point2 = this.points[i2];
+        data.points.push(point2.toArray());
+      }
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.points = [];
+      for (let i2 = 0, l = json.points.length; i2 < l; i2++) {
+        const point2 = json.points[i2];
+        this.points.push(new Vector2().fromArray(point2));
+      }
+      return this;
+    }
+  };
+  var Curves = /* @__PURE__ */ Object.freeze({
+    __proto__: null,
+    ArcCurve,
+    CatmullRomCurve3,
+    CubicBezierCurve,
+    CubicBezierCurve3,
+    EllipseCurve,
+    LineCurve,
+    LineCurve3,
+    QuadraticBezierCurve,
+    QuadraticBezierCurve3,
+    SplineCurve
+  });
   function earcut(data, holeIndices, dim = 2) {
     const hasHoles = holeIndices && holeIndices.length;
     const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
@@ -14448,11 +15410,11 @@
     } while (p !== start);
     return leftmost;
   }
-  function pointInTriangle(ax, ay, bx, by, cx, cy, px, py) {
-    return (cx - px) * (ay - py) >= (ax - px) * (cy - py) && (ax - px) * (by - py) >= (bx - px) * (ay - py) && (bx - px) * (cy - py) >= (cx - px) * (by - py);
+  function pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2) {
+    return (cx - px2) * (ay - py2) >= (ax - px2) * (cy - py2) && (ax - px2) * (by - py2) >= (bx - px2) * (ay - py2) && (bx - px2) * (cy - py2) >= (cx - px2) * (by - py2);
   }
-  function pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, px, py) {
-    return !(ax === px && ay === py) && pointInTriangle(ax, ay, bx, by, cx, cy, px, py);
+  function pointInTriangleExceptFirst(ax, ay, bx, by, cx, cy, px2, py2) {
+    return !(ax === px2 && ay === py2) && pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2);
   }
   function isValidDiagonal(a, b) {
     return a.next.i !== b.i && a.prev.i !== b.i && !intersectsPolygon(a, b) && // doesn't intersect other edges
@@ -14498,10 +15460,10 @@
   function middleInside(a, b) {
     let p = a;
     let inside = false;
-    const px = (a.x + b.x) / 2;
-    const py = (a.y + b.y) / 2;
+    const px2 = (a.x + b.x) / 2;
+    const py2 = (a.y + b.y) / 2;
     do {
-      if (p.y > py !== p.next.y > py && p.next.y !== p.y && px < (p.next.x - p.x) * (py - p.y) / (p.next.y - p.y) + p.x)
+      if (p.y > py2 !== p.next.y > py2 && p.next.y !== p.y && px2 < (p.next.x - p.x) * (py2 - p.y) / (p.next.y - p.y) + p.x)
         inside = !inside;
       p = p.next;
     } while (p !== a);
@@ -14885,6 +15847,119 @@
       return new _TorusGeometry(data.radius, data.tube, data.radialSegments, data.tubularSegments, data.arc);
     }
   };
+  var TubeGeometry = class _TubeGeometry extends BufferGeometry {
+    /**
+     * Constructs a new tube geometry.
+     *
+     * @param {Curve} [path=QuadraticBezierCurve3] - A 3D curve defining the path of the tube.
+     * @param {number} [tubularSegments=64] - The number of segments that make up the tube.
+     * @param {number} [radius=1] -The radius of the tube.
+     * @param {number} [radialSegments=8] - The number of segments that make up the cross-section.
+     * @param {boolean} [closed=false] - Whether the tube is closed or not.
+     */
+    constructor(path = new QuadraticBezierCurve3(new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0)), tubularSegments = 64, radius = 1, radialSegments = 8, closed = false) {
+      super();
+      this.type = "TubeGeometry";
+      this.parameters = {
+        path,
+        tubularSegments,
+        radius,
+        radialSegments,
+        closed
+      };
+      const frames = path.computeFrenetFrames(tubularSegments, closed);
+      this.tangents = frames.tangents;
+      this.normals = frames.normals;
+      this.binormals = frames.binormals;
+      const vertex2 = new Vector3();
+      const normal = new Vector3();
+      const uv = new Vector2();
+      let P = new Vector3();
+      const vertices = [];
+      const normals = [];
+      const uvs = [];
+      const indices = [];
+      generateBufferData();
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+      function generateBufferData() {
+        for (let i2 = 0; i2 < tubularSegments; i2++) {
+          generateSegment(i2);
+        }
+        generateSegment(closed === false ? tubularSegments : 0);
+        generateUVs();
+        generateIndices();
+      }
+      function generateSegment(i2) {
+        P = path.getPointAt(i2 / tubularSegments, P);
+        const N = frames.normals[i2];
+        const B = frames.binormals[i2];
+        for (let j = 0; j <= radialSegments; j++) {
+          const v = j / radialSegments * Math.PI * 2;
+          const sin = Math.sin(v);
+          const cos = -Math.cos(v);
+          normal.x = cos * N.x + sin * B.x;
+          normal.y = cos * N.y + sin * B.y;
+          normal.z = cos * N.z + sin * B.z;
+          normal.normalize();
+          normals.push(normal.x, normal.y, normal.z);
+          vertex2.x = P.x + radius * normal.x;
+          vertex2.y = P.y + radius * normal.y;
+          vertex2.z = P.z + radius * normal.z;
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+        }
+      }
+      function generateIndices() {
+        for (let j = 1; j <= tubularSegments; j++) {
+          for (let i2 = 1; i2 <= radialSegments; i2++) {
+            const a = (radialSegments + 1) * (j - 1) + (i2 - 1);
+            const b = (radialSegments + 1) * j + (i2 - 1);
+            const c = (radialSegments + 1) * j + i2;
+            const d = (radialSegments + 1) * (j - 1) + i2;
+            indices.push(a, b, d);
+            indices.push(b, c, d);
+          }
+        }
+      }
+      function generateUVs() {
+        for (let i2 = 0; i2 <= tubularSegments; i2++) {
+          for (let j = 0; j <= radialSegments; j++) {
+            uv.x = i2 / tubularSegments;
+            uv.y = j / radialSegments;
+            uvs.push(uv.x, uv.y);
+          }
+        }
+      }
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.path = this.parameters.path.toJSON();
+      return data;
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @return {TubeGeometry} A new instance.
+     */
+    static fromJSON(data) {
+      return new _TubeGeometry(
+        new Curves[data.path.type]().fromJSON(data.path),
+        data.tubularSegments,
+        data.radius,
+        data.radialSegments,
+        data.closed
+      );
+    }
+  };
   function cloneUniforms(src) {
     const dst = {};
     for (const u in src) {
@@ -14918,9 +15993,9 @@
   function mergeUniforms(uniforms) {
     const merged = {};
     for (let u = 0; u < uniforms.length; u++) {
-      const tmp = cloneUniforms(uniforms[u]);
-      for (const p in tmp) {
-        merged[p] = tmp[p];
+      const tmp3 = cloneUniforms(uniforms[u]);
+      for (const p in tmp3) {
+        merged[p] = tmp3[p];
       }
     }
     return merged;
@@ -17765,11 +18840,11 @@
      * @param {Vector2} minTarget - The lower-left corner of the view rectangle is written into this vector.
      * @param {Vector2} maxTarget - The upper-right corner of the view rectangle is written into this vector.
      */
-    getViewBounds(distance, minTarget, maxTarget) {
+    getViewBounds(distance2, minTarget, maxTarget) {
       _v3$1.set(-1, -1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance / _v3$1.z);
+      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
       _v3$1.set(1, 1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance / _v3$1.z);
+      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
     }
     /**
      * Computes the width and height of the camera's viewable rectangle at a given distance along the viewing direction.
@@ -17778,8 +18853,8 @@
      * @param {Vector2} target - The target vector that is used to store result where x is width and y is height.
      * @returns {Vector2} The view size.
      */
-    getViewSize(distance, target) {
-      this.getViewBounds(distance, _minTarget, _maxTarget);
+    getViewSize(distance2, target) {
+      this.getViewBounds(distance2, _minTarget, _maxTarget);
       return target.subVectors(_maxTarget, _minTarget);
     }
     /**
@@ -17933,14 +19008,14 @@
      * @param {number} [penumbra=0] - Percent of the spotlight cone that is attenuated due to penumbra. Value range is `[0,1]`.
      * @param {number} [decay=2] - The amount the light dims along the distance of the light.
      */
-    constructor(color, intensity, distance = 0, angle = Math.PI / 3, penumbra = 0, decay = 2) {
+    constructor(color, intensity, distance2 = 0, angle = Math.PI / 3, penumbra = 0, decay = 2) {
       super(color, intensity);
       this.isSpotLight = true;
       this.type = "SpotLight";
       this.position.copy(Object3D.DEFAULT_UP);
       this.updateMatrix();
       this.target = new Object3D();
-      this.distance = distance;
+      this.distance = distance2;
       this.angle = angle;
       this.penumbra = penumbra;
       this.decay = decay;
@@ -18004,11 +19079,11 @@
      * @param {number} [distance=0] - Maximum range of the light. `0` means no limit.
      * @param {number} [decay=2] - The amount the light dims along the distance of the light.
      */
-    constructor(color, intensity, distance = 0, decay = 2) {
+    constructor(color, intensity, distance2 = 0, decay = 2) {
       super(color, intensity);
       this.isPointLight = true;
       this.type = "PointLight";
-      this.distance = distance;
+      this.distance = distance2;
       this.decay = decay;
       this.shadow = new PointLightShadow();
     }
@@ -24583,7 +25658,7 @@
         const light = lights[i2];
         const color = light.color;
         const intensity = light.intensity;
-        const distance = light.distance;
+        const distance2 = light.distance;
         let shadowMap = null;
         if (light.shadow && light.shadow.map) {
           if (light.shadow.map.texture.format === RGFormat) {
@@ -24623,7 +25698,7 @@
           const uniforms = cache.get(light);
           uniforms.position.setFromMatrixPosition(light.matrixWorld);
           uniforms.color.copy(color).multiplyScalar(intensity);
-          uniforms.distance = distance;
+          uniforms.distance = distance2;
           uniforms.coneCos = Math.cos(light.angle);
           uniforms.penumbraCos = Math.cos(light.angle * (1 - light.penumbra));
           uniforms.decay = light.decay;
@@ -30666,6 +31741,466 @@ void main() {
     }
   };
 
+  // src/town-life.js
+  var destinations = [
+    ["\u8DD1\u8F6E\u516C\u56ED", -6, -5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
+    ["\u8BCA\u6240", 0, -5, true, "\u68C0\u67E5", [-1.9, -0.8]],
+    ["\u96F6\u98DF\u94FA", 6, -5, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
+    ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
+    ["\u7EAA\u5FF5\u9986", -6, 2.3, true, "\u53C2\u89C2", [0, -0.5]],
+    ["\u9F20\u9F20\u5C0F\u5C4B", 0, 2.3, true, "\u4F11\u606F", [-2.2, -0.7]],
+    ["\u5C0F\u83DC\u56ED", 6, 2.3, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
+    ["\u6BA1\u4EEA\u9986", -2.1, 5.9, true, "\u5DE5\u4F5C", [0, 1]],
+    ["\u5893\u5730", 2.8, 5.9, false, "\u7EAA\u5FF5", [0, 0]]
+  ];
+  var byName = new Map(destinations.map((d) => [d[0], d]));
+  var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+  var point = (x2, z) => ({ x: x2, z });
+  function blocked(x2, z) {
+    return destinations.some((d) => d[0] !== "\u4E2D\u5FC3\u5E7F\u573A" && Math.abs(x2 - d[1]) < 1.62 && Math.abs(z - d[2]) < 1.2) || Math.hypot(x2, z + 1.3) < 1.6;
+  }
+  function route(start, end) {
+    const unit = 0.4, toGrid = (p) => [Math.round(p.x / unit), Math.round(p.z / unit)], key = (x2, z) => `${x2},${z}`;
+    const [sx, sz] = toGrid(start), [ex, ez] = toGrid(end), open = [{ x: sx, z: sz, g: 0, f: 0 }], cost = /* @__PURE__ */ new Map([[key(sx, sz), 0]]), parent = /* @__PURE__ */ new Map();
+    let found = null;
+    while (open.length) {
+      open.sort((a, b) => a.f - b.f);
+      const n = open.shift(), nk = key(n.x, n.z);
+      if (n.g !== cost.get(nk)) continue;
+      if (n.x === ex && n.z === ez) {
+        found = n;
+        break;
+      }
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]) {
+        const x2 = n.x + dx, z = n.z + dz;
+        if (x2 < -22 || x2 > 22 || z < -18 || z > 21) continue;
+        if (blocked(x2 * unit, z * unit) || dx && dz && (blocked(n.x * unit + dx * unit, n.z * unit) || blocked(n.x * unit, n.z * unit + dz * unit))) continue;
+        const g = n.g + Math.hypot(dx, dz), k2 = key(x2, z);
+        if (g >= (cost.get(k2) ?? Infinity)) continue;
+        cost.set(k2, g);
+        parent.set(k2, nk);
+        open.push({ x: x2, z, g, f: g + Math.hypot(x2 - ex, z - ez) });
+      }
+    }
+    if (!found) return [];
+    const result = [point(ex * unit, ez * unit)];
+    let k = key(ex, ez);
+    while (parent.has(k)) {
+      k = parent.get(k);
+      const [x2, z] = k.split(",").map(Number);
+      result.push(point(x2 * unit, z * unit));
+    }
+    result.reverse();
+    result.push({ ...end });
+    return result;
+  }
+  function createTownLife(onEvent = () => {
+  }) {
+    const actors = /* @__PURE__ */ new Map();
+    let elapsed = 0, day = true, conversations = 0;
+    function entrance(name) {
+      const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B");
+      return point(d[1], d[2] + 1.6);
+    }
+    function add(id, home, options = {}) {
+      if (actors.has(id)) return actors.get(id);
+      const actor = { id, home, name: options.name || id, age: options.age ?? 0.7, child: !!options.child, position: entrance(home), heading: 0, moving: false, phase: "idle", inside: null, place: home, destination: home, action: "\u4F11\u606F", path: [], wait: actors.size * 1.3, cycle: 0, partner: null, visited: /* @__PURE__ */ new Set(), completed: 0, speech: "" };
+      actors.set(id, actor);
+      return actor;
+    }
+    function go(actor, target, nextPhase, indoor = false) {
+      const path = indoor ? [target] : route(actor.position, target);
+      if (!path.length) {
+        actor.phase = "idle";
+        actor.wait = 2;
+        return false;
+      }
+      actor.path = path;
+      actor.phase = "moving";
+      actor.arrival = nextPhase;
+      return true;
+    }
+    function plan(actor) {
+      actor.cycle++;
+      actor.speech = "";
+      actor.partner = null;
+      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u4E2D\u5FC3\u5E7F\u573A"];
+      const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
+      actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
+      if (actor.destination === "\u4E2D\u5FC3\u5E7F\u573A" && actor.allowSocial === false) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
+      actor.action = byName.get(actor.destination)[4];
+      if (actor.destination === "\u9F20\u9F20\u5C0F\u5C4B") actor.action = actor.child && actor.age < 0.18 ? "\u7761\u89C9" : actor.cycle % 3 === 0 ? "\u996E\u6C34" : day ? "\u4F11\u606F" : "\u8FDB\u98DF";
+      go(actor, entrance(actor.destination), "arrived");
+    }
+    function complete(actor) {
+      actor.completed++;
+      actor.visited.add(actor.destination);
+      onEvent({ id: actor.id, type: "activity", action: actor.action, place: actor.destination });
+      actor.phase = actor.inside ? "exit-room" : actor.action === "\u8DD1\u8F6E" ? "exit-yard" : "idle";
+      actor.wait = 2;
+    }
+    function tick(dt, isDay = day) {
+      day = isDay;
+      dt = Math.max(0, Math.min(dt, 1));
+      elapsed += dt;
+      for (const actor of actors.values()) {
+        actor.moving = false;
+        if (actor.frozen) continue;
+        if (actor.phase === "moving") {
+          let budget = dt * (actor.child ? 0.48 : 0.72);
+          while (budget > 0 && actor.path.length) {
+            const target = actor.path[0], dist = distance(actor.position, target);
+            if (dist > 1e-3) {
+              actor.heading = Math.atan2(target.x - actor.position.x, target.z - actor.position.z);
+              actor.moving = true;
+            }
+            if (dist <= budget) {
+              actor.position = { ...target };
+              actor.path.shift();
+              budget -= dist;
+            } else {
+              actor.position.x += (target.x - actor.position.x) * budget / dist;
+              actor.position.z += (target.z - actor.position.z) * budget / dist;
+              budget = 0;
+            }
+          }
+          if (!actor.path.length) actor.phase = actor.arrival;
+          continue;
+        }
+        if (actor.phase === "idle") {
+          actor.wait -= dt;
+          if (actor.wait <= 0) plan(actor);
+        } else if (actor.phase === "arrived") {
+          actor.place = actor.destination;
+          onEvent({ id: actor.id, type: "status", action: actor.action, place: actor.destination });
+          const d = byName.get(actor.destination);
+          if (d[3]) {
+            actor.inside = actor.destination;
+            actor.position = point(0, 2.6);
+            const stations = actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
+            go(actor, point(...stations), "using", true);
+          } else if (actor.action === "\u793E\u4EA4") {
+            actor.phase = "meeting";
+            actor.wait = 35;
+            actor.speech = "\u7B49\u670B\u53CB\u4E00\u8D77\u804A\u804A";
+            go(actor, point(-1.9 + (actors.size ? [...actors.keys()].indexOf(actor.id) % 4 * 0.85 : 0), 0.65), "meeting");
+          } else {
+            actor.wait = 0;
+            if (actor.action === "\u8DD1\u8F6E") go(actor, point(d[1], d[2] + 0.2), "using", true);
+            else {
+              actor.phase = "using";
+            }
+          }
+        } else if (actor.phase === "using") {
+          if (actor.wait <= 0) {
+            actor.wait = day ? 24 : 12;
+            actor.phase = "activity";
+            actor.heading = Math.PI;
+            actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+          }
+        } else if (actor.phase === "activity") {
+          actor.wait -= dt;
+          if (actor.wait <= 0) complete(actor);
+        } else if (actor.phase === "exit-yard") {
+          actor.speech = "";
+          go(actor, entrance(actor.place), "idle", true);
+        } else if (actor.phase === "exit-room") {
+          actor.speech = "";
+          go(actor, point(0, 2.6), "outside", true);
+        } else if (actor.phase === "outside") {
+          actor.position = entrance(actor.inside);
+          actor.inside = null;
+          actor.phase = "idle";
+          actor.wait = 1;
+        } else if (actor.phase === "meeting") {
+          const friend = [...actors.values()].find((other) => other !== actor && other.phase === "meeting" && !other.partner && other.allowSocial !== false);
+          if (friend) {
+            actor.partner = friend.id;
+            friend.partner = actor.id;
+            const middle = point((actor.position.x + friend.position.x) / 2, 0.8);
+            go(actor, point(middle.x - 0.33, middle.z), "meet-ready");
+            go(friend, point(middle.x + 0.33, middle.z), "meet-ready");
+          } else {
+            actor.wait -= dt;
+            if (actor.wait <= 0) {
+              actor.speech = "\u4E0B\u6B21\u518D\u6765\u627E\u670B\u53CB";
+              complete(actor);
+            }
+          }
+        } else if (actor.phase === "meet-ready") {
+          const other = actors.get(actor.partner);
+          if (!other) {
+            actor.phase = "idle";
+            actor.wait = 1;
+            continue;
+          }
+          if (other.phase === "meet-ready" && distance(actor.position, other.position) < 0.85) {
+            actor.phase = other.phase = "talking";
+            actor.wait = other.wait = 10;
+            actor.heading = Math.atan2(other.position.x - actor.position.x, other.position.z - actor.position.z);
+            other.heading = actor.heading + Math.PI;
+            conversations++;
+            onEvent({ id: actor.id, otherId: other.id, type: "social", place: "\u4E2D\u5FC3\u5E7F\u573A" });
+          }
+        } else if (actor.phase === "talking") {
+          actor.wait -= dt;
+          const other = actors.get(actor.partner);
+          actor.speech = actor.wait > 6 ? `\u4F60\u597D\uFF0C${other?.name || "\u670B\u53CB"}\uFF01` : actor.wait > 3 ? "\u4ECA\u5929\u7684\u5AE9\u53F6\u5F88\u9999\u54E6\u3002" : "\u4E0B\u6B21\u4E00\u8D77\u53BB\u516C\u56ED\u5427\uFF01";
+          if (actor.wait <= 0) {
+            actor.partner = null;
+            complete(actor);
+          }
+        }
+      }
+    }
+    return { actors, add, tick, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, path: void 0, visited: [...a.visited] })) }) };
+  }
+
+  // src/town-cottage.js
+  function createCottage({ density = 1 } = {}) {
+    const house = new Group();
+    house.name = "MossHamsterCottage";
+    let seed = 824;
+    const random = () => {
+      seed = 1664525 * seed + 1013904223 >>> 0;
+      return seed / 4294967296;
+    };
+    const material = (color, roughness = 0.85) => new MeshStandardMaterial({ color, roughness });
+    const fur = material("#898078"), cream = material("#eee3c9"), pink = material("#bb8772"), wood = material("#99603a"), darkwood = material("#60402a"), moss = material("#6b7d32"), eyeMat = new MeshPhysicalMaterial({ color: "#100e0c", roughness: 0.13, clearcoat: 1 });
+    const glow = new MeshStandardMaterial({ color: "#ffc66a", emissive: "#ffb342", emissiveIntensity: 1.3, roughness: 0.5 });
+    function strandTexture(base, creamCoat = false) {
+      const c = document.createElement("canvas");
+      c.width = 1024;
+      c.height = 1024;
+      const g = c.getContext("2d");
+      g.fillStyle = base;
+      g.fillRect(0, 0, 1024, 1024);
+      for (let i2 = 0; i2 < 58e3; i2++) {
+        const x2 = random() * 1024, y = random() * 1024, len = 6 + random() * 24, v = creamCoat ? 200 + Math.floor(random() * 39) : 135 + Math.floor(random() * 46);
+        g.strokeStyle = "rgba(" + v + "," + (v - 3) + "," + (v - 8) + ",.32)";
+        g.lineWidth = 0.45 + random() * 0.65;
+        g.beginPath();
+        g.moveTo(x2, y);
+        g.quadraticCurveTo(x2 + 2, y + len * 0.5, x2 + 3 + random() * 3, y + len);
+        g.stroke();
+      }
+      const t = new CanvasTexture(c);
+      t.colorSpace = SRGBColorSpace;
+      t.anisotropy = 8;
+      return t;
+    }
+    fur.color.set("#ffffff");
+    fur.map = strandTexture("#a7a29b");
+    cream.color.set("#ffffff");
+    cream.map = strandTexture("#ebe6d8", true);
+    fur.bumpMap = fur.map;
+    fur.bumpScale = 4e-3;
+    cream.bumpMap = cream.map;
+    cream.bumpScale = 3e-3;
+    const woodCanvas = document.createElement("canvas");
+    woodCanvas.width = 512;
+    woodCanvas.height = 1024;
+    const wc = woodCanvas.getContext("2d");
+    wc.fillStyle = "#b58456";
+    wc.fillRect(0, 0, 512, 1024);
+    for (let i2 = 0; i2 < 900; i2++) {
+      const x2 = random() * 512;
+      wc.strokeStyle = "rgba(69,40,18," + (0.04 + random() * 0.13) + ")";
+      wc.lineWidth = 0.3 + random() * 1.2;
+      wc.beginPath();
+      wc.moveTo(x2, 0);
+      for (let y = 0; y <= 1024; y += 16) wc.lineTo(x2 + Math.sin(y / 100 + i2) * 3 + Math.sin(y / 41) * 1.3, y);
+      wc.stroke();
+    }
+    const woodTexture = new CanvasTexture(woodCanvas);
+    woodTexture.colorSpace = SRGBColorSpace;
+    wood.map = woodTexture;
+    wood.color.set("#d8b38b");
+    wood.bumpMap = woodTexture;
+    wood.bumpScale = 0.01;
+    const sphere = new SphereGeometry(1, 64, 40);
+    function oval(name, mat, x2, y, z, sx, sy, sz, parent = house) {
+      const mesh = new Mesh(sphere, mat);
+      mesh.name = name;
+      mesh.position.set(x2, y, z);
+      mesh.scale.set(sx, sy, sz);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      parent.add(mesh);
+      return mesh;
+    }
+    function box(name, mat, x2, y, z, w, h, d, parent = house) {
+      const mesh = new Mesh(new BoxGeometry(w, h, d), mat);
+      mesh.name = name;
+      mesh.position.set(x2, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      parent.add(mesh);
+      return mesh;
+    }
+    function line(name, points, radius, mat, parent = house) {
+      const path = new CatmullRomCurve3(points.map((p) => new Vector3(...p)));
+      const mesh = new Mesh(new TubeGeometry(path, 24, radius, 6, false), mat);
+      mesh.name = name;
+      mesh.castShadow = true;
+      parent.add(mesh);
+      return mesh;
+    }
+    function ring(name, mat, x2, y, z, r, tube, parent = house) {
+      const mesh = new Mesh(new TorusGeometry(r, tube, 10, 56), mat);
+      mesh.name = name;
+      mesh.position.set(x2, y, z);
+      mesh.castShadow = true;
+      parent.add(mesh);
+      return mesh;
+    }
+    oval("Rounded grey cottage", fur, 0, 1.3, 0, 1.48, 1.38, 1.14);
+    oval("Cream chest", cream, 0, 0.82, 0.72, 1.08, 0.89, 0.55);
+    oval("Left cheek", cream, -0.51, 1.39, 0.95, 0.55, 0.41, 0.34);
+    oval("Right cheek", cream, 0.51, 1.39, 0.95, 0.55, 0.41, 0.34);
+    for (const side of [-1, 1]) {
+      const ear = oval("Rounded ear", fur, side * 0.9, 2.38, 0.42, 0.4, 0.51, 0.19);
+      ear.rotation.z = -side * 0.25;
+      const inner = oval("Soft inner ear", pink, side * 0.9, 2.4, 0.58, 0.285, 0.36, 0.075);
+      inner.rotation.z = -side * 0.25;
+      oval("Glossy eye", eyeMat, side * 0.53, 1.86, 1.01, 0.17, 0.205, 0.12);
+      oval("Eye catchlight", material("#fff5dc", 0.2), side * 0.53 - 0.04, 1.93, 1.117, 0.041, 0.047, 0.018);
+      for (let i2 = 0; i2 < 3; i2++) oval("Tiny paw", pink, side * 0.68 + (i2 - 1) * 0.064, 0.115, 1.04, 0.057, 0.058, 0.12);
+      for (let i2 = 0; i2 < 3; i2++) line("Whisker", [[side * 0.29, 1.44 + i2 * 0.07, 1.255], [side * 0.88, 1.51 + i2 * 0.12, 1.36], [side * 1.35, 1.5 + i2 * 0.15, 1.32]], 4e-3, material("#c5bca7"));
+    }
+    oval("Joined muzzle", cream, 0, 1.42, 1.15, 0.35, 0.23, 0.22);
+    oval("Little nose", material("#d49d88", 0.62), 0, 1.55, 1.335, 0.115, 0.073, 0.059);
+    const lip = material("#968072"), muzzleZ = (x2, y) => 1.15 + 0.22 * Math.sqrt(Math.max(0, 1 - (x2 / 0.35) ** 2 - ((y - 1.42) / 0.23) ** 2)) + 3e-3;
+    const mouthPoints = [[0, 1.485], [0, 1.4], [-0.07, 1.375]].map(([x2, y]) => [x2, y, muzzleZ(x2, y)]);
+    line("Inset lip crease", mouthPoints, 5e-3, lip);
+    line("Inset lip crease", [[0, 1.4], [0.07, 1.375]].map(([x2, y]) => [x2, y, muzzleZ(x2, y)]), 5e-3, lip);
+    const hairPositions = [], hairNormals = [], hairColors = [], hairIndices = [];
+    function coat(center, radii, count, light, mask = () => true) {
+      for (let i2 = 0; i2 < Math.ceil(count * density); i2++) {
+        const az = random() * Math.PI * 2, ny = random() * 2 - 1, n = new Vector3(Math.sqrt(1 - ny * ny) * Math.cos(az), ny, Math.sqrt(1 - ny * ny) * Math.sin(az));
+        const start = new Vector3(n.x * radii[0] + center[0], n.y * radii[1] + center[1], n.z * radii[2] + center[2]);
+        if (!mask(start)) continue;
+        let tangent = new Vector3(n.x * 0.2, -1, n.z * 0.08);
+        tangent.addScaledVector(n, -tangent.dot(n)).normalize();
+        if (tangent.length() < 0.01) tangent.set(1, 0, 0);
+        const side = new Vector3().crossVectors(n, tangent).normalize(), length = 0.035 + random() * 0.04, width = 65e-5 + random() * 8e-4, base = hairPositions.length / 3;
+        const color = new Color(light ? "#eae3d3" : "#b8b2a9").multiplyScalar(0.94 + random() * 0.1);
+        for (let k = 0; k <= 4; k++) {
+          const t = k / 4, dir = n.clone().addScaledVector(tangent, t * length / Math.min(...radii)).normalize(), normal = new Vector3(dir.x / radii[0], dir.y / radii[1], dir.z / radii[2]).normalize();
+          const point2 = new Vector3(center[0] + dir.x * radii[0], center[1] + dir.y * radii[1], center[2] + dir.z * radii[2]).addScaledVector(normal, 3e-3 + Math.sin(t * Math.PI) * 0.012 + t * 5e-3);
+          for (const sign2 of [-1, 1]) {
+            const q = point2.clone().addScaledVector(side, sign2 * width * (1 - 0.92 * t));
+            hairPositions.push(q.x, q.y, q.z);
+            hairNormals.push(normal.x, normal.y, normal.z);
+            hairColors.push(color.r, color.g, color.b);
+          }
+          if (k < 4) {
+            const j = base + k * 2;
+            hairIndices.push(j, j + 2, j + 1, j + 1, j + 2, j + 3);
+          }
+        }
+      }
+    }
+    coat([0, 1.3, 0], [1.48, 1.38, 1.14], 42e3, false, (p) => p.y > 0.17 && p.y < 2.4 && !(p.z > 0.73 && p.y < 1.7));
+    coat([0, 0.82, 0.72], [1.08, 0.89, 0.55], 14e3, true, (p) => p.z > 0.76);
+    for (const side of [-1, 1]) coat([side * 0.51, 1.39, 0.95], [0.55, 0.41, 0.34], 1e4, true, (p) => p.z > 1.03);
+    coat([0, 1.42, 1.15], [0.35, 0.23, 0.22], 3e3, true, (p) => p.z > 1.28 && p.y < 1.54);
+    const hairGeometry = new BufferGeometry();
+    hairGeometry.setAttribute("position", new Float32BufferAttribute(hairPositions, 3));
+    hairGeometry.setAttribute("normal", new Float32BufferAttribute(hairNormals, 3));
+    hairGeometry.setAttribute("color", new Float32BufferAttribute(hairColors, 3));
+    hairGeometry.setIndex(hairIndices);
+    const hair = new Mesh(hairGeometry, new MeshStandardMaterial({ vertexColors: true, roughness: 1, side: DoubleSide }));
+    hair.name = "Surface following tapered fur";
+    house.add(hair);
+    const dummy = new Object3D();
+    const door = new Group();
+    door.name = "Round timber entrance";
+    door.position.set(0, 0.65, 1.34);
+    house.add(door);
+    const backing = new Mesh(new CircleGeometry(0.53, 64), darkwood);
+    door.add(backing);
+    for (let i2 = -4; i2 <= 4; i2++) {
+      const x2 = i2 * 0.112, h = 2 * Math.sqrt(Math.max(0, 0.49 * 0.49 - x2 * x2));
+      if (h > 0) box("Individual door plank", wood, x2, 0, 0.022, 0.105, h, 0.065, door);
+    }
+    ring("Thick oak door frame", wood, 0, 0, 0.035, 0.54, 0.073, door);
+    ring("Door window frame", wood, 0, 0.19, 0.1, 0.17, 0.036, door);
+    const glass = new Mesh(new CircleGeometry(0.147, 32), glow);
+    glass.position.set(0, 0.19, 0.094);
+    door.add(glass);
+    box("Window mullion", wood, 0, 0.19, 0.113, 0.019, 0.29, 0.025, door);
+    oval("Brass door knob", material("#9d783d", 0.32), 0.32, -0.12, 0.11, 0.044, 0.044, 0.04, door);
+    for (const yy of [-0.2, 0.16]) box("Iron hinge", darkwood, -0.36, yy, 0.085, 0.15, 0.025, 0.025, door);
+    const windowGroup = new Group();
+    windowGroup.position.set(1.49, 1.26, 0.05);
+    windowGroup.rotation.y = Math.PI / 2;
+    house.add(windowGroup);
+    ring("Round side window", wood, 0, 0, 0, 0.35, 0.064, windowGroup);
+    const windowPane = new Mesh(new CircleGeometry(0.3, 48), glow);
+    windowGroup.add(windowPane);
+    box("Cross frame", darkwood, 0, 0, 0.025, 0.035, 0.6, 0.04, windowGroup);
+    box("Cross frame", darkwood, 0, 0, 0.025, 0.6, 0.035, 0.04, windowGroup);
+    const roof = new Group();
+    roof.name = "Removable moss roof";
+    house.add(roof);
+    oval("Curved timber roof", darkwood, 0, 2.38, -0.18, 1.43, 0.23, 1.02, roof);
+    oval("Moss roof cushion", moss, 0, 2.43, -0.18, 1.45, 0.43, 1.04, roof);
+    const mossGeometry = new BufferGeometry(), leafPositions = [];
+    for (let i2 = 0; i2 < 6; i2++) {
+      const a = i2 * Math.PI / 3, x2 = Math.cos(a), z = Math.sin(a);
+      leafPositions.push(-z * 0.12, 0, x2 * 0.12, z * 0.12, 0, -x2 * 0.12, x2 * 0.6, 0.8 + i2 % 2 * 0.3, z * 0.6);
+    }
+    mossGeometry.setAttribute("position", new Float32BufferAttribute(leafPositions, 3));
+    mossGeometry.computeVertexNormals();
+    const mossLeafMaterial = material("#859c41");
+    mossLeafMaterial.side = DoubleSide;
+    const tufts = new InstancedMesh(mossGeometry, mossLeafMaterial, Math.ceil(14500 * density));
+    for (let i2 = 0; i2 < Math.ceil(14500 * density); i2++) {
+      const a = random() * Math.PI * 2, r = Math.sqrt(random()), x2 = Math.cos(a) * r * 1.43, z = -0.18 + Math.sin(a) * r * 1.01, y = 2.43 + 0.42 * Math.sqrt(1 - r * r);
+      dummy.position.set(x2, y, z);
+      dummy.rotation.set(random() * 0.25, random() * Math.PI * 2, random() * 0.25);
+      dummy.scale.set(0.025 + random() * 0.035, 0.045 + random() * 0.06, 0.025 + random() * 0.035);
+      dummy.updateMatrix();
+      tufts.setMatrixAt(i2, dummy.matrix);
+      tufts.setColorAt(i2, new Color().setHSL(0.19 + random() * 0.045, 0.45, 0.23 + random() * 0.13));
+    }
+    tufts.castShadow = false;
+    roof.add(tufts);
+    function mushroom(x2, y, z, size) {
+      const stem = oval("Mushroom stem", cream, x2, y + size * 0.32, z, size * 0.12, size * 0.34, size * 0.12, roof);
+      const cap = oval("Orange mushroom cap", material("#c3652d"), x2, y + size * 0.64, z, size * 0.39, size * 0.255, size * 0.35, roof);
+      for (let i2 = 0; i2 < 7; i2++) {
+        const a = random() * Math.PI * 2, r = random() * 0.26;
+        oval("Cream mushroom spot", cream, x2 + Math.cos(a) * r * size, y + size * (0.64 + 0.255 * Math.sqrt(1 - r * r / (0.39 * 0.39))), z + Math.sin(a) * r * size, size * 0.045, size * 0.018, size * 0.038, roof);
+      }
+    }
+    mushroom(0.45, 2.73, -0.48, 0.95);
+    mushroom(1, 2.59, -0.19, 0.62);
+    mushroom(-0.7, 2.67, -0.4, 0.3);
+    const earth = oval("Moss garden island", material("#6d6545"), 0, 0.03, 0.14, 1.87, 0.11, 1.57);
+    for (let i2 = 0; i2 < 160; i2++) {
+      const a = random() * Math.PI * 2, r = 1.42 + random() * 0.32;
+      oval("Garden moss", material(i2 % 2 ? "#687b35" : "#7b873e"), Math.cos(a) * r, 0.11, Math.sin(a) * r * 0.85, 0.09 + random() * 0.1, 0.05 + random() * 0.09, 0.1);
+    }
+    for (let i2 = 0; i2 < 3; i2++) {
+      const stone = oval("Doorstep stone", material("#b4a087"), i2 % 2 * 0.13, 0.11 - i2 * 0.018, 1.33 + i2 * 0.24, 0.36 - i2 * 0.04, 0.07, 0.17);
+      stone.rotation.y = i2 * 0.21;
+    }
+    for (const side of [-1, 1]) {
+      oval("Acorn", material("#ae723a"), side * 1.35, 0.2, 0.98, 0.19, 0.22, 0.14);
+      oval("Acorn cap", darkwood, side * 1.35, 0.36, 0.98, 0.21, 0.095, 0.16);
+      line("Twig", [[side * 1.5, 0.13, 0.25], [side * 1.61, 0.57, 0.2], [side * 1.67, 0.82, 0.19]], 0.022, wood);
+      line("Twig branch", [[side * 1.6, 0.47, 0.2], [side * 1.85, 0.64, 0.2]], 0.013, wood);
+    }
+    for (let i2 = 0; i2 < 12; i2++) {
+      const a = random() * 6.28, x2 = Math.cos(a) * 1.72, z = Math.sin(a) * 1.33;
+      for (let j = 0; j < 5; j++) oval("Daisy petal", cream, x2 + Math.cos(j * 6.28 / 5) * 0.045, 0.14, z + Math.sin(j * 6.28 / 5) * 0.045, 0.04, 0.018, 0.028);
+      oval("Daisy heart", material("#d7a44a"), x2, 0.16, z, 0.025, 0.016, 0.025);
+    }
+    return house;
+  }
+
   // node_modules/.pnpm/three@0.185.1/node_modules/three/examples/jsm/utils/SkeletonUtils.js
   function clone(source) {
     const sourceLookup = /* @__PURE__ */ new Map();
@@ -31115,13 +32650,13 @@ void main() {
     const N = calcBasisFunctions(span, u, p, U);
     const C = new Vector4(0, 0, 0, 0);
     for (let j = 0; j <= p; ++j) {
-      const point = P[span - p + j];
+      const point2 = P[span - p + j];
       const Nj = N[j];
-      const wNj = point.w * Nj;
-      C.x += point.x * wNj;
-      C.y += point.y * wNj;
-      C.z += point.z * wNj;
-      C.w += point.w * Nj;
+      const wNj = point2.w * Nj;
+      C.x += point2.x * wNj;
+      C.y += point2.y * wNj;
+      C.z += point2.z * wNj;
+      C.w += point2.w * Nj;
     }
     return C;
   }
@@ -31203,19 +32738,19 @@ void main() {
     const nders = calcBasisFunctionDerivatives(span, u, p, du, U);
     const Pw = [];
     for (let i2 = 0; i2 < P.length; ++i2) {
-      const point = P[i2].clone();
-      const w = point.w;
-      point.x *= w;
-      point.y *= w;
-      point.z *= w;
-      Pw[i2] = point;
+      const point2 = P[i2].clone();
+      const w = point2.w;
+      point2.x *= w;
+      point2.y *= w;
+      point2.z *= w;
+      Pw[i2] = point2;
     }
     for (let k = 0; k <= du; ++k) {
-      const point = Pw[span - p].clone().multiplyScalar(nders[k][0]);
+      const point2 = Pw[span - p].clone().multiplyScalar(nders[k][0]);
       for (let j = 1; j <= p; ++j) {
-        point.add(Pw[span - p + j].clone().multiplyScalar(nders[k][j]));
+        point2.add(Pw[span - p + j].clone().multiplyScalar(nders[k][j]));
       }
-      CK[k] = point;
+      CK[k] = point2;
     }
     for (let k = du + 1; k <= nd + 1; ++k) {
       CK[k] = new Vector4(0, 0, 0);
@@ -31241,9 +32776,9 @@ void main() {
     const Aders = [];
     const wders = [];
     for (let i2 = 0; i2 < nd; ++i2) {
-      const point = Pders[i2];
-      Aders[i2] = new Vector3(point.x, point.y, point.z);
-      wders[i2] = point.w;
+      const point2 = Pders[i2];
+      Aders[i2] = new Vector3(point2.x, point2.y, point2.z);
+      wders[i2] = point2.w;
     }
     const CK = [];
     for (let k = 0; k < nd; ++k) {
@@ -31281,8 +32816,8 @@ void main() {
       this.startKnot = startKnot || 0;
       this.endKnot = endKnot || knotsLength;
       for (let i2 = 0; i2 < pointsLength; ++i2) {
-        const point = controlPoints[i2];
-        this.controlPoints[i2] = new Vector4(point.x, point.y, point.z, point.w);
+        const point2 = controlPoints[i2];
+        this.controlPoints[i2] = new Vector4(point2.x, point2.y, point2.z, point2.w);
       }
     }
     /**
@@ -31293,13 +32828,13 @@ void main() {
      * @return {Vector3} The position on the curve.
      */
     getPoint(t, optionalTarget = new Vector3()) {
-      const point = optionalTarget;
+      const point2 = optionalTarget;
       const u = this.knots[this.startKnot] + t * (this.knots[this.endKnot] - this.knots[this.startKnot]);
       const hpoint = calcBSplinePoint(this.degree, this.knots, this.controlPoints, u);
       if (hpoint.w !== 1) {
         hpoint.divideScalar(hpoint.w);
       }
-      return point.set(hpoint.x, hpoint.y, hpoint.z);
+      return point2.set(hpoint.x, hpoint.y, hpoint.z);
     }
     /**
      * Returns a unit vector tangent for the given interpolation factor.
@@ -32026,18 +33561,18 @@ void main() {
         if (lightAttribute.CastLightOnObject !== void 0 && lightAttribute.CastLightOnObject.value === 0) {
           intensity = 0;
         }
-        let distance = 0;
+        let distance2 = 0;
         if (lightAttribute.FarAttenuationEnd !== void 0) {
           if (lightAttribute.EnableFarAttenuation !== void 0 && lightAttribute.EnableFarAttenuation.value === 0) {
-            distance = 0;
+            distance2 = 0;
           } else {
-            distance = lightAttribute.FarAttenuationEnd.value;
+            distance2 = lightAttribute.FarAttenuationEnd.value;
           }
         }
         const decay = 1;
         switch (type) {
           case 0:
-            model = new PointLight(color, intensity, distance, decay);
+            model = new PointLight(color, intensity, distance2, decay);
             break;
           case 1:
             model = new DirectionalLight(color, intensity);
@@ -32054,7 +33589,7 @@ void main() {
             } else if (lightAttribute.InnerAngle !== void 0) {
               angle = MathUtils.degToRad(lightAttribute.InnerAngle.value);
             }
-            model = new SpotLight(color, intensity, distance, angle, penumbra, decay);
+            model = new SpotLight(color, intensity, distance2, angle, penumbra, decay);
             break;
           default:
             console.warn("THREE.FBXLoader: Unknown light type " + lightAttribute.LightType.value + ", defaulting to a PointLight.");
@@ -32431,9 +33966,9 @@ void main() {
                 if (currentWeight > comparedWeight) {
                   comparedWeightArray[comparedWeightIndex] = currentWeight;
                   currentWeight = comparedWeight;
-                  const tmp = wIndex[comparedWeightIndex];
+                  const tmp3 = wIndex[comparedWeightIndex];
                   wIndex[comparedWeightIndex] = currentIndex;
-                  currentIndex = tmp;
+                  currentIndex = tmp3;
                 }
               });
             });
@@ -33881,6 +35416,13 @@ void main() {
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"]
   ];
   function roundedBuilding(name, x2, z, color) {
+    if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
+      const cottage = createCottage({ density: 0.25 });
+      cottage.scale.setScalar(0.8);
+      cottage.position.set(x2, 0, z);
+      cottage.traverse((o) => o.userData.place = name);
+      return cottage;
+    }
     const group = new Group();
     group.position.set(x2, 0, z);
     group.userData.place = name;
@@ -33906,9 +35448,9 @@ void main() {
       door.position.set(0, 0.38, -0.85);
       group.add(door);
     }
-    const box = (w, h, d, px, py, pz, tone) => {
+    const box = (w, h, d, px2, py2, pz2, tone) => {
       const mesh = new Mesh(new BoxGeometry(w, h, d), new MeshStandardMaterial({ color: tone, roughness: 0.85 }));
-      mesh.position.set(px, py, pz);
+      mesh.position.set(px2, py2, pz2);
       mesh.castShadow = true;
       group.add(mesh);
       return mesh;
@@ -34147,11 +35689,13 @@ void main() {
       if (!joint) return;
       joint.bone.quaternion.copy(joint.base).multiply(gaitRotation.setFromEuler(gaitEuler.set(x2, y, z)));
     }
-    function walk(rig, time, phase, x2, z) {
-      const cycle = (time + phase) % 14, travel = 9.5, raw = Math.min(cycle, travel) / travel, eased = raw * raw * (3 - 2 * raw), progress = eased * Math.PI * 2, moving = cycle < travel, blend = moving ? Math.min(1, Math.sin(raw * Math.PI) * 4) : 0;
-      rig.position.set(x2 + Math.sin(progress) * 0.55, 0.035, z + Math.cos(progress) * 0.22);
-      if (moving && blend > 0.03) rig.rotation.y = Math.atan2(0.55 * Math.cos(progress), -0.22 * Math.sin(progress));
-      const step = progress * 5.5, frontLeft = Math.sin(step) * blend, frontRight = -frontLeft, hindLeft = frontRight, hindRight = frontLeft;
+    function walk(rig, time, phase, x2, z, actor = null) {
+      const cycle = (time + phase) % 14, travel = 9.5, raw = Math.min(cycle, travel) / travel, eased = raw * raw * (3 - 2 * raw), progress = eased * Math.PI * 2, moving = actor ? actor.moving : cycle < travel, blend = moving ? actor ? 1 : Math.min(1, Math.sin(raw * Math.PI) * 4) : 0;
+      rig.position.set(actor ? x2 : x2 + Math.sin(progress) * 0.55, 0.035, actor ? z : z + Math.cos(progress) * 0.22);
+      if (actor) rig.rotation.y = actor.heading;
+      else if (moving && blend > 0.03) rig.rotation.y = Math.atan2(0.55 * Math.cos(progress), -0.22 * Math.sin(progress));
+      const step = actor ? time * 8 : progress * 5.5;
+      const frontLeft = Math.sin(step) * blend, frontRight = -frontLeft, hindLeft = frontRight, hindRight = frontLeft;
       const lift = (value) => Math.max(0, value), plant = (value) => Math.max(0, -value);
       rig.position.y += Math.abs(Math.sin(step * 2)) * 0.012 * blend;
       const model = rig.userData.model;
@@ -34198,7 +35742,7 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance2 = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
@@ -34206,6 +35750,86 @@ void main() {
     const weatherFx = new Group(), memorialFx = new Group();
     scene.add(weatherFx, memorialFx);
     const roomLabels = [], pups = /* @__PURE__ */ new Map();
+    const life = createTownLife((detail) => queueMicrotask(() => window.dispatchEvent(new CustomEvent("town-life-event", { detail }))));
+    const mainTag = document.createElement("button");
+    mainTag.className = "town-label town-npc-label town-pup-label";
+    mainTag.onclick = () => focusPet();
+    host.appendChild(mainTag);
+    const lifeBubbles = /* @__PURE__ */ new Map();
+    function syncLife() {
+      const ids = /* @__PURE__ */ new Set();
+      if (worldState.alive !== false || worldState.pendingFarewell?.phase === "resting") {
+        ids.add("main");
+        const a = life.add("main", "\u9F20\u9F20\u5C0F\u5C4B", { name: "\u9F20\u9F20" });
+        a.allowSocial = worldState.socialAllowed !== false;
+        a.frozen = worldState.alive === false;
+        if (a.frozen) {
+          a.inside = "\u9F20\u9F20\u5C0F\u5C4B";
+          a.position = { x: -2.2, z: -0.7 };
+          a.phase = "activity";
+          a.action = "\u4F11\u606F";
+          a.speech = "";
+          a.moving = false;
+        }
+      }
+      residents.forEach((resident, i2) => {
+        const data = worldState.npcs?.[i2];
+        if (data?.alive === false) return;
+        const id = data?.id || "npc-" + i2;
+        resident.lifeId = id;
+        ids.add(id);
+        const a = life.add(id, places[i2][0], { name: data?.name || roles[i2] });
+        a.allowSocial = (worldState.npcSocialCounts?.[id] || 0) < 6;
+      });
+      pups.forEach((item) => {
+        ids.add(item.data.id);
+        const a = life.add(item.data.id, "\u9F20\u9F20\u5C0F\u5C4B", { name: item.data.name, child: true, age: item.data.ageYears });
+        a.age = item.data.ageYears;
+      });
+      for (const id of life.actors.keys()) if (!ids.has(id)) {
+        life.remove(id);
+        lifeBubbles.get(id)?.remove();
+        lifeBubbles.delete(id);
+      }
+    }
+    function renderActor(rig, actor, t) {
+      if (!actor) {
+        rig.visible = false;
+        return;
+      }
+      const viewingInside = indoorNames.includes(activePlace);
+      rig.visible = viewingInside ? actor.inside === activePlace : !actor.inside;
+      walk(rig, t, 0, actor.position.x, actor.position.z, actor);
+      if (actor.phase === "activity" && rig.userData.model) {
+        if (actor.action === "\u68C0\u67E5") rig.position.y = 0.62;
+        const resting = ["\u4F11\u606F", "\u7761\u89C9"].includes(actor.action);
+        if (resting) {
+          rig.userData.model.rotation.z = 0.75;
+          rig.position.y = 0.12;
+        } else {
+          poseBone(rig, "Head", 0.22 + Math.sin(t * 3) * 0.06);
+          poseBone(rig, "LeftForeArm", -0.45 + Math.sin(t * 4) * 0.12);
+          poseBone(rig, "RightForeArm", -0.45 - Math.sin(t * 4) * 0.12);
+          if (actor.action === "\u8DD1\u8F6E") {
+            poseBone(rig, "LeftUpLeg", Math.sin(t * 10) * 0.6);
+            poseBone(rig, "RightUpLeg", -Math.sin(t * 10) * 0.6);
+          }
+        }
+      }
+      if (actor.phase === "talking") {
+        poseBone(rig, "Head", Math.sin(t * 2) * 0.07, Math.sin(t) * 0.05, 0);
+        poseBone(rig, "LeftForeArm", -0.22 - Math.max(0, Math.sin(t * 3)) * 0.3);
+      }
+      let bubble = lifeBubbles.get(actor.id);
+      if (!bubble) {
+        bubble = document.createElement("div");
+        bubble.className = "town-label town-life-bubble";
+        host.appendChild(bubble);
+        lifeBubbles.set(actor.id, bubble);
+      }
+      bubble.textContent = actor.speech;
+      placeLabel(bubble, rig.position.clone().add(new Vector3(0, 1.12 * rig.scale.x, 0)), [], !rig.visible || !actor.speech || focusedResident !== -1, true);
+    }
     const returnButton = document.createElement("button");
     returnButton.className = "town-room-return";
     returnButton.textContent = "\u2190 \u8FD4\u56DE\u5C0F\u9547";
@@ -34340,7 +35964,7 @@ void main() {
     function enterPlace(name) {
       clearFocus(false);
       if (activePlace) leavePlace();
-      savedCamera = { yaw, pitch, distance, target: target.clone() };
+      savedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       activePlace = name;
       document.querySelector("#townPlace b").textContent = name;
       document.querySelector("#townPlace span").textContent = indoorNames.includes(name) ? "\u5C4B\u9876\u5256\u89C6 \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E" : "\u8FD1\u8DDD\u79BB\u67E5\u770B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
@@ -34351,21 +35975,19 @@ void main() {
           if (!child.isLight && child !== room) child.visible = false;
         });
         room.visible = true;
-        pet.visible = worldState.alive !== false || worldState.pendingFarewell?.phase !== "buried";
-        const residentIndex = places.findIndex((place) => place[0] === name), resident = residents[residentIndex];
-        if (resident) resident.rig.visible = worldState.npcs?.[residentIndex]?.alive !== false;
         target.set(0, 0, 0);
-        distance = 13;
+        distance2 = 13;
         pitch = 0.92;
         yaw = 0.18;
       } else {
         const place = places.find((p) => p[0] === name);
         target.set(place[1], 0.2, place[2]);
-        distance = 8;
+        distance2 = 8;
         pitch = 0.85;
         yaw = 0;
       }
       syncPups();
+      syncLife();
       returnButton.hidden = false;
       host.dataset.place = name;
       positionCamera();
@@ -34381,7 +36003,7 @@ void main() {
       });
       yaw = savedCamera.yaw;
       pitch = savedCamera.pitch;
-      distance = savedCamera.distance;
+      distance2 = savedCamera.distance;
       target.copy(savedCamera.target);
       activePlace = null;
       savedCamera = null;
@@ -34396,28 +36018,28 @@ void main() {
     function focusResident(index) {
       const npc = residents[index];
       if (!npc?.rig.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       focusedResident = index;
       target.copy(npc.rig.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance = 5.4;
+      distance2 = 5.4;
       returnButton.hidden = false;
       host.dataset.resident = String(index);
       document.querySelector("#townPlace b").textContent = worldState.npcs?.[index]?.name || roles[index];
-      document.querySelector("#townPlace span").textContent = places[index][0] + "\u7684\u5C45\u6C11";
+      document.querySelector("#townPlace span").textContent = (life.actors.get(npc.lifeId)?.place || places[index][0]) + " \xB7 " + (life.actors.get(npc.lifeId)?.action || "\u4F11\u606F");
       positionCamera();
       sayToResident(index, "\u4ECA\u5929\u4E5F\u5F88\u9AD8\u5174\u89C1\u5230\u4F60\uFF01");
       window.dispatchEvent(new CustomEvent("town-npc-select", { detail: { index } }));
     }
     function focusPet() {
       if (!pet.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       focusedResident = -2;
       target.copy(pet.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance = 5.4;
+      distance2 = 5.4;
       returnButton.hidden = false;
       host.dataset.resident = "main";
       speech.hidden = true;
@@ -34429,14 +36051,14 @@ void main() {
     function focusPup(id) {
       const item = pups.get(id);
       if (!item?.rig.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       focusedResident = -3;
       focusedPup = id;
       speech.hidden = true;
       target.copy(item.rig.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance = 5.4;
+      distance2 = 5.4;
       positionCamera();
       returnButton.hidden = false;
       window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id } }));
@@ -34452,7 +36074,7 @@ void main() {
       if (restore && savedFocusCamera) {
         yaw = savedFocusCamera.yaw;
         pitch = savedFocusCamera.pitch;
-        distance = savedFocusCamera.distance;
+        distance2 = savedFocusCamera.distance;
         target.copy(savedFocusCamera.target);
         positionCamera();
       }
@@ -34485,7 +36107,7 @@ void main() {
       if (document.body.dataset.currentPanel !== "town") leavePlace();
     }).observe(document.body, { attributes: true, attributeFilter: ["data-current-panel"] });
     function positionCamera() {
-      camera.position.set(Math.sin(yaw) * Math.cos(pitch) * distance, Math.sin(pitch) * distance, Math.cos(yaw) * Math.cos(pitch) * distance);
+      camera.position.set(Math.sin(yaw) * Math.cos(pitch) * distance2, Math.sin(pitch) * distance2, Math.cos(yaw) * Math.cos(pitch) * distance2);
       camera.position.add(target);
       camera.lookAt(target);
       camera.updateMatrixWorld();
@@ -34502,7 +36124,7 @@ void main() {
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
       if (drag.button === 2 || e.shiftKey) {
         const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
-        target.copy(drag.target).addScaledVector(right, -dx * distance * 15e-4).addScaledVector(forward, dy * distance * 15e-4);
+        target.copy(drag.target).addScaledVector(right, -dx * distance2 * 15e-4).addScaledVector(forward, dy * distance2 * 15e-4);
       } else {
         yaw = drag.yaw - dx * 8e-3;
         pitch = Math.max(0.34, Math.min(1.18, drag.pitch + dy * 6e-3));
@@ -34531,7 +36153,7 @@ void main() {
     });
     canvas.addEventListener("wheel", (e) => {
       e.preventDefault();
-      distance = Math.max(activePlace ? 5 : 14, Math.min(activePlace ? 20 : 31, distance + e.deltaY * 0.015));
+      distance2 = Math.max(activePlace ? 5 : 14, Math.min(activePlace ? 20 : 31, distance2 + e.deltaY * 0.015));
       positionCamera();
     }, { passive: false });
     function resize() {
@@ -34543,8 +36165,8 @@ void main() {
     }
     new ResizeObserver(resize).observe(host);
     resize();
-    function placeLabel(button, point, occupied, hidden = false, anchored = false) {
-      const p = point.clone().project(camera);
+    function placeLabel(button, point2, occupied, hidden = false, anchored = false) {
+      const p = point2.clone().project(camera);
       let x2 = (p.x + 1) * host.clientWidth / 2, y = (-p.y + 1) * host.clientHeight / 2;
       button.hidden = hidden || p.z > 1;
       if (button.hidden) return;
@@ -34557,6 +36179,7 @@ void main() {
       const list = worldState.offspring || [], ids = new Set(list.map((p) => p.id));
       for (const [id, item] of pups) {
         if (!ids.has(id)) {
+          life.remove(id);
           scene.remove(item.rig);
           const hitIndex = clickable.indexOf(item.rig);
           if (hitIndex >= 0) clickable.splice(hitIndex, 1);
@@ -34589,31 +36212,44 @@ void main() {
       });
     }
     const clock = new Clock();
+    let previousTime = 0;
     function draw() {
       requestAnimationFrame(draw);
-      const t = clock.getElapsedTime(), inside = indoorNames.includes(activePlace), home = inside ? { x: -1.15, z: 0.85 } : pet.userData.home || { x: 2.3, z: 2.3 };
-      walk(pet, t, 0, home.x, home.z);
+      const t = clock.getElapsedTime(), dt = Math.min(0.1, t - previousTime);
+      previousTime = t;
+      if (document.body.dataset.currentPanel !== "town") return;
+      life.tick(dt, worldState.part === "\u767D\u5929");
+      const focusedId = focusedResident === -2 ? "main" : focusedResident === -3 ? focusedPup : focusedResident >= 0 ? residents[focusedResident].lifeId : null, focusedActor = life.actors.get(focusedId);
+      if (focusedActor && (indoorNames.includes(activePlace) && focusedActor.inside !== activePlace || !indoorNames.includes(activePlace) && focusedActor.inside)) {
+        clearFocus();
+        window.dispatchEvent(new CustomEvent("town-view-close"));
+      }
+      const occupied = [];
+      renderActor(pet, life.actors.get("main"), t);
+      const main = life.actors.get("main");
+      mainTag.textContent = "\u9F20\u9F20 \xB7 " + (main?.action || "\u4F11\u606F");
+      placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !pet.visible || focusedResident !== -1, true);
+      if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
-      const occupied = [];
-      labels.forEach(({ button, point }) => placeLabel(button, point, occupied, !!activePlace || focusedResident !== -1));
+      labels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, !!activePlace || focusedResident !== -1));
       residents.forEach((npc, index) => {
-        const isIndoorResident = inside && places[index][0] === activePlace;
-        walk(npc.rig, t, npc.phase, isIndoorResident ? 1.15 : npc.x, isIndoorResident ? 0.55 : npc.z);
-        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || !!activePlace || focusedResident !== -1 && focusedResident !== index);
+        const actor = life.actors.get(npc.lifeId);
+        renderActor(npc.rig, actor, t);
+        npc.tag.textContent = (worldState.npcs?.[index]?.name || roles[index]) + " " + (worldState.npcs?.[index]?.sex === "male" ? "\u2642" : "\u2640");
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || focusedResident !== -1 && focusedResident !== index, true);
       });
       pups.forEach((item) => {
-        const insideHome = activePlace === "\u9F20\u9F20\u5C0F\u5C4B", i2 = item.index, x2 = insideHome ? -1.2 + i2 % 5 * 0.65 : -1.5 + i2 % 6 * 0.55, z = insideHome ? -0.35 + Math.floor(i2 / 5) * 0.65 : 3.5 + Math.floor(i2 / 6) * 0.5;
-        walk(item.rig, t, i2 * 1.4, x2, z);
+        renderActor(item.rig, life.actors.get(item.data.id), t);
         placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || focusedResident !== -1 && focusedPup !== item.data.id, true);
       });
-      roomLabels.forEach(({ button, point }) => placeLabel(button, point, occupied, false));
+      roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, false));
       if (focusedResident >= 0 && !speech.hidden) {
         const p = residents[focusedResident].rig.position.clone().add(new Vector3(0, 1.05, 0)).project(camera);
         speech.style.left = (p.x + 1) * host.clientWidth / 2 + "px";
         speech.style.top = (-p.y + 1) * host.clientHeight / 2 + "px";
       }
-      if (document.body.dataset.currentPanel === "town") renderer.render(scene, camera);
+      renderer.render(scene, camera);
     }
     draw();
     function applyWorld(next = {}) {
@@ -34633,6 +36269,7 @@ void main() {
       });
       document.body.dataset.townPart = next.part || "";
       syncPups();
+      syncLife();
       pet.scale.setScalar(window.TownSimulation.growthScale(next.ageYears ?? 0.7));
       pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
       residents.forEach((resident, i2) => {
@@ -34673,7 +36310,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), cottageModel: true, pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

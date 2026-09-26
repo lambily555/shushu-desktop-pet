@@ -52,3 +52,14 @@ for(const id of ['npc-0','npc-1'])assert.equal(sim.childrenOf(npcFamily.state,id
 const successor=structuredClone(npcFamily.state);successor.npcs[0].id='npc-0-g2';assert.equal(sim.childrenOf(successor,'npc-0-g2').length,0);
 assert.ok(sim.growthScale(0)<sim.growthScale(.18));assert.ok(sim.growthScale(.18)<sim.growthScale(.65));assert.equal(sim.growthScale(2),1);
 console.log('Water migration, offline consumption, freshness, parent identity and growth passed');
+let scene=sim.defaults(start);scene.food=0;
+let purchase=sim.recordSceneEvent(scene,{id:'main',type:'activity',action:'购买粮食',place:'零食铺'},start);
+assert.ok(purchase.state.food>0);assert.ok(purchase.state.seeds<scene.seeds);
+assert.equal(sim.recordSceneEvent(purchase.state,{id:'main',type:'activity',action:'购买粮食',place:'零食铺'},start+1000).ok,false);
+let friends=sim.recordSceneEvent(scene,{id:'npc-0',otherId:'npc-1',type:'social'},start);
+assert.equal(friends.state.npcs[0].friendships['npc-1'],3);
+for(let i=1;i<6;i++)friends=sim.recordSceneEvent(friends.state,{id:'npc-0',otherId:'npc-1',type:'social'},start+i);
+assert.equal(sim.recordSceneEvent(friends.state,{id:'npc-0',otherId:'npc-1',type:'social'},start+7).ok,false);
+const chat=sim.recordSceneEvent(scene,{id:'main',otherId:'npc-1',type:'social'},start);
+assert.equal(chat.state.stamina,scene.stamina-12);assert.equal(chat.state.social.total,1);
+console.log('Scene resource effects, cooldowns, friendships and social limits passed');
