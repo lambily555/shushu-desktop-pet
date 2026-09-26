@@ -35678,6 +35678,7 @@ void main() {
       clickable.push(npc);
       const tag = document.createElement("button");
       tag.className = "town-label town-npc-label";
+      tag.hidden = true;
       tag.textContent = roles[i2];
       host.appendChild(tag);
       tag.onclick = () => focusResident(i2);
@@ -35743,7 +35744,7 @@ void main() {
       scene.add(tree);
     }
     let yaw = 0, pitch = 0.83, distance2 = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
-    let hoverPointer = null, hoveredActor = null, speechCount = 0;
+    let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
@@ -35829,9 +35830,8 @@ void main() {
         lifeBubbles.set(actor.id, bubble);
       }
       bubble.textContent = actor.speech;
-      const turn = actor.phase === "talking" && actor.id.localeCompare(actor.partner || "") < 0 === (Math.floor(actor.wait / 3) % 2 === 0);
-      bubble.hidden = !rig.visible || !actor.speech || focusedResident !== -1 || !turn && hoveredActor !== actor.id || speechCount >= 2;
-      if (!bubble.hidden) speechCount++;
+      const selected = focusedResident === -2 ? actor.id === "main" : focusedResident === -3 ? actor.id === focusedPup : focusedResident >= 0 ? actor.id === residents[focusedResident].lifeId : false;
+      bubble.hidden = !rig.visible || !actor.speech || actor.phase !== "talking" && !selected && hoveredActor !== actor.id || selected && focusedResident >= 0 && !speech.hidden;
     }
     const returnButton = document.createElement("button");
     returnButton.className = "town-room-return";
@@ -36236,6 +36236,7 @@ void main() {
           const rig = hamster(), tag = document.createElement("button");
           tag.type = "button";
           tag.className = "town-label town-npc-label town-pup-label";
+          tag.hidden = true;
           tag.dataset.pupId = data.id;
           tag.onclick = () => focusPup(data.id);
           rig.userData.pupId = data.id;
@@ -36267,23 +36268,30 @@ void main() {
         window.dispatchEvent(new CustomEvent("town-view-close"));
       }
       const occupied = [];
-      hoveredActor = null;
-      speechCount = 0;
+      let candidate = null;
       if (hoverPointer && !drag) {
         let nearest = 32;
         for (const [id, rig] of [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])]) {
           if (!rig.visible) continue;
           const p = rig.position.clone().add(new Vector3(0, 0.4 * rig.scale.x, 0)).project(camera), d = Math.hypot((p.x + 1) * host.clientWidth / 2 - hoverPointer.x, (-p.y + 1) * host.clientHeight / 2 - hoverPointer.y);
+          if (id === hoveredActor && d < 48) {
+            candidate = id;
+            break;
+          }
           if (d < nearest) {
             nearest = d;
-            hoveredActor = id;
+            candidate = id;
           }
         }
       }
+      if (candidate) {
+        hoveredActor = candidate;
+        hoverUntil = t + 0.3;
+      } else if (t > hoverUntil || !hoverPointer || drag) hoveredActor = null;
       renderActor(pet, life.actors.get("main"), t);
       const main = life.actors.get("main");
       mainTag.textContent = "\u9F20\u9F20";
-      placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !pet.visible || focusedResident !== -1, true);
+      placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !pet.visible || focusedResident !== -1 && focusedResident !== -2, true);
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
@@ -36326,7 +36334,6 @@ void main() {
       residents.forEach((resident, i2) => {
         const data = next.npcs?.[i2], inside = indoorNames.includes(activePlace);
         resident.rig.visible = data?.alive !== false && (!inside || places[i2][0] === activePlace);
-        resident.tag.hidden = !resident.rig.visible;
         resident.tag.textContent = data ? `${data.name} ${data.sex === "male" ? "\u2642" : "\u2640"}` : roles[i2];
       });
       while (weatherFx.children.length) {
