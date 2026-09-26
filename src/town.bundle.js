@@ -34198,7 +34198,7 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, savedFocusCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     const target = new Vector3(0, 0, 1);
     const room = new Group();
     room.visible = false;
@@ -34426,9 +34426,25 @@ void main() {
       positionCamera();
       window.dispatchEvent(new CustomEvent("town-main-select"));
     }
+    function focusPup(id) {
+      const item = pups.get(id);
+      if (!item?.rig.visible) return;
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance, target: target.clone() };
+      focusedResident = -3;
+      focusedPup = id;
+      speech.hidden = true;
+      target.copy(item.rig.position).add(new Vector3(1.05, 0.25, 0));
+      yaw = 0.15;
+      pitch = 0.68;
+      distance = 5.4;
+      positionCamera();
+      returnButton.hidden = false;
+      window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id } }));
+    }
     function clearFocus(restore = true) {
       if (focusedResident === -1) return;
       focusedResident = -1;
+      focusedPup = null;
       speech.hidden = true;
       delete host.dataset.resident;
       document.querySelector("#townPlace b").textContent = activePlace || "\u4E2D\u5FC3\u5E7F\u573A";
@@ -34472,6 +34488,7 @@ void main() {
       camera.position.set(Math.sin(yaw) * Math.cos(pitch) * distance, Math.sin(pitch) * distance, Math.cos(yaw) * Math.cos(pitch) * distance);
       camera.position.add(target);
       camera.lookAt(target);
+      camera.updateMatrixWorld();
     }
     positionCamera();
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -34496,11 +34513,15 @@ void main() {
       if (drag && !drag.moved) {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
-        const hit = ray.intersectObjects(clickable, true)[0];
+        const hit = ray.intersectObjects(clickable, true).find((hit2) => {
+          for (let node = hit2.object; node; node = node.parent) if (!node.visible) return false;
+          return true;
+        });
         if (hit) {
           let object = hit.object;
-          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.roomAction && !object.userData.place) object = object.parent;
+          while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.pupId && !object.userData.roomAction && !object.userData.place) object = object.parent;
           if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
+          else if (object?.userData.pupId) focusPup(object.userData.pupId);
           else if (object?.userData.mainPet) focusPet();
           else if (Number.isInteger(object?.userData.npcIndex)) focusResident(object.userData.npcIndex);
           else if (!activePlace && object?.userData.place) enterPlace(object.userData.place);
@@ -34522,12 +34543,12 @@ void main() {
     }
     new ResizeObserver(resize).observe(host);
     resize();
-    function placeLabel(button, point, occupied, hidden = false) {
+    function placeLabel(button, point, occupied, hidden = false, anchored = false) {
       const p = point.clone().project(camera);
       let x2 = (p.x + 1) * host.clientWidth / 2, y = (-p.y + 1) * host.clientHeight / 2;
       button.hidden = hidden || p.z > 1;
       if (button.hidden) return;
-      for (let tries = 0; tries < 5 && occupied.some((o) => Math.abs(o.x - x2) < 82 && Math.abs(o.y - y) < 28); tries++) y += 24;
+      for (let tries = 0; !anchored && tries < 5 && occupied.some((o) => Math.abs(o.x - x2) < 82 && Math.abs(o.y - y) < 28); tries++) y += 24;
       occupied.push({ x: x2, y });
       button.style.left = x2 + "px";
       button.style.top = y + "px";
@@ -34537,6 +34558,9 @@ void main() {
       for (const [id, item] of pups) {
         if (!ids.has(id)) {
           scene.remove(item.rig);
+          const hitIndex = clickable.indexOf(item.rig);
+          if (hitIndex >= 0) clickable.splice(hitIndex, 1);
+          if (focusedPup === id) clearFocus();
           item.tag.remove();
           pups.delete(id);
         }
@@ -34544,8 +34568,13 @@ void main() {
       list.forEach((data, index) => {
         let item = pups.get(data.id);
         if (!item) {
-          const rig = hamster(), tag = document.createElement("span");
-          tag.className = "town-label town-npc-label";
+          const rig = hamster(), tag = document.createElement("button");
+          tag.type = "button";
+          tag.className = "town-label town-npc-label town-pup-label";
+          tag.dataset.pupId = data.id;
+          tag.onclick = () => focusPup(data.id);
+          rig.userData.pupId = data.id;
+          clickable.push(rig);
           host.appendChild(tag);
           scene.add(rig);
           item = { rig, tag };
@@ -34576,7 +34605,7 @@ void main() {
       pups.forEach((item) => {
         const insideHome = activePlace === "\u9F20\u9F20\u5C0F\u5C4B", i2 = item.index, x2 = insideHome ? -1.2 + i2 % 5 * 0.65 : -1.5 + i2 % 6 * 0.55, z = insideHome ? -0.35 + Math.floor(i2 / 5) * 0.65 : 3.5 + Math.floor(i2 / 6) * 0.5;
         walk(item.rig, t, i2 * 1.4, x2, z);
-        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || focusedResident !== -1);
+        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || focusedResident !== -1 && focusedPup !== item.data.id, true);
       });
       roomLabels.forEach(({ button, point }) => placeLabel(button, point, occupied, false));
       if (focusedResident >= 0 && !speech.hidden) {
@@ -34644,7 +34673,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { resize, enterPlace, leavePlace, returnToTown, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
