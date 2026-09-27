@@ -32683,6 +32683,75 @@ void main() {
     return lamps;
   }
 
+  // src/town-verges.js
+  function vergeLayout() {
+    const segments = [[{ x: -14, z: -1.3 }, { x: 14, z: -1.3 }], [{ x: 0, z: -12.5 }, { x: 0, z: 12.7 }]];
+    for (const d of destinations) {
+      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") continue;
+      const e = entrance(d[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
+      segments.push([near, e]);
+    }
+    let seed = 927;
+    const random = () => {
+      seed = seed * 1664525 + 1013904223 >>> 0;
+      return seed / 4294967296;
+    }, lamps = lampLayout(), items = [];
+    for (const [a, b] of segments) {
+      const dx = b.x - a.x, dz = b.z - a.z, length = Math.hypot(dx, dz);
+      if (length < 0.1) continue;
+      for (let t = 0.35; t < length; t += 0.55 + random() * 0.45) {
+        for (const side of [-1, 1]) {
+          const offset = 0.9 + random() * 0.5, x2 = a.x + dx * t / length - dz / length * offset * side, z = a.z + dz * t / length + dx / length * offset * side;
+          if (!lampPositionClear(x2, z) || lamps.some((l) => Math.hypot(x2 - l.x, z - l.z) < 0.45) || items.some((p) => Math.hypot(x2 - p.x, z - p.z) < 0.4)) continue;
+          const pick = random();
+          items.push({ x: x2, z, kind: pick < 0.48 ? "grass" : pick < 0.76 ? "flower" : pick < 0.91 ? "stone" : "twig", yaw: random() * Math.PI * 2, scale: 0.8 + random() * 0.5 });
+        }
+      }
+    }
+    return items;
+  }
+  function createTownVerges() {
+    const group = new Group(), batches = /* @__PURE__ */ new Map(), matrix = new Matrix4(), rotation = new Quaternion();
+    const add = (key, geometry, color, x2, y, z, sx, sy, sz, yaw = 0) => {
+      if (!batches.has(key)) batches.set(key, { geometry, color, matrices: [] });
+      rotation.setFromAxisAngle(new Vector3(0, 1, 0), yaw);
+      matrix.compose(new Vector3(x2, y, z), rotation, new Vector3(sx, sy, sz));
+      batches.get(key).matrices.push(matrix.clone());
+    };
+    const blade = new ConeGeometry(1, 1, 4), sphere = new SphereGeometry(1, 7, 5), branch = new CylinderGeometry(1, 1, 1, 5);
+    branch.rotateZ(Math.PI / 2);
+    const stem = new CylinderGeometry(1, 1, 1, 5);
+    for (const p of vergeLayout()) {
+      const s = p.scale;
+      if (p.kind === "grass" || p.kind === "flower") for (let i2 = 0; i2 < 5; i2++) {
+        const a = p.yaw + i2 * 2.4;
+        add("grass", blade, 7902045, p.x + Math.cos(a) * 0.075 * s, 0.1 * s, p.z + Math.sin(a) * 0.075 * s, 0.028 * s, (0.14 + i2 * 0.02) * s, 0.022 * s, a);
+      }
+      if (p.kind === "flower") {
+        add("stem", stem, 6718535, p.x, 0.16 * s, p.z, 9e-3 * s, 0.25 * s, 9e-3 * s);
+        const color = Math.sin(p.yaw) > 0 ? 15981761 : 14069701;
+        for (let i2 = 0; i2 < 5; i2++) {
+          const a = i2 * Math.PI * 2 / 5;
+          add("petal" + color, sphere, color, p.x + Math.cos(a) * 0.045 * s, 0.29 * s, p.z + Math.sin(a) * 0.045 * s, 0.04 * s, 0.015 * s, 0.032 * s, a);
+        }
+        add("pollen", sphere, 14989652, p.x, 0.305 * s, p.z, 0.022 * s, 0.015 * s, 0.022 * s);
+      }
+      if (p.kind === "stone") add("stone", sphere, 10854798, p.x, 0.035 * s, p.z, 0.11 * s, 0.055 * s, 0.075 * s, p.yaw);
+      if (p.kind === "twig") {
+        add("twig", branch, 8809296, p.x, 0.033, p.z, 0.28 * s, 0.017 * s, 0.017 * s, p.yaw);
+        add("twig", branch, 8809296, p.x + 0.035, 0.037, p.z, 0.14 * s, 0.012 * s, 0.012 * s, p.yaw + 0.7);
+      }
+    }
+    for (const { geometry, color, matrices } of batches.values()) {
+      const mesh = new InstancedMesh(geometry, new MeshStandardMaterial({ color, roughness: 1 }), matrices.length);
+      matrices.forEach((m, i2) => mesh.setMatrixAt(i2, m));
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    }
+    group.name = "\u8DEF\u8FB9\u82B1\u8349";
+    return group;
+  }
+
   // src/town-player.js
   var obstacles = {
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
@@ -36900,6 +36969,7 @@ void main() {
     }
     lampLayout().forEach(({ x: x2, z, yaw: yaw2 }) => streetLamp(x2, z, yaw2));
     scene.add(streetLights);
+    scene.add(createTownVerges());
     const clickable = [], placeModels = /* @__PURE__ */ new Map();
     places.forEach((place) => {
       const obj = roundedBuilding(...place);

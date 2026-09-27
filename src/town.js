@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {lampLayout} from './town-lights.js';
+import {createTownVerges} from './town-verges.js';
 import {movePlayer} from './town-player.js';
 import {createTownLife,destinations,facing,entrance} from './town-life.js';
 import {createCottage} from './town-cottage.js';
@@ -104,7 +105,7 @@ function init() {
   places.filter(p=>p[0]!=='中心广场').forEach(p=>{const e=entrance(p[0]),near=Math.abs(e.x)<Math.abs(e.z+1.3)?{x:0,z:e.z}:{x:e.x,z:-1.3},dx=e.x-near.x,dz=e.z-near.z,len=Math.hypot(dx,dz);if(len>.1)road((e.x+near.x)/2,(e.z+near.z)/2,.75,len,Math.atan2(dx,dz))});
   const streetLights=new THREE.Group(),lampBulbs=[],lampPositions=[],poolCanvas=document.createElement('canvas');poolCanvas.width=poolCanvas.height=128;const poolContext=poolCanvas.getContext('2d'),poolGradient=poolContext.createRadialGradient(64,64,4,64,64,64);poolGradient.addColorStop(0,'rgba(255,224,158,.9)');poolGradient.addColorStop(.38,'rgba(255,213,128,.48)');poolGradient.addColorStop(1,'rgba(255,205,110,0)');poolContext.fillStyle=poolGradient;poolContext.fillRect(0,0,128,128);const poolTexture=new THREE.CanvasTexture(poolCanvas);poolTexture.colorSpace=THREE.SRGBColorSpace;
   function streetLamp(x,z,yaw){const lamp=new THREE.Group(),metal=new THREE.MeshStandardMaterial({color:0x303633,roughness:.76}),shade=new THREE.MeshStandardMaterial({color:0x4d5349,roughness:.72}),bulbMaterial=new THREE.MeshStandardMaterial({color:0xffe3a4,emissive:0xffc766,emissiveIntensity:0});const pole=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,1.65,10),metal);pole.position.y=.83;const arm=new THREE.Mesh(new THREE.BoxGeometry(.48,.055,.055),metal);arm.position.set(.2,1.61,0);const cap=new THREE.Mesh(new THREE.ConeGeometry(.22,.2,16),shade);cap.position.set(.41,1.49,0);cap.rotation.z=Math.PI;const bulb=new THREE.Mesh(new THREE.SphereGeometry(.105,14,10),bulbMaterial);bulb.position.set(.41,1.42,0);const light=new THREE.PointLight(0xffc978,0,4.8,2);light.position.copy(bulb.position);const pool=new THREE.Mesh(new THREE.CircleGeometry(2.05,32),new THREE.MeshBasicMaterial({map:poolTexture,color:0xffe0a0,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));pool.rotation.x=-Math.PI/2;pool.position.set(.41,.025,0);lamp.add(pole,arm,cap,bulb,light,pool);lamp.position.set(x,0,z);lamp.rotation.y=yaw;streetLights.add(lamp);lampBulbs.push({material:bulbMaterial,light,pool});lampPositions.push([x,z])}
-  lampLayout().forEach(({x,z,yaw})=>streetLamp(x,z,yaw));scene.add(streetLights);
+  lampLayout().forEach(({x,z,yaw})=>streetLamp(x,z,yaw));scene.add(streetLights);scene.add(createTownVerges());
   const clickable=[],placeModels=new Map();places.forEach(place=>{const obj=roundedBuilding(...place);obj.rotation.y=facing(place[0]);placeModels.set(place[0],obj);clickable.push(obj);scene.add(obj)});
   const pet=hamster();pet.userData.mainPet=true;scene.add(pet);clickable.push(pet);
   const roles=['跑轮管理员','医生','零食店主','广场邻居','纪念馆管理员','小屋邻居','园丁','礼仪师','守墓人'];
