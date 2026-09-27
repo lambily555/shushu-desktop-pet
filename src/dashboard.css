@@ -825,3 +825,17 @@ button.town-furniture-label{pointer-events:auto;cursor:pointer;box-shadow:0 5px 
 .town-life-bubble{max-width:190px;white-space:normal;text-align:center;pointer-events:none;background:#fff9e9e8;font-size:11px;transition:none;z-index:5}
 .town-npc-label{transition:none}
 .town-npc-speech{transform:translate(-50%,-100%)}
+.town-player-tools{position:absolute;z-index:22;bottom:82px;left:50%;transform:translateX(-50%);max-width:650px;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff9ebed;border:1px solid #d5cfbb;border-radius:14px;color:#465342;box-shadow:0 5px 18px #23332120;font-size:11px}
+.town-player-tools[hidden]{display:none}
+.town-player-tools button{white-space:nowrap;padding:8px 12px;border:1px solid #a4b39c;background:#eef4e8;border-radius:9px;color:#3e5945;cursor:pointer}
+.town-player-tools span{display:none}
+#townScene[data-view="first-person"] .town-player-tools span{display:block}
+.town-player-crosshair{position:absolute;z-index:18;left:50%;top:50%;transform:translate(-50%,-50%);color:white;text-shadow:0 1px 3px #000;font:22px sans-serif;pointer-events:none}
+.town-plaza-event{padding:10px 12px;background:#eef1df;border-radius:10px;color:#506348;font-weight:700}
+.town-player-notice{position:absolute;z-index:22;bottom:148px;left:50%;transform:translateX(-50%);max-width:460px;padding:9px 16px;border-radius:12px;background:#fff8e8ed;color:#485641;font-size:12px;pointer-events:none}
+.town-control-guide{margin-top:14px;padding-top:12px;border-top:1px solid #b8c4ad}
+.town-control-guide h4{margin:0 0 8px;font-size:13px}
+.town-control-guide dl{display:grid;gap:8px;margin:12px 0;font-size:12px}
+.town-control-guide dl div{display:grid;grid-template-columns:92px 1fr;gap:10px}
+.town-control-guide dt{font-weight:700;color:#405343}
+.town-control-guide dd{margin:0;line-height:1.6}

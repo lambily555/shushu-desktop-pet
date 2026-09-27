@@ -8,25 +8,25 @@ export const destinations=[
 const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
-export function blocked(x,z){return destinations.some(d=>d[0]!=='中心广场'&&Math.abs(x-d[1])<1.62&&Math.abs(z-d[2])<1.2)||Math.hypot(x,z+1.3)<1.6}
+export function blocked(x,z){return destinations.some(d=>d[0]!=='中心广场'&&Math.abs(x-d[1])<1.62&&Math.abs(z-d[2])<1.2)||Math.hypot(x,z+1.3)<.9}
 // Grid routes avoid building footprints, garden beds and the central fountain.
 export function route(start,end){
  const unit=.4,toGrid=p=>[Math.round(p.x/unit),Math.round(p.z/unit)],key=(x,z)=>`${x},${z}`;
  const [sx,sz]=toGrid(start),[ex,ez]=toGrid(end),open=[{x:sx,z:sz,g:0,f:0}],cost=new Map([[key(sx,sz),0]]),parent=new Map();let found=null;
  while(open.length){open.sort((a,b)=>a.f-b.f);const n=open.shift(),nk=key(n.x,n.z);if(n.g!==cost.get(nk))continue;if(n.x===ex&&n.z===ez){found=n;break}
-  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const x=n.x+dx,z=n.z+dz;if(x<-22||x>22||z<-18||z>21)continue;if(blocked(x*unit,z*unit)||dx&&dz&&(blocked(n.x*unit+dx*unit,n.z*unit)||blocked(n.x*unit,n.z*unit+dz*unit)))continue;
+  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const x=n.x+dx,z=n.z+dz;if(x<-32||x>32||z<-26||z>30)continue;if(blocked(x*unit,z*unit)||dx&&dz&&(blocked(n.x*unit+dx*unit,n.z*unit)||blocked(n.x*unit,n.z*unit+dz*unit)))continue;
    const g=n.g+Math.hypot(dx,dz),k=key(x,z);if(g>=(cost.get(k)??Infinity))continue;cost.set(k,g);parent.set(k,nk);open.push({x,z,g,f:g+Math.hypot(x-ex,z-ez)});
   }
  }
  if(!found)return [];const result=[point(ex*unit,ez*unit)];let k=key(ex,ez);while(parent.has(k)){k=parent.get(k);const [x,z]=k.split(',').map(Number);result.push(point(x*unit,z*unit))}result.reverse();result.push({...end});return result;
 }
 export function createTownLife(onEvent=()=>{}){
- const actors=new Map();let elapsed=0,day=true,conversations=0;
+ const actors=new Map();let elapsed=0,day=true,conversations=0,celebration=null;
  function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋');return point(d[1],d[2]+1.6)}
  function add(id,home,options={}){if(actors.has(id))return actors.get(id);const actor={id,home,name:options.name||id,age:options.age??.7,child:!!options.child,position:entrance(home),heading:0,moving:false,phase:'idle',inside:null,place:home,destination:home,action:'休息',path:[],wait:actors.size*1.3,cycle:0,partner:null,visited:new Set(),completed:0,speech:''};actors.set(id,actor);return actor}
  function go(actor,target,nextPhase,indoor=false){const path=indoor?[target]:route(actor.position,target);if(!path.length){actor.phase='idle';actor.wait=2;return false}actor.path=path;actor.phase='moving';actor.arrival=nextPhase;return true}
  function plan(actor){
-  actor.cycle++;actor.speech='';actor.partner=null;
+  actor.cycle++;actor.speech='';actor.partner=null;if(celebration){actor.destination='中心广场';actor.action='庆祝';go(actor,entrance(actor.destination),'arrived');return}
   const choices=actor.child?['鼠鼠小屋','跑轮公园','中心广场','小菜园']:['小菜园','零食铺','中心广场',actor.home,'跑轮公园','鼠鼠小屋','纪念馆','诊所','墓地','殡仪馆','中心广场'];
   const index=(actor.cycle-1+[...actors.keys()].indexOf(actor.id))%choices.length;
   actor.destination=actor.child&&actor.age<.18?'鼠鼠小屋':choices[index];if(actor.destination==='中心广场'&&actor.allowSocial===false)actor.destination='鼠鼠小屋';actor.action=byName.get(actor.destination)[4];
@@ -36,7 +36,7 @@ export function createTownLife(onEvent=()=>{}){
  function complete(actor){actor.completed++;actor.visited.add(actor.destination);onEvent({id:actor.id,type:'activity',action:actor.action,place:actor.destination});actor.phase=actor.inside?'exit-room':actor.action==='跑轮'?'exit-yard':'idle';actor.wait=2}
  function tick(dt,isDay=day){day=isDay;dt=Math.max(0,Math.min(dt,1));elapsed+=dt;
   for(const actor of actors.values()){
-   actor.moving=false;if(actor.frozen)continue;
+   actor.moving=false;if(actor.frozen||actor.controlled)continue;
    if(actor.phase==='moving'){
     let budget=dt*(actor.child?.48:.72);while(budget>0&&actor.path.length){const target=actor.path[0],dist=distance(actor.position,target);if(dist>.001){actor.heading=Math.atan2(target.x-actor.position.x,target.z-actor.position.z);actor.moving=true}if(dist<=budget){actor.position={...target};actor.path.shift();budget-=dist}else{actor.position.x+=(target.x-actor.position.x)*budget/dist;actor.position.z+=(target.z-actor.position.z)*budget/dist;budget=0}}
     if(!actor.path.length)actor.phase=actor.arrival;continue;
@@ -44,10 +44,12 @@ export function createTownLife(onEvent=()=>{}){
    if(actor.phase==='idle'){actor.wait-=dt;if(actor.wait<=0)plan(actor)}
    else if(actor.phase==='arrived'){
     actor.place=actor.destination;onEvent({id:actor.id,type:'status',action:actor.action,place:actor.destination});const d=byName.get(actor.destination);
-    if(d[3]){actor.inside=actor.destination;actor.position=point(0,2.6);const stations=actor.action==='饮水'?[1.4,-.7]:actor.action==='进食'?[1.7,.7]:d[5];go(actor,point(...stations),'using',true)}
+    if(celebration&&actor.destination==='中心广场'){const index=[...actors.keys()].indexOf(actor.id),a=index/Math.max(actors.size,1)*Math.PI*2;go(actor,point(Math.cos(a)*2.15,-1.3+Math.sin(a)*1.2),'celebrating')}
+    else if(d[3]){actor.inside=actor.destination;actor.position=point(0,2.6);const stations=actor.action==='饮水'?[1.4,-.7]:actor.action==='进食'?[1.7,.7]:d[5];go(actor,point(...stations),'using',true)}
     else if(actor.action==='社交'){actor.phase='meeting';actor.wait=35;actor.speech='等朋友一起聊聊';go(actor,point(-1.9+(actors.size?([...actors.keys()].indexOf(actor.id)%4)*.85:0),.65),'meeting')}
     else{actor.wait=0;if(actor.action==='跑轮')go(actor,point(d[1],d[2]+.2),'using',true);else{actor.phase='using'}}
    }
+   else if(actor.phase==='celebrating'){actor.heading=Math.atan2(-actor.position.x,-1.3-actor.position.z);actor.speech=celebration?celebration.birthdays.includes(actor.id)?'谢谢大家陪我过生日！':celebration.birthdays.length?'生日快乐！一起分享小蛋糕吧！':'仓鼠朋友们，节日快乐！':'';if(!celebration){actor.phase='idle';actor.wait=1}}
    else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';actor.heading=Math.PI;actor.speech=actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='睡觉'?'呼……':'休息一会儿'}}
    else if(actor.phase==='activity'){actor.wait-=dt;if(actor.wait<=0)complete(actor)}
    else if(actor.phase==='exit-yard'){actor.speech='';go(actor,entrance(actor.place),'idle',true)}
@@ -62,5 +64,6 @@ export function createTownLife(onEvent=()=>{}){
    else if(actor.phase==='talking'){actor.wait-=dt;const other=actors.get(actor.partner);actor.speech=actor.wait>6?`你好，${other?.name||'朋友'}！`:actor.wait>3?'今天的嫩叶很香哦。':'下次一起去公园吧！';if(actor.wait<=0){actor.partner=null;complete(actor)}}
   }
  }
- return {actors,add,tick,remove:id=>actors.delete(id),inspect:()=>({elapsed,conversations,actors:[...actors.values()].map(a=>({...a,path:undefined,visited:[...a.visited]}))})};
+ function setCelebration(next){if((next?.key||null)===(celebration?.key||null)){celebration=next;return}celebration=next;for(const actor of actors.values()){if(actor.frozen)continue;actor.partner=null;actor.speech='';actor.path=[];actor.phase=actor.inside?'exit-room':'idle';actor.wait=0}}
+ return {actors,add,tick,setCelebration,remove:id=>actors.delete(id),inspect:()=>({elapsed,conversations,actors:[...actors.values()].map(a=>({...a,path:undefined,visited:[...a.visited]}))})};
 }

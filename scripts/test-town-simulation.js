@@ -9,7 +9,7 @@ assert.equal(sim.daypart(new Date(2026,8,13,22).getTime()),'夜晚');
 assert.deepEqual(sim.weather(start),sim.weather(start));
 assert.equal(sim.migrate({...sim.defaults(start),version:1,stamina:88},start).stamina,100);
 assert.equal(sim.migrate({...sim.defaults(start),version:2,stamina:42},start).stamina,42);
-const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,5);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));assert.deepEqual(migrated.npcBonds[0],[0,1]);
+const migrated=sim.migrate({version:2,npcs:sim.defaults(start).npcs.map(({sex,...npc})=>npc),offspring:[{id:'old-pup',name:'旧幼鼠',stage:'幼鼠'}]},start);assert.equal(migrated.version,6);assert.ok(migrated.npcs.every(n=>['male','female'].includes(n.sex)));assert.ok(['male','female'].includes(migrated.offspring[0].sex));assert.deepEqual(migrated.npcBonds[0],[0,1]);
 const sexes=new Set(sim.defaults(start).npcs.map(n=>n.sex));assert.deepEqual([...sexes].sort(),['female','male']);
 
 const initial=sim.defaults(start);initial.food=30;
@@ -24,7 +24,7 @@ for(const aging of [false,true])for(const mortality of [false,true])for(const il
 
 let economy=sim.defaults(start);economy.seeds=20;({state:economy}=sim.buyFood(economy));assert.equal(economy.food,17);assert.equal(economy.seeds,10);
 economy.garden.ready=true;({state:economy}=sim.harvest(economy));assert.equal(economy.food,20);assert.equal(economy.seeds,14);
-let social=sim.defaults(start);social.npcs[0].relationship=75;({state:social}=sim.interact(social,'npc-0',start));assert.equal(sim.relationship(social.npcs[0].relationship),'伴侣');
+let social=sim.defaults(start);social.ageYearsValue=.7;social.lifeStage='成年';social.npcs[0].relationship=75;({state:social}=sim.interact(social,'npc-0',start));assert.equal(sim.relationship(social.npcs[0].relationship),'伴侣');
 assert.equal(sim.breedingEligibility(social,'npc-0',start).allowed,true);const sameSex=structuredClone(social);sameSex.npcs[0].sex=sameSex.mainSex;assert.equal(sim.breedingEligibility(sameSex,'npc-0',start).allowed,false);assert.match(sim.breed(sameSex,'npc-0').message,/性别相同/);
 const family=sim.breed(social,'npc-0');assert.equal(family.ok,true);assert.ok(family.state.offspring.length>=1&&family.state.offspring.length<=3);
 assert.ok(family.state.offspring.every(p=>['male','female'].includes(p.sex)));
