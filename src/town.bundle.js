@@ -16100,6 +16100,84 @@
       return new _PlaneGeometry(data.width, data.height, data.widthSegments, data.heightSegments);
     }
   };
+  var RingGeometry = class _RingGeometry extends BufferGeometry {
+    /**
+     * Constructs a new ring geometry.
+     *
+     * @param {number} [innerRadius=0.5] - The inner radius of the ring.
+     * @param {number} [outerRadius=1] - The outer radius of the ring.
+     * @param {number} [thetaSegments=32] - Number of segments. A higher number means the ring will be more round. Minimum is `3`.
+     * @param {number} [phiSegments=1] - Number of segments per ring segment. Minimum is `1`.
+     * @param {number} [thetaStart=0] - Starting angle in radians.
+     * @param {number} [thetaLength=Math.PI*2] - Central angle in radians.
+     */
+    constructor(innerRadius = 0.5, outerRadius = 1, thetaSegments = 32, phiSegments = 1, thetaStart = 0, thetaLength = Math.PI * 2) {
+      super();
+      this.type = "RingGeometry";
+      this.parameters = {
+        innerRadius,
+        outerRadius,
+        thetaSegments,
+        phiSegments,
+        thetaStart,
+        thetaLength
+      };
+      thetaSegments = Math.max(3, thetaSegments);
+      phiSegments = Math.max(1, phiSegments);
+      const indices = [];
+      const vertices = [];
+      const normals = [];
+      const uvs = [];
+      let radius = innerRadius;
+      const radiusStep = (outerRadius - innerRadius) / phiSegments;
+      const vertex2 = new Vector3();
+      const uv = new Vector2();
+      for (let j = 0; j <= phiSegments; j++) {
+        for (let i2 = 0; i2 <= thetaSegments; i2++) {
+          const segment = thetaStart + i2 / thetaSegments * thetaLength;
+          vertex2.x = radius * Math.cos(segment);
+          vertex2.y = radius * Math.sin(segment);
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+          normals.push(0, 0, 1);
+          uv.x = (vertex2.x / outerRadius + 1) / 2;
+          uv.y = (vertex2.y / outerRadius + 1) / 2;
+          uvs.push(uv.x, uv.y);
+        }
+        radius += radiusStep;
+      }
+      for (let j = 0; j < phiSegments; j++) {
+        const thetaSegmentLevel = j * (thetaSegments + 1);
+        for (let i2 = 0; i2 < thetaSegments; i2++) {
+          const segment = i2 + thetaSegmentLevel;
+          const a = segment;
+          const b = segment + thetaSegments + 1;
+          const c = segment + thetaSegments + 2;
+          const d = segment + 1;
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @return {RingGeometry} A new instance.
+     */
+    static fromJSON(data) {
+      return new _RingGeometry(data.innerRadius, data.outerRadius, data.thetaSegments, data.phiSegments, data.thetaStart, data.thetaLength);
+    }
+  };
   var ShapeGeometry = class _ShapeGeometry extends BufferGeometry {
     /**
      * Constructs a new shape geometry.
@@ -32282,7 +32360,7 @@ void main() {
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
     ["\u7EAA\u5FF5\u9986", -9, 3, true, "\u53C2\u89C2", [0, -0.5]],
     ["\u9F20\u9F20\u5C0F\u5C4B", -4, 5, true, "\u4F11\u606F", [-2.2, -0.7]],
-    ["\u5C0F\u83DC\u56ED", 9, 1, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
+    ["\u5C0F\u83DC\u56ED", 0, -14.4, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
     ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]]
@@ -32296,11 +32374,12 @@ void main() {
   };
   function entrance(name) {
     const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B"), a = facing(d[0]);
-    return { x: d[1] + Math.sin(a) * 1.9, z: d[2] + Math.cos(a) * 1.9 };
+    return { x: d[1] + Math.sin(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9), z: d[2] + Math.cos(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9) };
   }
   function blocked(x2, z) {
     return destinations.some((d) => {
       if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") return false;
+      if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") return Math.hypot(x2 - d[1], z - d[2]) < 2.2;
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
       return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < 1.62 && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < 1.2;
     }) || Math.hypot(x2, z + 1.3) < 0.9;
@@ -33164,6 +33243,108 @@ void main() {
       box(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
     }
     group.userData.footprint = 4.7 * 3.8;
+    return group;
+  }
+  function createWheelPark() {
+    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), dark = mat("#805638"), stone = mat("#c5b99d"), grass = mat("#90a165"), track = mat("#c89258"), line = mat("#ece0bc"), metal = mat("#9b9c8c", { metalness: 0.4, roughness: 0.45 }), wheels = [];
+    const disk = (r, h, x2, y, z, m) => {
+      const o = new Mesh(new CylinderGeometry(r, r, h, 64), m);
+      o.position.set(x2, y, z);
+      o.receiveShadow = true;
+      o.castShadow = true;
+      group.add(o);
+      return o;
+    };
+    const ring = (inner, outer, y, m) => {
+      const o = new Mesh(new RingGeometry(inner, outer, 80), m);
+      o.rotation.x = -Math.PI / 2;
+      o.position.y = y;
+      o.receiveShadow = true;
+      group.add(o);
+    };
+    disk(2.26, 0.12, 0, 0.02, 0, grass);
+    ring(1.7, 2.08, 0.091, track);
+    ring(1.86, 1.875, 0.093, line);
+    ring(1.71, 1.73, 0.093, line);
+    ring(2.05, 2.07, 0.093, line);
+    disk(0.92, 0.12, 0, 0.13, 0, stone);
+    function wheel(x2, z, r) {
+      const rotor = new Group(), parts = kit(rotor);
+      rotor.position.set(x2, r + 0.2, z);
+      group.add(rotor);
+      wheels.push(rotor);
+      for (const depth of [-0.2, 0.2]) {
+        const rim = new Mesh(new TorusGeometry(r, 0.055, 10, 64), wood);
+        rim.position.z = depth;
+        rotor.add(rim);
+        for (let i2 = 0; i2 < 8; i2++) {
+          const a = i2 * Math.PI / 4, spoke = parts.box(0.04, r * 1.8, 0.05, 0, 0, depth, wood);
+          spoke.rotation.z = a;
+        }
+      }
+      for (let i2 = 0; i2 < 36; i2++) {
+        const a = i2 * Math.PI * 2 / 36, slat = parts.box(0.1, 0.035, 0.44, Math.sin(a) * r, Math.cos(a) * r, 0, wood);
+        slat.rotation.z = -a;
+      }
+      parts.oval(0, 0, 0.24, 0.14, 0.14, 0.07, dark);
+      box(r * 0.85, 0.1, 0.68, x2, 0.17, z, wood);
+      for (const dz of [-0.3, 0.3]) {
+        const stand = new Mesh(new CylinderGeometry(0.08, 0.22, r + 0.18, 3), wood);
+        stand.position.set(x2, (r + 0.18) / 2 + 0.18, z + dz);
+        group.add(stand);
+        oval(x2, r + 0.2, z + dz, 0.05, 0.05, 0.04, metal);
+      }
+      return rotor;
+    }
+    wheel(0, -0.12, 0.75);
+    wheel(-1.12, 0.3, 0.29);
+    wheel(0.96, 0.52, 0.27);
+    wheel(-0.65, -1.02, 0.25);
+    for (const [x2, z] of [[0.9, -0.75], [-0.75, 1.07]]) {
+      for (const dx of [-0.3, 0.3]) box(0.08, 0.32, 0.08, x2 + dx, 0.25, z, wood);
+      box(0.68, 0.06, 0.08, x2, 0.42, z, line);
+    }
+    for (let i2 = 0; i2 < 7; i2++) box(0.36, 0.05, 0.1, 0.88, 0.14, -0.35 + i2 * 0.105, wood);
+    for (let i2 = 0; i2 < 3; i2++) {
+      box(0.78, 0.18, 0.25, 1.48, 0.18 + i2 * 0.18, -0.74 - i2 * 0.2, wood);
+    }
+    box(0.8, 0.55, 0.06, 1.48, 0.75, -1.28, wood);
+    disk(0.2, 0.15, 0.5, 0.16, 1.03, wood);
+    disk(0.165, 0.015, 0.5, 0.245, 1.03, mat("#72a4af", { roughness: 0.2 }));
+    tube([[0.55, 0.24, 1.03], [0.55, 0.44, 1.03], [0.49, 0.46, 1.03]], 0.017, metal);
+    box(0.65, 0.12, 0.25, 0.87, 0.26, 1.51, wood);
+    for (const x2 of [0.6, 1.14]) box(0.05, 0.23, 0.05, x2, 0.15, 1.51, wood);
+    for (let i2 = 0; i2 < 38; i2++) {
+      const a = i2 * Math.PI * 2 / 38;
+      if (a < 0.23 || a > Math.PI * 2 - 0.23) continue;
+      const x2 = Math.sin(a) * 2.19, z = Math.cos(a) * 2.19;
+      box(0.03, 0.36, 0.03, x2, 0.26, z, dark);
+      tube([[x2 * 0.985, 0.26, z * 0.985], [x2, 0.46, z], [x2 * 1.025, 0.54, z * 1.025]], 9e-3, dark);
+    }
+    for (const y of [0.25, 0.41]) tube(Array.from({ length: 48 }, (_, i2) => {
+      const a = 0.25 + i2 * (Math.PI * 2 - 0.5) / 47;
+      return [Math.sin(a) * 2.19, y, Math.cos(a) * 2.19];
+    }), 0.014, dark);
+    for (let i2 = 0; i2 < 24; i2++) {
+      const a = i2 * 2.4, x2 = Math.sin(a) * 2.12, z = Math.cos(a) * 2.12;
+      oval(x2, 0.1, z, 0.09, 0.025, 0.065, grass);
+      if (i2 % 3 === 0) {
+        box(0.015, 0.13, 0.015, x2, 0.16, z, line);
+        oval(x2, 0.24, z, 0.06, 0.035, 0.06, mat("#c67b43"));
+        oval(x2 + 0.01, 0.25, z + 0.02, 0.016, 9e-3, 0.015, paperMaterial());
+      }
+    }
+    function paperMaterial() {
+      return mat("#eee4c6");
+    }
+    sign2(group, "\u8DD1\u8F6E\u516C\u56ED", -0.85, 1.01, 1.59);
+    [-1.27, -0.43].forEach((x2) => box(0.055, 1.15, 0.055, x2, 0.56, 1.56, wood));
+    sign2(group, "\u8FD0\u52A8\u4E0E\u996E\u6C34", 1.12, 0.77, 1.5);
+    group.userData.wheels = wheels;
+    group.userData.setRunning = (dt, active) => {
+      if (active) wheels.forEach((w, i2) => w.rotation.z -= dt * (i2 ? 1.8 : 1.3));
+    };
+    group.userData.footprint = Math.PI * 2.26 ** 2;
     return group;
   }
 
@@ -36388,8 +36569,8 @@ void main() {
     p[2] = d[2];
   });
   function roundedBuilding(name, x2, z, color) {
-    if (["\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"].includes(name)) {
-      const model = name === "\u4E2D\u5FC3\u5E7F\u573A" ? createPlaza() : name === "\u5C0F\u83DC\u56ED" ? createGarden() : createSchool();
+    if (["\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821", "\u8DD1\u8F6E\u516C\u56ED"].includes(name)) {
+      const model = name === "\u4E2D\u5FC3\u5E7F\u573A" ? createPlaza() : name === "\u5C0F\u83DC\u56ED" ? createGarden() : name === "\u8DD1\u8F6E\u516C\u56ED" ? createWheelPark() : createSchool();
       model.position.set(x2, 0, z);
       model.traverse((o) => o.userData.place = name);
       return model;
@@ -36604,7 +36785,7 @@ void main() {
       scene.add(m);
     };
     road(0, -1.3, 28, 1.05);
-    road(0, -1.3, 1.05, 28);
+    road(0, 0.1, 1.05, 25.2);
     places.filter((p) => p[0] !== "\u4E2D\u5FC3\u5E7F\u573A").forEach((p) => {
       const e = entrance(p[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 }, dx = e.x - near.x, dz = e.z - near.z, len = Math.hypot(dx, dz);
       if (len > 0.1) road((e.x + near.x) / 2, (e.z + near.z) / 2, 0.75, len, Math.atan2(dx, dz));
@@ -37012,7 +37193,7 @@ void main() {
         target.set(place[1], 0.2, place[2]);
         distance2 = 8;
         pitch = 0.85;
-        yaw = 0;
+        yaw = facing(name) + 0.2;
       }
       syncPups();
       syncLife();
@@ -37502,6 +37683,7 @@ void main() {
       const t = clock.getElapsedTime(), dt = Math.min(0.1, t - previousTime);
       previousTime = t;
       if (document.body.dataset.currentPanel !== "town") return;
+      placeModels.get("\u8DD1\u8F6E\u516C\u56ED").userData.setRunning(dt, [...life.actors.values()].some((a) => a.place === "\u8DD1\u8F6E\u516C\u56ED" && a.phase === "activity" && a.action === "\u8DD1\u8F6E"));
       life.tick(dt, worldState.part === "\u767D\u5929");
       updatePlayer(dt);
       const focusedId = focusedResident === -2 ? "main" : focusedResident === -3 ? focusedPup : focusedResident >= 0 ? residents[focusedResident].lifeId : null, focusedActor = life.actors.get(focusedId);

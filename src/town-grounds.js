@@ -55,3 +55,20 @@ export function createSchool(){
  for(const x of [1.35,2.13])box(.065,1.1,.065,x,.56,.65,wood);box(.9,.06,.07,1.74,1.13,.65,wood);for(const x of [1.48,2])tube([[x,1.1,.65],[x,.45,.65]],.01,gold);box(.6,.06,.25,1.74,.43,.65,wood);
  box(.9,.24,.3,1.7,.16,1.7,wood);sign(group,'校园公告',1.85,.8,-.8);for(let i=0;i<24;i++){const x=-2.3+i*.2;box(.025,.35,.025,x,.25,-1.58,wood)}group.userData.footprint=4.7*3.8;return group;
 }
+export function createWheelPark(){
+ const group=new THREE.Group(),{box,oval,tube}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),dark=mat('#805638'),stone=mat('#c5b99d'),grass=mat('#90a165'),track=mat('#c89258'),line=mat('#ece0bc'),metal=mat('#9b9c8c',{metalness:.4,roughness:.45}),wheels=[];
+ const disk=(r,h,x,y,z,m)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,64),m);o.position.set(x,y,z);o.receiveShadow=true;o.castShadow=true;group.add(o);return o};
+ const ring=(inner,outer,y,m)=>{const o=new THREE.Mesh(new THREE.RingGeometry(inner,outer,80),m);o.rotation.x=-Math.PI/2;o.position.y=y;o.receiveShadow=true;group.add(o)};
+ disk(2.26,.12,0,.02,0,grass);ring(1.7,2.08,.091,track);ring(1.86,1.875,.093,line);ring(1.71,1.73,.093,line);ring(2.05,2.07,.093,line);disk(.92,.12,0,.13,0,stone);
+ function wheel(x,z,r){const rotor=new THREE.Group(),parts=kit(rotor);rotor.position.set(x,r+.2,z);group.add(rotor);wheels.push(rotor);for(const depth of [-.2,.2]){const rim=new THREE.Mesh(new THREE.TorusGeometry(r,.055,10,64),wood);rim.position.z=depth;rotor.add(rim);for(let i=0;i<8;i++){const a=i*Math.PI/4,spoke=parts.box(.04,r*1.8,.05,0,0,depth,wood);spoke.rotation.z=a}}for(let i=0;i<36;i++){const a=i*Math.PI*2/36,slat=parts.box(.1,.035,.44,Math.sin(a)*r,Math.cos(a)*r,0,wood);slat.rotation.z=-a}parts.oval(0,0,.24,.14,.14,.07,dark);box(r*.85,.1,.68,x,.17,z,wood);for(const dz of [-.3,.3]){const stand=new THREE.Mesh(new THREE.CylinderGeometry(.08,.22,r+.18,3),wood);stand.position.set(x,(r+.18)/2+.18,z+dz);group.add(stand);oval(x,r+.2,z+dz,.05,.05,.04,metal)}return rotor}
+ wheel(0,-.12,.75);wheel(-1.12,.3,.29);wheel(.96,.52,.27);wheel(-.65,-1.02,.25);
+ for(const [x,z] of [[.9,-.75],[-.75,1.07]]){for(const dx of [-.3,.3])box(.08,.32,.08,x+dx,.25,z,wood);box(.68,.06,.08,x,.42,z,line)}
+ for(let i=0;i<7;i++)box(.36,.05,.1,.88,.14,-.35+i*.105,wood);for(let i=0;i<3;i++){box(.78,.18,.25,1.48,.18+i*.18,-.74-i*.2,wood)}box(.8,.55,.06,1.48,.75,-1.28,wood);
+ disk(.2,.15,.5,.16,1.03,wood);disk(.165,.015,.5,.245,1.03,mat('#72a4af',{roughness:.2}));tube([[.55,.24,1.03],[.55,.44,1.03],[.49,.46,1.03]],.017,metal);box(.65,.12,.25,.87,.26,1.51,wood);for(const x of [.6,1.14])box(.05,.23,.05,x,.15,1.51,wood);
+ for(let i=0;i<38;i++){const a=i*Math.PI*2/38;if(a<.23||a>Math.PI*2-.23)continue;const x=Math.sin(a)*2.19,z=Math.cos(a)*2.19;box(.03,.36,.03,x,.26,z,dark);tube([[x*.985,.26,z*.985],[x,.46,z],[x*1.025,.54,z*1.025]],.009,dark)}
+ for(const y of [.25,.41])tube(Array.from({length:48},(_,i)=>{const a=.25+i*(Math.PI*2-.5)/47;return [Math.sin(a)*2.19,y,Math.cos(a)*2.19]}),.014,dark);
+ for(let i=0;i<24;i++){const a=i*2.4,x=Math.sin(a)*2.12,z=Math.cos(a)*2.12;oval(x,.1,z,.09,.025,.065,grass);if(i%3===0){box(.015,.13,.015,x,.16,z,line);oval(x,.24,z,.06,.035,.06,mat('#c67b43'));oval(x+.01,.25,z+.02,.016,.009,.015,paperMaterial())}}
+ function paperMaterial(){return mat('#eee4c6')}
+ sign(group,'跑轮公园',-.85,1.01,1.59);[-1.27,-.43].forEach(x=>box(.055,1.15,.055,x,.56,1.56,wood));sign(group,'运动与饮水',1.12,.77,1.5);
+ group.userData.wheels=wheels;group.userData.setRunning=(dt,active)=>{if(active)wheels.forEach((w,i)=>w.rotation.z-=dt*(i?1.8:1.3))};group.userData.footprint=Math.PI*2.26**2;return group;
+}
