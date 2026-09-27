@@ -32445,6 +32445,12 @@ void main() {
       actor.cycle++;
       actor.speech = "";
       actor.partner = null;
+      if (actor.forcedSleep) {
+        actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
+        actor.action = "\u7761\u89C9";
+        go(actor, entrance(actor.destination), "arrived");
+        return;
+      }
       if (celebration) {
         actor.destination = "\u4E2D\u5FC3\u5E7F\u573A";
         actor.action = "\u5E86\u795D";
@@ -32507,7 +32513,7 @@ void main() {
           } else if (d[3]) {
             actor.inside = actor.destination;
             actor.position = point(0, 2.6);
-            const stations = actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
+            const stations = actor.action === "\u7761\u89C9" ? [-2.2, -1.6] : actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
             go(actor, point(...stations), "using", true);
           } else if (actor.action === "\u793E\u4EA4") {
             actor.phase = "meeting";
@@ -32536,6 +32542,7 @@ void main() {
             actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "activity") {
+          if (actor.forcedSleep && actor.action === "\u7761\u89C9") continue;
           actor.wait -= dt;
           if (actor.wait <= 0) complete(actor);
         } else if (actor.phase === "exit-yard") {
@@ -32590,6 +32597,26 @@ void main() {
         }
       }
     }
+    function setResting(requested) {
+      const actor = actors.get("main");
+      if (!actor || actor.frozen || !!actor.forcedSleep === !!requested) return;
+      const other = actors.get(actor.partner);
+      if (other) {
+        other.partner = null;
+        other.phase = "idle";
+        other.wait = 1;
+      }
+      actor.forcedSleep = !!requested;
+      actor.partner = null;
+      actor.speech = "";
+      actor.path = [];
+      actor.wait = 0;
+      if (requested && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B") {
+        actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
+        actor.action = "\u7761\u89C9";
+        go(actor, point(-2.2, -1.6), "using", true);
+      } else actor.phase = actor.inside ? "exit-room" : "idle";
+    }
     function setCelebration(next) {
       if ((next?.key || null) === (celebration?.key || null)) {
         celebration = next;
@@ -32597,7 +32624,7 @@ void main() {
       }
       celebration = next;
       for (const actor of actors.values()) {
-        if (actor.frozen) continue;
+        if (actor.frozen || actor.forcedSleep) continue;
         actor.partner = null;
         actor.speech = "";
         actor.path = [];
@@ -32605,7 +32632,7 @@ void main() {
         actor.wait = 0;
       }
     }
-    return { actors, add, tick, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, path: void 0, visited: [...a.visited] })) }) };
+    return { actors, add, tick, setResting, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, path: void 0, visited: [...a.visited] })) }) };
   }
 
   // src/town-lights.js
@@ -37038,7 +37065,7 @@ void main() {
         const resting = ["\u4F11\u606F", "\u7761\u89C9"].includes(actor.action);
         if (resting) {
           rig.userData.model.rotation.z = 0.75;
-          rig.position.y = 0.12;
+          rig.position.y = actor.action === "\u7761\u89C9" && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" ? 0.65 : 0.12;
         } else {
           poseBone(rig, "Head", 0.22 + Math.sin(t * 3) * 0.06);
           poseBone(rig, "LeftForeArm", -0.45 + Math.sin(t * 4) * 0.12);
@@ -37192,14 +37219,29 @@ void main() {
         for (let i2 = 0; i2 < 5; i2++) add(0.33, 0.2, 0.4, -0.6 + i2 * 0.55, 0.97, 1.3, 14203255);
       } else if (name === "\u9F20\u9F20\u5B66\u6821") {
         shelf(-2.6, -2.4, "\u4E66\u67DC");
-        add(2.6, 1.3, 0.1, 0.5, 1, -2.65, 3693896);
-        label("\u9ED1\u677F", 0.5, -2.5);
+        roomLabels.at(-1).button.remove();
+        roomLabels.pop();
+        label("\u4E66\u67DC", -2.6, -2.4, "school-books");
+        const board = add(2.6, 1.3, 0.1, 0.5, 1, -2.65, 3693896), c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 256;
+        const g = c.getContext("2d");
+        g.fillStyle = "#365d48";
+        g.fillRect(0, 0, 512, 256);
+        g.fillStyle = "#eee9d4";
+        g.font = "30px Microsoft YaHei";
+        const text = worldState.schoolBoard || "\u6B22\u8FCE\u6765\u5230\u9F20\u9F20\u5B66\u6821";
+        for (let i2 = 0; i2 < text.length; i2 += 15) g.fillText(text.slice(i2, i2 + 15), 22, 43 + Math.floor(i2 / 15) * 37);
+        board.material.color.set(16777215);
+        board.material.map = new CanvasTexture(c);
+        board.material.map.colorSpace = SRGBColorSpace;
+        label("\u9ED1\u677F", 0.5, -2.5, "school-board");
         for (const x2 of [-1, 1.4]) for (const z of [-0.6, 1.1]) {
           add(1.2, 0.6, 0.7, x2, 0.3, z, 12095576);
           add(0.65, 0.32, 0.55, x2, 0.16, z + 0.7, 10779465);
           add(0.4, 0.035, 0.28, x2, 0.64, z, 15919305);
         }
-        label("\u8BFE\u684C", 1.4, 1.1);
+        label("\u8BFE\u684C", 1.4, 1.1, "school-desk");
       } else if (name === "\u7EAA\u5FF5\u9986") {
         [-2.2, 0, 2.2].forEach((x2, i2) => {
           add(1.4, 0.55, 0.8, x2, 0.28, -1.4, 10261118);
@@ -37785,7 +37827,9 @@ void main() {
     }
     draw();
     function applyWorld(next = {}) {
+      const oldBoard = worldState.schoolBoard;
       worldState = next;
+      if (activePlace === "\u9F20\u9F20\u5B66\u6821" && oldBoard !== next.schoolBoard) buildRoom(activePlace);
       if (firstPerson && !next.celebration) stopFirstPerson();
       playerTools.hidden = !next.celebration;
       const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
@@ -37804,6 +37848,7 @@ void main() {
       document.body.dataset.townPart = next.part || "";
       syncPups();
       syncLife();
+      life.setResting(next.sleepRequested);
       life.setCelebration(next.celebration || null);
       placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.setEvent(next.celebration);
       placeModels.get("\u5C0F\u83DC\u56ED").userData.setGrowth(next.gardenProgress ?? 0.5);
