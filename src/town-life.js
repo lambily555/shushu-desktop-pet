@@ -8,7 +8,7 @@ export const destinations=[
 const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
-export const facing=name=>{const d=byName.get(name);return name==='中心广场'?0:Math.atan2(-d[1],-1.3-d[2])};
+export const facing=name=>{const d=byName.get(name);return name==='中心广场'?0:Math.round(Math.atan2(-d[1],-1.3-d[2])/(Math.PI/2))*(Math.PI/2)};
 export function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋'),a=facing(d[0]);return {x:d[1]+Math.sin(a)*1.9,z:d[2]+Math.cos(a)*1.9}}
 export function blocked(x,z){return destinations.some(d=>{if(d[0]==='中心广场')return false;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<1.62&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<1.2})||Math.hypot(x,z+1.3)<.9}
 // Grid routes avoid building footprints, garden beds and the central fountain.

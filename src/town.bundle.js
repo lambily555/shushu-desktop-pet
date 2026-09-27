@@ -32292,7 +32292,7 @@ void main() {
   var point = (x2, z) => ({ x: x2, z });
   var facing = (name) => {
     const d = byName.get(name);
-    return name === "\u4E2D\u5FC3\u5E7F\u573A" ? 0 : Math.atan2(-d[1], -1.3 - d[2]);
+    return name === "\u4E2D\u5FC3\u5E7F\u573A" ? 0 : Math.round(Math.atan2(-d[1], -1.3 - d[2]) / (Math.PI / 2)) * (Math.PI / 2);
   };
   function entrance(name) {
     const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B"), a = facing(d[0]);

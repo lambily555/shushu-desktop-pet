@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createTownLife,destinations,route,blocked,entrance,facing} from '../src/town-life.js';
-for(const d of destinations){if(d[0]==='中心广场')continue;const e=entrance(d[0]),dx=-d[1],dz=-1.3-d[2];assert.ok((e.x-d[1])*dx+(e.z-d[2])*dz>0,'Door faces plaza');assert.ok(!blocked(e.x,e.z),'Door reachable');assert.equal(blocked(d[1],d[2]),true)}
+for(const d of destinations){if(d[0]==='中心广场')continue;assert.ok(Math.abs(facing(d[0])/(Math.PI/2)-Math.round(facing(d[0])/(Math.PI/2)))<1e-9,'Building parallel to roads');const e=entrance(d[0]),dx=-d[1],dz=-1.3-d[2];assert.ok((e.x-d[1])*dx+(e.z-d[2])*dz>0,'Door faces plaza');assert.ok(!blocked(e.x,e.z),'Door reachable');assert.equal(blocked(d[1],d[2]),true)}
 for(const a of destinations)for(const b of destinations){const path=route(entrance(a[0]),entrance(b[0]));assert.ok(path.length,`${a[0]} -> ${b[0]}`);assert.ok(path.every(p=>!blocked(p.x,p.z)))}
 const events=[],life=createTownLife(e=>events.push(e));life.add('main','鼠鼠小屋');destinations.forEach((d,i)=>life.add('npc-'+i,d[0]));
 let indoor=false,closeConversation=false;
