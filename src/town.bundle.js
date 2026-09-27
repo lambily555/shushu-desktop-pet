@@ -32285,7 +32285,7 @@ void main() {
     ["\u5C0F\u83DC\u56ED", 9, 1, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
     ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
-    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [0, -0.5]]
+    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -32453,8 +32453,8 @@ void main() {
           if (actor.wait <= 0) {
             actor.wait = day ? 24 : 12;
             actor.phase = "activity";
-            actor.heading = Math.PI;
-            actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+            actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
+            actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "activity") {
           actor.wait -= dt;
@@ -36814,6 +36814,19 @@ void main() {
           poseBone(rig, "Head", 0.22 + Math.sin(t * 3) * 0.06);
           poseBone(rig, "LeftForeArm", -0.45 + Math.sin(t * 4) * 0.12);
           poseBone(rig, "RightForeArm", -0.45 - Math.sin(t * 4) * 0.12);
+          if (actor.action === "\u5B66\u4E60") {
+            poseBone(rig, "Head", 0.32 + Math.sin(t * 1.5) * 0.025);
+            poseBone(rig, "LeftForeArm", -0.65);
+            poseBone(rig, "RightForeArm", -0.65 + Math.sin(t * 2) * 0.12);
+          } else if (actor.action === "\u7EAA\u5FF5") {
+            poseBone(rig, "Head", 0.3);
+            poseBone(rig, "LeftForeArm", -0.2);
+            poseBone(rig, "RightForeArm", -0.2);
+          } else if (actor.action === "\u5DE5\u4F5C") {
+            poseBone(rig, "Head", 0.18);
+            poseBone(rig, "LeftForeArm", -0.55 + Math.sin(t * 2) * 0.18);
+            poseBone(rig, "RightForeArm", -0.55 - Math.sin(t * 2) * 0.18);
+          }
           if (actor.action === "\u8DD1\u8F6E") {
             poseBone(rig, "LeftUpLeg", Math.sin(t * 10) * 0.6);
             poseBone(rig, "RightUpLeg", -Math.sin(t * 10) * 0.6);

@@ -4,7 +4,7 @@ export const destinations=[
  ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
  ['纪念馆',-9,3,true,'参观',[0,-.5]],['鼠鼠小屋',-4,5,true,'休息',[-2.2,-.7]],
  ['小菜园',9,1,false,'照看菜园',[0,0]],['殡仪馆',-5,10,true,'工作',[0,1]],
- ['墓地',2,11,false,'纪念',[0,0]],['鼠鼠学校',9,8,true,'学习',[0,-.5]]];
+ ['墓地',2,11,false,'纪念',[0,0]],['鼠鼠学校',9,8,true,'学习',[1.4,1.8]]];
 const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
@@ -51,7 +51,7 @@ export function createTownLife(onEvent=()=>{}){
     else{actor.wait=0;if(actor.action==='跑轮')go(actor,point(d[1],d[2]+.2),'using',true);else{actor.phase='using'}}
    }
    else if(actor.phase==='celebrating'){actor.heading=Math.atan2(-actor.position.x,-1.3-actor.position.z);actor.speech=celebration?celebration.birthdays.includes(actor.id)?'谢谢大家陪我过生日！':celebration.birthdays.length?'生日快乐！一起分享小蛋糕吧！':'仓鼠朋友们，节日快乐！':'';if(!celebration){actor.phase='idle';actor.wait=1}}
-   else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';actor.heading=Math.PI;actor.speech=actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='睡觉'?'呼……':'休息一会儿'}}
+   else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';actor.heading=actor.inside?Math.PI:facing(actor.destination)+Math.PI;actor.speech=actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='学习'?'翻开书本，认识新的种子':actor.action==='纪念'?'轻轻问好，记住在这里的朋友':actor.action==='工作'?'整理送别用品，保持这里安静':actor.action==='睡觉'?'呼……':'休息一会儿'}}
    else if(actor.phase==='activity'){actor.wait-=dt;if(actor.wait<=0)complete(actor)}
    else if(actor.phase==='exit-yard'){actor.speech='';go(actor,entrance(actor.place),'idle',true)}
    else if(actor.phase==='exit-room'){actor.speech='';go(actor,point(0,2.6),'outside',true)}
