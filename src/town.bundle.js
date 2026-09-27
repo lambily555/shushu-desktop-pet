@@ -32696,17 +32696,16 @@ void main() {
       seed = seed * 1664525 + 1013904223 >>> 0;
       return seed / 4294967296;
     }, lamps = lampLayout(), items = [];
-    for (const [a, b] of segments) {
-      const dx = b.x - a.x, dz = b.z - a.z, length = Math.hypot(dx, dz);
-      if (length < 0.1) continue;
-      for (let t = 0.35; t < length; t += 0.55 + random() * 0.45) {
-        for (const side of [-1, 1]) {
-          const offset = 0.9 + random() * 0.5, x2 = a.x + dx * t / length - dz / length * offset * side, z = a.z + dz * t / length + dx / length * offset * side;
-          if (!lampPositionClear(x2, z) || lamps.some((l) => Math.hypot(x2 - l.x, z - l.z) < 0.45) || items.some((p) => Math.hypot(x2 - p.x, z - p.z) < 0.4)) continue;
-          const pick = random();
-          items.push({ x: x2, z, kind: pick < 0.48 ? "grass" : pick < 0.76 ? "flower" : pick < 0.91 ? "stone" : "twig", yaw: random() * Math.PI * 2, scale: 0.8 + random() * 0.5 });
-        }
-      }
+    const centers = [], parts = [["grass", -0.2, 0], ["grass", 0.05, 0.12], ["flower", -0.05, -0.12], ["flower", 0.14, -0.04], ["stone", 0.26, 0.16], ["twig", -0.23, 0.22]];
+    for (let attempt = 0; attempt < 200 && centers.length < 7; attempt++) {
+      const [a, b] = segments[Math.floor(random() * segments.length)], dx = b.x - a.x, dz = b.z - a.z, length = Math.hypot(dx, dz);
+      if (length < 0.5) continue;
+      const t = random(), side = random() < 0.5 ? -1 : 1, offset = 1.15 + random() * 0.45, x2 = a.x + dx * t - dz / length * offset * side, z = a.z + dz * t + dx / length * offset * side, yaw = random() * Math.PI * 2;
+      if (centers.some((p) => Math.hypot(x2 - p.x, z - p.z) < 4)) continue;
+      const cluster = parts.map(([kind, ox, oz]) => ({ x: x2 + ox * Math.cos(yaw) - oz * Math.sin(yaw), z: z + ox * Math.sin(yaw) + oz * Math.cos(yaw), kind, yaw: random() * Math.PI * 2, scale: 1 + random() * 0.3 }));
+      if (cluster.some((p) => !lampPositionClear(p.x, p.z) || lamps.some((l) => Math.hypot(p.x - l.x, p.z - l.z) < 0.55))) continue;
+      centers.push({ x: x2, z });
+      items.push(...cluster);
     }
     return items;
   }

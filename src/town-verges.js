@@ -6,11 +6,14 @@ export function vergeLayout(){
  const segments=[[{x:-14,z:-1.3},{x:14,z:-1.3}],[{x:0,z:-12.5},{x:0,z:12.7}]];
  for(const d of destinations){if(d[0]==='中心广场')continue;const e=entrance(d[0]),near=Math.abs(e.x)<Math.abs(e.z+1.3)?{x:0,z:e.z}:{x:e.x,z:-1.3};segments.push([near,e])}
  let seed=927;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296},lamps=lampLayout(),items=[];
- for(const [a,b] of segments){const dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);if(length<.1)continue;
-  for(let t=.35;t<length;t+=.55+random()*.45){for(const side of [-1,1]){const offset=.9+random()*.5,x=a.x+dx*t/length-dz/length*offset*side,z=a.z+dz*t/length+dx/length*offset*side;
-   if(!lampPositionClear(x,z)||lamps.some(l=>Math.hypot(x-l.x,z-l.z)<.45)||items.some(p=>Math.hypot(x-p.x,z-p.z)<.4))continue;
-   const pick=random();items.push({x,z,kind:pick<.48?'grass':pick<.76?'flower':pick<.91?'stone':'twig',yaw:random()*Math.PI*2,scale:.8+random()*.5})
-  }}
+ const centers=[],parts=[['grass',-.2,0],['grass',.05,.12],['flower',-.05,-.12],['flower',.14,-.04],['stone',.26,.16],['twig',-.23,.22]];
+ for(let attempt=0;attempt<200&&centers.length<7;attempt++){
+  const [a,b]=segments[Math.floor(random()*segments.length)],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz);if(length<.5)continue;
+  const t=random(),side=random()<.5?-1:1,offset=1.15+random()*.45,x=a.x+dx*t-dz/length*offset*side,z=a.z+dz*t+dx/length*offset*side,yaw=random()*Math.PI*2;
+  if(centers.some(p=>Math.hypot(x-p.x,z-p.z)<4))continue;
+  const cluster=parts.map(([kind,ox,oz])=>({x:x+ox*Math.cos(yaw)-oz*Math.sin(yaw),z:z+ox*Math.sin(yaw)+oz*Math.cos(yaw),kind,yaw:random()*Math.PI*2,scale:1+random()*.3}));
+  if(cluster.some(p=>!lampPositionClear(p.x,p.z)||lamps.some(l=>Math.hypot(p.x-l.x,p.z-l.z)<.55)))continue;
+  centers.push({x,z});items.push(...cluster);
  }
  return items;
 }
