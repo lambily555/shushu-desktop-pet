@@ -430,7 +430,7 @@ function checkTownReturn(){
 }
 function enterTown(forceJournal=false){const wasAway=townWasAway();townState=townSim.settle(townState,Date.now());townState.lastOpenedAt=Date.now();saveTown();localStorage.setItem('shushu-town-return-v2-seen','1');ensureTownReturnNotice().hidden=true;townReturnDismissed=false;setPanel('town');if(forceJournal||wasAway)openTownOverlay('townJournal');setTimeout(()=>{renderTown();window.TownApp?.resize()},80)}
 $('#townButton')?.addEventListener('click',()=>enterTown(false));
-$('#townSpeed')?.addEventListener('change',e=>{settleTown();townState.speed=Number(e.target.value);saveTown();renderTown()});
+$('#townSpeed')?.addEventListener('change',e=>{const speed=Number(e.target.value);settleTown();townState.speed=speed;saveTown();renderTown()});
 $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSettings'));$('#townJournalButton')?.addEventListener('click',()=>openTownOverlay('townJournal'));
 document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
 document.querySelector('[data-town-context-close]')?.addEventListener('click',()=>{window.TownApp?.returnToTown?.();$('#townContext').hidden=true});

@@ -32608,6 +32608,54 @@ void main() {
     return { actors, add, tick, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, path: void 0, visited: [...a.visited] })) }) };
   }
 
+  // src/town-lights.js
+  var segmentDistance = (x2, z, a, b) => {
+    const dx = b.x - a.x, dz = b.z - a.z, t = Math.max(0, Math.min(1, ((x2 - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz || 1)));
+    return Math.hypot(x2 - a.x - t * dx, z - a.z - t * dz);
+  };
+  function lampPositionClear(x2, z) {
+    if (Math.hypot(x2, z) > 16.2) return false;
+    if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
+    for (const d of destinations) {
+      const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
+      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 3.35 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2 : 1.45;
+      if (name === "\u8DD1\u8F6E\u516C\u56ED" ? Math.hypot(dx, dz) < 2.45 : Math.abs(lx) < w && Math.abs(lz) < h) return false;
+      if (name !== "\u4E2D\u5FC3\u5E7F\u573A") {
+        const e = entrance(name), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
+        if (segmentDistance(x2, z, e, near) < 0.6) return false;
+      }
+    }
+    return true;
+  }
+  function lampLayout() {
+    const lamps = [];
+    for (const d of destinations) {
+      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 3.8 : 2.2;
+      for (const direction of [-1, 1]) {
+        for (let back = 0.6; back < 3; back += 0.4) {
+          const x2 = d[1] - Math.sin(a) * back + Math.cos(a) * side * direction, z = d[2] - Math.cos(a) * back - Math.sin(a) * side * direction;
+          if (lampPositionClear(x2, z)) {
+            lamps.push({ x: x2, z, yaw: Math.atan2(z - d[2], d[1] - x2), place: name });
+            break;
+          }
+        }
+      }
+    }
+    let seed = 731;
+    const random = () => {
+      seed = seed * 1664525 + 1013904223 >>> 0;
+      return seed / 4294967296;
+    };
+    let added = 0;
+    for (let i2 = 0; i2 < 300 && added < 6; i2++) {
+      const x2 = (random() - 0.5) * 29, z = (random() - 0.5) * 29;
+      if (!lampPositionClear(x2, z) || lamps.some((l) => Math.hypot(x2 - l.x, z - l.z) < 4)) continue;
+      lamps.push({ x: x2, z, yaw: random() * Math.PI * 2, place: null });
+      added++;
+    }
+    return lamps;
+  }
+
   // src/town-player.js
   var obstacles = {
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
@@ -36811,9 +36859,9 @@ void main() {
       cap.rotation.z = Math.PI;
       const bulb = new Mesh(new SphereGeometry(0.105, 14, 10), bulbMaterial);
       bulb.position.set(0.41, 1.42, 0);
-      const light = new PointLight(16763256, 0, 3.2, 2);
+      const light = new PointLight(16763256, 0, 4.8, 2);
       light.position.copy(bulb.position);
-      const pool = new Mesh(new CircleGeometry(1.55, 32), new MeshBasicMaterial({ map: poolTexture, color: 16769184, transparent: true, opacity: 0, depthWrite: false, blending: AdditiveBlending }));
+      const pool = new Mesh(new CircleGeometry(2.05, 32), new MeshBasicMaterial({ map: poolTexture, color: 16769184, transparent: true, opacity: 0, depthWrite: false, blending: AdditiveBlending }));
       pool.rotation.x = -Math.PI / 2;
       pool.position.set(0.41, 0.025, 0);
       lamp.add(pole, arm, cap, bulb, light, pool);
@@ -36823,7 +36871,7 @@ void main() {
       lampBulbs.push({ material: bulbMaterial, light, pool });
       lampPositions.push([x2, z]);
     }
-    [[-4, -4.5, 0], [4, -4.5, Math.PI], [-6, 4.4, 0], [5, 4.4, Math.PI], [-0.82, -6, 0], [0.82, 2, Math.PI], [-3, 8, 0], [5, 10, Math.PI], [7, 6, 0], [11, 5, Math.PI]].forEach((args) => streetLamp(...args));
+    lampLayout().forEach(({ x: x2, z, yaw: yaw2 }) => streetLamp(x2, z, yaw2));
     scene.add(streetLights);
     const clickable = [], placeModels = /* @__PURE__ */ new Map();
     places.forEach((place) => {
@@ -37741,17 +37789,17 @@ void main() {
       if (firstPerson && !next.celebration) stopFirstPerson();
       playerTools.hidden = !next.celebration;
       const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
-      if (night) sky.multiplyScalar(0.12);
+      if (night) sky.multiplyScalar(0.22);
       else if (dusk) sky.multiplyScalar(0.55);
       scene.background.copy(sky);
       scene.fog.color.copy(sky);
-      ambient.intensity = (night ? 0.35 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
-      sun.intensity = (night ? 0.22 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
+      ambient.intensity = (night ? 0.65 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.38 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
       sun.color.set(night ? 7968194 : dusk ? 16758383 : 16770237);
       lampBulbs.forEach(({ material, light, pool }) => {
         material.emissiveIntensity = lampsOn ? night ? 1.8 : 1.6 : 0;
         light.intensity = lampsOn ? night ? 7 : 7 : 0;
-        pool.material.opacity = lampsOn ? night ? 0.04 : 0.07 : 0;
+        pool.material.opacity = lampsOn ? night ? 0.035 : 0.07 : 0;
       });
       document.body.dataset.townPart = next.part || "";
       syncPups();
