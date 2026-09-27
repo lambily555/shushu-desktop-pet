@@ -40,3 +40,18 @@ export function createPlaza(){
  group.userData.celebration=celebration;group.userData.cake=cake;group.userData.setEvent=event=>{celebration.visible=!!event;cake.visible=!!event?.birthdays?.length};group.userData.footprint=Math.PI*3.15*1.8;return group;
 }
 export function birthdayHat(){const group=new THREE.Group();const hat=new THREE.Mesh(new THREE.ConeGeometry(.12,.29,12),mat('#cb826a'));hat.position.y=.12;const pom=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),mat('#e9c965'));pom.position.y=.28;group.add(hat,pom);return group}
+export function createSchool(){
+ const group=new THREE.Group(),{box,oval,tube}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),roof=mat('#aa7245'),stone=mat('#c4baa4'),green=mat('#365d4b'),paper=mat('#eee5c9'),gold=mat('#c8a155',{metalness:.65,roughness:.35});
+ const cylinder=(top,bottom,h,x,y,z,m)=>{const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,h,40),m);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh};
+ box(4.7,.12,3.8,0,.02,.3,stone);cylinder(1.26,1.35,.2,0,.13,-.35,stone);cylinder(1.16,1.16,1.15,0,.8,-.35,wood);cylinder(.99,1.5,.28,0,1.46,-.35,roof);cylinder(.83,.83,.85,0,1.99,-.35,wood);cylinder(.25,1.18,.48,0,2.65,-.35,roof);
+ // Individual roof shingles and wall planks add depth rather than painted dots.
+ for(const [radius,y] of [[1.38,1.48],[1.07,2.54],[.78,2.69],[.49,2.81]])for(let i=0;i<28;i++){const a=i*Math.PI*2/28,m=box(.17,.045,.23,Math.sin(a)*radius,y,Math.cos(a)*radius-.35,roof);m.rotation.y=a;m.rotation.x=.25}
+ for(let i=0;i<38;i++){const a=i*Math.PI*2/38;const plank=box(.015,1.04,.025,Math.sin(a)*1.167,.81,Math.cos(a)*1.167-.35,mat('#a37b48'));plank.rotation.y=a}
+ const door=box(.56,.82,.08,0,.52,.83,mat('#68452e'));oval(0,.94,.84,.29,.25,.055,mat('#68452e'));box(.65,.08,.3,0,.13,1.02,wood);oval(.19,.52,.89,.04,.04,.04,gold);sign(group,'鼠鼠学校',0,1.2,1.19);
+ for(const [x,y,z,a] of [[-.78,.84,.5,-.65],[.78,.84,.5,.65],[-.52,2.01,.32,-.55],[.52,2.01,.32,.55]]){const frame=new THREE.Mesh(new THREE.TorusGeometry(.23,.04,8,32),roof);frame.position.set(x,y,z);frame.rotation.y=a;group.add(frame);const pane=oval(x,y,z,.21,.21,.035,green);pane.rotation.y=a;box(.025,.38,.07,x,y,z+.03,wood);box(.38,.025,.07,x,y,z+.03,wood)}
+ cylinder(.53,.57,.12,0,3.04,-.35,wood);for(const x of [-.38,.38])for(const z of [-.73,.03])box(.09,.66,.09,x,3.4,z,wood);cylinder(.08,.15,.08,0,3.62,-.35,gold);cylinder(.12,.23,.33,0,3.43,-.35,gold);oval(0,3.22,-.35,.035,.06,.035,gold);const cap=new THREE.Mesh(new THREE.ConeGeometry(.76,.48,4),roof);cap.rotation.y=Math.PI/4;cap.position.set(0,3.95,-.35);group.add(cap);
+ box(1,.63,.055,-1.65,.62,.95,green);[-2.06,-1.24].forEach(x=>box(.055,.82,.055,x,.43,.95,wood));sign(group,'认识种子\n学习生活',-1.65,.65,.99);
+ for(const x of [-1.65,-.72]){box(.68,.42,.43,x,.3,1.62,wood);for(const dx of [-.27,.27])box(.04,.42,.04,x+dx,.22,1.62,wood);box(.3,.035,.23,x,.54,1.62,paper);box(.35,.2,.3,x,.16,1.97,wood)}
+ for(const x of [1.35,2.13])box(.065,1.1,.065,x,.56,.65,wood);box(.9,.06,.07,1.74,1.13,.65,wood);for(const x of [1.48,2])tube([[x,1.1,.65],[x,.45,.65]],.01,gold);box(.6,.06,.25,1.74,.43,.65,wood);
+ box(.9,.24,.3,1.7,.16,1.7,wood);sign(group,'校园公告',1.85,.8,-.8);for(let i=0;i<24;i++){const x=-2.3+i*.2;box(.025,.35,.025,x,.25,-1.58,wood)}group.userData.footprint=4.7*3.8;return group;
+}

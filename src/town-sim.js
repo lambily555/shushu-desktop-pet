@@ -31,6 +31,7 @@
   function childrenOf(state,id){return [...state.npcOffspring.filter(p=>p.parentIds?.includes(id)),...state.offspring.filter(p=>id==='main'||p.parentId===id||(!p.parentId&&p.parent===state.npcs.find(n=>n.id===id)?.name))]}
   function ageYears(state){return Number(state.ageYearsValue)||0}
   function stageFor(years){if(years<.18)return '幼鼠';if(years<.65)return '少年';if(years<1.8)return '成年';return '老年'}
+  function townClock(state,now=Date.now()){const time=state.calendarTime+Math.max(0,now-state.lastSettledAt)*calendarRate(state.speed),d=new Date(time),local=new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes(),d.getUTCSeconds()).getTime();return {time,local,display:d.toISOString().slice(11,16),part:daypart(local),weather:weather(local)}}
   function chooseActivity(state,time){const part=daypart(time),r=seeded(dateKey(time)+Math.floor(time/HOUR),'activity'),low=part==='白天';if(state.fullness<28)return ['寻找食物','鼠鼠小屋'];if(state.health<55)return ['休息','诊所'];const list=low?[['睡觉','鼠鼠小屋'],['理毛','鼠鼠小屋'],['进食','鼠鼠小屋'],['菜园散步','小菜园']]:[['跑轮','跑轮公园'],['探索','中心广场'],['社交','中心广场'],['进食','鼠鼠小屋'],['饮水','鼠鼠小屋'],['照看菜园','小菜园']];return list[Math.floor(r*list.length)]}
   function settle(stateInput,now=Date.now()){
     const state=migrate(stateInput,now),from=Math.min(state.lastSettledAt,now),hours=Math.min(24*365*3,Math.max(0,(now-from)/HOUR));if(hours<=0){logCelebrations(state,now);return state}
@@ -49,7 +50,7 @@
         if(state.aging)state.ageYearsValue+=stepHours/(24*(paceDays[state.speed]||30));
         state.lifeStage=stageFor(ageYears(state));if(ageYears(state)>1.8)state.health=clamp(state.health-stepHours*.025);
         if(state.illness&&seeded(dateKey(time),'ill')<.004*stepHours&&state.health>55){state.health=clamp(state.health-8);event(state,time,'health','鼠鼠有些不舒服，去诊所检查了。','诊所')}
-        if(time>=state.activityUntil){const [activity,place]=chooseActivity(state,time);state.currentActivity=activity;state.currentPlace=place;state.activityUntil=time+HOUR*(1+seeded(time,'duration')*3);event(state,time,'activity',`鼠鼠${activity==='睡觉'?'在小屋睡了一觉':`去了${place}${activity}`}。`,place);if(activity==='跑轮'){state.health=clamp(state.health+.6);state.mood=clamp(state.mood+1);state.seeds+=1}}
+        if(time>=state.activityUntil){const [activity,place]=chooseActivity(state,townClock(state,state.lastSettledAt).local);state.currentActivity=activity;state.currentPlace=place;state.activityUntil=time+HOUR*(1+seeded(time,'duration')*3);event(state,time,'activity',`鼠鼠${activity==='睡觉'?'在小屋睡了一觉':`去了${place}${activity}`}。`,place);if(activity==='跑轮'){state.health=clamp(state.health+.6);state.mood=clamp(state.mood+1);state.seeds+=1}}
         if(state.garden.ready===false&&time-state.garden.plantedAt>=DAY){state.garden.ready=true;event(state,time,'garden','小菜园的嫩叶成熟了。','小菜园')}
         if(state.mortality&&state.aging&&ageYears(state)>=2+seeded('lifespan')&&state.health<80){state.alive=false;state.currentActivity='安静休息';state.currentPlace='鼠鼠小屋';state.pendingFarewell={phase:'resting',startedAt:time};event(state,time,'farewell','鼠鼠回到小屋安静地趴下休息。','鼠鼠小屋')}
       }
@@ -95,5 +96,5 @@
     else{if(detail.action==='购买粮食')npc.supplies=Math.min(5,(npc.supplies||0)+1);if(detail.action==='进食'&&npc.supplies>0){npc.supplies--;npc.health=clamp(npc.health+.5)}if(detail.action==='跑轮'||detail.action==='检查')npc.health=clamp(npc.health+.5)}
     event(state,at,'activity',(main?'鼠鼠':npc.name)+'在'+detail.place+'完成了'+detail.action+'。',detail.place);return {state,ok:true};
   }
-  return {calendarEntries,exchangeOffers,exchange,townCalendar,calendarRate,recordSceneEvent,waterStatus,refillWater,growthScale,childrenOf,defaults,migrate,settle,daypart,weather,ageYears,stageFor,buyFood,harvest,interact,socialAllowance,exercise,relationship,breedingEligibility,breed,npcBreedingEligibility,breedNpcPair,finishFarewell,adopt,paceDays};
+  return {townClock,calendarEntries,exchangeOffers,exchange,townCalendar,calendarRate,recordSceneEvent,waterStatus,refillWater,growthScale,childrenOf,defaults,migrate,settle,daypart,weather,ageYears,stageFor,buyFood,harvest,interact,socialAllowance,exercise,relationship,breedingEligibility,breed,npcBreedingEligibility,breedNpcPair,finishFarewell,adopt,paceDays};
 });

@@ -1,20 +1,22 @@
 // Scene-time movement is separate from real-time needs and aging.
 export const destinations=[
- ['跑轮公园',-6,-5,false,'跑轮',[-1.9,-.8]],['诊所',0,-5,true,'检查',[-1.9,-.8]],
- ['零食铺',6,-5,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
- ['纪念馆',-6,2.3,true,'参观',[0,-.5]],['鼠鼠小屋',0,2.3,true,'休息',[-2.2,-.7]],
- ['小菜园',6,2.3,false,'照看菜园',[0,0]],['殡仪馆',-2.1,5.9,true,'工作',[0,1]],
- ['墓地',2.8,5.9,false,'纪念',[0,0]]];
+ ['跑轮公园',-9,-7,false,'跑轮',[-1.9,-.8]],['诊所',-4.5,-8.5,true,'检查',[-1.9,-.8]],
+ ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
+ ['纪念馆',-9,3,true,'参观',[0,-.5]],['鼠鼠小屋',-4,5,true,'休息',[-2.2,-.7]],
+ ['小菜园',9,1,false,'照看菜园',[0,0]],['殡仪馆',-5,10,true,'工作',[0,1]],
+ ['墓地',2,11,false,'纪念',[0,0]],['鼠鼠学校',9,8,true,'学习',[0,-.5]]];
 const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
-export function blocked(x,z){return destinations.some(d=>d[0]!=='中心广场'&&Math.abs(x-d[1])<1.62&&Math.abs(z-d[2])<1.2)||Math.hypot(x,z+1.3)<.9}
+export const facing=name=>{const d=byName.get(name);return name==='中心广场'?0:Math.atan2(-d[1],-1.3-d[2])};
+export function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋'),a=facing(d[0]);return {x:d[1]+Math.sin(a)*1.9,z:d[2]+Math.cos(a)*1.9}}
+export function blocked(x,z){return destinations.some(d=>{if(d[0]==='中心广场')return false;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<1.62&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<1.2})||Math.hypot(x,z+1.3)<.9}
 // Grid routes avoid building footprints, garden beds and the central fountain.
 export function route(start,end){
  const unit=.4,toGrid=p=>[Math.round(p.x/unit),Math.round(p.z/unit)],key=(x,z)=>`${x},${z}`;
  const [sx,sz]=toGrid(start),[ex,ez]=toGrid(end),open=[{x:sx,z:sz,g:0,f:0}],cost=new Map([[key(sx,sz),0]]),parent=new Map();let found=null;
  while(open.length){open.sort((a,b)=>a.f-b.f);const n=open.shift(),nk=key(n.x,n.z);if(n.g!==cost.get(nk))continue;if(n.x===ex&&n.z===ez){found=n;break}
-  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const x=n.x+dx,z=n.z+dz;if(x<-32||x>32||z<-26||z>30)continue;if(blocked(x*unit,z*unit)||dx&&dz&&(blocked(n.x*unit+dx*unit,n.z*unit)||blocked(n.x*unit,n.z*unit+dz*unit)))continue;
+  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const x=n.x+dx,z=n.z+dz;if(x<-44||x>44||z<-44||z>44)continue;if(blocked(x*unit,z*unit)||dx&&dz&&(blocked(n.x*unit+dx*unit,n.z*unit)||blocked(n.x*unit,n.z*unit+dz*unit)))continue;
    const g=n.g+Math.hypot(dx,dz),k=key(x,z);if(g>=(cost.get(k)??Infinity))continue;cost.set(k,g);parent.set(k,nk);open.push({x,z,g,f:g+Math.hypot(x-ex,z-ez)});
   }
  }
@@ -22,12 +24,11 @@ export function route(start,end){
 }
 export function createTownLife(onEvent=()=>{}){
  const actors=new Map();let elapsed=0,day=true,conversations=0,celebration=null;
- function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋');return point(d[1],d[2]+1.6)}
  function add(id,home,options={}){if(actors.has(id))return actors.get(id);const actor={id,home,name:options.name||id,age:options.age??.7,child:!!options.child,position:entrance(home),heading:0,moving:false,phase:'idle',inside:null,place:home,destination:home,action:'休息',path:[],wait:actors.size*1.3,cycle:0,partner:null,visited:new Set(),completed:0,speech:''};actors.set(id,actor);return actor}
  function go(actor,target,nextPhase,indoor=false){const path=indoor?[target]:route(actor.position,target);if(!path.length){actor.phase='idle';actor.wait=2;return false}actor.path=path;actor.phase='moving';actor.arrival=nextPhase;return true}
  function plan(actor){
   actor.cycle++;actor.speech='';actor.partner=null;if(celebration){actor.destination='中心广场';actor.action='庆祝';go(actor,entrance(actor.destination),'arrived');return}
-  const choices=actor.child?['鼠鼠小屋','跑轮公园','中心广场','小菜园']:['小菜园','零食铺','中心广场',actor.home,'跑轮公园','鼠鼠小屋','纪念馆','诊所','墓地','殡仪馆','中心广场'];
+  const choices=actor.child?['鼠鼠小屋','跑轮公园','中心广场','小菜园','鼠鼠学校']:['小菜园','零食铺','中心广场',actor.home,'跑轮公园','鼠鼠小屋','纪念馆','诊所','墓地','殡仪馆','鼠鼠学校','中心广场'];
   const index=(actor.cycle-1+[...actors.keys()].indexOf(actor.id))%choices.length;
   actor.destination=actor.child&&actor.age<.18?'鼠鼠小屋':choices[index];if(actor.destination==='中心广场'&&actor.allowSocial===false)actor.destination='鼠鼠小屋';actor.action=byName.get(actor.destination)[4];
   if(actor.destination==='鼠鼠小屋')actor.action=actor.child&&actor.age<.18?'睡觉':actor.cycle%3===0?'饮水':day?'休息':'进食';

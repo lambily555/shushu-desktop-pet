@@ -32276,21 +32276,34 @@ void main() {
 
   // src/town-life.js
   var destinations = [
-    ["\u8DD1\u8F6E\u516C\u56ED", -6, -5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
-    ["\u8BCA\u6240", 0, -5, true, "\u68C0\u67E5", [-1.9, -0.8]],
-    ["\u96F6\u98DF\u94FA", 6, -5, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
+    ["\u8DD1\u8F6E\u516C\u56ED", -9, -7, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
+    ["\u8BCA\u6240", -4.5, -8.5, true, "\u68C0\u67E5", [-1.9, -0.8]],
+    ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
-    ["\u7EAA\u5FF5\u9986", -6, 2.3, true, "\u53C2\u89C2", [0, -0.5]],
-    ["\u9F20\u9F20\u5C0F\u5C4B", 0, 2.3, true, "\u4F11\u606F", [-2.2, -0.7]],
-    ["\u5C0F\u83DC\u56ED", 6, 2.3, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
-    ["\u6BA1\u4EEA\u9986", -2.1, 5.9, true, "\u5DE5\u4F5C", [0, 1]],
-    ["\u5893\u5730", 2.8, 5.9, false, "\u7EAA\u5FF5", [0, 0]]
+    ["\u7EAA\u5FF5\u9986", -9, 3, true, "\u53C2\u89C2", [0, -0.5]],
+    ["\u9F20\u9F20\u5C0F\u5C4B", -4, 5, true, "\u4F11\u606F", [-2.2, -0.7]],
+    ["\u5C0F\u83DC\u56ED", 9, 1, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
+    ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
+    ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
+    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [0, -0.5]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var point = (x2, z) => ({ x: x2, z });
+  var facing = (name) => {
+    const d = byName.get(name);
+    return name === "\u4E2D\u5FC3\u5E7F\u573A" ? 0 : Math.atan2(-d[1], -1.3 - d[2]);
+  };
+  function entrance(name) {
+    const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B"), a = facing(d[0]);
+    return { x: d[1] + Math.sin(a) * 1.9, z: d[2] + Math.cos(a) * 1.9 };
+  }
   function blocked(x2, z) {
-    return destinations.some((d) => d[0] !== "\u4E2D\u5FC3\u5E7F\u573A" && Math.abs(x2 - d[1]) < 1.62 && Math.abs(z - d[2]) < 1.2) || Math.hypot(x2, z + 1.3) < 0.9;
+    return destinations.some((d) => {
+      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") return false;
+      const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
+      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < 1.62 && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < 1.2;
+    }) || Math.hypot(x2, z + 1.3) < 0.9;
   }
   function route(start, end) {
     const unit = 0.4, toGrid = (p) => [Math.round(p.x / unit), Math.round(p.z / unit)], key = (x2, z) => `${x2},${z}`;
@@ -32306,7 +32319,7 @@ void main() {
       }
       for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]) {
         const x2 = n.x + dx, z = n.z + dz;
-        if (x2 < -32 || x2 > 32 || z < -26 || z > 30) continue;
+        if (x2 < -44 || x2 > 44 || z < -44 || z > 44) continue;
         if (blocked(x2 * unit, z * unit) || dx && dz && (blocked(n.x * unit + dx * unit, n.z * unit) || blocked(n.x * unit, n.z * unit + dz * unit))) continue;
         const g = n.g + Math.hypot(dx, dz), k2 = key(x2, z);
         if (g >= (cost.get(k2) ?? Infinity)) continue;
@@ -32331,10 +32344,6 @@ void main() {
   }) {
     const actors = /* @__PURE__ */ new Map();
     let elapsed = 0, day = true, conversations = 0, celebration = null;
-    function entrance(name) {
-      const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B");
-      return point(d[1], d[2] + 1.6);
-    }
     function add(id, home, options = {}) {
       if (actors.has(id)) return actors.get(id);
       const actor = { id, home, name: options.name || id, age: options.age ?? 0.7, child: !!options.child, position: entrance(home), heading: 0, moving: false, phase: "idle", inside: null, place: home, destination: home, action: "\u4F11\u606F", path: [], wait: actors.size * 1.3, cycle: 0, partner: null, visited: /* @__PURE__ */ new Set(), completed: 0, speech: "" };
@@ -32363,7 +32372,7 @@ void main() {
         go(actor, entrance(actor.destination), "arrived");
         return;
       }
-      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u4E2D\u5FC3\u5E7F\u573A"];
+      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u4E2D\u5FC3\u5E7F\u573A"];
       const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
       actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
       if (actor.destination === "\u4E2D\u5FC3\u5E7F\u573A" && actor.allowSocial === false) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
@@ -32526,6 +32535,7 @@ void main() {
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
     "\u7EAA\u5FF5\u9986": [[-2.2, -1.4, 0.75, 0.45], [0, -1.4, 0.75, 0.45], [2.2, -1.4, 0.75, 0.45], [0, 1.5, 1.05, 0.4]],
+    "\u9F20\u9F20\u5B66\u6821": [[-2.6, -2.4, 0.82, 0.32], [-1, -0.6, 0.65, 0.4], [1.4, -0.6, 0.65, 0.4], [-1, 1.1, 0.65, 0.4], [1.4, 1.1, 0.65, 0.4]],
     "\u6BA1\u4EEA\u9986": [[0, -1, 1.3, 0.65], [-2.6, -2.4, 0.82, 0.32], [0, 1.4, 1.05, 0.4]]
   };
   function canWalk(actor, x2, z) {
@@ -32533,7 +32543,7 @@ void main() {
       if (Math.abs(x2) > 3.7 || z < -2.7 || z > 2.8) return false;
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d]) => Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1);
     }
-    if (Math.hypot(x2, z) > 13.1) return false;
+    if (Math.hypot(x2, z) > 17.4) return false;
     return ![[0, 0], [0.12, 0], [-0.12, 0], [0, 0.12], [0, -0.12]].some(([dx, dz]) => blocked(x2 + dx, z + dz));
   }
   function movePlayer(actor, dx, dz) {
@@ -33082,6 +33092,78 @@ void main() {
     const pom = new Mesh(new SphereGeometry(0.035, 8, 6), mat("#e9c965"));
     pom.position.y = 0.28;
     group.add(hat, pom);
+    return group;
+  }
+  function createSchool() {
+    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
+    const cylinder = (top, bottom, h, x2, y, z, m) => {
+      const mesh = new Mesh(new CylinderGeometry(top, bottom, h, 40), m);
+      mesh.position.set(x2, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+    box(4.7, 0.12, 3.8, 0, 0.02, 0.3, stone);
+    cylinder(1.26, 1.35, 0.2, 0, 0.13, -0.35, stone);
+    cylinder(1.16, 1.16, 1.15, 0, 0.8, -0.35, wood);
+    cylinder(0.99, 1.5, 0.28, 0, 1.46, -0.35, roof);
+    cylinder(0.83, 0.83, 0.85, 0, 1.99, -0.35, wood);
+    cylinder(0.25, 1.18, 0.48, 0, 2.65, -0.35, roof);
+    for (const [radius, y] of [[1.38, 1.48], [1.07, 2.54], [0.78, 2.69], [0.49, 2.81]]) for (let i2 = 0; i2 < 28; i2++) {
+      const a = i2 * Math.PI * 2 / 28, m = box(0.17, 0.045, 0.23, Math.sin(a) * radius, y, Math.cos(a) * radius - 0.35, roof);
+      m.rotation.y = a;
+      m.rotation.x = 0.25;
+    }
+    for (let i2 = 0; i2 < 38; i2++) {
+      const a = i2 * Math.PI * 2 / 38;
+      const plank = box(0.015, 1.04, 0.025, Math.sin(a) * 1.167, 0.81, Math.cos(a) * 1.167 - 0.35, mat("#a37b48"));
+      plank.rotation.y = a;
+    }
+    const door = box(0.56, 0.82, 0.08, 0, 0.52, 0.83, mat("#68452e"));
+    oval(0, 0.94, 0.84, 0.29, 0.25, 0.055, mat("#68452e"));
+    box(0.65, 0.08, 0.3, 0, 0.13, 1.02, wood);
+    oval(0.19, 0.52, 0.89, 0.04, 0.04, 0.04, gold);
+    sign2(group, "\u9F20\u9F20\u5B66\u6821", 0, 1.2, 1.19);
+    for (const [x2, y, z, a] of [[-0.78, 0.84, 0.5, -0.65], [0.78, 0.84, 0.5, 0.65], [-0.52, 2.01, 0.32, -0.55], [0.52, 2.01, 0.32, 0.55]]) {
+      const frame = new Mesh(new TorusGeometry(0.23, 0.04, 8, 32), roof);
+      frame.position.set(x2, y, z);
+      frame.rotation.y = a;
+      group.add(frame);
+      const pane = oval(x2, y, z, 0.21, 0.21, 0.035, green);
+      pane.rotation.y = a;
+      box(0.025, 0.38, 0.07, x2, y, z + 0.03, wood);
+      box(0.38, 0.025, 0.07, x2, y, z + 0.03, wood);
+    }
+    cylinder(0.53, 0.57, 0.12, 0, 3.04, -0.35, wood);
+    for (const x2 of [-0.38, 0.38]) for (const z of [-0.73, 0.03]) box(0.09, 0.66, 0.09, x2, 3.4, z, wood);
+    cylinder(0.08, 0.15, 0.08, 0, 3.62, -0.35, gold);
+    cylinder(0.12, 0.23, 0.33, 0, 3.43, -0.35, gold);
+    oval(0, 3.22, -0.35, 0.035, 0.06, 0.035, gold);
+    const cap = new Mesh(new ConeGeometry(0.76, 0.48, 4), roof);
+    cap.rotation.y = Math.PI / 4;
+    cap.position.set(0, 3.95, -0.35);
+    group.add(cap);
+    box(1, 0.63, 0.055, -1.65, 0.62, 0.95, green);
+    [-2.06, -1.24].forEach((x2) => box(0.055, 0.82, 0.055, x2, 0.43, 0.95, wood));
+    sign2(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99);
+    for (const x2 of [-1.65, -0.72]) {
+      box(0.68, 0.42, 0.43, x2, 0.3, 1.62, wood);
+      for (const dx of [-0.27, 0.27]) box(0.04, 0.42, 0.04, x2 + dx, 0.22, 1.62, wood);
+      box(0.3, 0.035, 0.23, x2, 0.54, 1.62, paper);
+      box(0.35, 0.2, 0.3, x2, 0.16, 1.97, wood);
+    }
+    for (const x2 of [1.35, 2.13]) box(0.065, 1.1, 0.065, x2, 0.56, 0.65, wood);
+    box(0.9, 0.06, 0.07, 1.74, 1.13, 0.65, wood);
+    for (const x2 of [1.48, 2]) tube([[x2, 1.1, 0.65], [x2, 0.45, 0.65]], 0.01, gold);
+    box(0.6, 0.06, 0.25, 1.74, 0.43, 0.65, wood);
+    box(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, wood);
+    sign2(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8);
+    for (let i2 = 0; i2 < 24; i2++) {
+      const x2 = -2.3 + i2 * 0.2;
+      box(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
+    }
+    group.userData.footprint = 4.7 * 3.8;
     return group;
   }
 
@@ -36297,11 +36379,17 @@ void main() {
     ["\u9F20\u9F20\u5C0F\u5C4B", 0, 2.3, 13867896, "\u4F11\u606F\u3001\u7CAE\u4ED3\u548C\u5BB6\u5177\u90FD\u5728\u8FD9\u91CC"],
     ["\u5C0F\u83DC\u56ED", 6, 2.3, 8959865, "\u79CD\u4E0B\u9F20\u9F20\u559C\u6B22\u7684\u65B0\u9C9C\u98DF\u7269"],
     ["\u6BA1\u4EEA\u9986", -2.1, 5.9, 9408932, "\u6E29\u67D4\u9001\u522B\u5C0F\u9547\u91CC\u7684\u9F20\u9F20"],
-    ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"]
+    ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
+    ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"]
   ];
+  places.forEach((p) => {
+    const d = destinations.find((d2) => d2[0] === p[0]);
+    p[1] = d[1];
+    p[2] = d[2];
+  });
   function roundedBuilding(name, x2, z, color) {
-    if (name === "\u4E2D\u5FC3\u5E7F\u573A" || name === "\u5C0F\u83DC\u56ED") {
-      const model = name === "\u4E2D\u5FC3\u5E7F\u573A" ? createPlaza() : createGarden();
+    if (["\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"].includes(name)) {
+      const model = name === "\u4E2D\u5FC3\u5E7F\u573A" ? createPlaza() : name === "\u5C0F\u83DC\u56ED" ? createGarden() : createSchool();
       model.position.set(x2, 0, z);
       model.traverse((o) => o.userData.place = name);
       return model;
@@ -36503,16 +36591,23 @@ void main() {
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
     scene.add(sun);
-    const ground = new Mesh(new CylinderGeometry(13.7, 14.2, 0.65, 64), new MeshStandardMaterial({ color: 10468753, roughness: 1 }));
+    const ground = new Mesh(new CylinderGeometry(18, 18.5, 0.65, 64), new MeshStandardMaterial({ color: 10468753, roughness: 1 }));
     ground.position.y = -0.35;
     ground.receiveShadow = true;
     scene.add(ground);
     const pathMat = new MeshStandardMaterial({ color: 14272941, roughness: 1 });
-    [[0, 0, 13, 1.05], [0, 2.2, 1.05, 8.2]].forEach(([x2, z, w, d]) => {
+    const road = (x2, z, w, d, angle = 0) => {
       const m = new Mesh(new BoxGeometry(w, 0.035, d), pathMat);
       m.position.set(x2, 0.01, z);
+      m.rotation.y = angle;
       m.receiveShadow = true;
       scene.add(m);
+    };
+    road(0, -1.3, 28, 1.05);
+    road(0, -1.3, 1.05, 28);
+    places.filter((p) => p[0] !== "\u4E2D\u5FC3\u5E7F\u573A").forEach((p) => {
+      const e = entrance(p[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 }, dx = e.x - near.x, dz = e.z - near.z, len = Math.hypot(dx, dz);
+      if (len > 0.1) road((e.x + near.x) / 2, (e.z + near.z) / 2, 0.75, len, Math.atan2(dx, dz));
     });
     const streetLights = new Group(), lampBulbs = [], lampPositions = [], poolCanvas = document.createElement("canvas");
     poolCanvas.width = poolCanvas.height = 128;
@@ -36547,11 +36642,12 @@ void main() {
       lampBulbs.push({ material: bulbMaterial, light, pool });
       lampPositions.push([x2, z]);
     }
-    [[-3.45, -0.82, -Math.PI / 2], [-3.45, 0.82, Math.PI / 2], [3.45, -0.82, -Math.PI / 2], [3.45, 0.82, Math.PI / 2], [-0.82, -3.15, 0], [0.82, -3.15, Math.PI], [-0.82, 4.15, 0], [0.82, 4.15, Math.PI]].forEach((args) => streetLamp(...args));
+    [[-4, -4.5, 0], [4, -4.5, Math.PI], [-6, 4.4, 0], [5, 4.4, Math.PI], [-0.82, -6, 0], [0.82, 2, Math.PI], [-3, 8, 0], [5, 10, Math.PI], [7, 6, 0], [11, 5, Math.PI]].forEach((args) => streetLamp(...args));
     scene.add(streetLights);
     const clickable = [], placeModels = /* @__PURE__ */ new Map();
     places.forEach((place) => {
       const obj = roundedBuilding(...place);
+      obj.rotation.y = facing(place[0]);
       placeModels.set(place[0], obj);
       clickable.push(obj);
       scene.add(obj);
@@ -36561,7 +36657,7 @@ void main() {
     scene.add(pet);
     clickable.push(pet);
     const roles = ["\u8DD1\u8F6E\u7BA1\u7406\u5458", "\u533B\u751F", "\u96F6\u98DF\u5E97\u4E3B", "\u5E7F\u573A\u90BB\u5C45", "\u7EAA\u5FF5\u9986\u7BA1\u7406\u5458", "\u5C0F\u5C4B\u90BB\u5C45", "\u56ED\u4E01", "\u793C\u4EEA\u5E08", "\u5B88\u5893\u4EBA"];
-    const residents = places.map(([place, x2, z], i2) => {
+    const residents = places.slice(0, 9).map(([place, x2, z], i2) => {
       const npc = hamster([12297610, 13158587, 10786690][i2 % 3]);
       npc.userData.npcIndex = i2;
       npc.traverse((child) => child.userData.npcIndex = i2);
@@ -36619,7 +36715,7 @@ void main() {
       button.textContent = name;
       button.onclick = () => enterPlace(name);
       host.appendChild(button);
-      return { button, point: new Vector3(x2, name === "\u4E2D\u5FC3\u5E7F\u573A" ? 1.85 : 2.1, z) };
+      return { button, point: new Vector3(x2, name === "\u4E2D\u5FC3\u5E7F\u573A" ? 1.85 : name === "\u9F20\u9F20\u5B66\u6821" ? 4.4 : 2.1, z) };
     });
     const landscape = new Mesh(new PlaneGeometry(160, 160), new MeshStandardMaterial({ color: 9612670, roughness: 1 }));
     landscape.rotation.x = -Math.PI / 2;
@@ -36630,11 +36726,11 @@ void main() {
       trunk.position.y = 0.28;
       leaf.position.y = 0.73;
       tree.add(trunk, leaf);
-      const a = i2 / 34 * Math.PI * 2, r = 12.8;
+      const a = i2 / 34 * Math.PI * 2, r = 17.1;
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance2 = 25, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     let firstPerson = false, playerYaw = 0, playerPitch = 0, playerSavedCamera = null, jumpHeight = 0, jumpVelocity = 0;
     const playerKeys = /* @__PURE__ */ new Set();
@@ -36748,7 +36844,7 @@ void main() {
     speech.className = "town-npc-speech";
     speech.hidden = true;
     host.appendChild(speech);
-    const indoorNames = ["\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"];
+    const indoorNames = ["\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
     function clearRoom() {
       for (let i2 = clickable.length - 1; i2 >= 0; i2--) if (clickable[i2].userData.roomAction) clickable.splice(i2, 1);
       roomLabels.splice(0).forEach((item) => item.button.remove());
@@ -36852,6 +36948,16 @@ void main() {
         add(3, 0.85, 0.85, 0.5, 0.43, 1.3, 11042386);
         label("\u67DC\u53F0", 0.5, 1.3);
         for (let i2 = 0; i2 < 5; i2++) add(0.33, 0.2, 0.4, -0.6 + i2 * 0.55, 0.97, 1.3, 14203255);
+      } else if (name === "\u9F20\u9F20\u5B66\u6821") {
+        shelf(-2.6, -2.4, "\u4E66\u67DC");
+        add(2.6, 1.3, 0.1, 0.5, 1, -2.65, 3693896);
+        label("\u9ED1\u677F", 0.5, -2.5);
+        for (const x2 of [-1, 1.4]) for (const z of [-0.6, 1.1]) {
+          add(1.2, 0.6, 0.7, x2, 0.3, z, 12095576);
+          add(0.65, 0.32, 0.55, x2, 0.16, z + 0.7, 10779465);
+          add(0.4, 0.035, 0.28, x2, 0.64, z, 15919305);
+        }
+        label("\u8BFE\u684C", 1.4, 1.1);
       } else if (name === "\u7EAA\u5FF5\u9986") {
         [-2.2, 0, 2.2].forEach((x2, i2) => {
           add(1.4, 0.55, 0.8, x2, 0.28, -1.4, 10261118);
@@ -37148,7 +37254,8 @@ void main() {
           leavePlace();
           const place = places.find((p) => p[0] === old);
           actor.inside = null;
-          actor.position = { x: place[1], z: place[2] + 1.6 };
+          actor.position = entrance(old);
+          playerYaw = facing(old);
           return;
         }
         const nearby = roomLabels.map((l) => ({ ...l, d: Math.hypot(l.point.x - actor.position.x, l.point.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
@@ -37187,7 +37294,7 @@ void main() {
           return;
         }
       }
-      const nearest = places.map((p) => ({ p, d: Math.hypot(actor.position.x - p[1], actor.position.z - (p[2] + 1.6)) })).sort((a, b) => a.d - b.d)[0];
+      const nearest = places.map((p) => ({ p, d: Math.hypot(actor.position.x - entrance(p[0]).x, actor.position.z - entrance(p[0]).z) })).sort((a, b) => a.d - b.d)[0];
       if (nearest?.d < 1.15) {
         const name = nearest.p[0];
         if (indoorNames.includes(name)) {
@@ -37496,7 +37603,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, townRadius: 13.7, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

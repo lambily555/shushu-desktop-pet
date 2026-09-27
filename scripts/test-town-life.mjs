@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import {createTownLife,destinations,route,blocked} from '../src/town-life.js';
-for(const a of destinations)for(const b of destinations){const path=route({x:a[1],z:a[2]+1.6},{x:b[1],z:b[2]+1.6});assert.ok(path.length,`${a[0]} -> ${b[0]}`);assert.ok(path.every(p=>!blocked(p.x,p.z)))}
+import {createTownLife,destinations,route,blocked,entrance,facing} from '../src/town-life.js';
+for(const d of destinations){if(d[0]==='中心广场')continue;const e=entrance(d[0]),dx=-d[1],dz=-1.3-d[2];assert.ok((e.x-d[1])*dx+(e.z-d[2])*dz>0,'Door faces plaza');assert.ok(!blocked(e.x,e.z),'Door reachable');assert.equal(blocked(d[1],d[2]),true)}
+for(const a of destinations)for(const b of destinations){const path=route(entrance(a[0]),entrance(b[0]));assert.ok(path.length,`${a[0]} -> ${b[0]}`);assert.ok(path.every(p=>!blocked(p.x,p.z)))}
 const events=[],life=createTownLife(e=>events.push(e));life.add('main','鼠鼠小屋');destinations.forEach((d,i)=>life.add('npc-'+i,d[0]));
 let indoor=false,closeConversation=false;
 for(let i=0;i<2400;i++){const before=new Map([...life.actors].map(([id,a])=>[id,{...a.position,inside:a.inside}]));life.tick(.25,false);for(const [id,a] of life.actors){const old=before.get(id);if(old.inside===a.inside)assert.ok(Math.hypot(a.position.x-old.x,a.position.z-old.z)<.3,'teleport');if(a.inside&&a.phase==='activity')indoor=true;if(a.phase==='talking'){const b=life.actors.get(a.partner);assert.ok(Math.hypot(a.position.x-b.position.x,a.position.z-b.position.z)<.85);closeConversation=true}}}
 assert.ok(indoor);assert.ok(closeConversation);assert.ok(life.actors.get('npc-1').visited.has('小菜园'));assert.ok(life.actors.get('main').visited.size>=4);assert.ok(events.some(e=>e.type==='social'&&(e.id==='main'||e.otherId==='main')));assert.ok(events.some(e=>e.type==='social'&&e.id!=='main'&&e.otherId!=='main'));
-console.log(JSON.stringify({passed:true,routePairs:81,conversations:life.inspect().conversations,mainVisited:[...life.actors.get('main').visited],doctorVisited:[...life.actors.get('npc-1').visited]}));
-assert.equal(life.actors.get('main').visited.size,9);
+console.log(JSON.stringify({passed:true,routePairs:destinations.length**2,conversations:life.inspect().conversations,mainVisited:[...life.actors.get('main').visited],doctorVisited:[...life.actors.get('npc-1').visited]}));
+assert.equal(life.actors.get('main').visited.size,destinations.length);
 const paused=createTownLife();const resting=paused.add('main','鼠鼠小屋');resting.frozen=true;const position={...resting.position};for(let i=0;i<20;i++)paused.tick(1);assert.deepEqual(resting.position,position);assert.equal(resting.cycle,0);
 const gathering=createTownLife();gathering.add('main','鼠鼠小屋');destinations.forEach((d,i)=>gathering.add('npc-'+i,d[0]));const newborn=gathering.add('pup','鼠鼠小屋',{child:true,age:0});gathering.setCelebration({key:'test-birthday',birthdays:['main']});for(let i=0;i<1600;i++)gathering.tick(.25);assert.ok([...gathering.actors.values()].every(a=>a.phase==='celebrating'&&!a.inside));gathering.setCelebration(null);for(let i=0;i<200;i++)gathering.tick(.25);assert.ok([...gathering.actors.values()].some(a=>a.destination!=='中心广场'));console.log('All residents and newborns walk to celebrations and resume normal life');
