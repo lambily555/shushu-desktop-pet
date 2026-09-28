@@ -33368,15 +33368,10 @@ void main() {
   function standee(group, x2, z, height = 1.9) {
     const { disc } = kit(group);
     disc(x2, 0.08, z, 0.32, 13810336);
-    const points = [[0.05, 0.73], [0.26, 0.67], [0.35, 0.63], [0.34, 0.45], [0.39, 0.04], [0.54, 0.01], [0.57, 0.42], [0.67, 0.01], [0.87, 0.01], [0.81, 0.43], [0.88, 0.57], [0.87, 0.63], [0.99, 0.65], [0.98, 0.77], [0.89, 0.86], [0.88, 0.94], [0.69, 0.995], [0.44, 0.98], [0.35, 0.92], [0.34, 0.86], [0.28, 0.8], [0.15, 0.81], [0.01, 0.79]];
-    const shape = new Shape(points.map(([u, v]) => new Vector2((u - 0.5) * height * 0.321, v * height)));
-    shape.closePath();
-    const geo = new ShapeGeometry(shape);
-    const pos = geo.attributes.position, uv = geo.attributes.uv;
-    for (let i2 = 0; i2 < pos.count; i2++) uv.setXY(i2, pos.getX(i2) / (height * 0.321) + 0.5, pos.getY(i2) / height);
+    const geo = new PlaneGeometry(height * 0.321, height);
     const m = imageMaterial(29, "\u4EBA\u5F62\u7ACB\u724C", true);
     const mesh = new Mesh(geo, m);
-    mesh.position.set(x2, 0.12, z);
+    mesh.position.set(x2, 0.12 + height / 2, z);
     mesh.userData.hallExhibit = "Mariah Carey \u4EBA\u5F62\u7ACB\u724C";
     group.add(mesh);
     return mesh;
@@ -33453,8 +33448,10 @@ void main() {
     const ring = new Mesh(new TorusGeometry(0.18, 0.025, 8, 40), material(13675858, { metalness: 0.7 }));
     ring.position.set(0.1, 1.36, -1.7);
     group.add(ring);
-    box(1.5, 0.13, 0.5, -2.6, 0.4, 1.6, 13350815);
-    box(1.5, 0.38, 0.08, -2.6, 0.65, 1.36, 13350815);
+    const seat = box(1.5, 0.13, 0.5, -2.6, 0.4, 1.6, 13350815);
+    seat.userData.roomAction = "hall-seat";
+    group.userData.hallSeat = seat;
+    box(1.5, 0.38, 0.08, -2.6, 0.65, 1.84, 13350815);
     for (const x2 of [-3.2, -2]) box(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
     group.userData.hallExhibits = exhibits;
     group.userData.hallClickable = [...exhibits, figure];
@@ -38182,7 +38179,7 @@ void main() {
     }
     let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
-    let panMode = false, focusedExhibit = null;
+    let focusedExhibit = null;
     let firstPerson = false, playerYaw = 0, playerPitch = 0, playerSavedCamera = null, jumpHeight = 0, jumpVelocity = 0;
     const playerKeys = /* @__PURE__ */ new Set();
     const target = new Vector3(0, 0, 1);
@@ -38283,6 +38280,16 @@ void main() {
             poseBone(rig, "RightUpLeg", -Math.sin(t * 10) * 0.6);
           }
         }
+      }
+      if (actor.seated && actor.inside === "Mariah Carey\u540D\u4EBA\u5802") {
+        rig.position.y = 0.47;
+        poseBone(rig, "LeftUpLeg", -1.05);
+        poseBone(rig, "RightUpLeg", -1.05);
+        poseBone(rig, "LeftLeg", 1.2);
+        poseBone(rig, "RightLeg", 1.2);
+        poseBone(rig, "LeftForeArm", -0.8);
+        poseBone(rig, "RightForeArm", -0.8);
+        poseBone(rig, "Head", -0.08);
       }
       if (actor.phase === "talking") {
         poseBone(rig, "Head", Math.sin(t * 2) * 0.07, Math.sin(t) * 0.05, 0);
@@ -38460,6 +38467,7 @@ void main() {
       };
       if (name === "Mariah Carey\u540D\u4EBA\u5802") {
         populateMariahRoom(room);
+        clickable.push(room.userData.hallSeat);
         label("\u5531\u7247\u5C55\u67DC", 1.1, -0.5);
         label("\u4E13\u8F91\u5899", 0, -2.7);
       } else if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
@@ -38771,6 +38779,7 @@ void main() {
     }
     function returnToTown() {
       const actor = life.actors.get("main");
+      if (actor?.seated) toggleHallSeat();
       if (!firstPerson && actor?.controlled) {
         actor.controlled = false;
         actor.phase = actor.inside ? "exit-room" : "idle";
@@ -38860,6 +38869,7 @@ void main() {
       jumpVelocity = 0;
       if (actor.inside) enterPlace(actor.inside);
       host.dataset.view = "first-person";
+      document.body.dataset.townView = "first-person";
       crosshair.hidden = false;
       playerTools.querySelector("[data-player-enter]").hidden = true;
       playerTools.querySelector("[data-player-exit]").hidden = false;
@@ -38875,21 +38885,23 @@ void main() {
       document.exitPointerLock?.();
       const actor = life.actors.get("main");
       if (actor) {
-        actor.controlled = false;
-        actor.phase = actor.inside ? "exit-room" : "idle";
+        actor.controlled = !!actor.seated;
+        actor.phase = actor.seated ? "controlled" : actor.inside ? "exit-room" : "idle";
         actor.wait = 0;
         actor.moving = false;
       }
-      if (activePlace) leavePlace();
-      if (playerSavedCamera) {
+      if (activePlace && !actor?.seated) leavePlace();
+      if (playerSavedCamera && !actor?.seated) {
         ({ yaw, pitch, distance: distance2 } = playerSavedCamera);
         target.copy(playerSavedCamera.target);
       }
       delete host.dataset.view;
+      delete document.body.dataset.townView;
       crosshair.hidden = true;
       playerNotice.hidden = true;
       playerTools.querySelector("[data-player-enter]").hidden = false;
       playerTools.querySelector("[data-player-exit]").hidden = true;
+      if (actor?.seated) resetHallView();
       positionCamera();
     }
     playerTools.querySelector("[data-player-enter]").onclick = startFirstPerson;
@@ -38903,19 +38915,24 @@ void main() {
       const norm = Math.hypot(forward, right) || 1;
       forward /= norm;
       right /= norm;
-      movePlayer(actor, (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed, (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed);
-      actor.heading = playerYaw + Math.PI;
+      if (!actor.seated) movePlayer(actor, (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed, (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed);
+      if (!actor.seated) actor.heading = playerYaw + Math.PI;
       if (jumpHeight > 0 || jumpVelocity > 0) {
         jumpVelocity -= dt * 4;
         jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt);
         if (jumpHeight === 0) jumpVelocity = 0;
       }
-      camera.position.set(actor.position.x, 0.53 + jumpHeight, actor.position.z);
+      camera.position.set(actor.position.x, (actor.seated ? 1.3 : 1.05) + jumpHeight, actor.position.z);
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
     }
     function playerInteract() {
+      const sitter = life.actors.get("main");
+      if (sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x + 2.6, sitter.position.z - 1.6) < 1.2)) {
+        toggleHallSeat();
+        return;
+      }
       if (!firstPerson) return;
       const actor = life.actors.get("main");
       if (!actor) return;
@@ -38998,6 +39015,7 @@ void main() {
         if (e.code === "KeyE") {
           if (!e.repeat) playerInteract();
         } else if (e.code === "Space") {
+          if (life.actors.get("main")?.seated) toggleHallSeat();
           if (!e.repeat && jumpHeight === 0) jumpVelocity = 1.7;
         } else playerKeys.add(e.code);
       }
@@ -39023,12 +39041,37 @@ void main() {
       actor.partner = null;
       actor.inside = actor.place = actor.destination = "Mariah Carey\u540D\u4EBA\u5802";
       actor.position = { x: 0, z: 2.3 };
+      actor.seated = false;
+      actor.action = "\u53C2\u89C2";
       actor.phase = "controlled";
       actor.heading = Math.PI;
       actor.speech = "\u6B22\u8FCE\u4E00\u8D77\u53C2\u89C2\u540D\u4EBA\u5802";
       enterPlace(actor.inside);
       window.dispatchEvent(new CustomEvent("town-hall-arrival"));
       return true;
+    }
+    function toggleHallSeat() {
+      const actor = life.actors.get("main");
+      if (!actor || actor.frozen || actor.forcedSleep || activePlace !== "Mariah Carey\u540D\u4EBA\u5802") return false;
+      actor.seated = !actor.seated;
+      actor.inside = actor.place = actor.destination = "Mariah Carey\u540D\u4EBA\u5802";
+      actor.controlled = true;
+      actor.phase = "controlled";
+      actor.path = [];
+      actor.partner = null;
+      actor.moving = false;
+      actor.position = { x: -2.6, z: actor.seated ? 1.6 : 0.9 };
+      actor.heading = Math.PI;
+      actor.action = actor.seated ? "\u5750\u4E0B\u6B23\u8D4F\u4E13\u8F91" : "\u53C2\u89C2";
+      actor.speech = "";
+      if (firstPerson) {
+        playerYaw = 0;
+        playerPitch = 0.08;
+        playerKeys.clear();
+        jumpHeight = 0;
+        jumpVelocity = 0;
+      }
+      return actor.seated;
     }
     function focusExhibit(index) {
       if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return false;
@@ -39054,17 +39097,6 @@ void main() {
       yaw = 0.18;
       positionCamera();
     }
-    const panButton = document.createElement("button");
-    panButton.type = "button";
-    panButton.className = "town-pan-button";
-    panButton.textContent = "\u5E73\u79FB\u89C6\u89D2";
-    panButton.setAttribute("aria-pressed", "false");
-    panButton.onclick = () => {
-      panMode = !panMode;
-      panButton.setAttribute("aria-pressed", String(panMode));
-      panButton.textContent = panMode ? "\u5E73\u79FB\u4E2D \xB7 \u70B9\u51FB\u6539\u4E3A\u65CB\u8F6C" : "\u5E73\u79FB\u89C6\u89D2";
-    };
-    host.appendChild(panButton);
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
       if (firstPerson) {
@@ -39087,7 +39119,7 @@ void main() {
       if (!drag) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
-      if (panMode || drag.button === 2 || drag.button === 1 || e.shiftKey) {
+      if (drag.button === 0 || drag.button === 1 || e.shiftKey) {
         const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
         target.copy(drag.target).addScaledVector(right, -dx * distance2 * 15e-4).addScaledVector(forward, dy * distance2 * 15e-4);
       } else {
@@ -39102,6 +39134,12 @@ void main() {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
         const hallHit = activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? ray.intersectObjects(room.userData.hallClickable, false)[0] : null;
+        const seatHit = activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? ray.intersectObject(room.userData.hallSeat)[0] : null;
+        if (seatHit && (!hallHit || seatHit.distance < hallHit.distance)) {
+          toggleHallSeat();
+          drag = null;
+          return;
+        }
         if (hallHit) {
           focusExhibit(room.userData.hallClickable.indexOf(hallHit.object));
           drag = null;
@@ -39333,10 +39371,10 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ panMode, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { toggleHallSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
-    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
