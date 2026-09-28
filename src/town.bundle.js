@@ -32797,12 +32797,12 @@ void main() {
     ["\u8BCA\u6240", -4.5, -10, true, "\u68C0\u67E5", [-1.9, -0.8]],
     ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
-    ["\u7EAA\u5FF5\u9986", -9, 3, true, "\u53C2\u89C2", [0, -0.5]],
-    ["\u9F20\u9F20\u5C0F\u5C4B", -4, 5, true, "\u4F11\u606F", [-2.2, -0.7]],
+    ["\u7EAA\u5FF5\u9986", -11, 3.5, true, "\u53C2\u89C2", [0, -0.5]],
+    ["\u9F20\u9F20\u5C0F\u5C4B", -5, 6.5, true, "\u4F11\u606F", [-2.2, -0.7]],
     ["\u5C0F\u83DC\u56ED", 0, -14.4, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
-    ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
+    ["\u6BA1\u4EEA\u9986", -8, 11, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
-    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]],
+    ["\u9F20\u9F20\u5B66\u6821", 10, 6.5, true, "\u5B66\u4E60", [1.4, 1.8]],
     ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
@@ -32890,8 +32890,8 @@ void main() {
       actor.speech = "";
       actor.partner = null;
       if (actor.forcedSleep) {
-        actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
-        actor.action = "\u7761\u89C9";
+        actor.destination = actor.forcedHospital ? "\u8BCA\u6240" : "\u9F20\u9F20\u5C0F\u5C4B";
+        actor.action = actor.forcedHospital ? "\u4F4F\u9662" : "\u7761\u89C9";
         go(actor, entrance(actor.destination), "arrived");
         return;
       }
@@ -32985,10 +32985,10 @@ void main() {
             actor.phase = "activity";
             if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
-            actor.speech = actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+            actor.speech = actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u4F4F\u9662" ? "\u5B89\u9759\u4F11\u517B\uFF0C\u7B49\u767D\u5927\u592B\u7167\u6599" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "activity") {
-          if (actor.forcedSleep && actor.action === "\u7761\u89C9") continue;
+          if (actor.forcedSleep && ["\u7761\u89C9", "\u4F4F\u9662"].includes(actor.action)) continue;
           actor.wait -= dt;
           if (actor.wait <= 0) complete(actor);
         } else if (actor.phase === "exit-yard") {
@@ -33043,9 +33043,10 @@ void main() {
         }
       }
     }
-    function setResting(requested) {
+    function setResting(requested, hospitalized = false) {
+      requested = !!requested || hospitalized;
       const actor = actors.get("main");
-      if (!actor || actor.frozen || !!actor.forcedSleep === !!requested) return;
+      if (!actor || actor.frozen || !!actor.forcedSleep === !!requested && !!actor.forcedHospital === hospitalized) return;
       const other = actors.get(actor.partner);
       if (other) {
         other.partner = null;
@@ -33053,14 +33054,15 @@ void main() {
         other.wait = 1;
       }
       actor.forcedSleep = !!requested;
+      actor.forcedHospital = hospitalized;
       actor.partner = null;
       actor.speech = "";
       actor.path = [];
       actor.wait = 0;
-      if (requested && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B") {
-        actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
-        actor.action = "\u7761\u89C9";
-        go(actor, point(-2.2, -1.6), "using", true);
+      if (requested && actor.inside === (hospitalized ? "\u8BCA\u6240" : "\u9F20\u9F20\u5C0F\u5C4B")) {
+        actor.destination = actor.inside;
+        actor.action = hospitalized ? "\u4F4F\u9662" : "\u7761\u89C9";
+        go(actor, point(...hospitalized ? [-1.9, -0.8] : [-2.2, -1.6]), "using", true);
       } else actor.phase = actor.inside ? "exit-room" : "idle";
     }
     function setCelebration(next) {
@@ -37920,6 +37922,17 @@ void main() {
       host.appendChild(button);
       return { button, point: new Vector3(x2, name === "\u4E2D\u5FC3\u5E7F\u573A" ? 1.85 : name === "\u9F20\u9F20\u5B66\u6821" ? 4.4 : 2.1, z) };
     });
+    const outdoorActions = window.TownInteractions.actions.filter((a) => a.point).map((a) => {
+      const button = document.createElement("button");
+      button.className = "town-label town-furniture-label";
+      button.textContent = a.object;
+      button.title = a.title + "\uFF1A" + window.TownInteractions.description(a);
+      button.onclick = () => window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "place-" + a.id, place: a.place } }));
+      button.hidden = true;
+      host.appendChild(button);
+      const d = destinations.find((d2) => d2[0] === a.place), angle = facing(a.place), [x2, z] = a.point;
+      return { button, place: a.place, point: new Vector3(d[1] + x2 * Math.cos(angle) + z * Math.sin(angle), 0.6, d[2] - x2 * Math.sin(angle) + z * Math.cos(angle)) };
+    });
     const landscape = new Mesh(new PlaneGeometry(160, 160), new MeshStandardMaterial({ color: 9612670, roughness: 1 }));
     landscape.rotation.x = -Math.PI / 2;
     landscape.position.y = -0.7;
@@ -38008,11 +38021,11 @@ void main() {
         poseBone(rig, "Head", Math.sin(t * 2) * 0.08);
       }
       if (actor.phase === "activity" && rig.userData.model) {
-        if (actor.action === "\u68C0\u67E5") rig.position.y = 0.62;
-        const resting = ["\u4F11\u606F", "\u7761\u89C9"].includes(actor.action);
+        if (["\u68C0\u67E5", "\u4F4F\u9662"].includes(actor.action)) rig.position.y = 0.62;
+        const resting = ["\u4F11\u606F", "\u7761\u89C9", "\u4F4F\u9662"].includes(actor.action);
         if (resting) {
           rig.userData.model.rotation.z = 0.75;
-          rig.position.y = actor.action === "\u7761\u89C9" && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" ? 0.65 : 0.12;
+          rig.position.y = actor.action === "\u4F4F\u9662" ? 0.62 : actor.action === "\u7761\u89C9" && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" ? 0.65 : 0.12;
         } else {
           poseBone(rig, "Head", 0.22 + Math.sin(t * 3) * 0.06);
           poseBone(rig, "LeftForeArm", -0.45 + Math.sin(t * 4) * 0.12);
@@ -38088,9 +38101,12 @@ void main() {
         return mesh;
       };
       const label = (text, x2, z, action) => {
+        const extra = window.TownInteractions.actions.find((a) => a.place === name && a.object === text);
+        if (!action && extra) action = "place-" + extra.id;
         const button = document.createElement(action ? "button" : "span");
         button.className = "town-label town-furniture-label";
         button.textContent = text;
+        if (extra) button.title = extra.title + "\uFF1A" + window.TownInteractions.description(extra);
         if (action) button.onclick = () => window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action, place: name } }));
         host.appendChild(button);
         roomLabels.push({ button, point: new Vector3(x2, 0.95, z) });
@@ -38391,6 +38407,17 @@ void main() {
           placeModels.forEach((model, key) => model.visible = key === "\u5893\u5730");
         }
       }
+      if (indoor) {
+        window.TownInteractions.actions.filter((a) => a.place === name && name === "\u9F20\u9F20\u5B66\u6821").forEach((a, i2) => {
+          const button = document.createElement("button");
+          button.className = "town-label town-furniture-label";
+          button.textContent = a.title;
+          button.title = window.TownInteractions.description(a);
+          button.onclick = () => window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "place-" + a.id, place: name } }));
+          host.appendChild(button);
+          roomLabels.push({ button, point: new Vector3(i2 ? -2.6 : 1.4, 0.95, i2 ? -1.65 : 1.95) });
+        });
+      }
       syncPups();
       syncLife();
       returnButton.hidden = false;
@@ -38650,7 +38677,7 @@ void main() {
         }
         const nearby = roomLabels.map((l) => ({ ...l, d: Math.hypot(l.point.x - actor.position.x, l.point.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
         if (nearby?.d < 1.2) {
-          const text = nearby.button.textContent, action = text.startsWith("\u6C34\u58F6") ? "water" : text.startsWith("\u7CAE\u4ED3") ? "supply" : text === "\u8BCA\u7597\u5E8A" ? "treat" : text.includes("\u5E8A") ? "rest" : text === "\u98DF\u76C6" ? "eat" : "inspect";
+          const text = nearby.button.textContent, extra = window.TownInteractions.actions.find((a) => a.place === actor.inside && a.object === text), action = extra ? "place-" + extra.id : text.startsWith("\u6C34\u58F6") ? "water" : text.startsWith("\u7CAE\u4ED3") ? "supply" : text === "\u8BCA\u7597\u5E8A" ? "treat" : text.includes("\u5E8A") ? "rest" : text === "\u98DF\u76C6" ? "eat" : "inspect";
           window.dispatchEvent(new CustomEvent("town-player-action", { detail: { action, text, place: actor.inside } }));
           actor.speech = "\u770B\u770B" + text.split(" \xB7 ")[0];
           return;
@@ -38683,6 +38710,11 @@ void main() {
           window.dispatchEvent(new CustomEvent("town-player-action", { detail: { action: place === "\u5C0F\u83DC\u56ED" ? "harvest" : place === "\u8DD1\u8F6E\u516C\u56ED" ? "exercise" : "inspect", text: place, place } }));
           return;
         }
+      }
+      const object = outdoorActions.map((item) => ({ ...item, d: Math.hypot(actor.position.x - item.point.x, actor.position.z - item.point.z) })).sort((a, b) => a.d - b.d)[0];
+      if (object?.d < 0.8) {
+        object.button.click();
+        return;
       }
       const nearest = places.map((p) => ({ p, d: Math.hypot(actor.position.x - entrance(p[0]).x, actor.position.z - entrance(p[0]).z) })).sort((a, b) => a.d - b.d)[0];
       if (nearest?.d < 1.15) {
@@ -38915,6 +38947,7 @@ void main() {
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
+      outdoorActions.forEach(({ button, point: point2, place }) => placeLabel(button, point2, occupied, activePlace !== place || focusedResident !== -1));
       labels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, firstPerson || !!activePlace || focusedResident !== -1));
       residents.forEach((npc, index) => {
         const actor = life.actors.get(npc.lifeId);
@@ -38954,7 +38987,7 @@ void main() {
       document.body.dataset.townPart = next.part || "";
       syncPups();
       syncLife();
-      life.setResting(next.sleepRequested);
+      life.setResting(next.sleepRequested, !!next.hospitalized);
       life.setCelebration(next.celebration || null);
       placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.setEvent(next.celebration);
       placeModels.get("\u5C0F\u83DC\u56ED").userData.setGrowth(next.gardenProgress ?? 0.5);
