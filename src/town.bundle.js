@@ -32803,7 +32803,7 @@ void main() {
     ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]],
-    ["\u9F20\u9F20\u996D\u9986", 9, 2, true, "\u7528\u9910", [-1.4, 0.5]]
+    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -32823,7 +32823,7 @@ void main() {
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
       if (d[0] === "\u5893\u5730") {
         const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
-        return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (lz < -1.03 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
+        return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (Math.abs(lx) > 1.95 || lz < -1.03 || lz > 1.46 && Math.abs(lx) > 0.45 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
       }
       return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < 1.62 && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < 1.2;
     }) || Math.hypot(x2, z + 1.3) < 0.9;
@@ -32913,7 +32913,7 @@ void main() {
       actor.completed++;
       actor.visited.add(actor.destination);
       onEvent({ id: actor.id, type: "activity", action: actor.action, place: actor.destination });
-      actor.phase = actor.inside ? "exit-room" : actor.action === "\u8DD1\u8F6E" ? "exit-yard" : "idle";
+      actor.phase = actor.inside ? "exit-room" : actor.action === "\u8DD1\u8F6E" || actor.destination === "\u5893\u5730" ? "exit-yard" : "idle";
       actor.wait = 2;
     }
     function tick(dt, isDay = day) {
@@ -32993,7 +32993,7 @@ void main() {
           if (actor.wait <= 0) complete(actor);
         } else if (actor.phase === "exit-yard") {
           actor.speech = "";
-          go(actor, entrance(actor.place), "idle", true);
+          go(actor, entrance(actor.place), "idle", actor.place !== "\u5893\u5730");
         } else if (actor.phase === "exit-room") {
           actor.speech = "";
           go(actor, point(0, 2.6), "outside", true);
@@ -33089,6 +33089,7 @@ void main() {
   function lampPositionClear(x2, z) {
     if (Math.hypot(x2, z) > 16.2) return false;
     if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
+    if (segmentDistance(x2, z, { x: 0, z: 8.2 }, { x: 2, z: 8.2 }) < 0.6 || segmentDistance(x2, z, { x: 2, z: 8.2 }, { x: 2, z: 9.45 }) < 0.6) return false;
     for (const d of destinations) {
       const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
       const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : name === "\u5893\u5730" ? 2.3 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : name === "\u5893\u5730" ? 1.8 : 1.45;
@@ -37555,7 +37556,7 @@ void main() {
     ["\u6BA1\u4EEA\u9986", -2.1, 5.9, 9408932, "\u6E29\u67D4\u9001\u522B\u5C0F\u9547\u91CC\u7684\u9F20\u9F20"],
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"],
-    ["\u9F20\u9F20\u996D\u9986", 9, 2, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"]
+    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"]
   ];
   places.forEach((p) => {
     const d = destinations.find((d2) => d2[0] === p[0]);
@@ -37804,7 +37805,9 @@ void main() {
     };
     road(0, -1.3, 28, 1.05);
     road(0, 0.1, 1.05, 25.2);
-    places.filter((p) => p[0] !== "\u4E2D\u5FC3\u5E7F\u573A").forEach((p) => {
+    road(1, 8.2, 2, 0.75);
+    road(2, 8.825, 0.75, 1.25);
+    places.filter((p) => p[0] !== "\u4E2D\u5FC3\u5E7F\u573A" && p[0] !== "\u5893\u5730").forEach((p) => {
       const e = entrance(p[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 }, dx = e.x - near.x, dz = e.z - near.z, len = Math.hypot(dx, dz);
       if (len > 0.1) road((e.x + near.x) / 2, (e.z + near.z) / 2, 0.75, len, Math.atan2(dx, dz));
     });

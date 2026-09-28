@@ -4,13 +4,13 @@ export const destinations=[
  ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
  ['纪念馆',-9,3,true,'参观',[0,-.5]],['鼠鼠小屋',-4,5,true,'休息',[-2.2,-.7]],
  ['小菜园',0,-14.4,false,'照看菜园',[0,0]],['殡仪馆',-5,10,true,'工作',[0,1]],
- ['墓地',2,11,false,'纪念',[0,0]],['鼠鼠学校',9,8,true,'学习',[1.4,1.8]],['鼠鼠饭馆',9,2,true,'用餐',[-1.4,.5]]];
+ ['墓地',2,11,false,'纪念',[0,0]],['鼠鼠学校',9,8,true,'学习',[1.4,1.8]],['鼠鼠饭馆',4.5,-10,true,'用餐',[-1.4,.5]]];
 const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
 export const facing=name=>{const d=byName.get(name);return name==='中心广场'?0:Math.round(Math.atan2(-d[1],-1.3-d[2])/(Math.PI/2))*(Math.PI/2)};
 export function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋'),a=facing(d[0]);return {x:d[1]+Math.sin(a)*(name==='跑轮公园'?2.5:1.9),z:d[2]+Math.cos(a)*(name==='跑轮公园'?2.5:1.9)}}
-export function blocked(x,z){return destinations.some(d=>{if(d[0]==='中心广场')return false;if(d[0]==='跑轮公园')return Math.hypot(x-d[1],z-d[2])<2.2;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];if(d[0]==='墓地'){const lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a);return Math.abs(lx)<2.12&&Math.abs(lz)<1.66&&(lz< -1.03||(Math.abs(lx)>.3&&Math.abs(lz-.08)>.2))}return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<1.62&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<1.2})||Math.hypot(x,z+1.3)<.9}
+export function blocked(x,z){return destinations.some(d=>{if(d[0]==='中心广场')return false;if(d[0]==='跑轮公园')return Math.hypot(x-d[1],z-d[2])<2.2;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];if(d[0]==='墓地'){const lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a);return Math.abs(lx)<2.12&&Math.abs(lz)<1.66&&(Math.abs(lx)>1.95||lz< -1.03||(lz>1.46&&Math.abs(lx)>.45)||(Math.abs(lx)>.3&&Math.abs(lz-.08)>.2))}return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<1.62&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<1.2})||Math.hypot(x,z+1.3)<.9}
 // Grid routes avoid building footprints, garden beds and the central fountain.
 export function route(start,end){
  const unit=.4,toGrid=p=>[Math.round(p.x/unit),Math.round(p.z/unit)],key=(x,z)=>`${x},${z}`;
@@ -34,7 +34,7 @@ export function createTownLife(onEvent=()=>{}){
   if(actor.destination==='鼠鼠小屋')actor.action=actor.child&&actor.age<.18?'睡觉':actor.cycle%3===0?'饮水':day?'休息':'进食';
   go(actor,entrance(actor.destination),'arrived');
  }
- function complete(actor){actor.completed++;actor.visited.add(actor.destination);onEvent({id:actor.id,type:'activity',action:actor.action,place:actor.destination});actor.phase=actor.inside?'exit-room':actor.action==='跑轮'?'exit-yard':'idle';actor.wait=2}
+ function complete(actor){actor.completed++;actor.visited.add(actor.destination);onEvent({id:actor.id,type:'activity',action:actor.action,place:actor.destination});actor.phase=actor.inside?'exit-room':actor.action==='跑轮'||actor.destination==='墓地'?'exit-yard':'idle';actor.wait=2}
  function tick(dt,isDay=day){day=isDay;dt=Math.max(0,Math.min(dt,1));elapsed+=dt;
   for(const actor of actors.values()){
    actor.moving=false;if(actor.frozen||actor.controlled)continue;
@@ -53,7 +53,7 @@ export function createTownLife(onEvent=()=>{}){
    else if(actor.phase==='celebrating'){actor.heading=Math.atan2(-actor.position.x,-1.3-actor.position.z);actor.speech=celebration?celebration.birthdays.includes(actor.id)?'谢谢大家陪我过生日！':celebration.birthdays.length?'生日快乐！一起分享小蛋糕吧！':'仓鼠朋友们，节日快乐！':'';if(!celebration){actor.phase='idle';actor.wait=1}}
    else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';if(actor.action==='睡觉')onEvent({id:actor.id,type:'status',action:'睡觉',place:actor.destination});actor.heading=actor.inside?Math.PI:facing(actor.destination)+Math.PI;actor.speech=actor.action==='用餐'?'坐下来，尝尝新鲜蔬菜和谷物':actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='学习'?'翻开书本，认识新的种子':actor.action==='纪念'?'轻轻问好，记住在这里的朋友':actor.action==='工作'?'整理送别用品，保持这里安静':actor.action==='睡觉'?'呼……':'休息一会儿'}}
    else if(actor.phase==='activity'){if(actor.forcedSleep&&actor.action==='睡觉')continue;actor.wait-=dt;if(actor.wait<=0)complete(actor)}
-   else if(actor.phase==='exit-yard'){actor.speech='';go(actor,entrance(actor.place),'idle',true)}
+   else if(actor.phase==='exit-yard'){actor.speech='';go(actor,entrance(actor.place),'idle',actor.place!=='墓地')}
    else if(actor.phase==='exit-room'){actor.speech='';go(actor,point(0,2.6),'outside',true)}
    else if(actor.phase==='outside'){actor.position=entrance(actor.inside);actor.inside=null;actor.phase='idle';actor.wait=1}
    else if(actor.phase==='meeting'){

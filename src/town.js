@@ -19,7 +19,7 @@ const places = [
   ['殡仪馆', -2.1, 5.9, 0x8f91a4, '温柔送别小镇里的鼠鼠'],
   ['墓地', 2.8, 5.9, 0x778b83, '安静纪念每一段小小生命'],
   ['鼠鼠学校',9,8,0xd4ad75,'钟楼、教室和学习庭院'],
-  ['鼠鼠饭馆',9,2,0xc5b69c,'厨房、柜台和舒适的用餐区']
+  ['鼠鼠饭馆',4.5,-10,0xc5b69c,'厨房、柜台和舒适的用餐区']
 ];
 
 places.forEach(p=>{const d=destinations.find(d=>d[0]===p[0]);p[1]=d[1];p[2]=d[2]});
@@ -107,7 +107,9 @@ function init() {
   const pathMat=new THREE.MeshStandardMaterial({color:0xd9c9ad,roughness:1});
   const road=(x,z,w,d,angle=0)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,.035,d),pathMat);m.position.set(x,.01,z);m.rotation.y=angle;m.receiveShadow=true;scene.add(m)};
   road(0,-1.3,28,1.05);road(0,.1,1.05,25.2);
-  places.filter(p=>p[0]!=='中心广场').forEach(p=>{const e=entrance(p[0]),near=Math.abs(e.x)<Math.abs(e.z+1.3)?{x:0,z:e.z}:{x:e.x,z:-1.3},dx=e.x-near.x,dz=e.z-near.z,len=Math.hypot(dx,dz);if(len>.1)road((e.x+near.x)/2,(e.z+near.z)/2,.75,len,Math.atan2(dx,dz))});
+  // 墓园支路先横向离开主路，再正对大门接入，铺到门槛。
+  road(1,8.2,2,.75);road(2,8.825,.75,1.25);
+  places.filter(p=>p[0]!=='中心广场'&&p[0]!=='墓地').forEach(p=>{const e=entrance(p[0]),near=Math.abs(e.x)<Math.abs(e.z+1.3)?{x:0,z:e.z}:{x:e.x,z:-1.3},dx=e.x-near.x,dz=e.z-near.z,len=Math.hypot(dx,dz);if(len>.1)road((e.x+near.x)/2,(e.z+near.z)/2,.75,len,Math.atan2(dx,dz))});
   const streetLights=new THREE.Group(),lampBulbs=[],lampPositions=[],poolCanvas=document.createElement('canvas');poolCanvas.width=poolCanvas.height=128;const poolContext=poolCanvas.getContext('2d'),poolGradient=poolContext.createRadialGradient(64,64,4,64,64,64);poolGradient.addColorStop(0,'rgba(255,224,158,.9)');poolGradient.addColorStop(.38,'rgba(255,213,128,.48)');poolGradient.addColorStop(1,'rgba(255,205,110,0)');poolContext.fillStyle=poolGradient;poolContext.fillRect(0,0,128,128);const poolTexture=new THREE.CanvasTexture(poolCanvas);poolTexture.colorSpace=THREE.SRGBColorSpace;
   function streetLamp(x,z,yaw){const lamp=new THREE.Group(),metal=new THREE.MeshStandardMaterial({color:0x303633,roughness:.76}),shade=new THREE.MeshStandardMaterial({color:0x4d5349,roughness:.72}),bulbMaterial=new THREE.MeshStandardMaterial({color:0xffe3a4,emissive:0xffc766,emissiveIntensity:0});const pole=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,1.65,10),metal);pole.position.y=.83;const arm=new THREE.Mesh(new THREE.BoxGeometry(.48,.055,.055),metal);arm.position.set(.2,1.61,0);const cap=new THREE.Mesh(new THREE.ConeGeometry(.22,.2,16),shade);cap.position.set(.41,1.49,0);cap.rotation.z=Math.PI;const bulb=new THREE.Mesh(new THREE.SphereGeometry(.105,14,10),bulbMaterial);bulb.position.set(.41,1.42,0);const light=new THREE.PointLight(0xffc978,0,4.8,2);light.position.copy(bulb.position);const pool=new THREE.Mesh(new THREE.CircleGeometry(2.05,32),new THREE.MeshBasicMaterial({map:poolTexture,color:0xffe0a0,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));pool.rotation.x=-Math.PI/2;pool.position.set(.41,.025,0);lamp.add(pole,arm,cap,bulb,light,pool);lamp.position.set(x,0,z);lamp.rotation.y=yaw;streetLights.add(lamp);lampBulbs.push({material:bulbMaterial,light,pool});lampPositions.push([x,z])}
   lampLayout().forEach(({x,z,yaw})=>streetLamp(x,z,yaw));scene.add(streetLights);scene.add(createTownVerges());
