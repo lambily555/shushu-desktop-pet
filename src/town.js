@@ -4,7 +4,7 @@ import {createTownVerges} from './town-verges.js';
 import {movePlayer} from './town-player.js';
 import {createTownLife,destinations,facing,entrance} from './town-life.js';
 import {createCottage} from './town-cottage.js';
-import {createGarden,createPlaza,createSchool,createWheelPark,birthdayHat} from './town-grounds.js';
+import {createGarden,createPlaza,createSchool,createWheelPark,createSnackShop,createClinic,createRemembranceHouse,birthdayHat} from './town-grounds.js';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
@@ -24,6 +24,8 @@ const places = [
 places.forEach(p=>{const d=destinations.find(d=>d[0]===p[0]);p[1]=d[1];p[2]=d[2]});
 
 function roundedBuilding(name, x, z, color) {
+  if(name==='纪念馆'||name==='殡仪馆'){const model=createRemembranceHouse(name==='纪念馆');model.position.set(x,0,z);model.traverse(o=>o.userData.place=name);return model}
+  if(name==='零食铺'||name==='诊所'){const model=name==='零食铺'?createSnackShop():createClinic();model.position.set(x,0,z);model.traverse(o=>o.userData.place=name);return model}
   if(['中心广场','小菜园','鼠鼠学校','跑轮公园'].includes(name)){const model=name==='中心广场'?createPlaza():name==='小菜园'?createGarden():name==='跑轮公园'?createWheelPark():createSchool();model.position.set(x,0,z);model.traverse(o=>o.userData.place=name);return model}
   if(name==='鼠鼠小屋'){const cottage=createCottage({density:.25});cottage.scale.setScalar(.8);cottage.position.set(x,0,z);cottage.traverse(o=>o.userData.place=name);return cottage}
   const group = new THREE.Group(); group.position.set(x, 0, z); group.userData.place = name;

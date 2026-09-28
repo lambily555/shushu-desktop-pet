@@ -16029,6 +16029,445 @@
       vertices.push(contour[i2].y);
     }
   }
+  var ExtrudeGeometry = class _ExtrudeGeometry extends BufferGeometry {
+    /**
+     * Constructs a new extrude geometry.
+     *
+     * @param {Shape|Array<Shape>} [shapes] - A shape or an array of shapes.
+     * @param {ExtrudeGeometry~Options} [options] - The extrude settings.
+     */
+    constructor(shapes = new Shape([new Vector2(0.5, 0.5), new Vector2(-0.5, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)]), options = {}) {
+      super();
+      this.type = "ExtrudeGeometry";
+      this.parameters = {
+        shapes,
+        options
+      };
+      shapes = Array.isArray(shapes) ? shapes : [shapes];
+      const scope = this;
+      const verticesArray = [];
+      const uvArray = [];
+      for (let i2 = 0, l = shapes.length; i2 < l; i2++) {
+        const shape = shapes[i2];
+        addShape(shape);
+      }
+      this.setAttribute("position", new Float32BufferAttribute(verticesArray, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvArray, 2));
+      this.computeVertexNormals();
+      function addShape(shape) {
+        const placeholder = [];
+        const curveSegments = options.curveSegments !== void 0 ? options.curveSegments : 12;
+        const steps = options.steps !== void 0 ? options.steps : 1;
+        const depth = options.depth !== void 0 ? options.depth : 1;
+        let bevelEnabled = options.bevelEnabled !== void 0 ? options.bevelEnabled : true;
+        let bevelThickness = options.bevelThickness !== void 0 ? options.bevelThickness : 0.2;
+        let bevelSize = options.bevelSize !== void 0 ? options.bevelSize : bevelThickness - 0.1;
+        let bevelOffset = options.bevelOffset !== void 0 ? options.bevelOffset : 0;
+        let bevelSegments = options.bevelSegments !== void 0 ? options.bevelSegments : 3;
+        const extrudePath = options.extrudePath;
+        const uvgen = options.UVGenerator !== void 0 ? options.UVGenerator : WorldUVGenerator;
+        let extrudePts, extrudeByPath = false;
+        let splineTube, binormal, normal, position2;
+        if (extrudePath) {
+          extrudePts = extrudePath.getSpacedPoints(steps);
+          extrudeByPath = true;
+          bevelEnabled = false;
+          const isClosed = extrudePath.isCatmullRomCurve3 ? extrudePath.closed : false;
+          splineTube = extrudePath.computeFrenetFrames(steps, isClosed);
+          binormal = new Vector3();
+          normal = new Vector3();
+          position2 = new Vector3();
+        }
+        if (!bevelEnabled) {
+          bevelSegments = 0;
+          bevelThickness = 0;
+          bevelSize = 0;
+          bevelOffset = 0;
+        }
+        const shapePoints = shape.extractPoints(curveSegments);
+        let vertices = shapePoints.shape;
+        const holes = shapePoints.holes;
+        const reverse = !ShapeUtils.isClockWise(vertices);
+        if (reverse) {
+          vertices = vertices.reverse();
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            if (ShapeUtils.isClockWise(ahole)) {
+              holes[h] = ahole.reverse();
+            }
+          }
+        }
+        function mergeOverlappingPoints(points) {
+          const THRESHOLD = 1e-10;
+          const THRESHOLD_SQ = THRESHOLD * THRESHOLD;
+          let prevPos = points[0];
+          for (let i2 = 1; i2 <= points.length; i2++) {
+            const currentIndex = i2 % points.length;
+            const currentPos = points[currentIndex];
+            const dx = currentPos.x - prevPos.x;
+            const dy = currentPos.y - prevPos.y;
+            const distSq = dx * dx + dy * dy;
+            const scalingFactorSqrt = Math.max(
+              Math.abs(currentPos.x),
+              Math.abs(currentPos.y),
+              Math.abs(prevPos.x),
+              Math.abs(prevPos.y)
+            );
+            const thresholdSqScaled = THRESHOLD_SQ * scalingFactorSqrt * scalingFactorSqrt;
+            if (distSq <= thresholdSqScaled) {
+              points.splice(currentIndex, 1);
+              i2--;
+              continue;
+            }
+            prevPos = currentPos;
+          }
+        }
+        mergeOverlappingPoints(vertices);
+        holes.forEach(mergeOverlappingPoints);
+        const numHoles = holes.length;
+        const contour = vertices;
+        for (let h = 0; h < numHoles; h++) {
+          const ahole = holes[h];
+          vertices = vertices.concat(ahole);
+        }
+        function scalePt2(pt, vec, size) {
+          if (!vec) error("ExtrudeGeometry: vec does not exist");
+          return pt.clone().addScaledVector(vec, size);
+        }
+        const vlen = vertices.length;
+        function getBevelVec(inPt, inPrev, inNext) {
+          let v_trans_x, v_trans_y, shrink_by;
+          const v_prev_x = inPt.x - inPrev.x, v_prev_y = inPt.y - inPrev.y;
+          const v_next_x = inNext.x - inPt.x, v_next_y = inNext.y - inPt.y;
+          const v_prev_lensq = v_prev_x * v_prev_x + v_prev_y * v_prev_y;
+          const collinear0 = v_prev_x * v_next_y - v_prev_y * v_next_x;
+          if (Math.abs(collinear0) > Number.EPSILON) {
+            const v_prev_len = Math.sqrt(v_prev_lensq);
+            const v_next_len = Math.sqrt(v_next_x * v_next_x + v_next_y * v_next_y);
+            const ptPrevShift_x = inPrev.x - v_prev_y / v_prev_len;
+            const ptPrevShift_y = inPrev.y + v_prev_x / v_prev_len;
+            const ptNextShift_x = inNext.x - v_next_y / v_next_len;
+            const ptNextShift_y = inNext.y + v_next_x / v_next_len;
+            const sf = ((ptNextShift_x - ptPrevShift_x) * v_next_y - (ptNextShift_y - ptPrevShift_y) * v_next_x) / (v_prev_x * v_next_y - v_prev_y * v_next_x);
+            v_trans_x = ptPrevShift_x + v_prev_x * sf - inPt.x;
+            v_trans_y = ptPrevShift_y + v_prev_y * sf - inPt.y;
+            const v_trans_lensq = v_trans_x * v_trans_x + v_trans_y * v_trans_y;
+            if (v_trans_lensq <= 2) {
+              return new Vector2(v_trans_x, v_trans_y);
+            } else {
+              shrink_by = Math.sqrt(v_trans_lensq / 2);
+            }
+          } else {
+            let direction_eq = false;
+            if (v_prev_x > Number.EPSILON) {
+              if (v_next_x > Number.EPSILON) {
+                direction_eq = true;
+              }
+            } else {
+              if (v_prev_x < -Number.EPSILON) {
+                if (v_next_x < -Number.EPSILON) {
+                  direction_eq = true;
+                }
+              } else {
+                if (Math.sign(v_prev_y) === Math.sign(v_next_y)) {
+                  direction_eq = true;
+                }
+              }
+            }
+            if (direction_eq) {
+              v_trans_x = -v_prev_y;
+              v_trans_y = v_prev_x;
+              shrink_by = Math.sqrt(v_prev_lensq);
+            } else {
+              v_trans_x = v_prev_x;
+              v_trans_y = v_prev_y;
+              shrink_by = Math.sqrt(v_prev_lensq / 2);
+            }
+          }
+          return new Vector2(v_trans_x / shrink_by, v_trans_y / shrink_by);
+        }
+        const contourMovements = [];
+        for (let i2 = 0, il = contour.length, j = il - 1, k = i2 + 1; i2 < il; i2++, j++, k++) {
+          if (j === il) j = 0;
+          if (k === il) k = 0;
+          contourMovements[i2] = getBevelVec(contour[i2], contour[j], contour[k]);
+        }
+        const holesMovements = [];
+        let oneHoleMovements, verticesMovements = contourMovements.concat();
+        for (let h = 0, hl = numHoles; h < hl; h++) {
+          const ahole = holes[h];
+          oneHoleMovements = [];
+          for (let i2 = 0, il = ahole.length, j = il - 1, k = i2 + 1; i2 < il; i2++, j++, k++) {
+            if (j === il) j = 0;
+            if (k === il) k = 0;
+            oneHoleMovements[i2] = getBevelVec(ahole[i2], ahole[j], ahole[k]);
+          }
+          holesMovements.push(oneHoleMovements);
+          verticesMovements = verticesMovements.concat(oneHoleMovements);
+        }
+        let faces;
+        if (bevelSegments === 0) {
+          faces = ShapeUtils.triangulateShape(contour, holes);
+        } else {
+          const contractedContourVertices = [];
+          const expandedHoleVertices = [];
+          for (let b = 0; b < bevelSegments; b++) {
+            const t = b / bevelSegments;
+            const z = bevelThickness * Math.cos(t * Math.PI / 2);
+            const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
+            for (let i2 = 0, il = contour.length; i2 < il; i2++) {
+              const vert = scalePt2(contour[i2], contourMovements[i2], bs2);
+              v(vert.x, vert.y, -z);
+              if (t === 0) contractedContourVertices.push(vert);
+            }
+            for (let h = 0, hl = numHoles; h < hl; h++) {
+              const ahole = holes[h];
+              oneHoleMovements = holesMovements[h];
+              const oneHoleVertices = [];
+              for (let i2 = 0, il = ahole.length; i2 < il; i2++) {
+                const vert = scalePt2(ahole[i2], oneHoleMovements[i2], bs2);
+                v(vert.x, vert.y, -z);
+                if (t === 0) oneHoleVertices.push(vert);
+              }
+              if (t === 0) expandedHoleVertices.push(oneHoleVertices);
+            }
+          }
+          faces = ShapeUtils.triangulateShape(contractedContourVertices, expandedHoleVertices);
+        }
+        const flen = faces.length;
+        const bs = bevelSize + bevelOffset;
+        for (let i2 = 0; i2 < vlen; i2++) {
+          const vert = bevelEnabled ? scalePt2(vertices[i2], verticesMovements[i2], bs) : vertices[i2];
+          if (!extrudeByPath) {
+            v(vert.x, vert.y, 0);
+          } else {
+            normal.copy(splineTube.normals[0]).multiplyScalar(vert.x);
+            binormal.copy(splineTube.binormals[0]).multiplyScalar(vert.y);
+            position2.copy(extrudePts[0]).add(normal).add(binormal);
+            v(position2.x, position2.y, position2.z);
+          }
+        }
+        for (let s = 1; s <= steps; s++) {
+          for (let i2 = 0; i2 < vlen; i2++) {
+            const vert = bevelEnabled ? scalePt2(vertices[i2], verticesMovements[i2], bs) : vertices[i2];
+            if (!extrudeByPath) {
+              v(vert.x, vert.y, depth / steps * s);
+            } else {
+              normal.copy(splineTube.normals[s]).multiplyScalar(vert.x);
+              binormal.copy(splineTube.binormals[s]).multiplyScalar(vert.y);
+              position2.copy(extrudePts[s]).add(normal).add(binormal);
+              v(position2.x, position2.y, position2.z);
+            }
+          }
+        }
+        for (let b = bevelSegments - 1; b >= 0; b--) {
+          const t = b / bevelSegments;
+          const z = bevelThickness * Math.cos(t * Math.PI / 2);
+          const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
+          for (let i2 = 0, il = contour.length; i2 < il; i2++) {
+            const vert = scalePt2(contour[i2], contourMovements[i2], bs2);
+            v(vert.x, vert.y, depth + z);
+          }
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            oneHoleMovements = holesMovements[h];
+            for (let i2 = 0, il = ahole.length; i2 < il; i2++) {
+              const vert = scalePt2(ahole[i2], oneHoleMovements[i2], bs2);
+              if (!extrudeByPath) {
+                v(vert.x, vert.y, depth + z);
+              } else {
+                v(vert.x, vert.y + extrudePts[steps - 1].y, extrudePts[steps - 1].x + z);
+              }
+            }
+          }
+        }
+        buildLidFaces();
+        buildSideFaces();
+        function buildLidFaces() {
+          const start = verticesArray.length / 3;
+          if (bevelEnabled) {
+            let layer = 0;
+            let offset = vlen * layer;
+            for (let i2 = 0; i2 < flen; i2++) {
+              const face = faces[i2];
+              f3(face[2] + offset, face[1] + offset, face[0] + offset);
+            }
+            layer = steps + bevelSegments * 2;
+            offset = vlen * layer;
+            for (let i2 = 0; i2 < flen; i2++) {
+              const face = faces[i2];
+              f3(face[0] + offset, face[1] + offset, face[2] + offset);
+            }
+          } else {
+            for (let i2 = 0; i2 < flen; i2++) {
+              const face = faces[i2];
+              f3(face[2], face[1], face[0]);
+            }
+            for (let i2 = 0; i2 < flen; i2++) {
+              const face = faces[i2];
+              f3(face[0] + vlen * steps, face[1] + vlen * steps, face[2] + vlen * steps);
+            }
+          }
+          scope.addGroup(start, verticesArray.length / 3 - start, 0);
+        }
+        function buildSideFaces() {
+          const start = verticesArray.length / 3;
+          let layeroffset = 0;
+          sidewalls(contour, layeroffset);
+          layeroffset += contour.length;
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            sidewalls(ahole, layeroffset);
+            layeroffset += ahole.length;
+          }
+          scope.addGroup(start, verticesArray.length / 3 - start, 1);
+        }
+        function sidewalls(contour2, layeroffset) {
+          let i2 = contour2.length;
+          while (--i2 >= 0) {
+            const j = i2;
+            let k = i2 - 1;
+            if (k < 0) k = contour2.length - 1;
+            for (let s = 0, sl = steps + bevelSegments * 2; s < sl; s++) {
+              const slen1 = vlen * s;
+              const slen2 = vlen * (s + 1);
+              const a = layeroffset + j + slen1, b = layeroffset + k + slen1, c = layeroffset + k + slen2, d = layeroffset + j + slen2;
+              f4(a, b, c, d);
+            }
+          }
+        }
+        function v(x2, y, z) {
+          placeholder.push(x2);
+          placeholder.push(y);
+          placeholder.push(z);
+        }
+        function f3(a, b, c) {
+          addVertex(a);
+          addVertex(b);
+          addVertex(c);
+          const nextIndex = verticesArray.length / 3;
+          const uvs = uvgen.generateTopUV(scope, verticesArray, nextIndex - 3, nextIndex - 2, nextIndex - 1);
+          addUV(uvs[0]);
+          addUV(uvs[1]);
+          addUV(uvs[2]);
+        }
+        function f4(a, b, c, d) {
+          addVertex(a);
+          addVertex(b);
+          addVertex(d);
+          addVertex(b);
+          addVertex(c);
+          addVertex(d);
+          const nextIndex = verticesArray.length / 3;
+          const uvs = uvgen.generateSideWallUV(scope, verticesArray, nextIndex - 6, nextIndex - 3, nextIndex - 2, nextIndex - 1);
+          addUV(uvs[0]);
+          addUV(uvs[1]);
+          addUV(uvs[3]);
+          addUV(uvs[1]);
+          addUV(uvs[2]);
+          addUV(uvs[3]);
+        }
+        function addVertex(index) {
+          verticesArray.push(placeholder[index * 3 + 0]);
+          verticesArray.push(placeholder[index * 3 + 1]);
+          verticesArray.push(placeholder[index * 3 + 2]);
+        }
+        function addUV(vector2) {
+          uvArray.push(vector2.x);
+          uvArray.push(vector2.y);
+        }
+      }
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      const shapes = this.parameters.shapes;
+      const options = this.parameters.options;
+      return toJSON$1(shapes, options, data);
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @param {Array<Shape>} shapes - An array of shapes.
+     * @return {ExtrudeGeometry} A new instance.
+     */
+    static fromJSON(data, shapes) {
+      const geometryShapes = [];
+      for (let j = 0, jl = data.shapes.length; j < jl; j++) {
+        const shape = shapes[data.shapes[j]];
+        geometryShapes.push(shape);
+      }
+      const extrudePath = data.options.extrudePath;
+      if (extrudePath !== void 0) {
+        data.options.extrudePath = new Curves[extrudePath.type]().fromJSON(extrudePath);
+      }
+      return new _ExtrudeGeometry(geometryShapes, data.options);
+    }
+  };
+  var WorldUVGenerator = {
+    generateTopUV: function(geometry, vertices, indexA, indexB, indexC) {
+      const a_x = vertices[indexA * 3];
+      const a_y = vertices[indexA * 3 + 1];
+      const b_x = vertices[indexB * 3];
+      const b_y = vertices[indexB * 3 + 1];
+      const c_x = vertices[indexC * 3];
+      const c_y = vertices[indexC * 3 + 1];
+      return [
+        new Vector2(a_x, a_y),
+        new Vector2(b_x, b_y),
+        new Vector2(c_x, c_y)
+      ];
+    },
+    generateSideWallUV: function(geometry, vertices, indexA, indexB, indexC, indexD) {
+      const a_x = vertices[indexA * 3];
+      const a_y = vertices[indexA * 3 + 1];
+      const a_z = vertices[indexA * 3 + 2];
+      const b_x = vertices[indexB * 3];
+      const b_y = vertices[indexB * 3 + 1];
+      const b_z = vertices[indexB * 3 + 2];
+      const c_x = vertices[indexC * 3];
+      const c_y = vertices[indexC * 3 + 1];
+      const c_z = vertices[indexC * 3 + 2];
+      const d_x = vertices[indexD * 3];
+      const d_y = vertices[indexD * 3 + 1];
+      const d_z = vertices[indexD * 3 + 2];
+      if (Math.abs(a_y - b_y) < Math.abs(a_x - b_x)) {
+        return [
+          new Vector2(a_x, 1 - a_z),
+          new Vector2(b_x, 1 - b_z),
+          new Vector2(c_x, 1 - c_z),
+          new Vector2(d_x, 1 - d_z)
+        ];
+      } else {
+        return [
+          new Vector2(a_y, 1 - a_z),
+          new Vector2(b_y, 1 - b_z),
+          new Vector2(c_y, 1 - c_z),
+          new Vector2(d_y, 1 - d_z)
+        ];
+      }
+    }
+  };
+  function toJSON$1(shapes, options, data) {
+    data.shapes = [];
+    if (Array.isArray(shapes)) {
+      for (let i2 = 0, l = shapes.length; i2 < l; i2++) {
+        const shape = shapes[i2];
+        data.shapes.push(shape.uuid);
+      }
+    } else {
+      data.shapes.push(shapes.uuid);
+    }
+    data.options = Object.assign({}, options);
+    if (options.extrudePath !== void 0) data.options.extrudePath = options.extrudePath.toJSON();
+    return data;
+  }
   var PlaneGeometry = class _PlaneGeometry extends BufferGeometry {
     /**
      * Constructs a new plane geometry.
@@ -33328,6 +33767,276 @@ void main() {
     group.add(hat, pom);
     return group;
   }
+  function storeSign(group, text, x2, y, z, width, height, background, ink) {
+    const c = document.createElement("canvas");
+    c.width = 1024;
+    c.height = Math.round(1024 * height / width);
+    const g = c.getContext("2d");
+    g.fillStyle = background;
+    g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = ink;
+    g.font = "bold " + Math.floor(c.height * 0.67) + "px Microsoft YaHei";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(text, c.width / 2, c.height / 2);
+    const texture = new CanvasTexture(c);
+    texture.colorSpace = SRGBColorSpace;
+    const mesh = new Mesh(new PlaneGeometry(width, height), new MeshBasicMaterial({ map: texture, side: DoubleSide }));
+    mesh.position.set(x2, y, z);
+    group.add(mesh);
+  }
+  function createSnackShop() {
+    const group = new Group(), { box, oval, tube } = kit(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
+    box(3.5, 0.12, 2.7, 0, 0.02, 0, floor);
+    box(2.9, 1.4, 0.1, 0, 0.78, -0.94, cream);
+    for (const x2 of [-1.42, 1.42]) for (const z of [-0.92, 0.92]) box(0.12, 1.8, 0.12, x2, 0.94, z, cream);
+    for (const side of [-1, 1]) {
+      const roof = box(3.3, 0.12, 1.4, 0, 1.92, side * 0.55, cream);
+      roof.rotation.x = side * 0.38;
+      for (let row = 0; row < 4; row++) for (let col = 0; col < 10; col++) {
+        const z = side * (0.15 + row * 0.29), tile = box(0.31, 0.045, 0.31, -1.45 + col * 0.32, 2.25 - Math.abs(z) * 0.4, z, mat(row % 2 ? "#f3e5b4" : "#ead699"));
+        tile.rotation.x = side * 0.38;
+      }
+    }
+    tube([[-1.62, 2.27, 0], [0, 2.27, 0], [1.62, 2.27, 0]], 0.06, cream);
+    for (let i2 = 0; i2 < 8; i2++) {
+      const awning = box(0.35, 0.07, 0.65, -1.24 + i2 * 0.355, 1.55, 1.05, [mint, cream, pink, pink, cream, mint, pink, cream][i2]);
+      awning.rotation.x = 0.17;
+      oval(-1.24 + i2 * 0.355, 1.48, 1.37, 0.175, 0.055, 0.08, [mint, cream, pink, pink, cream, mint, pink, cream][i2]);
+    }
+    box(2.5, 0.38, 0.09, 0, 1.89, 1.03, pink);
+    storeSign(group, "\u9F20\u9F20\u96F6\u98DF\u94FA", 0, 1.9, 1.085, 2.35, 0.34, "#f5e4b2", "#915e3d");
+    const rack = (x2, z, w) => {
+      box(w, 0.64, 0.32, x2, 0.39, z, mint);
+      for (const y of [0.47, 0.78]) {
+        box(w, 0.055, 0.4, x2, y, z, cream);
+        for (let j = 0; j < 3; j++) {
+          const cx = x2 - w * 0.32 + j * w * 0.32;
+          box(w * 0.29, 0.1, 0.34, cx, y + 0.06, z, pink);
+          for (let n = 0; n < 9; n++) {
+            const a = n * 2.4, r = 0.05 * Math.sqrt(n);
+            oval(cx + Math.cos(a) * r, y + 0.15, z + Math.sin(a) * r, 0.04, 0.035, 0.055, mat(["#c48543", "#a65438", "#e6bd63"][j]));
+          }
+        }
+      }
+    };
+    rack(0, -0.68, 2.45);
+    rack(0.95, 0.3, 0.7);
+    box(1.65, 0.62, 0.5, 0.35, 0.35, 1.02, mint);
+    box(1.78, 0.07, 0.56, 0.35, 0.7, 1.02, pink);
+    for (let i2 = 0; i2 < 4; i2++) {
+      const x2 = -0.27 + i2 * 0.4;
+      box(0.36, 0.08, 0.4, x2, 0.78, 1.02, cream);
+      for (let j = 0; j < 5; j++) oval(x2 + (j % 3 - 1) * 0.07, 0.85, 1.02 + Math.floor(j / 3) * 0.09 - 0.05, 0.04, 0.04, 0.06, mat(i2 % 2 ? "#d4ab62" : "#9f6540"));
+    }
+    box(0.65, 0.48, 0.5, -1.03, 0.27, 0.95, mint);
+    box(0.72, 0.06, 0.55, -1.03, 0.53, 0.95, pink);
+    oval(-1.03, 0.58, 0.95, 0.14, 0.02, 0.14, cream);
+    for (const side of [-1, 1]) {
+      for (let i2 = 0; i2 < 5; i2++) {
+        const z = -0.9 + i2 * 0.45;
+        box(0.022, 0.48, 0.022, side * 1.67, 0.3, z, wood);
+      }
+      tube([[side * 1.67, 0.45, -0.9], [side * 1.67, 0.48, 0], [side * 1.67, 0.45, 0.9]], 0.012, wood);
+    }
+    sign2(group, "\u6BCF\u65E5\u65B0\u9C9C", 1.25, 0.48, 1.3).scale.set(0.45, 0.7, 1);
+    group.userData.footprint = 3.5 * 2.7;
+    return group;
+  }
+  function createClinic() {
+    const group = new Group(), { box, oval, tube } = kit(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
+    const rounded = (w, d, h, x2, y, z, m) => {
+      const r = 0.22, s = new Shape();
+      s.moveTo(-w / 2 + r, -d / 2);
+      s.lineTo(w / 2 - r, -d / 2);
+      s.quadraticCurveTo(w / 2, -d / 2, w / 2, -d / 2 + r);
+      s.lineTo(w / 2, d / 2 - r);
+      s.quadraticCurveTo(w / 2, d / 2, w / 2 - r, d / 2);
+      s.lineTo(-w / 2 + r, d / 2);
+      s.quadraticCurveTo(-w / 2, d / 2, -w / 2, d / 2 - r);
+      s.lineTo(-w / 2, -d / 2 + r);
+      s.quadraticCurveTo(-w / 2, -d / 2, -w / 2 + r, -d / 2);
+      const geometry = new ExtrudeGeometry(s, { depth: h, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 2, steps: 1, curveSegments: 8 });
+      geometry.rotateX(-Math.PI / 2);
+      const mesh = new Mesh(geometry, m);
+      mesh.position.set(x2, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+      return mesh;
+    };
+    rounded(3.5, 2.7, 0.12, 0, -0.02, 0, white);
+    rounded(2.95, 1.88, 0.45, 0, 0.13, -0.22, blue);
+    box(2.88, 1.45, 0.09, 0, 0.98, -1.1, white);
+    for (const side of [-1, 1]) {
+      box(0.09, 1.2, 1.77, side * 1.43, 1.02, -0.22, glass);
+      box(0.11, 1.58, 0.11, side * 1.43, 0.96, 0.67, white);
+    }
+    for (const x2 of [-1.04, 1.04]) {
+      box(0.72, 1.16, 0.035, x2, 1.07, 0.71, glass);
+      box(0.025, 1.23, 0.025, x2, 0.99, 0.74, metal);
+    }
+    box(0.64, 1.2, 0.035, 0, 0.89, 0.75, glass);
+    for (const x2 of [-0.34, 0.34]) box(0.035, 1.3, 0.04, x2, 0.9, 0.77, white);
+    for (const x2 of [-0.055, 0.055]) box(0.018, 0.19, 0.025, x2, 0.75, 0.79, metal);
+    for (const y of [1.67, 1.76]) {
+      box(3.06, 0.08, 0.13, 0, y, -1.13, white);
+      box(3.06, 0.08, 0.13, 0, y, 0.75, white);
+      for (const side of [-1, 1]) box(0.13, 0.08, 1.95, side * 1.47, y, -0.19, white);
+    }
+    const cross = (x2, y, z, size) => {
+      box(size * 0.27, size, 0.025, x2, y, z, red);
+      box(size, size * 0.27, 0.027, x2, y, z, red);
+    };
+    cross(0, 1.32, -1.03, 0.33);
+    box(1.8, 0.36, 0.055, 0, 1.43, 0.85, white);
+    storeSign(group, "\u9F20\u9F20\u533B\u9662", 0, 1.44, 0.884, 1.65, 0.32, "#f0f6f3", "#3f7180");
+    const bed = (x2, z) => {
+      box(0.68, 0.17, 0.92, x2, 0.39, z, blue);
+      box(0.63, 0.09, 0.85, x2, 0.52, z, white);
+      box(0.5, 0.08, 0.24, x2, 0.59, z - 0.25, white);
+      for (const end of [-1, 1]) {
+        box(0.65, 0.28, 0.04, x2, 0.58, z + end * 0.45, blue);
+        for (const side of [-1, 1]) oval(x2 + side * 0.26, 0.2, z + end * 0.32, 0.06, 0.06, 0.04, metal);
+      }
+      for (const side of [-1, 1]) tube([[x2 + side * 0.33, 0.5, z - 0.25], [x2 + side * 0.33, 0.68, z - 0.25], [x2 + side * 0.33, 0.68, z + 0.25], [x2 + side * 0.33, 0.5, z + 0.25]], 0.012, metal);
+    };
+    bed(-0.88, -0.32);
+    bed(0.88, -0.32);
+    box(0.55, 0.85, 0.24, 0, 0.56, -0.85, blue);
+    for (let i2 = 0; i2 < 3; i2++) {
+      box(0.46, 0.015, 0.23, 0, 0.23 + i2 * 0.25, -0.83, white);
+      for (const x2 of [-0.12, 0.12]) box(0.055, 0.13, 0.055, x2, 0.32 + i2 * 0.25, -0.8, white);
+    }
+    box(0.9, 0.37, 0.38, -0.92, 0.25, 1.01, white);
+    box(0.95, 0.04, 0.42, -0.92, 0.46, 1.01, blue);
+    box(0.15, 0.11, 0.12, -0.92, 0.54, 1.01, white);
+    for (const x2 of [0.65, 1.02]) {
+      box(0.29, 0.055, 0.28, x2, 0.28, 1.04, blue);
+      box(0.29, 0.29, 0.05, x2, 0.45, 0.92, blue);
+      for (const dx of [-0.1, 0.1]) box(0.025, 0.26, 0.025, x2 + dx, 0.13, 1.04, metal);
+    }
+    for (const x2 of [-0.3, 0.3]) tube([[x2, 0.16, 1.27], [x2, 0.4, 1.27], [x2, 0.4, 0.85]], 0.013, metal);
+    box(0.58, 0.045, 0.5, 0, 0.14, 1.04, white);
+    group.userData.footprint = 3.5 * 2.7;
+    return group;
+  }
+  function createRemembranceHouse(memorial = false) {
+    const group = new Group(), { box, oval, tube } = kit(group), wall = mat("#eee5cc"), trim = mat(memorial ? "#a7b39a" : "#929ea3"), roof = mat(memorial ? "#c0c9b3" : "#718794"), wood = mat("#a07d55"), stone = mat("#c6c0ad"), leaf = mat("#748257"), door = mat(memorial ? "#8a9976" : "#535d60");
+    box(3.5, 0.12, 2.7, 0, 0.02, 0, stone);
+    box(2.8, 1.45, 1.85, 0, 0.83, -0.27, wall);
+    box(2.85, 0.15, 1.9, 0, 0.18, -0.27, trim);
+    const arch = (x2, y, z, w, h, material) => {
+      const shape = new Shape(), r = w / 2;
+      shape.moveTo(-r, 0);
+      shape.lineTo(r, 0);
+      shape.lineTo(r, h - r);
+      shape.absarc(0, h - r, r, 0, Math.PI, false);
+      shape.lineTo(-r, 0);
+      const mesh = new Mesh(new ShapeGeometry(shape, 20), material);
+      mesh.position.set(x2, y, z);
+      group.add(mesh);
+      return mesh;
+    };
+    const window2 = (x2, z, rotation = 0) => {
+      const frame = new Group(), outer = arch(0, 0, 0, 0.46, 0.82, trim), inner = arch(0, 0.05, 6e-3, 0.34, 0.69, mat("#5d7071"));
+      group.remove(outer, inner);
+      frame.add(outer, inner);
+      for (const y of [0.23, 0.48]) {
+        const bar = new Mesh(new BoxGeometry(0.34, 0.018, 0.025), wood);
+        bar.position.set(0, y, 0.018);
+        frame.add(bar);
+      }
+      const upright = new Mesh(new BoxGeometry(0.018, 0.67, 0.025), wood);
+      upright.position.set(0, 0.37, 0.02);
+      frame.add(upright);
+      frame.position.set(x2, 0.48, z);
+      frame.rotation.y = rotation;
+      group.add(frame);
+    };
+    window2(-0.96, 0.662);
+    window2(0.96, 0.662);
+    for (const side of [-1, 1]) for (const z of [-0.75, -0.1]) window2(side * 1.405, z, side * Math.PI / 2);
+    for (const side of [-1, 1]) {
+      const panel = box(1.66, 0.09, 2.12, side * 0.7, 1.87, -0.27, roof);
+      panel.rotation.z = -side * 0.36;
+      for (let i2 = 0; i2 < 6; i2++) {
+        const x2 = side * (0.13 + i2 * 0.25);
+        tube([[x2, 2.19 - Math.abs(x2) * 0.38, -1.31], [x2, 2.19 - Math.abs(x2) * 0.38, 0.79]], 0.018, trim);
+      }
+    }
+    const triangle = new Shape();
+    triangle.moveTo(-1.48, 0);
+    triangle.lineTo(1.48, 0);
+    triangle.lineTo(0, 0.58);
+    triangle.closePath();
+    const gable = new Mesh(new ShapeGeometry(triangle), wall);
+    gable.position.set(0, 1.57, 0.69);
+    group.add(gable);
+    if (memorial) {
+      arch(0, 0.23, 0.68, 0.85, 1.08, stone);
+      arch(0, 0.23, 0.69, 0.7, 0.97, door);
+      for (const x2 of [-0.045, 0.045]) oval(x2, 0.7, 0.71, 0.025, 0.025, 0.015, mat("#c7a76a"));
+      box(0.012, 0.86, 0.015, 0, 0.66, 0.71, wood);
+      for (const x2 of [-0.68, 0.68]) {
+        const pillar = new Mesh(new CylinderGeometry(0.075, 0.085, 1.16, 16), wall);
+        pillar.position.set(x2, 0.87, 0.88);
+        group.add(pillar);
+        for (const y of [0.28, 1.45]) box(0.23, 0.1, 0.25, x2, y, 0.88, stone);
+        for (let i2 = 0; i2 < 8; i2++) {
+          const a = i2 * Math.PI / 4;
+          tube([[x2 + Math.cos(a) * 0.08, 0.35, 0.88 + Math.sin(a) * 0.08], [x2 + Math.cos(a) * 0.08, 1.38, 0.88 + Math.sin(a) * 0.08]], 8e-3, stone);
+        }
+      }
+      box(1.65, 0.1, 0.55, 0, 1.53, 0.84, wall);
+    } else {
+      box(0.85, 1.05, 0.045, 0, 0.77, 0.69, door);
+      box(0.018, 1, 0.025, 0, 0.77, 0.725, trim);
+      for (const x2 of [-0.06, 0.06]) box(0.02, 0.16, 0.025, x2, 0.72, 0.73, mat("#ba9d61"));
+      box(1.15, 0.1, 0.43, 0, 1.39, 0.85, trim);
+    }
+    for (let i2 = 0; i2 < 3; i2++) box(1.04, 0.07, 0.18, 0, 0.19 - i2 * 0.05, 0.81 + i2 * 0.17, stone);
+    storeSign(group, memorial ? "\u9F20\u9F20\u7EAA\u5FF5\u9986" : "\u9F20\u9F20\u6BA1\u4EEA\u9986", 0, 1.77, 0.72, 1.6, 0.26, "#f0e5c9", "#655340");
+    const flowers = (x2, z) => {
+      oval(x2, 0.17, z, 0.15, 0.12, 0.14, leaf);
+      for (let i2 = 0; i2 < 6; i2++) {
+        const a = i2 * 2.4;
+        oval(x2 + Math.cos(a) * 0.09, 0.3, z + Math.sin(a) * 0.09, 0.045, 0.035, 0.045, mat(i2 % 2 ? "#e8d9bd" : "#ccaaa1"));
+      }
+    };
+    for (const side of [-1, 1]) {
+      box(0.33, 0.14, 1.95, side * 1.56, 0.12, -0.1, stone);
+      for (let i2 = 0; i2 < 6; i2++) oval(side * 1.56, 0.28, -0.85 + i2 * 0.3, 0.13, 0.13, 0.14, leaf);
+      for (let i2 = 0; i2 < 4; i2++) box(0.02, 0.42, 0.02, side * 1.73, 0.27, -0.9 + i2 * 0.55, wood);
+      tube([[side * 1.73, 0.42, -0.9], [side * 1.73, 0.45, 0.1], [side * 1.73, 0.42, 0.9]], 0.011, wood);
+      flowers(side * 1.05, 0.94);
+    }
+    if (memorial) {
+      const display = box(0.68, 0.62, 0.08, 1.14, 0.6, 1.05, wood);
+      for (let i2 = 0; i2 < 9; i2++) {
+        const x2 = 0.94 + i2 % 3 * 0.2, y = 0.44 + Math.floor(i2 / 3) * 0.17;
+        oval(x2, y, 1.1, 0.065, 0.065, 0.018, stone);
+        oval(x2, y, 1.12, 0.037, 0.04, 8e-3, trim);
+      }
+      box(0.72, 0.05, 0.35, 1.14, 0.25, 1.04, wood);
+      box(0.55, 0.025, 0.3, -0.95, 0.42, 1.09, wood);
+      for (const x2 of [-1.13, -0.77]) box(0.035, 0.36, 0.04, x2, 0.22, 1.09, wood);
+      box(0.55, 0.22, 0.035, -0.95, 0.53, 0.96, wood);
+    } else {
+      for (const x2 of [-1.03, 1.03]) {
+        const wreath = new Mesh(new TorusGeometry(0.14, 0.04, 8, 20), leaf);
+        wreath.position.set(x2, 0.51, 1.05);
+        group.add(wreath);
+        for (let i2 = 0; i2 < 7; i2++) {
+          const a = i2 * Math.PI * 2 / 7;
+          oval(x2 + Math.cos(a) * 0.14, 0.51 + Math.sin(a) * 0.14, 1.085, 0.035, 0.035, 0.02, mat("#e4d8c2"));
+        }
+        for (const side of [-1, 1]) tube([[x2, 0.4, 1.05], [x2 + side * 0.11, 0.15, 1.08]], 8e-3, wood);
+      }
+    }
+    group.userData.footprint = 3.5 * 2.7;
+    return group;
+  }
   function createSchool() {
     const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
     const cylinder = (top, bottom, h, x2, y, z, m) => {
@@ -36724,6 +37433,18 @@ void main() {
     p[2] = d[2];
   });
   function roundedBuilding(name, x2, z, color) {
+    if (name === "\u7EAA\u5FF5\u9986" || name === "\u6BA1\u4EEA\u9986") {
+      const model = createRemembranceHouse(name === "\u7EAA\u5FF5\u9986");
+      model.position.set(x2, 0, z);
+      model.traverse((o) => o.userData.place = name);
+      return model;
+    }
+    if (name === "\u96F6\u98DF\u94FA" || name === "\u8BCA\u6240") {
+      const model = name === "\u96F6\u98DF\u94FA" ? createSnackShop() : createClinic();
+      model.position.set(x2, 0, z);
+      model.traverse((o) => o.userData.place = name);
+      return model;
+    }
     if (["\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821", "\u8DD1\u8F6E\u516C\u56ED"].includes(name)) {
       const model = name === "\u4E2D\u5FC3\u5E7F\u573A" ? createPlaza() : name === "\u5C0F\u83DC\u56ED" ? createGarden() : name === "\u8DD1\u8F6E\u516C\u56ED" ? createWheelPark() : createSchool();
       model.position.set(x2, 0, z);
