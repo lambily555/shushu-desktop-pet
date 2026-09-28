@@ -33239,8 +33239,11 @@ void main() {
     const bench = (x2, z, rotation) => {
       const seat = new Group(), k = kit(seat);
       for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.045, 0.08, 0, 0.3, -0.08 + i2 * 0.09, wood);
-      for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.07, 0.04, 0, 0.43 + i2 * 0.08, -0.17, wood);
-      [-0.3, 0.3].forEach((x3) => k.box(0.055, 0.3, 0.24, x3, 0.15, 0, wood));
+      for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.07, 0.04, 0, 0.36 + i2 * 0.08, -0.17, wood);
+      [-0.3, 0.3].forEach((x3) => {
+        k.box(0.055, 0.3, 0.24, x3, 0.15, 0, wood);
+        k.box(0.045, 0.4, 0.045, x3, 0.42, -0.14, wood);
+      });
       seat.position.set(x2, 0, z);
       seat.rotation.y = rotation;
       group.add(seat);
@@ -33248,6 +33251,9 @@ void main() {
     bench(-2.45, 0.7, 0.5);
     bench(2.45, 0.7, -0.5);
     bench(1.9, -1.1, Math.PI);
+    bench(-1.9, -1.1, Math.PI);
+    bench(-0.7, 1.45, 0);
+    bench(0.7, 1.45, 0);
     const board = (x2, z, title, action) => {
       box(0.85, 0.8, 0.1, x2, 0.74, z, wood);
       [-0.35, 0.35].forEach((dx) => box(0.06, 1.2, 0.06, x2 + dx, 0.6, z, wood));
