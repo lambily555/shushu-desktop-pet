@@ -41,7 +41,7 @@
     const steps=Math.ceil(hours),stepHours=hours/steps;
     for(let i=0;i<steps;i++){
       const time=from+(i+1)*stepHours*HOUR;const previousCalendar=state.calendarTime;state.calendarTime+=stepHours*HOUR*calendarRate(state.speed);logCalendarRange(state,previousCalendar,state.calendarTime,time);
-      resetSocial(state,time);state.stamina=clamp(state.stamina+stepHours*(state.currentActivity==='睡觉'||state.currentActivity==='休息'?6:3));
+      resetSocial(state,time);if(state.alive)state.stamina=clamp(state.stamina+stepHours*(state.currentActivity==='睡觉'&&state.currentPlace==='鼠鼠小屋'?24:state.currentActivity==='休息'?6:3));
       if(!state.alive&&state.pendingFarewell?.phase==='resting'&&time-state.pendingFarewell.startedAt>=HOUR){state.pendingFarewell.phase='collected';event(state,time,'farewell','礼仪师来到小屋，陪鼠鼠前往墓地。','殡仪馆')}
       if(!state.alive&&state.pendingFarewell?.phase==='collected'&&time-state.pendingFarewell.startedAt>=2*HOUR){state.memorials.push({id:`main-${time}`,name:'鼠鼠',role:'你的小宠物',time,epitaph:'鼠鼠曾认真地陪伴主人度过每一天。',album:state.events.slice(-12)});state.pendingFarewell={phase:'buried',startedAt:state.pendingFarewell.startedAt,finishedAt:time};event(state,time,'memorial','礼仪师将鼠鼠送到墓地，纪念馆保存了生平卡片和相册。','墓地')}
       if(state.alive){

@@ -44,14 +44,14 @@ export function createTownLife(onEvent=()=>{}){
    }
    if(actor.phase==='idle'){actor.wait-=dt;if(actor.wait<=0)plan(actor)}
    else if(actor.phase==='arrived'){
-    actor.place=actor.destination;onEvent({id:actor.id,type:'status',action:actor.action,place:actor.destination});const d=byName.get(actor.destination);
+    actor.place=actor.destination;onEvent({id:actor.id,type:'status',action:actor.action==='睡觉'?'回家睡觉':actor.action,place:actor.destination});const d=byName.get(actor.destination);
     if(celebration&&actor.destination==='中心广场'){const index=[...actors.keys()].indexOf(actor.id),a=index/Math.max(actors.size,1)*Math.PI*2;go(actor,point(Math.cos(a)*2.15,-1.3+Math.sin(a)*1.2),'celebrating')}
     else if(d[3]){actor.inside=actor.destination;actor.position=point(0,2.6);const stations=actor.action==='睡觉'?[-2.2,-1.6]:actor.action==='饮水'?[1.4,-.7]:actor.action==='进食'?[1.7,.7]:d[5];go(actor,point(...stations),'using',true)}
     else if(actor.action==='社交'){actor.phase='meeting';actor.wait=35;actor.speech='等朋友一起聊聊';go(actor,point(-1.9+(actors.size?([...actors.keys()].indexOf(actor.id)%4)*.85:0),.65),'meeting')}
     else{actor.wait=0;if(actor.action==='跑轮')go(actor,point(d[1],d[2]+.2),'using',true);else{actor.phase='using'}}
    }
    else if(actor.phase==='celebrating'){actor.heading=Math.atan2(-actor.position.x,-1.3-actor.position.z);actor.speech=celebration?celebration.birthdays.includes(actor.id)?'谢谢大家陪我过生日！':celebration.birthdays.length?'生日快乐！一起分享小蛋糕吧！':'仓鼠朋友们，节日快乐！':'';if(!celebration){actor.phase='idle';actor.wait=1}}
-   else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';actor.heading=actor.inside?Math.PI:facing(actor.destination)+Math.PI;actor.speech=actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='学习'?'翻开书本，认识新的种子':actor.action==='纪念'?'轻轻问好，记住在这里的朋友':actor.action==='工作'?'整理送别用品，保持这里安静':actor.action==='睡觉'?'呼……':'休息一会儿'}}
+   else if(actor.phase==='using'){if(actor.wait<=0){actor.wait=day?24:12;actor.phase='activity';if(actor.action==='睡觉')onEvent({id:actor.id,type:'status',action:'睡觉',place:actor.destination});actor.heading=actor.inside?Math.PI:facing(actor.destination)+Math.PI;actor.speech=actor.action==='购买粮食'?'挑一点喜欢的粮食':actor.action==='检查'?'认真检查身体':actor.action==='饮水'?'喝一点水':actor.action==='进食'?'嚼嚼，好香呀':actor.action==='照看菜园'?'看看嫩叶长好了没有':actor.action==='跑轮'?'跑起来！':actor.action==='参观'?'看看大家留下的回忆':actor.action==='学习'?'翻开书本，认识新的种子':actor.action==='纪念'?'轻轻问好，记住在这里的朋友':actor.action==='工作'?'整理送别用品，保持这里安静':actor.action==='睡觉'?'呼……':'休息一会儿'}}
    else if(actor.phase==='activity'){if(actor.forcedSleep&&actor.action==='睡觉')continue;actor.wait-=dt;if(actor.wait<=0)complete(actor)}
    else if(actor.phase==='exit-yard'){actor.speech='';go(actor,entrance(actor.place),'idle',true)}
    else if(actor.phase==='exit-room'){actor.speech='';go(actor,point(0,2.6),'outside',true)}

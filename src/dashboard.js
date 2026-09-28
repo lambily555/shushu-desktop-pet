@@ -437,7 +437,7 @@ function checkTownReturn(){
 function enterTown(forceJournal=false){const wasAway=townWasAway();townState=townSim.settle(townState,Date.now());townState.lastOpenedAt=Date.now();saveTown();localStorage.setItem('shushu-town-return-v2-seen','1');ensureTownReturnNotice().hidden=true;townReturnDismissed=false;setPanel('town');if(forceJournal||wasAway)openTownOverlay('townJournal');setTimeout(()=>{renderTown();window.TownApp?.resize()},80)}
 $('#townButton')?.addEventListener('click',()=>enterTown(false));
 $('#townSpeed')?.addEventListener('change',e=>{const speed=Number(e.target.value);settleTown();townState.speed=speed;saveTown();renderTown()});
-$('#townSleepButton')?.addEventListener('click',()=>{if(!townState.alive)return;window.TownApp?.stopFirstPerson();settleTown();townState.sleepRequested=!townState.sleepRequested;townState.activityUntil=0;if(townState.sleepRequested)townState.currentActivity='回家睡觉';saveTown();renderTown();renderTownContext()});
+$('#townSleepButton')?.addEventListener('click',()=>{if(!townState.alive)return;window.TownApp?.stopFirstPerson();settleTown();townState.sleepRequested=!townState.sleepRequested;townState.activityUntil=0;townState.currentActivity=townState.sleepRequested?'回家睡觉':'休息';saveTown();renderTown();renderTownContext()});
 $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSettings'));$('#townJournalButton')?.addEventListener('click',()=>openTownOverlay('townJournal'));
 document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
 document.querySelector('[data-town-context-close]')?.addEventListener('click',()=>{window.TownApp?.returnToTown?.();$('#townContext').hidden=true});

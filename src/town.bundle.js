@@ -32505,7 +32505,7 @@ void main() {
           if (actor.wait <= 0) plan(actor);
         } else if (actor.phase === "arrived") {
           actor.place = actor.destination;
-          onEvent({ id: actor.id, type: "status", action: actor.action, place: actor.destination });
+          onEvent({ id: actor.id, type: "status", action: actor.action === "\u7761\u89C9" ? "\u56DE\u5BB6\u7761\u89C9" : actor.action, place: actor.destination });
           const d = byName.get(actor.destination);
           if (celebration && actor.destination === "\u4E2D\u5FC3\u5E7F\u573A") {
             const index = [...actors.keys()].indexOf(actor.id), a = index / Math.max(actors.size, 1) * Math.PI * 2;
@@ -32538,6 +32538,7 @@ void main() {
           if (actor.wait <= 0) {
             actor.wait = day ? 24 : 12;
             actor.phase = "activity";
+            if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
             actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
@@ -32645,7 +32646,7 @@ void main() {
     if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
     for (const d of destinations) {
       const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
-      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 3.35 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2 : 1.45;
+      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : 1.45;
       if (name === "\u8DD1\u8F6E\u516C\u56ED" ? Math.hypot(dx, dz) < 2.45 : Math.abs(lx) < w && Math.abs(lz) < h) return false;
       if (name !== "\u4E2D\u5FC3\u5E7F\u573A") {
         const e = entrance(name), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
@@ -32657,7 +32658,7 @@ void main() {
   function lampLayout() {
     const lamps = [];
     for (const d of destinations) {
-      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 3.8 : 2.2;
+      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 5.1 : 2.2;
       for (const direction of [-1, 1]) {
         for (let back = 0.6; back < 3; back += 0.4) {
           const x2 = d[1] - Math.sin(a) * back + Math.cos(a) * side * direction, z = d[2] - Math.cos(a) * back - Math.sin(a) * side * direction;
@@ -33194,13 +33195,13 @@ void main() {
   function createPlaza() {
     const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
     const floor = new Mesh(new CylinderGeometry(1, 1, 0.14, 64), mat("#b6aa90"));
-    floor.scale.set(3.15, 1, 1.8);
+    floor.scale.set(3.15 * Math.SQRT2, 1, 1.8 * Math.SQRT2);
     floor.position.y = 0.02;
     floor.receiveShadow = true;
     group.add(floor);
-    for (let row = -4; row <= 4; row++) for (let col = -8; col <= 8; col++) {
+    for (let row = -7; row <= 7; row++) for (let col = -12; col <= 12; col++) {
       const x2 = col * 0.36 + row % 2 * 0.16, z = row * 0.35;
-      if ((x2 / 3.1) ** 2 + (z / 1.75) ** 2 > 1 || Math.hypot(x2, z) < 0.86) continue;
+      if ((x2 / (3.1 * Math.SQRT2)) ** 2 + (z / (1.75 * Math.SQRT2)) ** 2 > 1 || Math.hypot(x2, z) < 0.86) continue;
       const slab = box(0.33, 0.045, 0.31, x2, 0.115, z, mat(["#cfc4ac", "#bdbaa5", "#d9ceb4"][Math.abs(col + row) % 3]));
       slab.rotation.y = Math.sin(col * 7 + row) * 0.04;
     }
@@ -33234,6 +33235,7 @@ void main() {
       const a = i2 * Math.PI / 2;
       tube([[Math.cos(a) * 0.35, 0.32, Math.sin(a) * 0.35], [Math.cos(a) * 0.48, 0.62, Math.sin(a) * 0.48], [Math.cos(a) * 0.61, 0.21, Math.sin(a) * 0.61]], 0.011, mat("#b9d9e0", { transparent: true, opacity: 0.7, roughness: 0.15 }));
     }
+    const furnitureStart = group.children.length;
     const bench = (x2, z, rotation) => {
       const seat = new Group(), k = kit(seat);
       for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.045, 0.08, 0, 0.3, -0.08 + i2 * 0.09, wood);
@@ -33304,7 +33306,11 @@ void main() {
       celebration.visible = !!event;
       cake.visible = !!event?.birthdays?.length;
     };
-    group.userData.footprint = Math.PI * 3.15 * 1.8;
+    for (const item of group.children.slice(furnitureStart)) {
+      item.position.x *= Math.SQRT2;
+      item.position.z *= Math.SQRT2;
+    }
+    group.userData.footprint = 2 * Math.PI * 3.15 * 1.8;
     return group;
   }
   function birthdayHat() {
