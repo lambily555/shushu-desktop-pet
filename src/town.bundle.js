@@ -32793,8 +32793,8 @@ void main() {
 
   // src/town-life.js
   var destinations = [
-    ["\u8DD1\u8F6E\u516C\u56ED", -9, -7, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
-    ["\u8BCA\u6240", -4.5, -8.5, true, "\u68C0\u67E5", [-1.9, -0.8]],
+    ["\u8DD1\u8F6E\u516C\u56ED", -11, -7.5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
+    ["\u8BCA\u6240", -4.5, -10, true, "\u68C0\u67E5", [-1.9, -0.8]],
     ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
     ["\u7EAA\u5FF5\u9986", -9, 3, true, "\u53C2\u89C2", [0, -0.5]],
@@ -32802,7 +32802,8 @@ void main() {
     ["\u5C0F\u83DC\u56ED", 0, -14.4, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
     ["\u6BA1\u4EEA\u9986", -5, 10, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
-    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]]
+    ["\u9F20\u9F20\u5B66\u6821", 9, 8, true, "\u5B66\u4E60", [1.4, 1.8]],
+    ["\u9F20\u9F20\u996D\u9986", 9, 2, true, "\u7528\u9910", [-1.4, 0.5]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -32820,6 +32821,10 @@ void main() {
       if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") return false;
       if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") return Math.hypot(x2 - d[1], z - d[2]) < 2.2;
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
+      if (d[0] === "\u5893\u5730") {
+        const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
+        return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (lz < -1.03 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
+      }
       return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < 1.62 && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < 1.2;
     }) || Math.hypot(x2, z + 1.3) < 0.9;
   }
@@ -32896,7 +32901,7 @@ void main() {
         go(actor, entrance(actor.destination), "arrived");
         return;
       }
-      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u4E2D\u5FC3\u5E7F\u573A"];
+      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "\u4E2D\u5FC3\u5E7F\u573A"];
       const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
       actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
       if (actor.destination === "\u4E2D\u5FC3\u5E7F\u573A" && actor.allowSocial === false) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
@@ -32961,7 +32966,8 @@ void main() {
             go(actor, point(-1.9 + (actors.size ? [...actors.keys()].indexOf(actor.id) % 4 * 0.85 : 0), 0.65), "meeting");
           } else {
             actor.wait = 0;
-            if (actor.action === "\u8DD1\u8F6E") go(actor, point(d[1], d[2] + 0.2), "using", true);
+            if (actor.destination === "\u5893\u5730") go(actor, point(d[1], d[2]), "using");
+            else if (actor.action === "\u8DD1\u8F6E") go(actor, point(d[1], d[2] + 0.2), "using", true);
             else {
               actor.phase = "using";
             }
@@ -32979,7 +32985,7 @@ void main() {
             actor.phase = "activity";
             if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
-            actor.speech = actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+            actor.speech = actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "activity") {
           if (actor.forcedSleep && actor.action === "\u7761\u89C9") continue;
@@ -33085,7 +33091,7 @@ void main() {
     if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
     for (const d of destinations) {
       const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
-      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : 1.45;
+      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : name === "\u5893\u5730" ? 2.3 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : name === "\u5893\u5730" ? 1.8 : 1.45;
       if (name === "\u8DD1\u8F6E\u516C\u56ED" ? Math.hypot(dx, dz) < 2.45 : Math.abs(lx) < w && Math.abs(lz) < h) return false;
       if (name !== "\u4E2D\u5FC3\u5E7F\u573A") {
         const e = entrance(name), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
@@ -33097,7 +33103,7 @@ void main() {
   function lampLayout() {
     const lamps = [];
     for (const d of destinations) {
-      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 5.1 : 2.2;
+      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 5.1 : name === "\u5893\u5730" ? 2.6 : 2.2;
       for (const direction of [-1, 1]) {
         for (let back = 0.6; back < 3; back += 0.4) {
           const x2 = d[1] - Math.sin(a) * back + Math.cos(a) * side * direction, z = d[2] - Math.cos(a) * back - Math.sin(a) * side * direction;
@@ -33195,6 +33201,7 @@ void main() {
   var obstacles = {
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
+    "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [2.5, 0.5, 0.95, 0.4], [-1.4, -0.2, 0.65, 0.4], [-1.4, 1.6, 0.65, 0.4], [1, -0.2, 0.65, 0.4], [1, 1.6, 0.65, 0.4]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
     "\u7EAA\u5FF5\u9986": [[-2.2, -1.4, 0.75, 0.45], [0, -1.4, 0.75, 0.45], [2.2, -1.4, 0.75, 0.45], [0, 1.5, 1.05, 0.4]],
     "\u9F20\u9F20\u5B66\u6821": [[-2.6, -2.4, 0.82, 0.32], [-1, -0.6, 0.65, 0.4], [1.4, -0.6, 0.65, 0.4], [-1, 1.1, 0.65, 0.4], [1.4, 1.1, 0.65, 0.4]],
@@ -33785,6 +33792,50 @@ void main() {
     mesh.position.set(x2, y, z);
     group.add(mesh);
   }
+  function createRestaurant() {
+    const group = new Group(), { box, oval } = kit(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
+    box(3.4, 0.14, 2.6, 0, 0.07, 0, stone);
+    box(3, 1.6, 2.05, 0, 0.94, -0.14, wall);
+    box(3, 0.28, 2.08, 0, 0.24, -0.14, mat(8885898));
+    for (const side of [-1, 1]) {
+      const r = box(1.9, 0.12, 2.65, side * 0.77, 2.02, -0.14, roof);
+      r.rotation.z = -side * 0.42;
+      for (let row = 0; row < 5; row++) for (let col = 0; col < 8; col++) {
+        const tile = box(0.37, 0.035, 0.32, side * (0.18 + row * 0.31), 2.31 - row * 0.138, -1.25 + col * 0.32, roof);
+        tile.rotation.z = -side * 0.42;
+      }
+    }
+    box(0.14, 0.14, 2.7, 0, 2.4, -0.14, wood);
+    box(3.1, 0.12, 0.1, 0, 1.76, 0.93, wood);
+    for (let i2 = 0; i2 < 17; i2++) box(0.055, 0.32, 0.04, -1.4 + i2 * 0.175, 1.96, 0.9, wood);
+    box(0.8, 1.25, 0.07, -0.6, 0.75, 0.92, wood);
+    box(0.62, 0.55, 0.04, -0.6, 1.02, 0.97, mat(10137255));
+    box(0.045, 0.55, 0.045, -0.6, 1.02, 1, wood);
+    box(0.62, 0.045, 0.045, -0.6, 1.02, 1, wood);
+    oval(-0.29, 0.63, 1, 0.035, 0.035, 0.035, mat(12229207));
+    box(1.15, 0.9, 0.045, 0.62, 1, 0.92, mat(4471600));
+    box(1.25, 0.65, 0.5, 0.65, 0.39, 1.1, wood);
+    box(1.35, 0.07, 0.6, 0.65, 0.75, 1.1, mat(12956305));
+    for (let i2 = 0; i2 < 3; i2++) {
+      oval(0.3 + i2 * 0.3, 0.85, 1.1, 0.12, 0.05, 0.12, mat(14731668));
+      box(0.17, 0.32, 0.025, 0.3 + i2 * 0.3, 1.48, 0.96, mat(15785914));
+    }
+    for (const x2 of [-1.08, 1.08]) {
+      box(0.14, 0.23, 0.1, x2, 1.32, 1.03, wood);
+      box(0.09, 0.16, 0.08, x2, 1.32, 1.09, mat(16047002, { emissive: 13280341, emissiveIntensity: 0.4 }));
+    }
+    box(0.045, 0.72, 1.3, 1.52, 1, -0.2, wood);
+    for (let i2 = 0; i2 < 5; i2++) box(0.055, 0.72, 0.045, 1.55, 1, -0.78 + i2 * 0.29, wood);
+    storeSign(group, "\u9F20\u9F20\u996D\u9986", 0, 1.77, 1.015, 2, 0.32, "#c8b291", "#493b2e");
+    for (const x2 of [-1.15, 1.15]) {
+      oval(x2, 0.54, 1.52, 0.3, 0.055, 0.23, wood);
+      box(0.06, 0.5, 0.06, x2, 0.28, 1.52, wood);
+      for (const dx of [-0.36, 0.36]) oval(x2 + dx, 0.26, 1.52, 0.13, 0.2, 0.13, wood);
+    }
+    for (let i2 = 0; i2 < 9; i2++) oval(-1.4 + i2 * 0.35, 0.17, -1.2, 0.14, 0.12, 0.13, green);
+    group.userData.footprint = 3.4 * 2.6;
+    return group;
+  }
   function createSnackShop() {
     const group = new Group(), { box, oval, tube } = kit(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
     box(3.5, 0.12, 2.7, 0, 0.02, 0, floor);
@@ -34035,6 +34086,84 @@ void main() {
       }
     }
     group.userData.footprint = 3.5 * 2.7;
+    return group;
+  }
+  function createCemetery() {
+    const group = new Group(), { box, oval, tube } = kit(group), stone = mat("#aaa99a"), cap = mat("#c4c2af"), grass = mat("#8f9e72"), leaf = mat("#697d50"), iron = mat("#6c6653"), wood = mat("#9c7951");
+    box(4.2, 0.1, 3.2, 0, 0.01, 0, grass);
+    box(0.65, 0.04, 3.1, 0, 0.09, 0, cap);
+    box(4, 0.035, 0.45, 0, 0.09, 0.08, cap);
+    for (let i2 = 0; i2 < 155; i2++) {
+      const x2 = Math.sin(i2 * 17.3) * 0.25, z = Math.cos(i2 * 7.1) * 1.45;
+      oval(x2, 0.12, z, 0.035, 0.016, 0.045, i2 % 3 ? stone : cap);
+    }
+    for (let i2 = 0; i2 < 75; i2++) {
+      const x2 = Math.sin(i2 * 12.7) * 1.9, z = Math.cos(i2 * 6.7) * 0.16;
+      oval(x2, 0.12, z, 0.035, 0.015, 0.04, stone);
+    }
+    box(4.2, 0.36, 0.1, 0, 0.23, -1.56, stone);
+    for (const side of [-1, 1]) {
+      box(0.1, 0.36, 3.2, side * 2.05, 0.23, 0, stone);
+      box(1.52, 0.36, 0.1, side * 1.3, 0.23, 1.56, stone);
+      for (let i2 = 0; i2 < 13; i2++) {
+        const z = -1.5 + i2 * 0.25;
+        box(0.015, 0.64, 0.015, side * 2.05, 0.71, z, iron);
+      }
+      tube([[side * 2.05, 0.57, -1.5], [side * 2.05, 0.57, 1.5]], 0.012, iron);
+      tube([[side * 2.05, 0.83, -1.5], [side * 2.05, 0.83, 1.5]], 0.012, iron);
+      box(0.17, 0.84, 0.18, side * 0.58, 0.44, 1.58, wood);
+      box(0.25, 0.06, 0.25, side * 0.58, 0.88, 1.58, cap);
+    }
+    for (let i2 = 0; i2 < 17; i2++) box(0.015, 0.64, 0.015, -2 + i2 * 0.25, 0.71, -1.56, iron);
+    for (const y of [0.57, 0.83]) box(4.1, 0.022, 0.022, 0, y, -1.56, iron);
+    for (const x2 of [-1.92, 1.92, -0.47, 0.47]) for (let i2 = 0; i2 < 10; i2++) {
+      const z = -1.35 + i2 * 0.28;
+      if (Math.abs(z) < 0.32) continue;
+      oval(x2, 0.19, z, 0.09, 0.13, 0.1, leaf);
+    }
+    box(1.78, 1.08, 0.24, 0, 0.64, -1.27, stone);
+    for (let row = 0; row < 3; row++) for (let col = 0; col < 5; col++) {
+      const x2 = -0.7 + col * 0.35, y = 0.3 + row * 0.32;
+      box(0.29, 0.24, 0.025, x2, y, -1.135, iron);
+      oval(x2, y - 0.015, -1.08, 0.063, 0.075, 0.05, cap);
+    }
+    storeSign(group, "\u9F20\u9F20\u7EAA\u5FF5\u5893\u56ED", -1.25, 0.29, 1.622, 1.25, 0.22, "#d2bd93", "#66533c");
+    const graves = new Group();
+    group.add(graves);
+    let signature = "";
+    group.userData.setMemorials = (items) => {
+      const records = items.slice(-8), key = JSON.stringify(records.map((m) => [m.id, m.name]));
+      if (key === signature) return;
+      signature = key;
+      while (graves.children.length) {
+        const child = graves.children[0];
+        child.traverse((o) => {
+          if (o.isMesh) {
+            o.geometry.dispose();
+            o.material.map?.dispose();
+            o.material.dispose();
+          }
+        });
+        graves.remove(child);
+      }
+      const k = kit(graves);
+      for (let i2 = 0; i2 < 8; i2++) {
+        const side = i2 < 4 ? -1 : 1, x2 = side * (0.88 + i2 % 2 * 0.6), z = i2 % 4 < 2 ? -0.65 : 0.85;
+        k.box(0.38, 0.06, 0.5, x2, 0.12, z, cap);
+        k.box(0.26, 0.26, 0.07, x2, 0.28, z - 0.14, stone);
+        k.oval(x2, 0.41, z - 0.14, 0.13, 0.09, 0.04, stone);
+        const item = records[i2];
+        if (item) {
+          storeSign(graves, item.name, x2, 0.29, z - 0.096, 0.24, 0.1, "#b9b7a6", "#4b5345");
+          k.oval(x2 + 0.12, 0.18, z + 0.13, 0.07, 0.035, 0.06, leaf);
+          k.oval(x2 + 0.12, 0.23, z + 0.13, 0.045, 0.025, 0.035, mat("#dcc7b0"));
+        }
+      }
+      group.userData.memorialNames = records.map((m) => m.name);
+    };
+    group.userData.setMemorials([]);
+    group.userData.footprint = 4.2 * 3.2;
+    group.userData.gate = { x: 0, z: 1.6 };
     return group;
   }
   function createSchool() {
@@ -37425,7 +37554,8 @@ void main() {
     ["\u5C0F\u83DC\u56ED", 6, 2.3, 8959865, "\u79CD\u4E0B\u9F20\u9F20\u559C\u6B22\u7684\u65B0\u9C9C\u98DF\u7269"],
     ["\u6BA1\u4EEA\u9986", -2.1, 5.9, 9408932, "\u6E29\u67D4\u9001\u522B\u5C0F\u9547\u91CC\u7684\u9F20\u9F20"],
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
-    ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"]
+    ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"],
+    ["\u9F20\u9F20\u996D\u9986", 9, 2, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"]
   ];
   places.forEach((p) => {
     const d = destinations.find((d2) => d2[0] === p[0]);
@@ -37433,6 +37563,18 @@ void main() {
     p[2] = d[2];
   });
   function roundedBuilding(name, x2, z, color) {
+    if (name === "\u9F20\u9F20\u996D\u9986") {
+      const model = createRestaurant();
+      model.position.set(x2, 0, z);
+      model.traverse((o) => o.userData.place = name);
+      return model;
+    }
+    if (name === "\u5893\u5730") {
+      const model = createCemetery();
+      model.position.set(x2, 0, z);
+      model.traverse((o) => o.userData.place = name);
+      return model;
+    }
     if (name === "\u7EAA\u5FF5\u9986" || name === "\u6BA1\u4EEA\u9986") {
       const model = createRemembranceHouse(name === "\u7EAA\u5FF5\u9986");
       model.position.set(x2, 0, z);
@@ -37796,8 +37938,8 @@ void main() {
     const room = new Group();
     room.visible = false;
     scene.add(room);
-    const weatherFx = new Group(), memorialFx = new Group();
-    scene.add(weatherFx, memorialFx);
+    const weatherFx = new Group();
+    scene.add(weatherFx);
     const roomLabels = [], pups = /* @__PURE__ */ new Map();
     const life = createTownLife((detail) => queueMicrotask(() => window.dispatchEvent(new CustomEvent("town-life-event", { detail }))));
     const mainTag = document.createElement("button");
@@ -37915,7 +38057,7 @@ void main() {
     speech.className = "town-npc-speech";
     speech.hidden = true;
     host.appendChild(speech);
-    const indoorNames = ["\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
+    const indoorNames = ["\u9F20\u9F20\u996D\u9986", "\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
     function clearRoom() {
       for (let i2 = clickable.length - 1; i2 >= 0; i2--) if (clickable[i2].userData.roomAction) clickable.splice(i2, 1);
       roomLabels.splice(0).forEach((item) => item.button.remove());
@@ -37933,6 +38075,7 @@ void main() {
     }
     function buildRoom(name) {
       clearRoom();
+      const palettes = { "\u9F20\u9F20\u996D\u9986": [12429704, 15657177, 6641478], "\u9F20\u9F20\u5C0F\u5C4B": [11898210, 14796448, 9728078], "\u8BCA\u6240": [14411495, 15791861, 8632004], "\u96F6\u98DF\u94FA": [13942676, 15983537, 11060131], "\u9F20\u9F20\u5B66\u6821": [12425066, 14929058, 9990466], "\u7EAA\u5FF5\u9986": [13946042, 15656398, 10924951], "\u6BA1\u4EEA\u9986": [13157817, 15656401, 9149087] }, [floorColor, wallColor, trimColor] = palettes[name];
       const add = (w, h, d, x2, y, z, color) => {
         const mesh = new Mesh(new BoxGeometry(w, h, d), new MeshStandardMaterial({ color, roughness: 0.8 }));
         mesh.position.set(x2, y, z);
@@ -37949,30 +38092,115 @@ void main() {
         host.appendChild(button);
         roomLabels.push({ button, point: new Vector3(x2, 0.95, z) });
       };
-      add(8, 0.18, 6, 0, -0.1, 0, 13018744);
-      add(8, 1.9, 0.16, 0, 0.85, -3, 15064005);
-      add(0.16, 1.9, 6, -4, 0.85, 0, 15064005);
-      add(8, 0.2, 0.16, 0, 0, 3, 9335635);
-      add(0.16, 0.2, 6, 4, 0, 0, 9335635);
-      for (let x2 = -3.8; x2 < 4; x2 += 0.4) add(0.015, 0.01, 6, x2, 0, 0, 11045988);
+      add(8, 0.18, 6, 0, -0.1, 0, floorColor);
+      add(8, 1.9, 0.16, 0, 0.85, -3, wallColor);
+      const sideWall = add(0.16, 1.9, 6, -4, 0.85, 0, wallColor);
+      if (name === "\u8BCA\u6240") {
+        sideWall.material.color.set(12180706);
+        sideWall.material.transparent = true;
+        sideWall.material.opacity = 0.3;
+      }
+      add(8, 0.2, 0.16, 0, 0, 3, trimColor);
+      add(0.16, 0.2, 6, 4, 0, 0, trimColor);
+      const tiled = ["\u8BCA\u6240", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"].includes(name);
+      for (let x2 = -3.8; x2 < 4; x2 += tiled ? 0.6 : 0.4) add(0.012, 0.01, 6, x2, 0, 0, trimColor);
+      if (tiled) for (let z = -2.8; z < 3; z += 0.6) add(8, 0.01, 0.012, 0, 0, z, trimColor);
+      add(8, 0.28, 0.03, 0, 0.2, -2.9, trimColor);
+      add(0.03, 0.28, 6, -3.9, 0.2, 0, trimColor);
+      const oval = (x2, y, z, sx, sy, sz, color) => {
+        const mesh = new Mesh(new SphereGeometry(1, 14, 10), new MeshStandardMaterial({ color, roughness: 0.8 }));
+        mesh.position.set(x2, y, z);
+        mesh.scale.set(sx, sy, sz);
+        room.add(mesh);
+        return mesh;
+      };
+      const cylinder = (x2, y, z, r, h, color) => {
+        const mesh = new Mesh(new CylinderGeometry(r, r, h, 16), new MeshStandardMaterial({ color, roughness: 0.7 }));
+        mesh.position.set(x2, y, z);
+        room.add(mesh);
+        return mesh;
+      };
+      const windowFrame = (x2, z) => {
+        const shape = new Shape();
+        shape.moveTo(-0.38, 0);
+        shape.lineTo(0.38, 0);
+        shape.lineTo(0.38, 0.65);
+        shape.absarc(0, 0.65, 0.38, 0, Math.PI, false);
+        shape.lineTo(-0.38, 0);
+        const mesh = new Mesh(new ShapeGeometry(shape), new MeshStandardMaterial({ color: 10930379, roughness: 0.3 }));
+        mesh.position.set(x2, 0.62, z);
+        room.add(mesh);
+        for (const dx of [-0.4, 0.4]) add(0.04, 0.7, 0.06, x2 + dx, 0.96, z + 0.02, trimColor);
+        const arch = new Mesh(new TorusGeometry(0.4, 0.025, 8, 24, Math.PI), new MeshStandardMaterial({ color: trimColor }));
+        arch.position.set(x2, 1.27, z + 0.02);
+        room.add(arch);
+        add(0.025, 0.95, 0.04, x2, 1.1, z + 0.03, trimColor);
+        add(0.76, 0.025, 0.04, x2, 1.1, z + 0.03, trimColor);
+        add(0.86, 0.07, 0.16, x2, 0.61, z + 0.04, trimColor);
+      };
+      for (const x2 of [-3, 3]) windowFrame(x2, -2.89);
+      const table = (x2, z, w, d, color) => {
+        add(w, 0.09, d, x2, 0.58, z, color);
+        for (const dx of [-w * 0.38, w * 0.38]) for (const dz of [-d * 0.36, d * 0.36]) add(0.07, 0.53, 0.07, x2 + dx, 0.27, z + dz, color);
+      };
+      const bench = (x2, z) => {
+        table(x2, z, 2, 0.65, trimColor);
+        add(2, 0.26, 0.065, x2, 0.78, z - 0.28, trimColor);
+        for (const dx of [-0.8, 0.8]) add(0.055, 0.6, 0.055, x2 + dx, 0.54, z - 0.26, trimColor);
+      };
+      const bouquet = (x2, y, z) => {
+        cylinder(x2, y, z, 0.1, 0.22, wallColor);
+        for (let i2 = 0; i2 < 7; i2++) {
+          const a = i2 * 2.4;
+          oval(x2 + Math.cos(a) * 0.11, y + 0.24, z + Math.sin(a) * 0.11, 0.08, 0.08, 0.06, i2 % 2 ? 13806242 : 15194030);
+          oval(x2 + Math.cos(a) * 0.1, y + 0.1, z + Math.sin(a) * 0.1, 0.08, 0.1, 0.04, 8426341);
+        }
+      };
       const bed = (x2, z, text) => {
-        add(1.9, 0.3, 1.2, x2, 0.2, z, 8939590);
-        add(1.78, 0.18, 1.1, x2, 0.43, z, 15326138);
+        const clinical = name === "\u8BCA\u6240";
+        add(1.9, 0.3, 1.2, x2, 0.2, z, clinical ? trimColor : 8939590);
+        add(1.78, 0.18, 1.1, x2, 0.43, z, clinical ? 15791344 : 15326138);
         add(0.45, 0.17, 0.8, x2 - 0.58, 0.6, z, 16248537);
-        add(0.9, 0.09, 1.05, x2 + 0.3, 0.56, z, 8887434);
+        add(0.9, 0.09, 1.05, x2 + 0.3, 0.56, z, clinical ? 11981532 : 8887434);
+        if (clinical) {
+          for (const end of [-1, 1]) {
+            add(0.08, 0.48, 1.22, x2 + end * 0.92, 0.49, z, trimColor);
+            for (const side of [-1, 1]) {
+              oval(x2 + end * 0.76, 0.13, z + side * 0.43, 0.07, 0.07, 0.045, 6847364);
+              add(1.3, 0.035, 0.035, x2, 0.76, z + side * 0.58, 10794938);
+            }
+          }
+        }
         label(text, x2, z);
       };
       const shelf = (x2, z, text) => {
-        add(1.6, 1.35, 0.18, x2, 0.68, z - 0.22, 8742981);
-        [-0.72, 0.72].forEach((dx) => add(0.1, 1.4, 0.6, x2 + dx, 0.7, z, 8742981));
+        const color = name === "\u8BCA\u6240" ? trimColor : name === "\u96F6\u98DF\u94FA" ? 11060131 : 9991247;
+        add(1.6, 1.35, 0.18, x2, 0.68, z - 0.22, color);
+        [-0.72, 0.72].forEach((dx) => add(0.1, 1.4, 0.6, x2 + dx, 0.7, z, color));
         [0.12, 0.65, 1.2].forEach((y) => {
-          add(1.6, 0.08, 0.6, x2, y, z, 11372897);
-          for (let i2 = 0; i2 < 4; i2++) add(0.22, 0.25, 0.25, x2 - 0.5 + i2 * 0.33, y + 0.16, z, 13091998);
+          add(1.6, 0.08, 0.6, x2, y, z, color);
+          for (let i2 = 0; i2 < 4; i2++) {
+            const px2 = x2 - 0.5 + i2 * 0.33;
+            if (name === "\u8BCA\u6240") {
+              cylinder(px2, y + 0.15, z, 0.07, 0.23, 15331566);
+              cylinder(px2, y + 0.285, z, 0.055, 0.04, trimColor);
+              add(0.08, 0.06, 0.012, px2, y + 0.17, z + 0.071, trimColor);
+            } else if (name === "\u96F6\u98DF\u94FA" || name === "\u9F20\u9F20\u5C0F\u5C4B") {
+              add(0.29, 0.06, 0.38, px2, y + 0.08, z, name === "\u96F6\u98DF\u94FA" ? 14723491 : 13018486);
+              for (let n = 0; n < 6; n++) oval(px2 + (n % 3 - 1) * 0.07, y + 0.16, z + (Math.floor(n / 3) - 0.5) * 0.11, 0.04, 0.045, 0.06, [12818776, 10647112, 14203228][i2 % 3]);
+            } else if (name === "\u9F20\u9F20\u5B66\u6821") {
+              for (let n = 0; n < 3; n++) add(0.065, 0.23 + n * 0.025, 0.24, px2 + n * 0.075 - 0.075, y + 0.15, z, [7901575, 12091750, 12757609][n]);
+            } else {
+              add(0.22, 0.25, 0.25, px2, y + 0.16, z, 13091998);
+            }
+          }
         });
         label(text, x2, z);
       };
       if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
         bed(-2.2, -1.6, "\u5E8A\u94FA");
+        for (let i2 = 0; i2 < 13; i2++) add(0.018, 1.5, 0.025, -3.6 + i2 * 0.6, 1, -2.88, 12886392);
+        bouquet(-3.25, 0.12, 1.9);
         const bowl = new Mesh(new TorusGeometry(0.36, 0.1, 12, 32), new MeshStandardMaterial({ color: 15324341 }));
         bowl.rotation.x = Math.PI / 2;
         bowl.position.set(1.8, 0.18, 1.2);
@@ -37991,13 +38219,19 @@ void main() {
         liquid.scale.y = level;
         liquid.position.set(1.7, 0.505 + 0.305 * level, -1.2);
         room.add(liquid);
-        label(`\u6C34\u58F6 ${Math.ceil(water.amount)}% \xB7 ${water.quality} \xB7 \u70B9\u51FB\u6362\u6C34`, 1.7, -1.2, "water");
+        const waterQuality = water.amount <= 0 ? "\u7F3A\u6C34" : water.quality, waterText = { \u65B0\u9C9C: "\u6C34\u8D28\u6B63\u5E38", \u5F85\u6362\u6C34: "\u5EFA\u8BAE\u6362\u6C34", \u53D8\u8D28: "\u6C34\u5DF2\u53D8\u8D28", \u7F3A\u6C34: "\u6C34\u5DF2\u8017\u5C3D" }[waterQuality];
+        label(`\u6C34\u58F6 ${Math.ceil(water.amount)}% \xB7 ${waterText}
+\u70B9\u51FB\u6E05\u6D17\u6362\u6C34`, 1.7, -1.2, "water");
+        const waterLabel = roomLabels.at(-1).button;
+        waterLabel.classList.add("town-water-label");
+        waterLabel.dataset.quality = waterQuality;
+        waterLabel.title = `${waterText}\uFF0C\u70B9\u51FB\u514D\u8D39\u6E05\u6D17\u5E76\u8865\u6EE1\u65B0\u9C9C\u6C34\u3002`;
         shelf(0.2, -2.4, "\u7CAE\u4ED3");
         roomLabels.at(-1).button.remove();
         roomLabels.pop();
         label("\u7CAE\u4ED3 \xB7 \u70B9\u51FB\u8865\u7ED9", 0.2, -2.4, "supply");
         const moved = worldState.furniture?.table?.slot === "window", tableX = moved ? 2.2 : -2.3, tableZ = moved ? -0.8 : 1.1;
-        add(1, 0.55, 0.75, tableX, 0.3, tableZ, 10188881);
+        table(tableX, tableZ, 1, 0.75, 10188881);
         label("\u6728\u684C", tableX, tableZ);
         add(0.65, 0.15, 0.65, tableX + 1, 0.1, tableZ + 0.2, 9609346);
         label("\u5750\u57AB", tableX + 1, tableZ + 0.2);
@@ -38011,14 +38245,52 @@ void main() {
       } else if (name === "\u8BCA\u6240") {
         bed(-1.9, -0.8, "\u8BCA\u7597\u5E8A");
         shelf(1.6, -2.4, "\u836F\u67DC");
-        add(1.4, 0.7, 0.8, 1.9, 0.38, 1.2, 14605517);
+        add(1.4, 0.7, 0.8, 1.9, 0.38, 1.2, trimColor);
+        add(1.5, 0.07, 0.87, 1.9, 0.77, 1.2, 15791602);
         label("\u68C0\u67E5\u53F0", 1.9, 1.2);
+        add(0.5, 0.36, 0.08, 1.9, 1.04, 1, 10730176);
+        add(0.42, 0.27, 0.015, 1.9, 1.05, 1.05, 4088426);
+        add(0.8, 0.1, 0.025, 0, 1.4, -2.88, 13000281);
+        add(0.1, 0.8, 0.025, 0, 1.4, -2.88, 13000281);
+        add(0.025, 1.5, 0.025, -2.9, 0.78, -1.1, 10794938);
+        add(0.4, 0.025, 0.025, -2.9, 1.5, -1.1, 10794938);
+        cylinder(-3, 1.28, -1.1, 0.065, 0.25, 14872302);
+      } else if (name === "\u9F20\u9F20\u996D\u9986") {
+        add(6.5, 0.8, 0.8, 0, 0.4, -2.3, 6641478);
+        add(6.6, 0.08, 0.9, 0, 0.84, -2.3, 12958629);
+        label("\u53A8\u623F", 0, -2.3);
+        for (const x2 of [-2, 0, 2]) {
+          cylinder(x2, 0.93, -2.3, 0.22, 0.12, 4344392);
+          cylinder(x2, 1.08, -2.3, 0.2, 0.16, 12821364);
+          for (let i2 = 0; i2 < 5; i2++) oval(x2 + Math.cos(i2 * 1.3) * 0.1, 1.17, -2.3 + Math.sin(i2 * 1.3) * 0.1, 0.055, 0.025, 0.04, 14269817);
+        }
+        add(1.8, 0.85, 0.7, 2.5, 0.42, 0.5, 6641478);
+        add(1.9, 0.08, 0.8, 2.5, 0.88, 0.5, 12429704);
+        label("\u70B9\u9910\u67DC\u53F0", 2.5, 0.5);
+        for (const x2 of [-1.4, 1]) for (const z of [-0.2, 1.6]) {
+          table(x2, z, 1.3, 0.8, 9992532);
+          for (const dz of [-0.65, 0.65]) {
+            cylinder(x2, 0.23, z + dz, 0.24, 0.4, 8547409);
+            cylinder(x2, 0.45, z + dz, 0.27, 0.06, 12429704);
+          }
+          cylinder(x2, 0.66, z, 0.2, 0.035, 15657177);
+          for (let i2 = 0; i2 < 6; i2++) oval(x2 + Math.cos(i2) * 0.11, 0.7, z + Math.sin(i2) * 0.11, 0.055, 0.04, 0.04, i2 % 2 ? 8626268 : 14003302);
+        }
+        label("\u7528\u9910\u533A", -1.4, 0.5);
       } else if (name === "\u96F6\u98DF\u94FA") {
         shelf(-2.2, -2.4, "\u7CAE\u98DF\u8D27\u67B6");
         shelf(0.5, -2.4, "\u96F6\u98DF\u8D27\u67B6");
-        add(3, 0.85, 0.85, 0.5, 0.43, 1.3, 11042386);
+        add(3, 0.85, 0.85, 0.5, 0.43, 1.3, 11060131);
+        add(3.1, 0.09, 0.95, 0.5, 0.9, 1.3, 14723491);
         label("\u67DC\u53F0", 0.5, 1.3);
-        for (let i2 = 0; i2 < 5; i2++) add(0.33, 0.2, 0.4, -0.6 + i2 * 0.55, 0.97, 1.3, 14203255);
+        for (let i2 = 0; i2 < 5; i2++) {
+          const x2 = -0.6 + i2 * 0.55;
+          add(0.43, 0.08, 0.5, x2, 0.99, 1.3, 15983537);
+          for (let j = 0; j < 6; j++) oval(x2 + (j % 3 - 1) * 0.1, 1.08, 1.3 + (Math.floor(j / 3) - 0.5) * 0.14, 0.065, 0.06, 0.075, i2 % 2 ? 13935718 : 10906440);
+        }
+        table(-2.7, 1.1, 0.9, 0.6, 11060131);
+        cylinder(-2.7, 0.65, 1.1, 0.19, 0.025, 15983537);
+        for (let i2 = 0; i2 < 8; i2++) add(0.85, 0.25, 0.03, -3.3 + i2 * 0.9, 1.65, -2.85, i2 % 3 === 0 ? 14723491 : i2 % 3 === 1 ? 11060131 : 15983537);
       } else if (name === "\u9F20\u9F20\u5B66\u6821") {
         shelf(-2.6, -2.4, "\u4E66\u67DC");
         roomLabels.at(-1).button.remove();
@@ -38039,27 +38311,52 @@ void main() {
         board.material.map.colorSpace = SRGBColorSpace;
         label("\u9ED1\u677F", 0.5, -2.5, "school-board");
         for (const x2 of [-1, 1.4]) for (const z of [-0.6, 1.1]) {
-          add(1.2, 0.6, 0.7, x2, 0.3, z, 12095576);
-          add(0.65, 0.32, 0.55, x2, 0.16, z + 0.7, 10779465);
+          table(x2, z, 1.2, 0.7, 12095576);
+          add(0.65, 0.07, 0.55, x2, 0.32, z + 0.7, 10779465);
+          for (const dx of [-0.22, 0.22]) add(0.055, 0.3, 0.055, x2 + dx, 0.15, z + 0.7, 10779465);
+          add(0.65, 0.32, 0.05, x2, 0.52, z + 0.95, 10779465);
           add(0.4, 0.035, 0.28, x2, 0.64, z, 15919305);
         }
         label("\u8BFE\u684C", 1.4, 1.1, "school-desk");
       } else if (name === "\u7EAA\u5FF5\u9986") {
         [-2.2, 0, 2.2].forEach((x2, i2) => {
-          add(1.4, 0.55, 0.8, x2, 0.28, -1.4, 10261118);
+          add(1.4, 0.55, 0.8, x2, 0.28, -1.4, trimColor);
+          if (i2 === 0) {
+            oval(x2, 0.69, -1.4, 0.15, 0.12, 0.1, 12886381);
+            cylinder(x2 + 0.35, 0.65, -1.4, 0.09, 0.2, 11912634);
+          } else {
+            add(0.65, 0.025, 0.44, x2, 0.59, -1.4, 15326400);
+            add(0.24, 0.015, 0.29, x2 - 0.17, 0.61, -1.4, i2 === 1 ? 13220506 : 10268578);
+            add(0.24, 0.015, 0.29, x2 + 0.17, 0.61, -1.4, 15919312);
+          }
           const glass = add(1.4, 0.65, 0.8, x2, 0.88, -1.4, 14478049);
           glass.material.transparent = true;
-          glass.material.opacity = 0.25;
+          glass.material.opacity = 0.16;
+          glass.material.depthWrite = false;
           label(["\u7EAA\u5FF5\u7269\u5C55\u67DC", "\u751F\u5E73\u5361\u7247\u5C55\u67DC", "\u76F8\u518C\u5C55\u67DC"][i2], x2, -1.4);
         });
-        add(2, 0.4, 0.7, 0, 0.22, 1.5, 9929579);
+        bench(0, 1.5);
         label("\u4F11\u606F\u957F\u6905", 0, 1.5);
+        for (const x2 of [-3.35, 3.35]) bouquet(x2, 0.22, 1.4);
+        for (let i2 = 0; i2 < 8; i2++) {
+          const x2 = -1.4 + i2 % 4 * 0.9, y = 1.1 + Math.floor(i2 / 4) * 0.5;
+          add(0.3, 0.34, 0.025, x2, y, -2.86, trimColor);
+          oval(x2, y, -2.84, 0.085, 0.1, 0.013, 14272158);
+        }
       } else {
-        add(2.5, 0.65, 1.2, 0, 0.34, -1, 12171178);
+        add(2.5, 0.65, 1.2, 0, 0.34, -1, trimColor);
+        add(2.55, 0.045, 1.23, 0, 0.7, -1, 15130320);
         label("\u544A\u522B\u53F0", 0, -1);
         shelf(-2.6, -2.4, "\u9001\u522B\u7528\u54C1\u67DC");
-        add(2, 0.4, 0.65, 0, 0.2, 1.4, 9668215);
+        bench(0, 1.4);
         label("\u7B49\u5019\u957F\u6905", 0, 1.4);
+        for (const x2 of [-1, 1]) {
+          cylinder(x2, 0.8, -1, 0.075, 0.2, 15260608);
+          oval(x2, 0.93, -1, 0.025, 0.05, 0.025, 14792816);
+        }
+        for (const x2 of [-2, 2]) bouquet(x2, 0.25, -0.5);
+        add(0.58, 0.65, 0.045, 0, 1.25, -2.88, trimColor);
+        add(0.47, 0.54, 0.025, 0, 1.25, -2.85, 14603453);
       }
     }
     function enterPlace(name) {
@@ -38083,9 +38380,13 @@ void main() {
       } else {
         const place = places.find((p) => p[0] === name);
         target.set(place[1], 0.2, place[2]);
-        distance2 = 8;
-        pitch = 0.85;
+        distance2 = name === "\u5893\u5730" ? 6.2 : 8;
+        pitch = name === "\u5893\u5730" ? 1 : 0.85;
         yaw = facing(name) + 0.2;
+        if (name === "\u5893\u5730") {
+          document.querySelector("#townPlace span").textContent = "\u56ED\u5185\u4FEF\u89C6 \xB7 \u5927\u95E8\u671D\u5411\u9053\u8DEF \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
+          placeModels.forEach((model, key) => model.visible = key === "\u5893\u5730");
+        }
       }
       syncPups();
       syncLife();
@@ -38674,17 +38975,7 @@ void main() {
         geometry.setAttribute("position", new Float32BufferAttribute(points, 3));
         weatherFx.add(new Points(geometry, new PointsMaterial({ color: 14216688, size: 0.055, transparent: true, opacity: 0.72 })));
       }
-      while (memorialFx.children.length) {
-        const child = memorialFx.children[0];
-        child.geometry?.dispose();
-        child.material?.dispose();
-        memorialFx.remove(child);
-      }
-      (next.memorials || []).slice(-6).forEach((item, i2) => {
-        const stone = new Mesh(new BoxGeometry(0.3, 0.42, 0.12), new MeshStandardMaterial({ color: 11449258, roughness: 1 }));
-        stone.position.set(2.05 + i2 * 0.36, 0.24, 5.8);
-        memorialFx.add(stone);
-      });
+      placeModels.get("\u5893\u5730").userData.setMemorials(next.memorials || []);
       const location = places.find((p) => p[0] === next.place);
       if (location && !activePlace) {
         pet.userData.home = { x: location[1] + 0.7, z: location[2] + 1.3 };
@@ -38693,7 +38984,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

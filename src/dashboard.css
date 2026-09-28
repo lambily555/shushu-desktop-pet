@@ -849,3 +849,9 @@ button.town-furniture-label{pointer-events:auto;cursor:pointer;box-shadow:0 5px 
 #townWeather strong{font-size:14px;line-height:1.2;font-weight:800}
 #townWeather[data-weather="小雨"]{background:#dcebf2;color:#28566c;border:1px solid #bad4e1}
 #townWeather[data-weather="小雨"] small{color:#547281}
+
+.town-water-label{max-width:190px;white-space:pre-line;text-overflow:clip;font-size:12px;line-height:1.5}
+.town-water-label[data-quality="新鲜"],.town-water-status[data-quality="新鲜"]{background:#e6f1e4;color:#356443;border-color:#88aa82}
+.town-water-label[data-quality="待换水"],.town-water-status[data-quality="待换水"]{background:#fff0cc;color:#826026;border-color:#c7a45b}
+.town-water-label[data-quality="变质"],.town-water-label[data-quality="缺水"],.town-water-status[data-quality="变质"],.town-water-status[data-quality="缺水"]{background:#f8e2dc;color:#9b443a;border-color:#c98072}
+.town-water-status b{color:inherit;font-size:16px}.town-water-status span{font-size:12px}
