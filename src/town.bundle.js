@@ -32804,7 +32804,7 @@ void main() {
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
     ["\u9F20\u9F20\u5B66\u6821", 10, 6.5, true, "\u5B66\u4E60", [1.4, 1.8]],
     ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]],
-    ["Mariah Carey\u540D\u4EBA\u5802", -11.5, 8.5, true, "\u6B23\u8D4F\u5C55\u89C8", [0, 0.2]]
+    ["Mariah Carey\u540D\u4EBA\u5802", 4.5, 5.8, true, "\u6B23\u8D4F\u5C55\u89C8", [0, 0.2]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -33449,7 +33449,6 @@ void main() {
     ring.position.set(0.1, 1.36, -1.7);
     group.add(ring);
     const seat = box(1.5, 0.13, 0.5, -2.6, 0.4, 1.6, 13350815);
-    seat.userData.roomAction = "hall-seat";
     group.userData.hallSeat = seat;
     box(1.5, 0.38, 0.08, -2.6, 0.65, 1.84, 13350815);
     for (const x2 of [-3.2, -2]) box(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
@@ -37783,7 +37782,7 @@ void main() {
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"],
     ["\u9F20\u9F20\u996D\u9986", 4.5, -10, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"],
-    ["Mariah Carey\u540D\u4EBA\u5802", -11.5, 8.5, 15063243, "\u4E13\u8F91\u3001\u7167\u7247\u548C\u9ED1\u80F6\u6536\u85CF\u5C55"]
+    ["Mariah Carey\u540D\u4EBA\u5802", 4.5, 5.8, 15063243, "\u4E13\u8F91\u3001\u7167\u7247\u548C\u9ED1\u80F6\u6536\u85CF\u5C55"]
   ];
   places.forEach((p) => {
     const d = destinations.find((d2) => d2[0] === p[0]);
@@ -38180,6 +38179,7 @@ void main() {
     let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     let focusedExhibit = null;
+    let showFirstPersonHud = false;
     let firstPerson = false, playerYaw = 0, playerPitch = 0, playerSavedCamera = null, jumpHeight = 0, jumpVelocity = 0;
     const playerKeys = /* @__PURE__ */ new Set();
     const target = new Vector3(0, 0, 1);
@@ -38467,7 +38467,6 @@ void main() {
       };
       if (name === "Mariah Carey\u540D\u4EBA\u5802") {
         populateMariahRoom(room);
-        clickable.push(room.userData.hallSeat);
         label("\u5531\u7247\u5C55\u67DC", 1.1, -0.5);
         label("\u4E13\u8F91\u5899", 0, -2.7);
       } else if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
@@ -38826,7 +38825,7 @@ void main() {
     const playerTools = document.createElement("div");
     playerTools.className = "town-player-tools";
     playerTools.hidden = true;
-    playerTools.innerHTML = '<button type="button" data-player-enter>\u8FDB\u5165\u9F20\u9F20\u7B2C\u4E00\u89C6\u89D2</button><span>WASD / \u65B9\u5411\u952E\u79FB\u52A8 \xB7 \u9F20\u6807\u73AF\u987E \xB7 E \u4E92\u52A8 \xB7 \u7A7A\u683C\u8DF3\u8DC3 \xB7 Shift \u8DD1\u6B65 \xB7 Esc \u8FD4\u56DE\u4E0A\u5E1D\u89C6\u89D2</span><button type="button" data-player-exit hidden>\u8FD4\u56DE\u4E0A\u5E1D\u89C6\u89D2</button>';
+    playerTools.innerHTML = '<button type="button" data-player-enter>\u8FDB\u5165\u9F20\u9F20\u7B2C\u4E00\u89C6\u89D2</button><span>WASD / \u65B9\u5411\u952E\u79FB\u52A8 \xB7 \u9F20\u6807\u73AF\u987E \xB7 E \u4E92\u52A8 \xB7 \u7A7A\u683C\u8DF3\u8DC3 \xB7 Shift \u8DD1\u6B65 \xB7 Esc \u8FD4\u56DE\u4E0A\u5E1D\u89C6\u89D2</span><button type="button" data-player-hud hidden>\u663E\u793A\u6587\u5B57\u6846</button><button type="button" data-player-exit hidden>\u8FD4\u56DE\u4E0A\u5E1D\u89C6\u89D2</button>';
     host.appendChild(playerTools);
     const playerNotice = document.createElement("p");
     playerNotice.className = "town-player-notice";
@@ -38870,6 +38869,8 @@ void main() {
       if (actor.inside) enterPlace(actor.inside);
       host.dataset.view = "first-person";
       document.body.dataset.townView = "first-person";
+      document.body.dataset.townHud = showFirstPersonHud ? "shown" : "hidden";
+      playerTools.querySelector("[data-player-hud]").hidden = false;
       crosshair.hidden = false;
       playerTools.querySelector("[data-player-enter]").hidden = true;
       playerTools.querySelector("[data-player-exit]").hidden = false;
@@ -38897,6 +38898,8 @@ void main() {
       }
       delete host.dataset.view;
       delete document.body.dataset.townView;
+      delete document.body.dataset.townHud;
+      playerTools.querySelector("[data-player-hud]").hidden = true;
       crosshair.hidden = true;
       playerNotice.hidden = true;
       playerTools.querySelector("[data-player-enter]").hidden = false;
@@ -38904,6 +38907,11 @@ void main() {
       if (actor?.seated) resetHallView();
       positionCamera();
     }
+    playerTools.querySelector("[data-player-hud]").onclick = () => {
+      showFirstPersonHud = !showFirstPersonHud;
+      document.body.dataset.townHud = showFirstPersonHud ? "shown" : "hidden";
+      playerTools.querySelector("[data-player-hud]").textContent = showFirstPersonHud ? "\u5168\u5C4F\u89C6\u91CE" : "\u663E\u793A\u6587\u5B57\u6846";
+    };
     playerTools.querySelector("[data-player-enter]").onclick = startFirstPerson;
     playerTools.querySelector("[data-player-exit]").onclick = stopFirstPerson;
     function updatePlayer(dt) {
@@ -38927,9 +38935,9 @@ void main() {
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
     }
-    function playerInteract() {
+    function playerInteract(source = "keyboard") {
       const sitter = life.actors.get("main");
-      if (sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x + 2.6, sitter.position.z - 1.6) < 1.2)) {
+      if (source === "keyboard" && sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x + 2.6, sitter.position.z - 1.6) < 1.2)) {
         toggleHallSeat();
         return;
       }
@@ -39100,7 +39108,7 @@ void main() {
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
       if (firstPerson) {
-        if (document.pointerLockElement === canvas) playerInteract();
+        if (document.pointerLockElement === canvas) playerInteract("mouse");
         else canvas.requestPointerLock?.();
         return;
       }
@@ -39119,7 +39127,7 @@ void main() {
       if (!drag) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
-      if (drag.button === 0 || drag.button === 1 || e.shiftKey) {
+      if (drag.button === 2 || drag.button === 1 || e.shiftKey) {
         const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
         target.copy(drag.target).addScaledVector(right, -dx * distance2 * 15e-4).addScaledVector(forward, dy * distance2 * 15e-4);
       } else {
@@ -39134,12 +39142,6 @@ void main() {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
         const hallHit = activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? ray.intersectObjects(room.userData.hallClickable, false)[0] : null;
-        const seatHit = activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? ray.intersectObject(room.userData.hallSeat)[0] : null;
-        if (seatHit && (!hallHit || seatHit.distance < hallHit.distance)) {
-          toggleHallSeat();
-          drag = null;
-          return;
-        }
         if (hallHit) {
           focusExhibit(room.userData.hallClickable.indexOf(hallHit.object));
           drag = null;

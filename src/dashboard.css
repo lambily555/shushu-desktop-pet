@@ -857,8 +857,8 @@ button.town-furniture-label{pointer-events:auto;cursor:pointer;box-shadow:0 5px 
 .town-water-status b{color:inherit;font-size:16px}.town-water-status span{font-size:12px}
 
 
-body[data-town-view="first-person"] .town-toolbar,body[data-town-view="first-person"] .town-status,body[data-town-view="first-person"] .town-cards,body[data-town-view="first-person"] .town-overlay,body[data-town-view="first-person"] .town-place,body[data-town-view="first-person"] .town-tip,body[data-town-view="first-person"] .town-label,body[data-town-view="first-person"] .town-npc-speech{display:none!important}
+body[data-town-view="first-person"][data-town-hud="hidden"] .town-toolbar,body[data-town-view="first-person"][data-town-hud="hidden"] .town-status,body[data-town-view="first-person"][data-town-hud="hidden"] .town-cards,body[data-town-view="first-person"][data-town-hud="hidden"] .town-overlay,body[data-town-view="first-person"][data-town-hud="hidden"] .town-place,body[data-town-view="first-person"][data-town-hud="hidden"] .town-tip,body[data-town-view="first-person"][data-town-hud="hidden"] .town-label,body[data-town-view="first-person"][data-town-hud="hidden"] .town-npc-speech{display:none!important}
 #townScene[data-view="first-person"] .town-player-tools span{display:none}#townScene[data-view="first-person"] .town-player-tools{left:auto;right:18px;bottom:18px;transform:none;padding:0;background:none;border:0;box-shadow:none}
 
-body[data-town-view="first-person"] .town-room-return{display:none!important}
-body[data-town-view="first-person"] .town-exit{display:none!important}
+body[data-town-view="first-person"][data-town-hud="hidden"] .town-room-return{display:none!important}
+body[data-town-view="first-person"][data-town-hud="hidden"] .town-exit{display:none!important}
