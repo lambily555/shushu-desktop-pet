@@ -63,3 +63,6 @@ assert.equal(sim.recordSceneEvent(friends.state,{id:'npc-0',otherId:'npc-1',type
 const chat=sim.recordSceneEvent(scene,{id:'main',otherId:'npc-1',type:'social'},start);
 assert.equal(chat.state.stamina,scene.stamina-12);assert.equal(chat.state.social.total,1);
 console.log('Scene resource effects, cooldowns, friendships and social limits passed');
+
+
+for(const speed of [1,4,12,48]){const rate=sim.calendarRate(speed),base=sim.defaults(start);base.speed=speed;base.stamina=0;base.mortality=false;assert.ok(Math.abs(sim.settle(base,start+5*HOUR/rate).stamina-50)<.001);assert.equal(sim.settle(base,start+10*HOUR/rate).stamina,100);const offline=sim.settle(base,start+10*HOUR/rate);let stepped=base;for(let i=1;i<=10;i++)stepped=sim.settle(stepped,start+i*HOUR/rate);assert.ok(Math.abs(offline.stamina-stepped.stamina)<.001)}console.log('All four speeds restore 50 stamina in 5 town hours and 100 in 10; offline matches stepwise settlement');

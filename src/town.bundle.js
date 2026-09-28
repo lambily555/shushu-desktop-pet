@@ -38947,7 +38947,7 @@ void main() {
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
       weatherFx.rotation.y = t * 0.025;
       if (weatherFx.children[0]) weatherFx.children[0].position.y = -(t * 2) % 4;
-      outdoorActions.forEach(({ button, point: point2, place }) => placeLabel(button, point2, occupied, activePlace !== place || focusedResident !== -1));
+      outdoorActions.forEach(({ button, point: point2, place }) => placeLabel(button, point2, occupied, true));
       labels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, firstPerson || !!activePlace || focusedResident !== -1));
       residents.forEach((npc, index) => {
         const actor = life.actors.get(npc.lifeId);
@@ -38959,7 +38959,7 @@ void main() {
         renderActor(item.rig, life.actors.get(item.data.id), t);
         placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
       });
-      roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, false));
+      roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, true));
       layoutSpeech();
       if (firstPerson) pet.visible = false;
       renderer.render(scene, camera);
