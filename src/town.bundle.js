@@ -11827,29 +11827,29 @@
       _edge2.subVectors(c, a);
       _normal$1.crossVectors(_edge1, _edge2);
       let DdN = this.direction.dot(_normal$1);
-      let sign3;
+      let sign4;
       if (DdN > 0) {
         if (backfaceCulling) return null;
-        sign3 = 1;
+        sign4 = 1;
       } else if (DdN < 0) {
-        sign3 = -1;
+        sign4 = -1;
         DdN = -DdN;
       } else {
         return null;
       }
       _diff.subVectors(this.origin, a);
-      const DdQxE2 = sign3 * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
+      const DdQxE2 = sign4 * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
       if (DdQxE2 < 0) {
         return null;
       }
-      const DdE1xQ = sign3 * this.direction.dot(_edge1.cross(_diff));
+      const DdE1xQ = sign4 * this.direction.dot(_edge1.cross(_diff));
       if (DdE1xQ < 0) {
         return null;
       }
       if (DdQxE2 + DdE1xQ > DdN) {
         return null;
       }
-      const QdN = -sign3 * _diff.dot(_normal$1);
+      const QdN = -sign4 * _diff.dot(_normal$1);
       if (QdN < 0) {
         return null;
       }
@@ -11959,12 +11959,12 @@
      * @param {BufferGeometry} [geometry] - The mesh geometry.
      * @param {Material|Array<Material>} [material] - The mesh material.
      */
-    constructor(geometry = new BufferGeometry(), material = new MeshBasicMaterial()) {
+    constructor(geometry = new BufferGeometry(), material2 = new MeshBasicMaterial()) {
       super();
       this.isMesh = true;
       this.type = "Mesh";
       this.geometry = geometry;
-      this.material = material;
+      this.material = material2;
       this.morphTargetDictionary = void 0;
       this.morphTargetInfluences = void 0;
       this.count = 1;
@@ -12043,9 +12043,9 @@
      */
     raycast(raycaster, intersects2) {
       const geometry = this.geometry;
-      const material = this.material;
+      const material2 = this.material;
       const matrixWorld = this.matrixWorld;
-      if (material === void 0) return;
+      if (material2 === void 0) return;
       if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
       _sphere$6.copy(geometry.boundingSphere);
       _sphere$6.applyMatrix4(matrixWorld);
@@ -12064,7 +12064,7 @@
     _computeIntersections(raycaster, intersects2, rayLocalSpace) {
       let intersection;
       const geometry = this.geometry;
-      const material = this.material;
+      const material2 = this.material;
       const index = geometry.index;
       const position = geometry.attributes.position;
       const uv = geometry.attributes.uv;
@@ -12073,10 +12073,10 @@
       const groups = geometry.groups;
       const drawRange = geometry.drawRange;
       if (index !== null) {
-        if (Array.isArray(material)) {
+        if (Array.isArray(material2)) {
           for (let i2 = 0, il = groups.length; i2 < il; i2++) {
             const group = groups[i2];
-            const groupMaterial = material[group.materialIndex];
+            const groupMaterial = material2[group.materialIndex];
             const start = Math.max(group.start, drawRange.start);
             const end = Math.min(index.count, Math.min(group.start + group.count, drawRange.start + drawRange.count));
             for (let j = start, jl = end; j < jl; j += 3) {
@@ -12098,7 +12098,7 @@
             const a = index.getX(i2);
             const b = index.getX(i2 + 1);
             const c = index.getX(i2 + 2);
-            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material2, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i2 / 3);
               intersects2.push(intersection);
@@ -12106,10 +12106,10 @@
           }
         }
       } else if (position !== void 0) {
-        if (Array.isArray(material)) {
+        if (Array.isArray(material2)) {
           for (let i2 = 0, il = groups.length; i2 < il; i2++) {
             const group = groups[i2];
-            const groupMaterial = material[group.materialIndex];
+            const groupMaterial = material2[group.materialIndex];
             const start = Math.max(group.start, drawRange.start);
             const end = Math.min(position.count, Math.min(group.start + group.count, drawRange.start + drawRange.count));
             for (let j = start, jl = end; j < jl; j += 3) {
@@ -12131,7 +12131,7 @@
             const a = i2;
             const b = i2 + 1;
             const c = i2 + 2;
-            intersection = checkGeometryIntersection(this, material, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
+            intersection = checkGeometryIntersection(this, material2, raycaster, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i2 / 3);
               intersects2.push(intersection);
@@ -12141,12 +12141,12 @@
       }
     }
   };
-  function checkIntersection$1(object, material, raycaster, ray, pA, pB, pC, point2) {
+  function checkIntersection$1(object, material2, raycaster, ray, pA, pB, pC, point2) {
     let intersect2;
-    if (material.side === BackSide) {
+    if (material2.side === BackSide) {
       intersect2 = ray.intersectTriangle(pC, pB, pA, true, point2);
     } else {
-      intersect2 = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point2);
+      intersect2 = ray.intersectTriangle(pA, pB, pC, material2.side === FrontSide, point2);
     }
     if (intersect2 === null) return null;
     _intersectionPointWorld.copy(point2);
@@ -12159,11 +12159,11 @@
       object
     };
   }
-  function checkGeometryIntersection(object, material, raycaster, ray, uv, uv1, normal, a, b, c) {
+  function checkGeometryIntersection(object, material2, raycaster, ray, uv, uv1, normal, a, b, c) {
     object.getVertexPosition(a, _vA);
     object.getVertexPosition(b, _vB);
     object.getVertexPosition(c, _vC);
-    const intersection = checkIntersection$1(object, material, raycaster, ray, _vA, _vB, _vC, _intersectionPoint);
+    const intersection = checkIntersection$1(object, material2, raycaster, ray, _vA, _vB, _vC, _intersectionPoint);
     if (intersection) {
       const barycoord = new Vector3();
       Triangle.getBarycoord(_intersectionPoint, _vA, _vB, _vC, barycoord);
@@ -12208,8 +12208,8 @@
      * @param {BufferGeometry} [geometry] - The mesh geometry.
      * @param {Material|Array<Material>} [material] - The mesh material.
      */
-    constructor(geometry, material) {
-      super(geometry, material);
+    constructor(geometry, material2) {
+      super(geometry, material2);
       this.isSkinnedMesh = true;
       this.type = "SkinnedMesh";
       this.bindMode = AttachedBindMode;
@@ -12265,9 +12265,9 @@
       return this;
     }
     raycast(raycaster, intersects2) {
-      const material = this.material;
+      const material2 = this.material;
       const matrixWorld = this.matrixWorld;
-      if (material === void 0) return;
+      if (material2 === void 0) return;
       if (this.boundingSphere === null) this.computeBoundingSphere();
       _sphere$5.copy(this.boundingSphere);
       _sphere$5.applyMatrix4(matrixWorld);
@@ -12642,8 +12642,8 @@
      * @param {Material|Array<Material>} [material] - The mesh material.
      * @param {number} count - The number of instances.
      */
-    constructor(geometry, material, count) {
-      super(geometry, material);
+    constructor(geometry, material2, count) {
+      super(geometry, material2);
       this.isInstancedMesh = true;
       this.instanceMatrix = new InstancedBufferAttribute(new Float32Array(count * 16), 16);
       this.instanceColor = null;
@@ -13304,12 +13304,12 @@
      * @param {BufferGeometry} [geometry] - The line geometry.
      * @param {Material|Array<Material>} [material] - The line material.
      */
-    constructor(geometry = new BufferGeometry(), material = new LineBasicMaterial()) {
+    constructor(geometry = new BufferGeometry(), material2 = new LineBasicMaterial()) {
       super();
       this.isLine = true;
       this.type = "Line";
       this.geometry = geometry;
-      this.material = material;
+      this.material = material2;
       this.morphTargetDictionary = void 0;
       this.morphTargetInfluences = void 0;
       this.updateMorphTargets();
@@ -13491,12 +13491,12 @@
      * @param {BufferGeometry} [geometry] - The points geometry.
      * @param {Material|Array<Material>} [material] - The points material.
      */
-    constructor(geometry = new BufferGeometry(), material = new PointsMaterial()) {
+    constructor(geometry = new BufferGeometry(), material2 = new PointsMaterial()) {
       super();
       this.isPoints = true;
       this.type = "Points";
       this.geometry = geometry;
-      this.material = material;
+      this.material = material2;
       this.morphTargetDictionary = void 0;
       this.morphTargetInfluences = void 0;
       this.updateMorphTargets();
@@ -13993,10 +13993,10 @@
         const vertex2 = new Vector3();
         let groupCount = 0;
         const radius = top === true ? radiusTop : radiusBottom;
-        const sign3 = top === true ? 1 : -1;
+        const sign4 = top === true ? 1 : -1;
         for (let x2 = 1; x2 <= radialSegments; x2++) {
-          vertices.push(0, halfHeight * sign3, 0);
-          normals.push(0, sign3, 0);
+          vertices.push(0, halfHeight * sign4, 0);
+          normals.push(0, sign4, 0);
           uvs.push(0.5, 0.5);
           index++;
         }
@@ -14007,12 +14007,12 @@
           const cosTheta = Math.cos(theta);
           const sinTheta = Math.sin(theta);
           vertex2.x = radius * sinTheta;
-          vertex2.y = halfHeight * sign3;
+          vertex2.y = halfHeight * sign4;
           vertex2.z = radius * cosTheta;
           vertices.push(vertex2.x, vertex2.y, vertex2.z);
-          normals.push(0, sign3, 0);
+          normals.push(0, sign4, 0);
           uv.x = cosTheta * 0.5 + 0.5;
-          uv.y = sinTheta * 0.5 * sign3 + 0.5;
+          uv.y = sinTheta * 0.5 * sign4 + 0.5;
           uvs.push(uv.x, uv.y);
           index++;
         }
@@ -22391,9 +22391,9 @@
     const defaultState = createBindingState(null);
     let currentState = defaultState;
     let forceUpdate = false;
-    function setup(object, material, program, geometry, index) {
+    function setup(object, material2, program, geometry, index) {
       let updateBuffers = false;
-      const state = getBindingState(object, geometry, program, material);
+      const state = getBindingState(object, geometry, program, material2);
       if (currentState !== state) {
         currentState = state;
         bindVertexArrayObject(currentState.object);
@@ -22405,7 +22405,7 @@
       }
       if (updateBuffers || forceUpdate) {
         forceUpdate = false;
-        setupVertexAttributes(object, material, program, geometry);
+        setupVertexAttributes(object, material2, program, geometry);
         if (index !== null) {
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, attributes.get(index).buffer);
         }
@@ -22420,8 +22420,8 @@
     function deleteVertexArrayObject(vao) {
       return gl.deleteVertexArray(vao);
     }
-    function getBindingState(object, geometry, program, material) {
-      const wireframe = material.wireframe === true;
+    function getBindingState(object, geometry, program, material2) {
+      const wireframe = material2.wireframe === true;
       let objectMap = bindingStates[geometry.id];
       if (objectMap === void 0) {
         objectMap = {};
@@ -22557,11 +22557,11 @@
         gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
       }
     }
-    function setupVertexAttributes(object, material, program, geometry) {
+    function setupVertexAttributes(object, material2, program, geometry) {
       initAttributes();
       const geometryAttributes = geometry.attributes;
       const programAttributes = program.getAttributes();
-      const materialDefaultAttributeValues = material.defaultAttributeValues;
+      const materialDefaultAttributeValues = material2.defaultAttributeValues;
       for (const name in programAttributes) {
         const programAttribute = programAttributes[name];
         if (programAttribute.location >= 0) {
@@ -22886,9 +22886,9 @@
     this.setGlobalState = function(planes, camera) {
       globalState = projectPlanes(planes, camera, 0);
     };
-    this.setState = function(material, camera, useCache) {
-      const planes = material.clippingPlanes, clipIntersection = material.clipIntersection, clipShadows = material.clipShadows;
-      const materialProperties = properties.get(material);
+    this.setState = function(material2, camera, useCache) {
+      const planes = material2.clippingPlanes, clipIntersection = material2.clipIntersection, clipShadows = material2.clipShadows;
+      const materialProperties = properties.get(material2);
       if (!localClippingEnabled || planes === null || planes.length === 0 || renderingShadows && !clipShadows) {
         if (renderingShadows) {
           projectPlanes(null);
@@ -23129,8 +23129,8 @@
       }
       return cubeUVRenderTarget;
     }
-    _compileMaterial(material) {
-      const mesh = new Mesh(new BufferGeometry(), material);
+    _compileMaterial(material2) {
+      const mesh = new Mesh(new BufferGeometry(), material2);
       this._renderer.compile(mesh, _flatCamera);
     }
     _sceneToCubeUV(scene, near, far, cubeUVRenderTarget, position) {
@@ -23216,10 +23216,10 @@
           this._equirectMaterial = _getEquirectMaterial();
         }
       }
-      const material = isCubeTexture ? this._cubemapMaterial : this._equirectMaterial;
+      const material2 = isCubeTexture ? this._cubemapMaterial : this._equirectMaterial;
       const mesh = this._lodMeshes[0];
-      mesh.material = material;
-      const uniforms = material.uniforms;
+      mesh.material = material2;
+      const uniforms = material2.uniforms;
       uniforms["envMap"].value = texture;
       const size = this._cubeSize;
       _setViewport(cubeUVRenderTarget, 0, 0, 3 * size, 2 * size);
@@ -23870,7 +23870,7 @@
         )
       };
       const geometry = new BoxGeometry(5, 5, 5);
-      const material = new ShaderMaterial({
+      const material2 = new ShaderMaterial({
         name: "CubemapFromEquirect",
         uniforms: cloneUniforms(shader.uniforms),
         vertexShader: shader.vertexShader,
@@ -23878,8 +23878,8 @@
         side: BackSide,
         blending: NoBlending
       });
-      material.uniforms.tEquirect.value = texture;
-      const mesh = new Mesh(geometry, material);
+      material2.uniforms.tEquirect.value = texture;
+      const mesh = new Mesh(geometry, material2);
       const currentMinFilter = texture.minFilter;
       if (texture.minFilter === LinearMipmapLinearFilter) texture.minFilter = LinearFilter;
       const camera = new CubeCamera(1, 10, this);
@@ -24391,7 +24391,7 @@
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
     geometry.setAttribute("uv", new Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
-    const material = new RawShaderMaterial({
+    const material2 = new RawShaderMaterial({
       uniforms: {
         tDiffuse: { value: null }
       },
@@ -24452,7 +24452,7 @@
       depthTest: false,
       depthWrite: false
     });
-    const mesh = new Mesh(geometry, material);
+    const mesh = new Mesh(geometry, material2);
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
     let _outputColorSpace = null;
     let _outputToneMapping = null;
@@ -24518,13 +24518,13 @@
       if (_outputColorSpace !== renderer.outputColorSpace || _outputToneMapping !== renderer.toneMapping) {
         _outputColorSpace = renderer.outputColorSpace;
         _outputToneMapping = renderer.toneMapping;
-        material.defines = {};
-        if (ColorManagement.getTransfer(_outputColorSpace) === SRGBTransfer) material.defines.SRGB_TRANSFER = "";
+        material2.defines = {};
+        if (ColorManagement.getTransfer(_outputColorSpace) === SRGBTransfer) material2.defines.SRGB_TRANSFER = "";
         const toneMapping = toneMappingMap[_outputToneMapping];
-        if (toneMapping) material.defines[toneMapping] = "";
-        material.needsUpdate = true;
+        if (toneMapping) material2.defines[toneMapping] = "";
+        material2.needsUpdate = true;
       }
-      material.uniforms.tDiffuse.value = readBuffer.texture;
+      material2.uniforms.tDiffuse.value = readBuffer.texture;
       renderer.setRenderTarget(_savedRenderTarget);
       renderer.render(mesh, camera);
       _savedRenderTarget = null;
@@ -24538,7 +24538,7 @@
       targetA.dispose();
       targetB.dispose();
       geometry.dispose();
-      material.dispose();
+      material2.dispose();
     };
   }
   var emptyTexture = /* @__PURE__ */ new Texture();
@@ -25828,8 +25828,8 @@
       this.shaderCache = /* @__PURE__ */ new Map();
       this.materialCache = /* @__PURE__ */ new Map();
     }
-    update(material, vertexShaderStage, fragmentShaderStage) {
-      const materialShaders = this._getShaderCacheForMaterial(material);
+    update(material2, vertexShaderStage, fragmentShaderStage) {
+      const materialShaders = this._getShaderCacheForMaterial(material2);
       if (materialShaders.has(vertexShaderStage) === false) {
         materialShaders.add(vertexShaderStage);
         vertexShaderStage.usedTimes++;
@@ -25840,31 +25840,31 @@
       }
       return this;
     }
-    remove(material) {
-      const materialShaders = this.materialCache.get(material);
+    remove(material2) {
+      const materialShaders = this.materialCache.get(material2);
       for (const shaderStage of materialShaders) {
         shaderStage.usedTimes--;
         if (shaderStage.usedTimes === 0) this.shaderCache.delete(shaderStage.code);
       }
-      this.materialCache.delete(material);
+      this.materialCache.delete(material2);
       return this;
     }
-    getVertexShaderStage(material) {
-      return this._getShaderStage(material.vertexShader);
+    getVertexShaderStage(material2) {
+      return this._getShaderStage(material2.vertexShader);
     }
-    getFragmentShaderStage(material) {
-      return this._getShaderStage(material.fragmentShader);
+    getFragmentShaderStage(material2) {
+      return this._getShaderStage(material2.fragmentShader);
     }
     dispose() {
       this.shaderCache.clear();
       this.materialCache.clear();
     }
-    _getShaderCacheForMaterial(material) {
+    _getShaderCacheForMaterial(material2) {
       const cache = this.materialCache;
-      let set = cache.get(material);
+      let set = cache.get(material2);
       if (set === void 0) {
         set = /* @__PURE__ */ new Set();
-        cache.set(material, set);
+        cache.set(material2, set);
       }
       return set;
     }
@@ -25918,18 +25918,18 @@
       if (value === 0) return "uv";
       return `uv${value}`;
     }
-    function getParameters(material, lights, shadows, scene, object, lightProbeGrids) {
+    function getParameters(material2, lights, shadows, scene, object, lightProbeGrids) {
       const fog = scene.fog;
       const geometry = object.geometry;
-      const environment = material.isMeshStandardMaterial || material.isMeshLambertMaterial || material.isMeshPhongMaterial ? scene.environment : null;
-      const usePMREM = material.isMeshStandardMaterial || material.isMeshLambertMaterial && !material.envMap || material.isMeshPhongMaterial && !material.envMap;
-      const envMap = environments.get(material.envMap || environment, usePMREM);
+      const environment = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial || material2.isMeshPhongMaterial ? scene.environment : null;
+      const usePMREM = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial && !material2.envMap || material2.isMeshPhongMaterial && !material2.envMap;
+      const envMap = environments.get(material2.envMap || environment, usePMREM);
       const envMapCubeUVHeight = !!envMap && envMap.mapping === CubeUVReflectionMapping ? envMap.image.height : null;
-      const shaderID = shaderIDs[material.type];
-      if (material.precision !== null) {
-        precision = capabilities.getMaxPrecision(material.precision);
-        if (precision !== material.precision) {
-          warn("WebGLProgram.getParameters:", material.precision, "not supported, using", precision, "instead.");
+      const shaderID = shaderIDs[material2.type];
+      if (material2.precision !== null) {
+        precision = capabilities.getMaxPrecision(material2.precision);
+        if (precision !== material2.precision) {
+          warn("WebGLProgram.getParameters:", material2.precision, "not supported, using", precision, "instead.");
         }
       }
       const morphAttribute = geometry.morphAttributes.position || geometry.morphAttributes.normal || geometry.morphAttributes.color;
@@ -25945,11 +25945,11 @@
         vertexShader = shader.vertexShader;
         fragmentShader = shader.fragmentShader;
       } else {
-        vertexShader = material.vertexShader;
-        fragmentShader = material.fragmentShader;
-        const vertexShaderStage = _customShaders.getVertexShaderStage(material);
-        const fragmentShaderStage = _customShaders.getFragmentShaderStage(material);
-        _customShaders.update(material, vertexShaderStage, fragmentShaderStage);
+        vertexShader = material2.vertexShader;
+        fragmentShader = material2.fragmentShader;
+        const vertexShaderStage = _customShaders.getVertexShaderStage(material2);
+        const fragmentShaderStage = _customShaders.getFragmentShaderStage(material2);
+        _customShaders.update(material2, vertexShaderStage, fragmentShaderStage);
         customVertexShaderID = vertexShaderStage.id;
         customFragmentShaderID = fragmentShaderStage.id;
       }
@@ -25957,58 +25957,58 @@
       const reversedDepthBuffer = renderer.state.buffers.depth.getReversed();
       const IS_INSTANCEDMESH = object.isInstancedMesh === true;
       const IS_BATCHEDMESH = object.isBatchedMesh === true;
-      const HAS_MAP = !!material.map;
-      const HAS_MATCAP = !!material.matcap;
+      const HAS_MAP = !!material2.map;
+      const HAS_MATCAP = !!material2.matcap;
       const HAS_ENVMAP = !!envMap;
-      const HAS_AOMAP = !!material.aoMap;
-      const HAS_LIGHTMAP = !!material.lightMap;
-      const HAS_BUMPMAP = !!material.bumpMap && material.wireframe === false;
-      const HAS_NORMALMAP = !!material.normalMap;
-      const HAS_DISPLACEMENTMAP = !!material.displacementMap;
-      const HAS_EMISSIVEMAP = !!material.emissiveMap;
-      const HAS_METALNESSMAP = !!material.metalnessMap;
-      const HAS_ROUGHNESSMAP = !!material.roughnessMap;
-      const HAS_ANISOTROPY = material.anisotropy > 0;
-      const HAS_CLEARCOAT = material.clearcoat > 0;
-      const HAS_DISPERSION = material.dispersion > 0;
-      const HAS_IRIDESCENCE = material.iridescence > 0;
-      const HAS_SHEEN = material.sheen > 0;
-      const HAS_TRANSMISSION = material.transmission > 0;
-      const HAS_ANISOTROPYMAP = HAS_ANISOTROPY && !!material.anisotropyMap;
-      const HAS_CLEARCOATMAP = HAS_CLEARCOAT && !!material.clearcoatMap;
-      const HAS_CLEARCOAT_NORMALMAP = HAS_CLEARCOAT && !!material.clearcoatNormalMap;
-      const HAS_CLEARCOAT_ROUGHNESSMAP = HAS_CLEARCOAT && !!material.clearcoatRoughnessMap;
-      const HAS_IRIDESCENCEMAP = HAS_IRIDESCENCE && !!material.iridescenceMap;
-      const HAS_IRIDESCENCE_THICKNESSMAP = HAS_IRIDESCENCE && !!material.iridescenceThicknessMap;
-      const HAS_SHEEN_COLORMAP = HAS_SHEEN && !!material.sheenColorMap;
-      const HAS_SHEEN_ROUGHNESSMAP = HAS_SHEEN && !!material.sheenRoughnessMap;
-      const HAS_SPECULARMAP = !!material.specularMap;
-      const HAS_SPECULAR_COLORMAP = !!material.specularColorMap;
-      const HAS_SPECULAR_INTENSITYMAP = !!material.specularIntensityMap;
-      const HAS_TRANSMISSIONMAP = HAS_TRANSMISSION && !!material.transmissionMap;
-      const HAS_THICKNESSMAP = HAS_TRANSMISSION && !!material.thicknessMap;
-      const HAS_GRADIENTMAP = !!material.gradientMap;
-      const HAS_ALPHAMAP = !!material.alphaMap;
-      const HAS_ALPHATEST = material.alphaTest > 0;
-      const HAS_ALPHAHASH = !!material.alphaHash;
-      const HAS_EXTENSIONS = !!material.extensions;
+      const HAS_AOMAP = !!material2.aoMap;
+      const HAS_LIGHTMAP = !!material2.lightMap;
+      const HAS_BUMPMAP = !!material2.bumpMap && material2.wireframe === false;
+      const HAS_NORMALMAP = !!material2.normalMap;
+      const HAS_DISPLACEMENTMAP = !!material2.displacementMap;
+      const HAS_EMISSIVEMAP = !!material2.emissiveMap;
+      const HAS_METALNESSMAP = !!material2.metalnessMap;
+      const HAS_ROUGHNESSMAP = !!material2.roughnessMap;
+      const HAS_ANISOTROPY = material2.anisotropy > 0;
+      const HAS_CLEARCOAT = material2.clearcoat > 0;
+      const HAS_DISPERSION = material2.dispersion > 0;
+      const HAS_IRIDESCENCE = material2.iridescence > 0;
+      const HAS_SHEEN = material2.sheen > 0;
+      const HAS_TRANSMISSION = material2.transmission > 0;
+      const HAS_ANISOTROPYMAP = HAS_ANISOTROPY && !!material2.anisotropyMap;
+      const HAS_CLEARCOATMAP = HAS_CLEARCOAT && !!material2.clearcoatMap;
+      const HAS_CLEARCOAT_NORMALMAP = HAS_CLEARCOAT && !!material2.clearcoatNormalMap;
+      const HAS_CLEARCOAT_ROUGHNESSMAP = HAS_CLEARCOAT && !!material2.clearcoatRoughnessMap;
+      const HAS_IRIDESCENCEMAP = HAS_IRIDESCENCE && !!material2.iridescenceMap;
+      const HAS_IRIDESCENCE_THICKNESSMAP = HAS_IRIDESCENCE && !!material2.iridescenceThicknessMap;
+      const HAS_SHEEN_COLORMAP = HAS_SHEEN && !!material2.sheenColorMap;
+      const HAS_SHEEN_ROUGHNESSMAP = HAS_SHEEN && !!material2.sheenRoughnessMap;
+      const HAS_SPECULARMAP = !!material2.specularMap;
+      const HAS_SPECULAR_COLORMAP = !!material2.specularColorMap;
+      const HAS_SPECULAR_INTENSITYMAP = !!material2.specularIntensityMap;
+      const HAS_TRANSMISSIONMAP = HAS_TRANSMISSION && !!material2.transmissionMap;
+      const HAS_THICKNESSMAP = HAS_TRANSMISSION && !!material2.thicknessMap;
+      const HAS_GRADIENTMAP = !!material2.gradientMap;
+      const HAS_ALPHAMAP = !!material2.alphaMap;
+      const HAS_ALPHATEST = material2.alphaTest > 0;
+      const HAS_ALPHAHASH = !!material2.alphaHash;
+      const HAS_EXTENSIONS = !!material2.extensions;
       let toneMapping = NoToneMapping;
-      if (material.toneMapped) {
+      if (material2.toneMapped) {
         if (currentRenderTarget === null || currentRenderTarget.isXRRenderTarget === true) {
           toneMapping = renderer.toneMapping;
         }
       }
       const parameters = {
         shaderID,
-        shaderType: material.type,
-        shaderName: material.name,
+        shaderType: material2.type,
+        shaderName: material2.name,
         vertexShader,
         fragmentShader,
-        defines: material.defines,
+        defines: material2.defines,
         customVertexShaderID,
         customFragmentShaderID,
-        isRawShaderMaterial: material.isRawShaderMaterial === true,
-        glslVersion: material.glslVersion,
+        isRawShaderMaterial: material2.isRawShaderMaterial === true,
+        glslVersion: material2.glslVersion,
         precision,
         batching: IS_BATCHEDMESH,
         batchingColor: IS_BATCHEDMESH && object._colorsTexture !== null,
@@ -26016,7 +26016,7 @@
         instancingColor: IS_INSTANCEDMESH && object.instanceColor !== null,
         instancingMorph: IS_INSTANCEDMESH && object.morphTexture !== null,
         outputColorSpace: currentRenderTarget === null ? renderer.outputColorSpace : currentRenderTarget.isXRRenderTarget === true ? currentRenderTarget.texture.colorSpace : ColorManagement.workingColorSpace,
-        alphaToCoverage: !!material.alphaToCoverage,
+        alphaToCoverage: !!material2.alphaToCoverage,
         map: HAS_MAP,
         matcap: HAS_MATCAP,
         envMap: HAS_ENVMAP,
@@ -26028,9 +26028,9 @@
         normalMap: HAS_NORMALMAP,
         displacementMap: HAS_DISPLACEMENTMAP,
         emissiveMap: HAS_EMISSIVEMAP,
-        normalMapObjectSpace: HAS_NORMALMAP && material.normalMapType === ObjectSpaceNormalMap,
-        normalMapTangentSpace: HAS_NORMALMAP && material.normalMapType === TangentSpaceNormalMap,
-        packedNormalMap: HAS_NORMALMAP && material.normalMapType === TangentSpaceNormalMap && isPackedRGFormat(material.normalMap.format),
+        normalMapObjectSpace: HAS_NORMALMAP && material2.normalMapType === ObjectSpaceNormalMap,
+        normalMapTangentSpace: HAS_NORMALMAP && material2.normalMapType === TangentSpaceNormalMap,
+        packedNormalMap: HAS_NORMALMAP && material2.normalMapType === TangentSpaceNormalMap && isPackedRGFormat(material2.normalMap.format),
         metalnessMap: HAS_METALNESSMAP,
         roughnessMap: HAS_ROUGHNESSMAP,
         anisotropy: HAS_ANISOTROPY,
@@ -26053,46 +26053,46 @@
         transmissionMap: HAS_TRANSMISSIONMAP,
         thicknessMap: HAS_THICKNESSMAP,
         gradientMap: HAS_GRADIENTMAP,
-        opaque: material.transparent === false && material.blending === NormalBlending && material.alphaToCoverage === false,
+        opaque: material2.transparent === false && material2.blending === NormalBlending && material2.alphaToCoverage === false,
         alphaMap: HAS_ALPHAMAP,
         alphaTest: HAS_ALPHATEST,
         alphaHash: HAS_ALPHAHASH,
-        combine: material.combine,
+        combine: material2.combine,
         //
-        mapUv: HAS_MAP && getChannel(material.map.channel),
-        aoMapUv: HAS_AOMAP && getChannel(material.aoMap.channel),
-        lightMapUv: HAS_LIGHTMAP && getChannel(material.lightMap.channel),
-        bumpMapUv: HAS_BUMPMAP && getChannel(material.bumpMap.channel),
-        normalMapUv: HAS_NORMALMAP && getChannel(material.normalMap.channel),
-        displacementMapUv: HAS_DISPLACEMENTMAP && getChannel(material.displacementMap.channel),
-        emissiveMapUv: HAS_EMISSIVEMAP && getChannel(material.emissiveMap.channel),
-        metalnessMapUv: HAS_METALNESSMAP && getChannel(material.metalnessMap.channel),
-        roughnessMapUv: HAS_ROUGHNESSMAP && getChannel(material.roughnessMap.channel),
-        anisotropyMapUv: HAS_ANISOTROPYMAP && getChannel(material.anisotropyMap.channel),
-        clearcoatMapUv: HAS_CLEARCOATMAP && getChannel(material.clearcoatMap.channel),
-        clearcoatNormalMapUv: HAS_CLEARCOAT_NORMALMAP && getChannel(material.clearcoatNormalMap.channel),
-        clearcoatRoughnessMapUv: HAS_CLEARCOAT_ROUGHNESSMAP && getChannel(material.clearcoatRoughnessMap.channel),
-        iridescenceMapUv: HAS_IRIDESCENCEMAP && getChannel(material.iridescenceMap.channel),
-        iridescenceThicknessMapUv: HAS_IRIDESCENCE_THICKNESSMAP && getChannel(material.iridescenceThicknessMap.channel),
-        sheenColorMapUv: HAS_SHEEN_COLORMAP && getChannel(material.sheenColorMap.channel),
-        sheenRoughnessMapUv: HAS_SHEEN_ROUGHNESSMAP && getChannel(material.sheenRoughnessMap.channel),
-        specularMapUv: HAS_SPECULARMAP && getChannel(material.specularMap.channel),
-        specularColorMapUv: HAS_SPECULAR_COLORMAP && getChannel(material.specularColorMap.channel),
-        specularIntensityMapUv: HAS_SPECULAR_INTENSITYMAP && getChannel(material.specularIntensityMap.channel),
-        transmissionMapUv: HAS_TRANSMISSIONMAP && getChannel(material.transmissionMap.channel),
-        thicknessMapUv: HAS_THICKNESSMAP && getChannel(material.thicknessMap.channel),
-        alphaMapUv: HAS_ALPHAMAP && getChannel(material.alphaMap.channel),
+        mapUv: HAS_MAP && getChannel(material2.map.channel),
+        aoMapUv: HAS_AOMAP && getChannel(material2.aoMap.channel),
+        lightMapUv: HAS_LIGHTMAP && getChannel(material2.lightMap.channel),
+        bumpMapUv: HAS_BUMPMAP && getChannel(material2.bumpMap.channel),
+        normalMapUv: HAS_NORMALMAP && getChannel(material2.normalMap.channel),
+        displacementMapUv: HAS_DISPLACEMENTMAP && getChannel(material2.displacementMap.channel),
+        emissiveMapUv: HAS_EMISSIVEMAP && getChannel(material2.emissiveMap.channel),
+        metalnessMapUv: HAS_METALNESSMAP && getChannel(material2.metalnessMap.channel),
+        roughnessMapUv: HAS_ROUGHNESSMAP && getChannel(material2.roughnessMap.channel),
+        anisotropyMapUv: HAS_ANISOTROPYMAP && getChannel(material2.anisotropyMap.channel),
+        clearcoatMapUv: HAS_CLEARCOATMAP && getChannel(material2.clearcoatMap.channel),
+        clearcoatNormalMapUv: HAS_CLEARCOAT_NORMALMAP && getChannel(material2.clearcoatNormalMap.channel),
+        clearcoatRoughnessMapUv: HAS_CLEARCOAT_ROUGHNESSMAP && getChannel(material2.clearcoatRoughnessMap.channel),
+        iridescenceMapUv: HAS_IRIDESCENCEMAP && getChannel(material2.iridescenceMap.channel),
+        iridescenceThicknessMapUv: HAS_IRIDESCENCE_THICKNESSMAP && getChannel(material2.iridescenceThicknessMap.channel),
+        sheenColorMapUv: HAS_SHEEN_COLORMAP && getChannel(material2.sheenColorMap.channel),
+        sheenRoughnessMapUv: HAS_SHEEN_ROUGHNESSMAP && getChannel(material2.sheenRoughnessMap.channel),
+        specularMapUv: HAS_SPECULARMAP && getChannel(material2.specularMap.channel),
+        specularColorMapUv: HAS_SPECULAR_COLORMAP && getChannel(material2.specularColorMap.channel),
+        specularIntensityMapUv: HAS_SPECULAR_INTENSITYMAP && getChannel(material2.specularIntensityMap.channel),
+        transmissionMapUv: HAS_TRANSMISSIONMAP && getChannel(material2.transmissionMap.channel),
+        thicknessMapUv: HAS_THICKNESSMAP && getChannel(material2.thicknessMap.channel),
+        alphaMapUv: HAS_ALPHAMAP && getChannel(material2.alphaMap.channel),
         //
         vertexTangents: !!geometry.attributes.tangent && (HAS_NORMALMAP || HAS_ANISOTROPY),
         vertexNormals: !!geometry.attributes.normal,
-        vertexColors: material.vertexColors,
-        vertexAlphas: material.vertexColors === true && !!geometry.attributes.color && geometry.attributes.color.itemSize === 4,
+        vertexColors: material2.vertexColors,
+        vertexAlphas: material2.vertexColors === true && !!geometry.attributes.color && geometry.attributes.color.itemSize === 4,
         pointsUvs: object.isPoints === true && !!geometry.attributes.uv && (HAS_MAP || HAS_ALPHAMAP),
         fog: !!fog,
-        useFog: material.fog === true,
+        useFog: material2.fog === true,
         fogExp2: !!fog && fog.isFogExp2,
-        flatShading: material.wireframe === false && (material.flatShading === true || geometry.attributes.normal === void 0 && HAS_NORMALMAP === false && (material.isMeshLambertMaterial || material.isMeshPhongMaterial || material.isMeshStandardMaterial || material.isMeshPhysicalMaterial)),
-        sizeAttenuation: material.sizeAttenuation === true,
+        flatShading: material2.wireframe === false && (material2.flatShading === true || geometry.attributes.normal === void 0 && HAS_NORMALMAP === false && (material2.isMeshLambertMaterial || material2.isMeshPhongMaterial || material2.isMeshStandardMaterial || material2.isMeshPhysicalMaterial)),
+        sizeAttenuation: material2.sizeAttenuation === true,
         logarithmicDepthBuffer,
         reversedDepthBuffer,
         skinning: object.isSkinnedMesh === true,
@@ -26116,22 +26116,22 @@
         numLightProbeGrids: lightProbeGrids.length,
         numClippingPlanes: clipping.numPlanes,
         numClipIntersection: clipping.numIntersection,
-        dithering: material.dithering,
+        dithering: material2.dithering,
         shadowMapEnabled: renderer.shadowMap.enabled && shadows.length > 0,
         shadowMapType: renderer.shadowMap.type,
         toneMapping,
-        decodeVideoTexture: HAS_MAP && material.map.isVideoTexture === true && ColorManagement.getTransfer(material.map.colorSpace) === SRGBTransfer,
-        decodeVideoTextureEmissive: HAS_EMISSIVEMAP && material.emissiveMap.isVideoTexture === true && ColorManagement.getTransfer(material.emissiveMap.colorSpace) === SRGBTransfer,
-        premultipliedAlpha: material.premultipliedAlpha,
-        doubleSided: material.side === DoubleSide,
-        flipSided: material.side === BackSide,
-        useDepthPacking: material.depthPacking >= 0,
-        depthPacking: material.depthPacking || 0,
-        index0AttributeName: material.index0AttributeName,
-        extensionClipCullDistance: HAS_EXTENSIONS && material.extensions.clipCullDistance === true && extensions.has("WEBGL_clip_cull_distance"),
-        extensionMultiDraw: (HAS_EXTENSIONS && material.extensions.multiDraw === true || IS_BATCHEDMESH) && extensions.has("WEBGL_multi_draw"),
+        decodeVideoTexture: HAS_MAP && material2.map.isVideoTexture === true && ColorManagement.getTransfer(material2.map.colorSpace) === SRGBTransfer,
+        decodeVideoTextureEmissive: HAS_EMISSIVEMAP && material2.emissiveMap.isVideoTexture === true && ColorManagement.getTransfer(material2.emissiveMap.colorSpace) === SRGBTransfer,
+        premultipliedAlpha: material2.premultipliedAlpha,
+        doubleSided: material2.side === DoubleSide,
+        flipSided: material2.side === BackSide,
+        useDepthPacking: material2.depthPacking >= 0,
+        depthPacking: material2.depthPacking || 0,
+        index0AttributeName: material2.index0AttributeName,
+        extensionClipCullDistance: HAS_EXTENSIONS && material2.extensions.clipCullDistance === true && extensions.has("WEBGL_clip_cull_distance"),
+        extensionMultiDraw: (HAS_EXTENSIONS && material2.extensions.multiDraw === true || IS_BATCHEDMESH) && extensions.has("WEBGL_multi_draw"),
         rendererExtensionParallelShaderCompile: extensions.has("KHR_parallel_shader_compile"),
-        customProgramCacheKey: material.customProgramCacheKey()
+        customProgramCacheKey: material2.customProgramCacheKey()
       };
       parameters.vertexUv1s = _activeChannels.has(1);
       parameters.vertexUv2s = _activeChannels.has(2);
@@ -26313,14 +26313,14 @@
         _programLayers.enable(23);
       array.push(_programLayers.mask);
     }
-    function getUniforms(material) {
-      const shaderID = shaderIDs[material.type];
+    function getUniforms(material2) {
+      const shaderID = shaderIDs[material2.type];
       let uniforms;
       if (shaderID) {
         const shader = ShaderLib[shaderID];
         uniforms = UniformsUtils.clone(shader.uniforms);
       } else {
-        uniforms = material.uniforms;
+        uniforms = material2.uniforms;
       }
       return uniforms;
     }
@@ -26344,8 +26344,8 @@
         program.destroy();
       }
     }
-    function releaseShaderCache(material) {
-      _customShaders.remove(material);
+    function releaseShaderCache(material2) {
+      _customShaders.remove(material2);
     }
     function dispose() {
       _customShaders.dispose();
@@ -26436,14 +26436,14 @@
       if (object.isSkinnedMesh) variant += 1;
       return variant;
     }
-    function getNextRenderItem(object, geometry, material, groupOrder, z, group) {
+    function getNextRenderItem(object, geometry, material2, groupOrder, z, group) {
       let renderItem = renderItems[renderItemsIndex];
       if (renderItem === void 0) {
         renderItem = {
           id: object.id,
           object,
           geometry,
-          material,
+          material: material2,
           materialVariant: materialVariant(object),
           groupOrder,
           renderOrder: object.renderOrder,
@@ -26455,7 +26455,7 @@
         renderItem.id = object.id;
         renderItem.object = object;
         renderItem.geometry = geometry;
-        renderItem.material = material;
+        renderItem.material = material2;
         renderItem.materialVariant = materialVariant(object);
         renderItem.groupOrder = groupOrder;
         renderItem.renderOrder = object.renderOrder;
@@ -26465,21 +26465,21 @@
       renderItemsIndex++;
       return renderItem;
     }
-    function push(object, geometry, material, groupOrder, z, group) {
-      const renderItem = getNextRenderItem(object, geometry, material, groupOrder, z, group);
-      if (material.transmission > 0) {
+    function push(object, geometry, material2, groupOrder, z, group) {
+      const renderItem = getNextRenderItem(object, geometry, material2, groupOrder, z, group);
+      if (material2.transmission > 0) {
         transmissive.push(renderItem);
-      } else if (material.transparent === true) {
+      } else if (material2.transparent === true) {
         transparent.push(renderItem);
       } else {
         opaque.push(renderItem);
       }
     }
-    function unshift(object, geometry, material, groupOrder, z, group) {
-      const renderItem = getNextRenderItem(object, geometry, material, groupOrder, z, group);
-      if (material.transmission > 0) {
+    function unshift(object, geometry, material2, groupOrder, z, group) {
+      const renderItem = getNextRenderItem(object, geometry, material2, groupOrder, z, group);
+      if (material2.transmission > 0) {
         transmissive.unshift(renderItem);
-      } else if (material.transparent === true) {
+      } else if (material2.transparent === true) {
         transparent.unshift(renderItem);
       } else {
         opaque.unshift(renderItem);
@@ -27222,15 +27222,15 @@
       renderer.clear();
       renderer.renderBufferDirect(camera, null, geometry, shadowMaterialHorizontal, fullScreenMesh, null);
     }
-    function getDepthMaterial(object, material, light, type) {
+    function getDepthMaterial(object, material2, light, type) {
       let result = null;
       const customMaterial = light.isPointLight === true ? object.customDistanceMaterial : object.customDepthMaterial;
       if (customMaterial !== void 0) {
         result = customMaterial;
       } else {
         result = light.isPointLight === true ? _distanceMaterial : _depthMaterial;
-        if (renderer.localClippingEnabled && material.clipShadows === true && Array.isArray(material.clippingPlanes) && material.clippingPlanes.length !== 0 || material.displacementMap && material.displacementScale !== 0 || material.alphaMap && material.alphaTest > 0 || material.map && material.alphaTest > 0 || material.alphaToCoverage === true) {
-          const keyA = result.uuid, keyB = material.uuid;
+        if (renderer.localClippingEnabled && material2.clipShadows === true && Array.isArray(material2.clippingPlanes) && material2.clippingPlanes.length !== 0 || material2.displacementMap && material2.displacementScale !== 0 || material2.alphaMap && material2.alphaTest > 0 || material2.map && material2.alphaTest > 0 || material2.alphaToCoverage === true) {
+          const keyA = result.uuid, keyB = material2.uuid;
           let materialsForVariant = _materialCache[keyA];
           if (materialsForVariant === void 0) {
             materialsForVariant = {};
@@ -27240,29 +27240,29 @@
           if (cachedMaterial === void 0) {
             cachedMaterial = result.clone();
             materialsForVariant[keyB] = cachedMaterial;
-            material.addEventListener("dispose", onMaterialDispose);
+            material2.addEventListener("dispose", onMaterialDispose);
           }
           result = cachedMaterial;
         }
       }
-      result.visible = material.visible;
-      result.wireframe = material.wireframe;
+      result.visible = material2.visible;
+      result.wireframe = material2.wireframe;
       if (type === VSMShadowMap) {
-        result.side = material.shadowSide !== null ? material.shadowSide : material.side;
+        result.side = material2.shadowSide !== null ? material2.shadowSide : material2.side;
       } else {
-        result.side = material.shadowSide !== null ? material.shadowSide : shadowSide[material.side];
+        result.side = material2.shadowSide !== null ? material2.shadowSide : shadowSide[material2.side];
       }
-      result.alphaMap = material.alphaMap;
-      result.alphaTest = material.alphaToCoverage === true ? 0.5 : material.alphaTest;
-      result.map = material.map;
-      result.clipShadows = material.clipShadows;
-      result.clippingPlanes = material.clippingPlanes;
-      result.clipIntersection = material.clipIntersection;
-      result.displacementMap = material.displacementMap;
-      result.displacementScale = material.displacementScale;
-      result.displacementBias = material.displacementBias;
-      result.wireframeLinewidth = material.wireframeLinewidth;
-      result.linewidth = material.linewidth;
+      result.alphaMap = material2.alphaMap;
+      result.alphaTest = material2.alphaToCoverage === true ? 0.5 : material2.alphaTest;
+      result.map = material2.map;
+      result.clipShadows = material2.clipShadows;
+      result.clippingPlanes = material2.clippingPlanes;
+      result.clipIntersection = material2.clipIntersection;
+      result.displacementMap = material2.displacementMap;
+      result.displacementScale = material2.displacementScale;
+      result.displacementBias = material2.displacementBias;
+      result.wireframeLinewidth = material2.wireframeLinewidth;
+      result.linewidth = material2.linewidth;
       if (light.isPointLight === true && result.isMeshDistanceMaterial === true) {
         const materialProperties = renderer.properties.get(result);
         materialProperties.light = light;
@@ -27276,12 +27276,12 @@
         if ((object.castShadow || object.receiveShadow && type === VSMShadowMap) && (!object.frustumCulled || _frustum.intersectsObject(object))) {
           object.modelViewMatrix.multiplyMatrices(shadowCamera.matrixWorldInverse, object.matrixWorld);
           const geometry = objects.update(object);
-          const material = object.material;
-          if (Array.isArray(material)) {
+          const material2 = object.material;
+          if (Array.isArray(material2)) {
             const groups = geometry.groups;
             for (let k = 0, kl = groups.length; k < kl; k++) {
               const group = groups[k];
-              const groupMaterial = material[group.materialIndex];
+              const groupMaterial = material2[group.materialIndex];
               if (groupMaterial && groupMaterial.visible) {
                 const depthMaterial = getDepthMaterial(object, groupMaterial, light, type);
                 object.onBeforeShadow(renderer, object, camera, shadowCamera, geometry, depthMaterial, group);
@@ -27289,8 +27289,8 @@
                 object.onAfterShadow(renderer, object, camera, shadowCamera, geometry, depthMaterial, group);
               }
             }
-          } else if (material.visible) {
-            const depthMaterial = getDepthMaterial(object, material, light, type);
+          } else if (material2.visible) {
+            const depthMaterial = getDepthMaterial(object, material2, light, type);
             object.onBeforeShadow(renderer, object, camera, shadowCamera, geometry, depthMaterial, null);
             renderer.renderBufferDirect(shadowCamera, null, geometry, depthMaterial, object, null);
             object.onAfterShadow(renderer, object, camera, shadowCamera, geometry, depthMaterial, null);
@@ -27303,8 +27303,8 @@
       }
     }
     function onMaterialDispose(event) {
-      const material = event.target;
-      material.removeEventListener("dispose", onMaterialDispose);
+      const material2 = event.target;
+      material2.removeEventListener("dispose", onMaterialDispose);
       for (const id in _materialCache) {
         const cache = _materialCache[id];
         const uuid = event.target.uuid;
@@ -27755,25 +27755,25 @@
       currentBlending = blending;
       currentPremultipledAlpha = false;
     }
-    function setMaterial(material, frontFaceCW) {
-      material.side === DoubleSide ? disable(gl.CULL_FACE) : enable(gl.CULL_FACE);
-      let flipSided = material.side === BackSide;
+    function setMaterial(material2, frontFaceCW) {
+      material2.side === DoubleSide ? disable(gl.CULL_FACE) : enable(gl.CULL_FACE);
+      let flipSided = material2.side === BackSide;
       if (frontFaceCW) flipSided = !flipSided;
       setFlipSided(flipSided);
-      material.blending === NormalBlending && material.transparent === false ? setBlending(NoBlending) : setBlending(material.blending, material.blendEquation, material.blendSrc, material.blendDst, material.blendEquationAlpha, material.blendSrcAlpha, material.blendDstAlpha, material.blendColor, material.blendAlpha, material.premultipliedAlpha);
-      depthBuffer.setFunc(material.depthFunc);
-      depthBuffer.setTest(material.depthTest);
-      depthBuffer.setMask(material.depthWrite);
-      colorBuffer.setMask(material.colorWrite);
-      const stencilWrite = material.stencilWrite;
+      material2.blending === NormalBlending && material2.transparent === false ? setBlending(NoBlending) : setBlending(material2.blending, material2.blendEquation, material2.blendSrc, material2.blendDst, material2.blendEquationAlpha, material2.blendSrcAlpha, material2.blendDstAlpha, material2.blendColor, material2.blendAlpha, material2.premultipliedAlpha);
+      depthBuffer.setFunc(material2.depthFunc);
+      depthBuffer.setTest(material2.depthTest);
+      depthBuffer.setMask(material2.depthWrite);
+      colorBuffer.setMask(material2.colorWrite);
+      const stencilWrite = material2.stencilWrite;
       stencilBuffer.setTest(stencilWrite);
       if (stencilWrite) {
-        stencilBuffer.setMask(material.stencilWriteMask);
-        stencilBuffer.setFunc(material.stencilFunc, material.stencilRef, material.stencilFuncMask);
-        stencilBuffer.setOp(material.stencilFail, material.stencilZFail, material.stencilZPass);
+        stencilBuffer.setMask(material2.stencilWriteMask);
+        stencilBuffer.setFunc(material2.stencilFunc, material2.stencilRef, material2.stencilFuncMask);
+        stencilBuffer.setOp(material2.stencilFail, material2.stencilZFail, material2.stencilZPass);
       }
-      setPolygonOffset(material.polygonOffset, material.polygonOffsetFactor, material.polygonOffsetUnits);
-      material.alphaToCoverage === true ? enable(gl.SAMPLE_ALPHA_TO_COVERAGE) : disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+      setPolygonOffset(material2.polygonOffset, material2.polygonOffsetFactor, material2.polygonOffsetUnits);
+      material2.alphaToCoverage === true ? enable(gl.SAMPLE_ALPHA_TO_COVERAGE) : disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     }
     function setFlipSided(flipSided) {
       if (currentFlipSided !== flipSided) {
@@ -29581,7 +29581,7 @@ void main() {
       if (this.texture !== null) {
         if (this.mesh === null) {
           const viewport = cameraXR.cameras[0].viewport;
-          const material = new ShaderMaterial({
+          const material2 = new ShaderMaterial({
             vertexShader: _occlusion_vertex,
             fragmentShader: _occlusion_fragment,
             uniforms: {
@@ -29590,7 +29590,7 @@ void main() {
               depthHeight: { value: viewport.w }
             }
           });
-          this.mesh = new Mesh(new PlaneGeometry(20, 20), material);
+          this.mesh = new Mesh(new PlaneGeometry(20, 20), material2);
         }
       }
       return this.mesh;
@@ -30123,107 +30123,107 @@ void main() {
         uniforms.fogDensity.value = fog.density;
       }
     }
-    function refreshMaterialUniforms(uniforms, material, pixelRatio, height, transmissionRenderTarget) {
-      if (material.isNodeMaterial) {
-        material.uniformsNeedUpdate = false;
-      } else if (material.isMeshBasicMaterial) {
-        refreshUniformsCommon(uniforms, material);
-      } else if (material.isMeshLambertMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        if (material.envMap) {
-          uniforms.envMapIntensity.value = material.envMapIntensity;
+    function refreshMaterialUniforms(uniforms, material2, pixelRatio, height, transmissionRenderTarget) {
+      if (material2.isNodeMaterial) {
+        material2.uniformsNeedUpdate = false;
+      } else if (material2.isMeshBasicMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+      } else if (material2.isMeshLambertMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        if (material2.envMap) {
+          uniforms.envMapIntensity.value = material2.envMapIntensity;
         }
-      } else if (material.isMeshToonMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        refreshUniformsToon(uniforms, material);
-      } else if (material.isMeshPhongMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        refreshUniformsPhong(uniforms, material);
-        if (material.envMap) {
-          uniforms.envMapIntensity.value = material.envMapIntensity;
+      } else if (material2.isMeshToonMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        refreshUniformsToon(uniforms, material2);
+      } else if (material2.isMeshPhongMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        refreshUniformsPhong(uniforms, material2);
+        if (material2.envMap) {
+          uniforms.envMapIntensity.value = material2.envMapIntensity;
         }
-      } else if (material.isMeshStandardMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        refreshUniformsStandard(uniforms, material);
-        if (material.isMeshPhysicalMaterial) {
-          refreshUniformsPhysical(uniforms, material, transmissionRenderTarget);
+      } else if (material2.isMeshStandardMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        refreshUniformsStandard(uniforms, material2);
+        if (material2.isMeshPhysicalMaterial) {
+          refreshUniformsPhysical(uniforms, material2, transmissionRenderTarget);
         }
-      } else if (material.isMeshMatcapMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        refreshUniformsMatcap(uniforms, material);
-      } else if (material.isMeshDepthMaterial) {
-        refreshUniformsCommon(uniforms, material);
-      } else if (material.isMeshDistanceMaterial) {
-        refreshUniformsCommon(uniforms, material);
-        refreshUniformsDistance(uniforms, material);
-      } else if (material.isMeshNormalMaterial) {
-        refreshUniformsCommon(uniforms, material);
-      } else if (material.isLineBasicMaterial) {
-        refreshUniformsLine(uniforms, material);
-        if (material.isLineDashedMaterial) {
-          refreshUniformsDash(uniforms, material);
+      } else if (material2.isMeshMatcapMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        refreshUniformsMatcap(uniforms, material2);
+      } else if (material2.isMeshDepthMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+      } else if (material2.isMeshDistanceMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+        refreshUniformsDistance(uniforms, material2);
+      } else if (material2.isMeshNormalMaterial) {
+        refreshUniformsCommon(uniforms, material2);
+      } else if (material2.isLineBasicMaterial) {
+        refreshUniformsLine(uniforms, material2);
+        if (material2.isLineDashedMaterial) {
+          refreshUniformsDash(uniforms, material2);
         }
-      } else if (material.isPointsMaterial) {
-        refreshUniformsPoints(uniforms, material, pixelRatio, height);
-      } else if (material.isSpriteMaterial) {
-        refreshUniformsSprites(uniforms, material);
-      } else if (material.isShadowMaterial) {
-        uniforms.color.value.copy(material.color);
-        uniforms.opacity.value = material.opacity;
-      } else if (material.isShaderMaterial) {
-        material.uniformsNeedUpdate = false;
+      } else if (material2.isPointsMaterial) {
+        refreshUniformsPoints(uniforms, material2, pixelRatio, height);
+      } else if (material2.isSpriteMaterial) {
+        refreshUniformsSprites(uniforms, material2);
+      } else if (material2.isShadowMaterial) {
+        uniforms.color.value.copy(material2.color);
+        uniforms.opacity.value = material2.opacity;
+      } else if (material2.isShaderMaterial) {
+        material2.uniformsNeedUpdate = false;
       }
     }
-    function refreshUniformsCommon(uniforms, material) {
-      uniforms.opacity.value = material.opacity;
-      if (material.color) {
-        uniforms.diffuse.value.copy(material.color);
+    function refreshUniformsCommon(uniforms, material2) {
+      uniforms.opacity.value = material2.opacity;
+      if (material2.color) {
+        uniforms.diffuse.value.copy(material2.color);
       }
-      if (material.emissive) {
-        uniforms.emissive.value.copy(material.emissive).multiplyScalar(material.emissiveIntensity);
+      if (material2.emissive) {
+        uniforms.emissive.value.copy(material2.emissive).multiplyScalar(material2.emissiveIntensity);
       }
-      if (material.map) {
-        uniforms.map.value = material.map;
-        refreshTransformUniform(material.map, uniforms.mapTransform);
+      if (material2.map) {
+        uniforms.map.value = material2.map;
+        refreshTransformUniform(material2.map, uniforms.mapTransform);
       }
-      if (material.alphaMap) {
-        uniforms.alphaMap.value = material.alphaMap;
-        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
+      if (material2.alphaMap) {
+        uniforms.alphaMap.value = material2.alphaMap;
+        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
       }
-      if (material.bumpMap) {
-        uniforms.bumpMap.value = material.bumpMap;
-        refreshTransformUniform(material.bumpMap, uniforms.bumpMapTransform);
-        uniforms.bumpScale.value = material.bumpScale;
-        if (material.side === BackSide) {
+      if (material2.bumpMap) {
+        uniforms.bumpMap.value = material2.bumpMap;
+        refreshTransformUniform(material2.bumpMap, uniforms.bumpMapTransform);
+        uniforms.bumpScale.value = material2.bumpScale;
+        if (material2.side === BackSide) {
           uniforms.bumpScale.value *= -1;
         }
       }
-      if (material.normalMap) {
-        uniforms.normalMap.value = material.normalMap;
-        refreshTransformUniform(material.normalMap, uniforms.normalMapTransform);
-        uniforms.normalScale.value.copy(material.normalScale);
-        if (material.side === BackSide) {
+      if (material2.normalMap) {
+        uniforms.normalMap.value = material2.normalMap;
+        refreshTransformUniform(material2.normalMap, uniforms.normalMapTransform);
+        uniforms.normalScale.value.copy(material2.normalScale);
+        if (material2.side === BackSide) {
           uniforms.normalScale.value.negate();
         }
       }
-      if (material.displacementMap) {
-        uniforms.displacementMap.value = material.displacementMap;
-        refreshTransformUniform(material.displacementMap, uniforms.displacementMapTransform);
-        uniforms.displacementScale.value = material.displacementScale;
-        uniforms.displacementBias.value = material.displacementBias;
+      if (material2.displacementMap) {
+        uniforms.displacementMap.value = material2.displacementMap;
+        refreshTransformUniform(material2.displacementMap, uniforms.displacementMapTransform);
+        uniforms.displacementScale.value = material2.displacementScale;
+        uniforms.displacementBias.value = material2.displacementBias;
       }
-      if (material.emissiveMap) {
-        uniforms.emissiveMap.value = material.emissiveMap;
-        refreshTransformUniform(material.emissiveMap, uniforms.emissiveMapTransform);
+      if (material2.emissiveMap) {
+        uniforms.emissiveMap.value = material2.emissiveMap;
+        refreshTransformUniform(material2.emissiveMap, uniforms.emissiveMapTransform);
       }
-      if (material.specularMap) {
-        uniforms.specularMap.value = material.specularMap;
-        refreshTransformUniform(material.specularMap, uniforms.specularMapTransform);
+      if (material2.specularMap) {
+        uniforms.specularMap.value = material2.specularMap;
+        refreshTransformUniform(material2.specularMap, uniforms.specularMapTransform);
       }
-      if (material.alphaTest > 0) {
-        uniforms.alphaTest.value = material.alphaTest;
+      if (material2.alphaTest > 0) {
+        uniforms.alphaTest.value = material2.alphaTest;
       }
-      const materialProperties = properties.get(material);
+      const materialProperties = properties.get(material2);
       const envMap = materialProperties.envMap;
       const envMapRotation = materialProperties.envMapRotation;
       if (envMap) {
@@ -30232,183 +30232,183 @@ void main() {
         if (envMap.isCubeTexture && envMap.isRenderTargetTexture === false) {
           uniforms.envMapRotation.value.premultiply(_m);
         }
-        uniforms.reflectivity.value = material.reflectivity;
-        uniforms.ior.value = material.ior;
-        uniforms.refractionRatio.value = material.refractionRatio;
+        uniforms.reflectivity.value = material2.reflectivity;
+        uniforms.ior.value = material2.ior;
+        uniforms.refractionRatio.value = material2.refractionRatio;
       }
-      if (material.lightMap) {
-        uniforms.lightMap.value = material.lightMap;
-        uniforms.lightMapIntensity.value = material.lightMapIntensity;
-        refreshTransformUniform(material.lightMap, uniforms.lightMapTransform);
+      if (material2.lightMap) {
+        uniforms.lightMap.value = material2.lightMap;
+        uniforms.lightMapIntensity.value = material2.lightMapIntensity;
+        refreshTransformUniform(material2.lightMap, uniforms.lightMapTransform);
       }
-      if (material.aoMap) {
-        uniforms.aoMap.value = material.aoMap;
-        uniforms.aoMapIntensity.value = material.aoMapIntensity;
-        refreshTransformUniform(material.aoMap, uniforms.aoMapTransform);
-      }
-    }
-    function refreshUniformsLine(uniforms, material) {
-      uniforms.diffuse.value.copy(material.color);
-      uniforms.opacity.value = material.opacity;
-      if (material.map) {
-        uniforms.map.value = material.map;
-        refreshTransformUniform(material.map, uniforms.mapTransform);
+      if (material2.aoMap) {
+        uniforms.aoMap.value = material2.aoMap;
+        uniforms.aoMapIntensity.value = material2.aoMapIntensity;
+        refreshTransformUniform(material2.aoMap, uniforms.aoMapTransform);
       }
     }
-    function refreshUniformsDash(uniforms, material) {
-      uniforms.dashSize.value = material.dashSize;
-      uniforms.totalSize.value = material.dashSize + material.gapSize;
-      uniforms.scale.value = material.scale;
+    function refreshUniformsLine(uniforms, material2) {
+      uniforms.diffuse.value.copy(material2.color);
+      uniforms.opacity.value = material2.opacity;
+      if (material2.map) {
+        uniforms.map.value = material2.map;
+        refreshTransformUniform(material2.map, uniforms.mapTransform);
+      }
     }
-    function refreshUniformsPoints(uniforms, material, pixelRatio, height) {
-      uniforms.diffuse.value.copy(material.color);
-      uniforms.opacity.value = material.opacity;
-      uniforms.size.value = material.size * pixelRatio;
+    function refreshUniformsDash(uniforms, material2) {
+      uniforms.dashSize.value = material2.dashSize;
+      uniforms.totalSize.value = material2.dashSize + material2.gapSize;
+      uniforms.scale.value = material2.scale;
+    }
+    function refreshUniformsPoints(uniforms, material2, pixelRatio, height) {
+      uniforms.diffuse.value.copy(material2.color);
+      uniforms.opacity.value = material2.opacity;
+      uniforms.size.value = material2.size * pixelRatio;
       uniforms.scale.value = height * 0.5;
-      if (material.map) {
-        uniforms.map.value = material.map;
-        refreshTransformUniform(material.map, uniforms.uvTransform);
+      if (material2.map) {
+        uniforms.map.value = material2.map;
+        refreshTransformUniform(material2.map, uniforms.uvTransform);
       }
-      if (material.alphaMap) {
-        uniforms.alphaMap.value = material.alphaMap;
-        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
+      if (material2.alphaMap) {
+        uniforms.alphaMap.value = material2.alphaMap;
+        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
       }
-      if (material.alphaTest > 0) {
-        uniforms.alphaTest.value = material.alphaTest;
-      }
-    }
-    function refreshUniformsSprites(uniforms, material) {
-      uniforms.diffuse.value.copy(material.color);
-      uniforms.opacity.value = material.opacity;
-      uniforms.rotation.value = material.rotation;
-      if (material.map) {
-        uniforms.map.value = material.map;
-        refreshTransformUniform(material.map, uniforms.mapTransform);
-      }
-      if (material.alphaMap) {
-        uniforms.alphaMap.value = material.alphaMap;
-        refreshTransformUniform(material.alphaMap, uniforms.alphaMapTransform);
-      }
-      if (material.alphaTest > 0) {
-        uniforms.alphaTest.value = material.alphaTest;
+      if (material2.alphaTest > 0) {
+        uniforms.alphaTest.value = material2.alphaTest;
       }
     }
-    function refreshUniformsPhong(uniforms, material) {
-      uniforms.specular.value.copy(material.specular);
-      uniforms.shininess.value = Math.max(material.shininess, 1e-4);
-    }
-    function refreshUniformsToon(uniforms, material) {
-      if (material.gradientMap) {
-        uniforms.gradientMap.value = material.gradientMap;
+    function refreshUniformsSprites(uniforms, material2) {
+      uniforms.diffuse.value.copy(material2.color);
+      uniforms.opacity.value = material2.opacity;
+      uniforms.rotation.value = material2.rotation;
+      if (material2.map) {
+        uniforms.map.value = material2.map;
+        refreshTransformUniform(material2.map, uniforms.mapTransform);
+      }
+      if (material2.alphaMap) {
+        uniforms.alphaMap.value = material2.alphaMap;
+        refreshTransformUniform(material2.alphaMap, uniforms.alphaMapTransform);
+      }
+      if (material2.alphaTest > 0) {
+        uniforms.alphaTest.value = material2.alphaTest;
       }
     }
-    function refreshUniformsStandard(uniforms, material) {
-      uniforms.metalness.value = material.metalness;
-      if (material.metalnessMap) {
-        uniforms.metalnessMap.value = material.metalnessMap;
-        refreshTransformUniform(material.metalnessMap, uniforms.metalnessMapTransform);
-      }
-      uniforms.roughness.value = material.roughness;
-      if (material.roughnessMap) {
-        uniforms.roughnessMap.value = material.roughnessMap;
-        refreshTransformUniform(material.roughnessMap, uniforms.roughnessMapTransform);
-      }
-      if (material.envMap) {
-        uniforms.envMapIntensity.value = material.envMapIntensity;
+    function refreshUniformsPhong(uniforms, material2) {
+      uniforms.specular.value.copy(material2.specular);
+      uniforms.shininess.value = Math.max(material2.shininess, 1e-4);
+    }
+    function refreshUniformsToon(uniforms, material2) {
+      if (material2.gradientMap) {
+        uniforms.gradientMap.value = material2.gradientMap;
       }
     }
-    function refreshUniformsPhysical(uniforms, material, transmissionRenderTarget) {
-      uniforms.ior.value = material.ior;
-      if (material.sheen > 0) {
-        uniforms.sheenColor.value.copy(material.sheenColor).multiplyScalar(material.sheen);
-        uniforms.sheenRoughness.value = material.sheenRoughness;
-        if (material.sheenColorMap) {
-          uniforms.sheenColorMap.value = material.sheenColorMap;
-          refreshTransformUniform(material.sheenColorMap, uniforms.sheenColorMapTransform);
+    function refreshUniformsStandard(uniforms, material2) {
+      uniforms.metalness.value = material2.metalness;
+      if (material2.metalnessMap) {
+        uniforms.metalnessMap.value = material2.metalnessMap;
+        refreshTransformUniform(material2.metalnessMap, uniforms.metalnessMapTransform);
+      }
+      uniforms.roughness.value = material2.roughness;
+      if (material2.roughnessMap) {
+        uniforms.roughnessMap.value = material2.roughnessMap;
+        refreshTransformUniform(material2.roughnessMap, uniforms.roughnessMapTransform);
+      }
+      if (material2.envMap) {
+        uniforms.envMapIntensity.value = material2.envMapIntensity;
+      }
+    }
+    function refreshUniformsPhysical(uniforms, material2, transmissionRenderTarget) {
+      uniforms.ior.value = material2.ior;
+      if (material2.sheen > 0) {
+        uniforms.sheenColor.value.copy(material2.sheenColor).multiplyScalar(material2.sheen);
+        uniforms.sheenRoughness.value = material2.sheenRoughness;
+        if (material2.sheenColorMap) {
+          uniforms.sheenColorMap.value = material2.sheenColorMap;
+          refreshTransformUniform(material2.sheenColorMap, uniforms.sheenColorMapTransform);
         }
-        if (material.sheenRoughnessMap) {
-          uniforms.sheenRoughnessMap.value = material.sheenRoughnessMap;
-          refreshTransformUniform(material.sheenRoughnessMap, uniforms.sheenRoughnessMapTransform);
+        if (material2.sheenRoughnessMap) {
+          uniforms.sheenRoughnessMap.value = material2.sheenRoughnessMap;
+          refreshTransformUniform(material2.sheenRoughnessMap, uniforms.sheenRoughnessMapTransform);
         }
       }
-      if (material.clearcoat > 0) {
-        uniforms.clearcoat.value = material.clearcoat;
-        uniforms.clearcoatRoughness.value = material.clearcoatRoughness;
-        if (material.clearcoatMap) {
-          uniforms.clearcoatMap.value = material.clearcoatMap;
-          refreshTransformUniform(material.clearcoatMap, uniforms.clearcoatMapTransform);
+      if (material2.clearcoat > 0) {
+        uniforms.clearcoat.value = material2.clearcoat;
+        uniforms.clearcoatRoughness.value = material2.clearcoatRoughness;
+        if (material2.clearcoatMap) {
+          uniforms.clearcoatMap.value = material2.clearcoatMap;
+          refreshTransformUniform(material2.clearcoatMap, uniforms.clearcoatMapTransform);
         }
-        if (material.clearcoatRoughnessMap) {
-          uniforms.clearcoatRoughnessMap.value = material.clearcoatRoughnessMap;
-          refreshTransformUniform(material.clearcoatRoughnessMap, uniforms.clearcoatRoughnessMapTransform);
+        if (material2.clearcoatRoughnessMap) {
+          uniforms.clearcoatRoughnessMap.value = material2.clearcoatRoughnessMap;
+          refreshTransformUniform(material2.clearcoatRoughnessMap, uniforms.clearcoatRoughnessMapTransform);
         }
-        if (material.clearcoatNormalMap) {
-          uniforms.clearcoatNormalMap.value = material.clearcoatNormalMap;
-          refreshTransformUniform(material.clearcoatNormalMap, uniforms.clearcoatNormalMapTransform);
-          uniforms.clearcoatNormalScale.value.copy(material.clearcoatNormalScale);
-          if (material.side === BackSide) {
+        if (material2.clearcoatNormalMap) {
+          uniforms.clearcoatNormalMap.value = material2.clearcoatNormalMap;
+          refreshTransformUniform(material2.clearcoatNormalMap, uniforms.clearcoatNormalMapTransform);
+          uniforms.clearcoatNormalScale.value.copy(material2.clearcoatNormalScale);
+          if (material2.side === BackSide) {
             uniforms.clearcoatNormalScale.value.negate();
           }
         }
       }
-      if (material.dispersion > 0) {
-        uniforms.dispersion.value = material.dispersion;
+      if (material2.dispersion > 0) {
+        uniforms.dispersion.value = material2.dispersion;
       }
-      if (material.iridescence > 0) {
-        uniforms.iridescence.value = material.iridescence;
-        uniforms.iridescenceIOR.value = material.iridescenceIOR;
-        uniforms.iridescenceThicknessMinimum.value = material.iridescenceThicknessRange[0];
-        uniforms.iridescenceThicknessMaximum.value = material.iridescenceThicknessRange[1];
-        if (material.iridescenceMap) {
-          uniforms.iridescenceMap.value = material.iridescenceMap;
-          refreshTransformUniform(material.iridescenceMap, uniforms.iridescenceMapTransform);
+      if (material2.iridescence > 0) {
+        uniforms.iridescence.value = material2.iridescence;
+        uniforms.iridescenceIOR.value = material2.iridescenceIOR;
+        uniforms.iridescenceThicknessMinimum.value = material2.iridescenceThicknessRange[0];
+        uniforms.iridescenceThicknessMaximum.value = material2.iridescenceThicknessRange[1];
+        if (material2.iridescenceMap) {
+          uniforms.iridescenceMap.value = material2.iridescenceMap;
+          refreshTransformUniform(material2.iridescenceMap, uniforms.iridescenceMapTransform);
         }
-        if (material.iridescenceThicknessMap) {
-          uniforms.iridescenceThicknessMap.value = material.iridescenceThicknessMap;
-          refreshTransformUniform(material.iridescenceThicknessMap, uniforms.iridescenceThicknessMapTransform);
+        if (material2.iridescenceThicknessMap) {
+          uniforms.iridescenceThicknessMap.value = material2.iridescenceThicknessMap;
+          refreshTransformUniform(material2.iridescenceThicknessMap, uniforms.iridescenceThicknessMapTransform);
         }
       }
-      if (material.transmission > 0) {
-        uniforms.transmission.value = material.transmission;
+      if (material2.transmission > 0) {
+        uniforms.transmission.value = material2.transmission;
         uniforms.transmissionSamplerMap.value = transmissionRenderTarget.texture;
         uniforms.transmissionSamplerSize.value.set(transmissionRenderTarget.width, transmissionRenderTarget.height);
-        if (material.transmissionMap) {
-          uniforms.transmissionMap.value = material.transmissionMap;
-          refreshTransformUniform(material.transmissionMap, uniforms.transmissionMapTransform);
+        if (material2.transmissionMap) {
+          uniforms.transmissionMap.value = material2.transmissionMap;
+          refreshTransformUniform(material2.transmissionMap, uniforms.transmissionMapTransform);
         }
-        uniforms.thickness.value = material.thickness;
-        if (material.thicknessMap) {
-          uniforms.thicknessMap.value = material.thicknessMap;
-          refreshTransformUniform(material.thicknessMap, uniforms.thicknessMapTransform);
+        uniforms.thickness.value = material2.thickness;
+        if (material2.thicknessMap) {
+          uniforms.thicknessMap.value = material2.thicknessMap;
+          refreshTransformUniform(material2.thicknessMap, uniforms.thicknessMapTransform);
         }
-        uniforms.attenuationDistance.value = material.attenuationDistance;
-        uniforms.attenuationColor.value.copy(material.attenuationColor);
+        uniforms.attenuationDistance.value = material2.attenuationDistance;
+        uniforms.attenuationColor.value.copy(material2.attenuationColor);
       }
-      if (material.anisotropy > 0) {
-        uniforms.anisotropyVector.value.set(material.anisotropy * Math.cos(material.anisotropyRotation), material.anisotropy * Math.sin(material.anisotropyRotation));
-        if (material.anisotropyMap) {
-          uniforms.anisotropyMap.value = material.anisotropyMap;
-          refreshTransformUniform(material.anisotropyMap, uniforms.anisotropyMapTransform);
+      if (material2.anisotropy > 0) {
+        uniforms.anisotropyVector.value.set(material2.anisotropy * Math.cos(material2.anisotropyRotation), material2.anisotropy * Math.sin(material2.anisotropyRotation));
+        if (material2.anisotropyMap) {
+          uniforms.anisotropyMap.value = material2.anisotropyMap;
+          refreshTransformUniform(material2.anisotropyMap, uniforms.anisotropyMapTransform);
         }
       }
-      uniforms.specularIntensity.value = material.specularIntensity;
-      uniforms.specularColor.value.copy(material.specularColor);
-      if (material.specularColorMap) {
-        uniforms.specularColorMap.value = material.specularColorMap;
-        refreshTransformUniform(material.specularColorMap, uniforms.specularColorMapTransform);
+      uniforms.specularIntensity.value = material2.specularIntensity;
+      uniforms.specularColor.value.copy(material2.specularColor);
+      if (material2.specularColorMap) {
+        uniforms.specularColorMap.value = material2.specularColorMap;
+        refreshTransformUniform(material2.specularColorMap, uniforms.specularColorMapTransform);
       }
-      if (material.specularIntensityMap) {
-        uniforms.specularIntensityMap.value = material.specularIntensityMap;
-        refreshTransformUniform(material.specularIntensityMap, uniforms.specularIntensityMapTransform);
+      if (material2.specularIntensityMap) {
+        uniforms.specularIntensityMap.value = material2.specularIntensityMap;
+        refreshTransformUniform(material2.specularIntensityMap, uniforms.specularIntensityMapTransform);
       }
     }
-    function refreshUniformsMatcap(uniforms, material) {
-      if (material.matcap) {
-        uniforms.matcap.value = material.matcap;
+    function refreshUniformsMatcap(uniforms, material2) {
+      if (material2.matcap) {
+        uniforms.matcap.value = material2.matcap;
       }
     }
-    function refreshUniformsDistance(uniforms, material) {
-      const light = properties.get(material).light;
+    function refreshUniformsDistance(uniforms, material2) {
+      const light = properties.get(material2).light;
       uniforms.referencePosition.value.setFromMatrixPosition(light.matrixWorld);
       uniforms.nearDistance.value = light.shadow.camera.near;
       uniforms.farDistance.value = light.shadow.camera.far;
@@ -31586,33 +31586,33 @@ void main() {
         error("WebGLRenderer: A WebGL context could not be created. Reason: ", event.statusMessage);
       }
       function onMaterialDispose(event) {
-        const material = event.target;
-        material.removeEventListener("dispose", onMaterialDispose);
-        deallocateMaterial(material);
+        const material2 = event.target;
+        material2.removeEventListener("dispose", onMaterialDispose);
+        deallocateMaterial(material2);
       }
-      function deallocateMaterial(material) {
-        releaseMaterialProgramReferences(material);
-        properties.remove(material);
+      function deallocateMaterial(material2) {
+        releaseMaterialProgramReferences(material2);
+        properties.remove(material2);
       }
-      function releaseMaterialProgramReferences(material) {
-        const programs = properties.get(material).programs;
+      function releaseMaterialProgramReferences(material2) {
+        const programs = properties.get(material2).programs;
         if (programs !== void 0) {
           programs.forEach(function(program) {
             programCache.releaseProgram(program);
           });
-          if (material.isShaderMaterial) {
-            programCache.releaseShaderCache(material);
+          if (material2.isShaderMaterial) {
+            programCache.releaseShaderCache(material2);
           }
         }
       }
-      this.renderBufferDirect = function(camera, scene, geometry, material, object, group) {
+      this.renderBufferDirect = function(camera, scene, geometry, material2, object, group) {
         if (scene === null) scene = _emptyScene;
         const frontFaceCW = object.isMesh && object.matrixWorld.determinantAffine() < 0;
-        const program = setProgram(camera, scene, geometry, material, object);
-        state.setMaterial(material, frontFaceCW);
+        const program = setProgram(camera, scene, geometry, material2, object);
+        state.setMaterial(material2, frontFaceCW);
         let index = geometry.index;
         let rangeFactor = 1;
-        if (material.wireframe === true) {
+        if (material2.wireframe === true) {
           index = geometries.getWireframeAttribute(geometry);
           if (index === void 0) return;
           rangeFactor = 2;
@@ -31634,7 +31634,7 @@ void main() {
         }
         const drawCount = drawEnd - drawStart;
         if (drawCount < 0 || drawCount === Infinity) return;
-        bindingStates.setup(object, material, program, geometry, index);
+        bindingStates.setup(object, material2, program, geometry, index);
         let attribute;
         let renderer = bufferRenderer;
         if (index !== null) {
@@ -31643,14 +31643,14 @@ void main() {
           renderer.setIndex(attribute);
         }
         if (object.isMesh) {
-          if (material.wireframe === true) {
-            state.setLineWidth(material.wireframeLinewidth * getTargetPixelRatio());
+          if (material2.wireframe === true) {
+            state.setLineWidth(material2.wireframeLinewidth * getTargetPixelRatio());
             renderer.setMode(_gl.LINES);
           } else {
             renderer.setMode(_gl.TRIANGLES);
           }
         } else if (object.isLine) {
-          let lineWidth = material.linewidth;
+          let lineWidth = material2.linewidth;
           if (lineWidth === void 0) lineWidth = 1;
           state.setLineWidth(lineWidth * getTargetPixelRatio());
           if (object.isLineSegments) {
@@ -31671,7 +31671,7 @@ void main() {
             const counts = object._multiDrawCounts;
             const drawCount2 = object._multiDrawCount;
             const bytesPerElement = index ? attributes.get(index).bytesPerElement : 1;
-            const uniforms = properties.get(material).currentProgram.getUniforms();
+            const uniforms = properties.get(material2).currentProgram.getUniforms();
             for (let i2 = 0; i2 < drawCount2; i2++) {
               uniforms.setValue(_gl, "_gl_DrawID", i2);
               renderer.render(starts[i2] / bytesPerElement, counts[i2]);
@@ -31689,17 +31689,17 @@ void main() {
           renderer.render(drawStart, drawCount);
         }
       };
-      function prepareMaterial(material, scene, object) {
-        if (material.transparent === true && material.side === DoubleSide && material.forceSinglePass === false) {
-          material.side = BackSide;
-          material.needsUpdate = true;
-          getProgram(material, scene, object);
-          material.side = FrontSide;
-          material.needsUpdate = true;
-          getProgram(material, scene, object);
-          material.side = DoubleSide;
+      function prepareMaterial(material2, scene, object) {
+        if (material2.transparent === true && material2.side === DoubleSide && material2.forceSinglePass === false) {
+          material2.side = BackSide;
+          material2.needsUpdate = true;
+          getProgram(material2, scene, object);
+          material2.side = FrontSide;
+          material2.needsUpdate = true;
+          getProgram(material2, scene, object);
+          material2.side = DoubleSide;
         } else {
-          getProgram(material, scene, object);
+          getProgram(material2, scene, object);
         }
       }
       this.compile = function(scene, camera, targetScene = null) {
@@ -31731,17 +31731,17 @@ void main() {
           if (!(object.isMesh || object.isPoints || object.isLine || object.isSprite)) {
             return;
           }
-          const material = object.material;
-          if (material) {
-            if (Array.isArray(material)) {
-              for (let i2 = 0; i2 < material.length; i2++) {
-                const material2 = material[i2];
-                prepareMaterial(material2, targetScene, object);
-                materials2.add(material2);
+          const material2 = object.material;
+          if (material2) {
+            if (Array.isArray(material2)) {
+              for (let i2 = 0; i2 < material2.length; i2++) {
+                const material22 = material2[i2];
+                prepareMaterial(material22, targetScene, object);
+                materials2.add(material22);
               }
             } else {
-              prepareMaterial(material, targetScene, object);
-              materials2.add(material);
+              prepareMaterial(material2, targetScene, object);
+              materials2.add(material2);
             }
           }
         });
@@ -31752,11 +31752,11 @@ void main() {
         const materials2 = this.compile(scene, camera, targetScene);
         return new Promise((resolve) => {
           function checkMaterialsReady() {
-            materials2.forEach(function(material) {
-              const materialProperties = properties.get(material);
+            materials2.forEach(function(material2) {
+              const materialProperties = properties.get(material2);
               const program = materialProperties.currentProgram;
               if (program.isReady()) {
-                materials2.delete(material);
+                materials2.delete(material2);
               }
             });
             if (materials2.size === 0) {
@@ -31916,15 +31916,15 @@ void main() {
                 _vector42.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix3);
               }
               const geometry = objects.update(object);
-              const material = object.material;
-              if (material.visible) {
-                currentRenderList.push(object, geometry, material, groupOrder, _vector42.z, null);
+              const material2 = object.material;
+              if (material2.visible) {
+                currentRenderList.push(object, geometry, material2, groupOrder, _vector42.z, null);
               }
             }
           } else if (object.isMesh || object.isLine || object.isPoints) {
             if (!object.frustumCulled || _frustum.intersectsObject(object)) {
               const geometry = objects.update(object);
-              const material = object.material;
+              const material2 = object.material;
               if (sortObjects) {
                 if (object.boundingSphere !== void 0) {
                   if (object.boundingSphere === null) object.computeBoundingSphere();
@@ -31935,17 +31935,17 @@ void main() {
                 }
                 _vector42.applyMatrix4(object.matrixWorld).applyMatrix4(_projScreenMatrix3);
               }
-              if (Array.isArray(material)) {
+              if (Array.isArray(material2)) {
                 const groups = geometry.groups;
                 for (let i2 = 0, l = groups.length; i2 < l; i2++) {
                   const group = groups[i2];
-                  const groupMaterial = material[group.materialIndex];
+                  const groupMaterial = material2[group.materialIndex];
                   if (groupMaterial && groupMaterial.visible) {
                     currentRenderList.push(object, geometry, groupMaterial, groupOrder, _vector42.z, group);
                   }
                 }
-              } else if (material.visible) {
-                currentRenderList.push(object, geometry, material, groupOrder, _vector42.z, null);
+              } else if (material2.visible) {
+                currentRenderList.push(object, geometry, material2, groupOrder, _vector42.z, null);
               }
             }
           }
@@ -32012,14 +32012,14 @@ void main() {
           let renderTargetNeedsUpdate = false;
           for (let i2 = 0, l = transmissiveObjects.length; i2 < l; i2++) {
             const renderItem = transmissiveObjects[i2];
-            const { object, geometry, material, group } = renderItem;
-            if (material.side === DoubleSide && object.layers.test(camera.layers)) {
-              const currentSide = material.side;
-              material.side = BackSide;
-              material.needsUpdate = true;
-              renderObject(object, scene, camera, geometry, material, group);
-              material.side = currentSide;
-              material.needsUpdate = true;
+            const { object, geometry, material: material2, group } = renderItem;
+            if (material2.side === DoubleSide && object.layers.test(camera.layers)) {
+              const currentSide = material2.side;
+              material2.side = BackSide;
+              material2.needsUpdate = true;
+              renderObject(object, scene, camera, geometry, material2, group);
+              material2.side = currentSide;
+              material2.needsUpdate = true;
               renderTargetNeedsUpdate = true;
             }
           }
@@ -32038,74 +32038,74 @@ void main() {
         for (let i2 = 0, l = renderList.length; i2 < l; i2++) {
           const renderItem = renderList[i2];
           const { object, geometry, group } = renderItem;
-          let material = renderItem.material;
-          if (material.allowOverride === true && overrideMaterial !== null) {
-            material = overrideMaterial;
+          let material2 = renderItem.material;
+          if (material2.allowOverride === true && overrideMaterial !== null) {
+            material2 = overrideMaterial;
           }
           if (object.layers.test(camera.layers)) {
-            renderObject(object, scene, camera, geometry, material, group);
+            renderObject(object, scene, camera, geometry, material2, group);
           }
         }
       }
-      function renderObject(object, scene, camera, geometry, material, group) {
-        object.onBeforeRender(_this, scene, camera, geometry, material, group);
+      function renderObject(object, scene, camera, geometry, material2, group) {
+        object.onBeforeRender(_this, scene, camera, geometry, material2, group);
         object.modelViewMatrix.multiplyMatrices(camera.matrixWorldInverse, object.matrixWorld);
         object.normalMatrix.getNormalMatrix(object.modelViewMatrix);
-        material.onBeforeRender(_this, scene, camera, geometry, object, group);
-        if (material.transparent === true && material.side === DoubleSide && material.forceSinglePass === false) {
-          material.side = BackSide;
-          material.needsUpdate = true;
-          _this.renderBufferDirect(camera, scene, geometry, material, object, group);
-          material.side = FrontSide;
-          material.needsUpdate = true;
-          _this.renderBufferDirect(camera, scene, geometry, material, object, group);
-          material.side = DoubleSide;
+        material2.onBeforeRender(_this, scene, camera, geometry, object, group);
+        if (material2.transparent === true && material2.side === DoubleSide && material2.forceSinglePass === false) {
+          material2.side = BackSide;
+          material2.needsUpdate = true;
+          _this.renderBufferDirect(camera, scene, geometry, material2, object, group);
+          material2.side = FrontSide;
+          material2.needsUpdate = true;
+          _this.renderBufferDirect(camera, scene, geometry, material2, object, group);
+          material2.side = DoubleSide;
         } else {
-          _this.renderBufferDirect(camera, scene, geometry, material, object, group);
+          _this.renderBufferDirect(camera, scene, geometry, material2, object, group);
         }
-        object.onAfterRender(_this, scene, camera, geometry, material, group);
+        object.onAfterRender(_this, scene, camera, geometry, material2, group);
       }
-      function getProgram(material, scene, object) {
+      function getProgram(material2, scene, object) {
         if (scene.isScene !== true) scene = _emptyScene;
-        const materialProperties = properties.get(material);
+        const materialProperties = properties.get(material2);
         const lights = currentRenderState.state.lights;
         const shadowsArray = currentRenderState.state.shadowsArray;
         const lightsStateVersion = lights.state.version;
-        const parameters2 = programCache.getParameters(material, lights.state, shadowsArray, scene, object, currentRenderState.state.lightProbeGridArray);
+        const parameters2 = programCache.getParameters(material2, lights.state, shadowsArray, scene, object, currentRenderState.state.lightProbeGridArray);
         const programCacheKey = programCache.getProgramCacheKey(parameters2);
         let programs = materialProperties.programs;
-        materialProperties.environment = material.isMeshStandardMaterial || material.isMeshLambertMaterial || material.isMeshPhongMaterial ? scene.environment : null;
+        materialProperties.environment = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial || material2.isMeshPhongMaterial ? scene.environment : null;
         materialProperties.fog = scene.fog;
-        const usePMREM = material.isMeshStandardMaterial || material.isMeshLambertMaterial && !material.envMap || material.isMeshPhongMaterial && !material.envMap;
-        materialProperties.envMap = environments.get(material.envMap || materialProperties.environment, usePMREM);
-        materialProperties.envMapRotation = materialProperties.environment !== null && material.envMap === null ? scene.environmentRotation : material.envMapRotation;
+        const usePMREM = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial && !material2.envMap || material2.isMeshPhongMaterial && !material2.envMap;
+        materialProperties.envMap = environments.get(material2.envMap || materialProperties.environment, usePMREM);
+        materialProperties.envMapRotation = materialProperties.environment !== null && material2.envMap === null ? scene.environmentRotation : material2.envMapRotation;
         if (programs === void 0) {
-          material.addEventListener("dispose", onMaterialDispose);
+          material2.addEventListener("dispose", onMaterialDispose);
           programs = /* @__PURE__ */ new Map();
           materialProperties.programs = programs;
         }
         let program = programs.get(programCacheKey);
         if (program !== void 0) {
           if (materialProperties.currentProgram === program && materialProperties.lightsStateVersion === lightsStateVersion) {
-            updateCommonMaterialProperties(material, parameters2);
+            updateCommonMaterialProperties(material2, parameters2);
             return program;
           }
         } else {
-          parameters2.uniforms = programCache.getUniforms(material);
-          if (_nodesHandler !== null && material.isNodeMaterial) {
-            _nodesHandler.build(material, object, parameters2);
+          parameters2.uniforms = programCache.getUniforms(material2);
+          if (_nodesHandler !== null && material2.isNodeMaterial) {
+            _nodesHandler.build(material2, object, parameters2);
           }
-          material.onBeforeCompile(parameters2, _this);
+          material2.onBeforeCompile(parameters2, _this);
           program = programCache.acquireProgram(parameters2, programCacheKey);
           programs.set(programCacheKey, program);
           materialProperties.uniforms = parameters2.uniforms;
         }
         const uniforms = materialProperties.uniforms;
-        if (!material.isShaderMaterial && !material.isRawShaderMaterial || material.clipping === true) {
+        if (!material2.isShaderMaterial && !material2.isRawShaderMaterial || material2.clipping === true) {
           uniforms.clippingPlanes = clipping.uniform;
         }
-        updateCommonMaterialProperties(material, parameters2);
-        materialProperties.needsLights = materialNeedsLights(material);
+        updateCommonMaterialProperties(material2, parameters2);
+        materialProperties.needsLights = materialNeedsLights(material2);
         materialProperties.lightsStateVersion = lightsStateVersion;
         if (materialProperties.needsLights) {
           uniforms.ambientLightColor.value = lights.state.ambient;
@@ -32137,8 +32137,8 @@ void main() {
         }
         return materialProperties.uniformsList;
       }
-      function updateCommonMaterialProperties(material, parameters2) {
-        const materialProperties = properties.get(material);
+      function updateCommonMaterialProperties(material2, parameters2) {
+        const materialProperties = properties.get(material2);
         materialProperties.outputColorSpace = parameters2.outputColorSpace;
         materialProperties.batching = parameters2.batching;
         materialProperties.batchingColor = parameters2.batchingColor;
@@ -32168,37 +32168,37 @@ void main() {
         }
         return null;
       }
-      function setProgram(camera, scene, geometry, material, object) {
+      function setProgram(camera, scene, geometry, material2, object) {
         if (scene.isScene !== true) scene = _emptyScene;
         textures.resetTextureUnits();
         const fog = scene.fog;
-        const environment = material.isMeshStandardMaterial || material.isMeshLambertMaterial || material.isMeshPhongMaterial ? scene.environment : null;
+        const environment = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial || material2.isMeshPhongMaterial ? scene.environment : null;
         const colorSpace = _currentRenderTarget === null ? _this.outputColorSpace : _currentRenderTarget.isXRRenderTarget === true ? _currentRenderTarget.texture.colorSpace : ColorManagement.workingColorSpace;
-        const usePMREM = material.isMeshStandardMaterial || material.isMeshLambertMaterial && !material.envMap || material.isMeshPhongMaterial && !material.envMap;
-        const envMap = environments.get(material.envMap || environment, usePMREM);
-        const vertexAlphas = material.vertexColors === true && !!geometry.attributes.color && geometry.attributes.color.itemSize === 4;
-        const vertexTangents = !!geometry.attributes.tangent && (!!material.normalMap || material.anisotropy > 0);
+        const usePMREM = material2.isMeshStandardMaterial || material2.isMeshLambertMaterial && !material2.envMap || material2.isMeshPhongMaterial && !material2.envMap;
+        const envMap = environments.get(material2.envMap || environment, usePMREM);
+        const vertexAlphas = material2.vertexColors === true && !!geometry.attributes.color && geometry.attributes.color.itemSize === 4;
+        const vertexTangents = !!geometry.attributes.tangent && (!!material2.normalMap || material2.anisotropy > 0);
         const morphTargets = !!geometry.morphAttributes.position;
         const morphNormals = !!geometry.morphAttributes.normal;
         const morphColors = !!geometry.morphAttributes.color;
         let toneMapping = NoToneMapping;
-        if (material.toneMapped) {
+        if (material2.toneMapped) {
           if (_currentRenderTarget === null || _currentRenderTarget.isXRRenderTarget === true) {
             toneMapping = _this.toneMapping;
           }
         }
         const morphAttribute = geometry.morphAttributes.position || geometry.morphAttributes.normal || geometry.morphAttributes.color;
         const morphTargetsCount = morphAttribute !== void 0 ? morphAttribute.length : 0;
-        const materialProperties = properties.get(material);
+        const materialProperties = properties.get(material2);
         const lights = currentRenderState.state.lights;
         if (_clippingEnabled === true) {
           if (_localClippingEnabled === true || camera !== _currentCamera) {
-            const useCache = camera === _currentCamera && material.id === _currentMaterialId;
-            clipping.setState(material, camera, useCache);
+            const useCache = camera === _currentCamera && material2.id === _currentMaterialId;
+            clipping.setState(material2, camera, useCache);
           }
         }
         let needsProgramChange = false;
-        if (material.version === materialProperties.__version) {
+        if (material2.version === materialProperties.__version) {
           if (materialProperties.needsLights && materialProperties.lightsStateVersion !== lights.state.version) {
             needsProgramChange = true;
           } else if (materialProperties.outputColorSpace !== colorSpace) {
@@ -32229,7 +32229,7 @@ void main() {
             needsProgramChange = true;
           } else if (materialProperties.envMap !== envMap) {
             needsProgramChange = true;
-          } else if (material.fog === true && materialProperties.fog !== fog) {
+          } else if (material2.fog === true && materialProperties.fog !== fog) {
             needsProgramChange = true;
           } else if (materialProperties.numClippingPlanes !== void 0 && (materialProperties.numClippingPlanes !== clipping.numPlanes || materialProperties.numIntersection !== clipping.numIntersection)) {
             needsProgramChange = true;
@@ -32252,13 +32252,13 @@ void main() {
           }
         } else {
           needsProgramChange = true;
-          materialProperties.__version = material.version;
+          materialProperties.__version = material2.version;
         }
         let program = materialProperties.currentProgram;
         if (needsProgramChange === true) {
-          program = getProgram(material, scene, object);
-          if (_nodesHandler && material.isNodeMaterial) {
-            _nodesHandler.onUpdateProgram(material, program, materialProperties);
+          program = getProgram(material2, scene, object);
+          if (_nodesHandler && material2.isNodeMaterial) {
+            _nodesHandler.onUpdateProgram(material2, program, materialProperties);
           }
         }
         let refreshProgram = false;
@@ -32270,8 +32270,8 @@ void main() {
           refreshMaterial = true;
           refreshLights = true;
         }
-        if (material.id !== _currentMaterialId) {
-          _currentMaterialId = material.id;
+        if (material2.id !== _currentMaterialId) {
+          _currentMaterialId = material2.id;
           refreshMaterial = true;
         }
         if (materialProperties.needsLights) {
@@ -32300,7 +32300,7 @@ void main() {
               2 / (Math.log(camera.far + 1) / Math.LN2)
             );
           }
-          if (material.isMeshPhongMaterial || material.isMeshToonMaterial || material.isMeshLambertMaterial || material.isMeshBasicMaterial || material.isMeshStandardMaterial || material.isShaderMaterial) {
+          if (material2.isMeshPhongMaterial || material2.isMeshToonMaterial || material2.isMeshLambertMaterial || material2.isMeshBasicMaterial || material2.isMeshStandardMaterial || material2.isShaderMaterial) {
             p_uniforms.setValue(_gl, "isOrthographic", camera.isOrthographicCamera === true);
           }
           if (_currentCamera !== camera) {
@@ -32347,7 +32347,7 @@ void main() {
           materialProperties.receiveShadow = object.receiveShadow;
           p_uniforms.setValue(_gl, "receiveShadow", object.receiveShadow);
         }
-        if ((material.isMeshStandardMaterial || material.isMeshLambertMaterial || material.isMeshPhongMaterial) && material.envMap === null && scene.environment !== null) {
+        if ((material2.isMeshStandardMaterial || material2.isMeshLambertMaterial || material2.isMeshPhongMaterial) && material2.envMap === null && scene.environment !== null) {
           m_uniforms.envMapIntensity.value = scene.environmentIntensity;
         }
         if (m_uniforms.dfgLUT !== void 0) {
@@ -32358,10 +32358,10 @@ void main() {
           if (materialProperties.needsLights) {
             markUniformsLightsNeedsUpdate(m_uniforms, refreshLights);
           }
-          if (fog && material.fog === true) {
+          if (fog && material2.fog === true) {
             materials.refreshFogUniforms(m_uniforms, fog);
           }
-          materials.refreshMaterialUniforms(m_uniforms, material, _pixelRatio, _height, currentRenderState.state.transmissionRenderTarget[camera.id]);
+          materials.refreshMaterialUniforms(m_uniforms, material2, _pixelRatio, _height, currentRenderState.state.transmissionRenderTarget[camera.id]);
           if (materialProperties.needsLights && materialProperties.lightProbeGrid) {
             const volume = materialProperties.lightProbeGrid;
             m_uniforms.probesSH.value = volume.texture;
@@ -32371,18 +32371,18 @@ void main() {
           }
           WebGLUniforms.upload(_gl, getUniformList(materialProperties), m_uniforms, textures);
         }
-        if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
+        if (material2.isShaderMaterial && material2.uniformsNeedUpdate === true) {
           WebGLUniforms.upload(_gl, getUniformList(materialProperties), m_uniforms, textures);
-          material.uniformsNeedUpdate = false;
+          material2.uniformsNeedUpdate = false;
         }
-        if (material.isSpriteMaterial) {
+        if (material2.isSpriteMaterial) {
           p_uniforms.setValue(_gl, "center", object.center);
         }
         p_uniforms.setValue(_gl, "modelViewMatrix", object.modelViewMatrix);
         p_uniforms.setValue(_gl, "normalMatrix", object.normalMatrix);
         p_uniforms.setValue(_gl, "modelMatrix", object.matrixWorld);
-        if (material.uniformsGroups !== void 0) {
-          const groups = material.uniformsGroups;
+        if (material2.uniformsGroups !== void 0) {
+          const groups = material2.uniformsGroups;
           for (let i2 = 0, l = groups.length; i2 < l; i2++) {
             const group = groups[i2];
             uniformsGroups.update(group, program);
@@ -32403,8 +32403,8 @@ void main() {
         uniforms.rectAreaLights.needsUpdate = value;
         uniforms.hemisphereLights.needsUpdate = value;
       }
-      function materialNeedsLights(material) {
-        return material.isMeshLambertMaterial || material.isMeshToonMaterial || material.isMeshPhongMaterial || material.isMeshStandardMaterial || material.isShadowMaterial || material.isShaderMaterial && material.lights === true;
+      function materialNeedsLights(material2) {
+        return material2.isMeshLambertMaterial || material2.isMeshToonMaterial || material2.isMeshPhongMaterial || material2.isMeshStandardMaterial || material2.isShadowMaterial || material2.isShaderMaterial && material2.lights === true;
       }
       this.getActiveCubeFace = function() {
         return _currentActiveCubeFace;
@@ -32803,7 +32803,8 @@ void main() {
     ["\u6BA1\u4EEA\u9986", -8, 11, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
     ["\u9F20\u9F20\u5B66\u6821", 10, 6.5, true, "\u5B66\u4E60", [1.4, 1.8]],
-    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]]
+    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]],
+    ["Mariah Carey\u540D\u4EBA\u5802", 6, 12, true, "\u6B23\u8D4F\u5C55\u89C8", [0, 0.2]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -32825,7 +32826,7 @@ void main() {
         const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
         return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (Math.abs(lx) > 1.95 || lz < -1.03 || lz > 1.46 && Math.abs(lx) > 0.45 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
       }
-      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < 1.62 && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < 1.2;
+      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < (d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.75 : 1.62) && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < (d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.4 : 1.2);
     }) || Math.hypot(x2, z + 1.3) < 0.9;
   }
   function route(start, end) {
@@ -32901,7 +32902,7 @@ void main() {
         go(actor, entrance(actor.destination), "arrived");
         return;
       }
-      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "\u4E2D\u5FC3\u5E7F\u573A"];
+      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "Mariah Carey\u540D\u4EBA\u5802", "\u4E2D\u5FC3\u5E7F\u573A"];
       const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
       actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
       if (actor.destination === "\u4E2D\u5FC3\u5E7F\u573A" && actor.allowSocial === false) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
@@ -32985,7 +32986,7 @@ void main() {
             actor.phase = "activity";
             if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
-            actor.speech = actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u4F4F\u9662" ? "\u5B89\u9759\u4F11\u517B\uFF0C\u7B49\u767D\u5927\u592B\u7167\u6599" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+            actor.speech = actor.action === "\u6B23\u8D4F\u5C55\u89C8" ? "\u770B\u770B\u559C\u6B22\u7684\u4E13\u8F91\u548C\u5531\u7247" : actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u4F4F\u9662" ? "\u5B89\u9759\u4F11\u517B\uFF0C\u7B49\u767D\u5927\u592B\u7167\u6599" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "activity") {
           if (actor.forcedSleep && ["\u7761\u89C9", "\u4F4F\u9662"].includes(actor.action)) continue;
@@ -33202,6 +33203,7 @@ void main() {
 
   // src/town-player.js
   var obstacles = {
+    "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [-2.6, 1.6, 0.8, 0.35]],
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
     "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [2.5, 0.5, 0.95, 0.4], [-1.4, -0.2, 0.65, 0.4], [-1.4, 1.6, 0.65, 0.4], [1, -0.2, 0.65, 0.4], [1, 1.6, 0.65, 0.4]],
@@ -33235,6 +33237,226 @@ void main() {
     return moved;
   }
 
+  // src/town-mariah-hall.js
+  var material = (color, extra = {}) => new MeshStandardMaterial({ color, roughness: 0.65, ...extra });
+  var hallAlbums = [
+    [7, "#1 to Infinity"],
+    [8, "Infinity"],
+    [9, "Memoirs of an imperfect Angel"],
+    [10, "The Rarities"],
+    [11, "Daydream"],
+    [12, "Daydream \xB7 alternate"],
+    [14, "Charmbracelet"],
+    [15, "Butterfly"],
+    [16, "Emotions"],
+    [17, "Here For It All"],
+    [18, "Music Box"],
+    [19, "\u84DD\u8272\u8096\u50CF\u5C01\u9762"],
+    [20, "Me. I Am Mariah"],
+    [21, "Mariah Carey"],
+    [22, "\u5F69\u8679\u5C01\u9762"],
+    [23, "Glitter"],
+    [24, "The Emancipation of Mimi"],
+    [25, "E=MC\xB2"],
+    [26, "Didn't Mean To Turn You On"],
+    [27, "Merry Christmas"],
+    [28, "Me. I Am Mariah \xB7 alternate"]
+  ];
+  var hallPhotos = [2, 3, 4, 5, 6, 13];
+  function textTexture(title, subtitle = "MARIAH CAREY", portrait = false) {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = portrait ? 720 : 512;
+    const g = c.getContext("2d");
+    const grad = g.createLinearGradient(0, 0, 512, c.height);
+    grad.addColorStop(0, "#e9dce7");
+    grad.addColorStop(1, "#637f95");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 512, c.height);
+    g.strokeStyle = "#e8ce9d";
+    g.lineWidth = 8;
+    g.strokeRect(20, 20, 472, c.height - 40);
+    g.fillStyle = "#fff4db";
+    g.textAlign = "center";
+    g.font = "22px Georgia";
+    g.fillText(subtitle, 256, 85);
+    g.font = "bold 30px Microsoft YaHei";
+    const words = title.split(" ");
+    let lines = [], line = "";
+    for (const word of words) {
+      if (g.measureText(line + " " + word).width > 400) {
+        lines.push(line);
+        line = word;
+      } else line += (line ? " " : "") + word;
+    }
+    lines.push(line);
+    lines.forEach((line2, i2) => g.fillText(line2, 256, c.height * 0.48 + i2 * 42));
+    g.font = "18px Microsoft YaHei";
+    g.fillText("FAN GALLERY", 256, c.height - 70);
+    const t = new CanvasTexture(c);
+    t.colorSpace = SRGBColorSpace;
+    return t;
+  }
+  function imageMaterial(index, title, portrait = false) {
+    const m = new MeshBasicMaterial({ map: textTexture(title, "MARIAH CAREY", portrait), side: DoubleSide });
+    new TextureLoader().load("../assets/mariah-hall/" + String(index).padStart(2, "0") + ".jpg", (t) => {
+      if (m.userData.disposed) {
+        t.dispose();
+        return;
+      }
+      t.colorSpace = SRGBColorSpace;
+      t.anisotropy = 4;
+      m.map.dispose();
+      m.map = t;
+      m.needsUpdate = true;
+      m.userData.loaded = true;
+    }, void 0, () => {
+      m.userData.fallback = true;
+    });
+    return m;
+  }
+  function kit(group) {
+    const box = (w, h, d, x2, y, z, color, extra = {}) => {
+      const m = new Mesh(new BoxGeometry(w, h, d), material(color, extra));
+      m.position.set(x2, y, z);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      group.add(m);
+      return m;
+    };
+    const disc = (x2, y, z, r, color, vertical = false) => {
+      const m = new Mesh(new CylinderGeometry(r, r, 0.035, 64), material(color, { metalness: 0.25, roughness: 0.35 }));
+      m.position.set(x2, y, z);
+      if (vertical) m.rotation.x = Math.PI / 2;
+      group.add(m);
+      return m;
+    };
+    return { box, disc };
+  }
+  function sign2(group, title, x2, y, z, w, h) {
+    const c = document.createElement("canvas");
+    c.width = 1024;
+    c.height = 140;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#eadbc0";
+    ctx.fillRect(0, 0, 1024, 140);
+    ctx.strokeStyle = "#a88954";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(6, 6, 1012, 128);
+    ctx.fillStyle = "#564539";
+    ctx.font = "bold 64px Microsoft YaHei";
+    ctx.textAlign = "center";
+    ctx.fillText(title, 512, 94);
+    const texture = new CanvasTexture(c);
+    texture.colorSpace = SRGBColorSpace;
+    const m = new Mesh(new PlaneGeometry(w, h), new MeshBasicMaterial({ map: texture, side: DoubleSide }));
+    m.position.set(x2, y, z);
+    group.add(m);
+  }
+  function vinyl(group, x2, y, z, color, vertical = false) {
+    const { disc } = kit(group);
+    disc(x2, y, z, 0.36, color, vertical);
+    const label = disc(x2, y + (vertical ? 0 : 0.025), z + (vertical ? 0.025 : 0), 0.095, 15853005, vertical);
+    for (const r of [0.15, 0.21, 0.28, 0.33]) {
+      const ring = new Mesh(new TorusGeometry(r, 25e-4, 4, 64), material(color === 2105639 ? 4474188 : 14721211));
+      ring.position.set(x2, y + (vertical ? 0 : 0.023), z + (vertical ? 0.024 : 0));
+      if (!vertical) ring.rotation.x = -Math.PI / 2;
+      group.add(ring);
+    }
+    return label;
+  }
+  function standee(group, x2, z, height = 1.9) {
+    const { disc } = kit(group);
+    disc(x2, 0.08, z, 0.32, 13810336);
+    const points = [[0.33, 0.08], [0.43, 0.09], [0.48, 0.38], [0.53, 0.09], [0.66, 0.09], [0.59, 0.4], [0.61, 0.56], [0.63, 0.69], [0.59, 0.76], [0.56, 0.8], [0.57, 0.86], [0.55, 0.9], [0.5, 0.915], [0.46, 0.88], [0.46, 0.82], [0.41, 0.78], [0.38, 0.7], [0.37, 0.55], [0.4, 0.45]];
+    const shape = new Shape(points.map(([u, v]) => new Vector2((u - 0.5) * height, v * height)));
+    shape.closePath();
+    const geo = new ShapeGeometry(shape);
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i2 = 0; i2 < pos.count; i2++) uv.setXY(i2, pos.getX(i2) / height + 0.5, pos.getY(i2) / height);
+    const m = imageMaterial(7, "\u4EBA\u5F62\u7ACB\u724C", true);
+    const mesh = new Mesh(geo, m);
+    mesh.position.set(x2, 0.12, z);
+    group.add(mesh);
+    return mesh;
+  }
+  function createMariahHall() {
+    const group = new Group(), { box } = kit(group);
+    box(3.45, 0.16, 2.7, 0, 0.08, 0, 13092028);
+    box(3.1, 0.22, 2.3, 0, 0.28, 0, 15262679);
+    box(3.1, 1.7, 0.1, 0, 1.22, -1.1, 15394006);
+    for (const x2 of [-1.5, 1.5]) box(0.11, 1.9, 2.25, x2, 1.3, 0, 15394006);
+    box(3.35, 0.22, 2.6, 0, 2.22, 0, 15920868);
+    for (const [y, color] of [[2.04, 14920127], [1.98, 10729690]]) {
+      box(3.25, 0.035, 0.05, 0, y, 1.2, color, { emissive: color, emissiveIntensity: 0.45 });
+      box(0.05, 0.035, 2.4, 1.58, y, 0, color, { emissive: color, emissiveIntensity: 0.45 });
+    }
+    for (const x2 of [-1.45, -0.5, 0.55, 1.45]) box(0.04, 1.65, 0.055, x2, 1.16, 1.16, 5658716);
+    for (const y of [0.45, 1, 1.55]) box(3, 0.025, 0.04, 0, y, 1.16, 5658716);
+    box(3, 1.55, 0.025, 0, 1.15, 1.13, 14338752, { transparent: true, opacity: 0.18, depthWrite: false });
+    box(0.62, 1.4, 0.065, -0.8, 1.08, 1.18, 5986905);
+    box(0.46, 0.67, 0.035, -0.8, 1.27, 1.22, 11254209, { transparent: true, opacity: 0.5 });
+    box(0.055, 0.72, 0.04, -0.8, 1.25, 1.25, 6447201);
+    box(0.5, 0.045, 0.04, -0.8, 1.25, 1.25, 6447201);
+    box(1.3, 0.45, 0.65, 0.6, 0.65, 0.48, 14075048);
+    vinyl(group, 0.28, 1.13, 0.5, 2105639, true);
+    vinyl(group, 1.03, 1.13, 0.5, 14459063, true);
+    standee(group, 1.16, -0.4, 1.8);
+    sign2(group, "Mariah Carey \u540D\u4EBA\u5802", 0, 1.85, 1.24, 2.5, 0.33);
+    group.userData.footprint = 3.45 * 2.7;
+    return group;
+  }
+  function populateMariahRoom(group) {
+    const { box, disc } = kit(group);
+    const exhibits = [];
+    hallAlbums.forEach(([index, title], i2) => {
+      const row = Math.floor(i2 / 7), col = i2 % 7, x2 = -3.25 + col * 1.08, y = 0.56 + row * 0.57, z = -2.83;
+      box(0.48, 0.48, 0.06, x2, y, z, 14864305);
+      const cover = new Mesh(new PlaneGeometry(0.45, 0.45), imageMaterial(index, title));
+      cover.position.set(x2, y, z + 0.035);
+      group.add(cover);
+      exhibits.push(cover);
+      box(0.6, 0.035, 0.18, x2, y - 0.26, z + 0.05, 12756093);
+    });
+    hallPhotos.forEach((index, i2) => {
+      const x2 = -3.84, y = 0.72 + i2 % 2 * 0.9, z = -2.1 + Math.floor(i2 / 2) * 1.45;
+      box(0.08, 0.75, 0.56, x2, y, z, 12886392);
+      const picture = new Mesh(new PlaneGeometry(0.51, 0.7), imageMaterial(index, "\u7167\u7247 " + index, true));
+      picture.rotation.y = Math.PI / 2;
+      picture.position.set(x2 + 0.045, y, z);
+      group.add(picture);
+      exhibits.push(picture);
+    });
+    for (const x2 of [-2.1, 1.1]) {
+      box(1.7, 0.52, 0.7, x2, 0.26, -0.5, 15590094);
+      vinyl(group, x2 - 0.42, 0.59, -0.5, 2105639);
+      vinyl(group, x2 + 0.42, 0.59, -0.5, 14459063);
+      box(1.75, 0.36, 0.75, x2, 0.76, -0.5, 14872049, { transparent: true, opacity: 0.12, depthWrite: false });
+    }
+    box(1.3, 0.64, 0.75, 2.7, 0.32, 1.2, 11967351);
+    box(1.05, 0.08, 0.65, 2.7, 0.68, 1.2, 6181978);
+    vinyl(group, 2.55, 0.75, 1.2, 2105639);
+    box(0.045, 0.07, 0.48, 3.05, 0.8, 1.2, 12828345);
+    box(0.7, 0.9, 0.1, 3.5, 0.6, -1.7, 14664344);
+    standee(group, 3, -1.4, 2.4);
+    disc(0, 0.12, -1.7, 0.65, 15325373);
+    disc(0, 0.26, -1.7, 0.48, 13481613);
+    box(0.07, 1.08, 0.07, 0, 0.9, -1.7, 13675858, { metalness: 0.7 });
+    const head = new Mesh(new SphereGeometry(0.14, 20, 12), material(13675858, { metalness: 0.7 }));
+    head.scale.set(1.35, 0.55, 1);
+    head.position.set(-0.12, 0.4, -1.7);
+    group.add(head);
+    const ring = new Mesh(new TorusGeometry(0.18, 0.025, 8, 40), material(13675858, { metalness: 0.7 }));
+    ring.position.set(0.1, 1.36, -1.7);
+    group.add(ring);
+    box(1.5, 0.13, 0.5, -2.6, 0.4, 1.6, 13350815);
+    box(1.5, 0.38, 0.08, -2.6, 0.65, 1.36, 13350815);
+    for (const x2 of [-3.2, -2]) box(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
+    group.userData.hallExhibits = exhibits;
+    group.userData.albumCount = hallAlbums.length;
+    group.userData.photoCount = hallPhotos.length;
+  }
+
   // src/town-cottage.js
   function createCottage({ density = 1 } = {}) {
     const house = new Group();
@@ -33244,8 +33466,8 @@ void main() {
       seed = 1664525 * seed + 1013904223 >>> 0;
       return seed / 4294967296;
     };
-    const material = (color, roughness = 0.85) => new MeshStandardMaterial({ color, roughness });
-    const fur = material("#898078"), cream = material("#eee3c9"), pink = material("#bb8772"), wood = material("#99603a"), darkwood = material("#60402a"), moss = material("#6b7d32"), eyeMat = new MeshPhysicalMaterial({ color: "#100e0c", roughness: 0.13, clearcoat: 1 });
+    const material2 = (color, roughness = 0.85) => new MeshStandardMaterial({ color, roughness });
+    const fur = material2("#898078"), cream = material2("#eee3c9"), pink = material2("#bb8772"), wood = material2("#99603a"), darkwood = material2("#60402a"), moss = material2("#6b7d32"), eyeMat = new MeshPhysicalMaterial({ color: "#100e0c", roughness: 0.13, clearcoat: 1 });
     const glow = new MeshStandardMaterial({ color: "#ffc66a", emissive: "#ffb342", emissiveIntensity: 1.3, roughness: 0.5 });
     function strandTexture(base, creamCoat = false) {
       const c = document.createElement("canvas");
@@ -33343,13 +33565,13 @@ void main() {
       const inner = oval("Soft inner ear", pink, side * 0.9, 2.4, 0.58, 0.285, 0.36, 0.075);
       inner.rotation.z = -side * 0.25;
       oval("Glossy eye", eyeMat, side * 0.53, 1.86, 1.01, 0.17, 0.205, 0.12);
-      oval("Eye catchlight", material("#fff5dc", 0.2), side * 0.53 - 0.04, 1.93, 1.117, 0.041, 0.047, 0.018);
+      oval("Eye catchlight", material2("#fff5dc", 0.2), side * 0.53 - 0.04, 1.93, 1.117, 0.041, 0.047, 0.018);
       for (let i2 = 0; i2 < 3; i2++) oval("Tiny paw", pink, side * 0.68 + (i2 - 1) * 0.064, 0.115, 1.04, 0.057, 0.058, 0.12);
-      for (let i2 = 0; i2 < 3; i2++) line("Whisker", [[side * 0.29, 1.44 + i2 * 0.07, 1.255], [side * 0.88, 1.51 + i2 * 0.12, 1.36], [side * 1.35, 1.5 + i2 * 0.15, 1.32]], 4e-3, material("#c5bca7"));
+      for (let i2 = 0; i2 < 3; i2++) line("Whisker", [[side * 0.29, 1.44 + i2 * 0.07, 1.255], [side * 0.88, 1.51 + i2 * 0.12, 1.36], [side * 1.35, 1.5 + i2 * 0.15, 1.32]], 4e-3, material2("#c5bca7"));
     }
     oval("Joined muzzle", cream, 0, 1.42, 1.15, 0.35, 0.23, 0.22);
-    oval("Little nose", material("#d49d88", 0.62), 0, 1.55, 1.335, 0.115, 0.073, 0.059);
-    const lip = material("#968072"), muzzleZ = (x2, y) => 1.15 + 0.22 * Math.sqrt(Math.max(0, 1 - (x2 / 0.35) ** 2 - ((y - 1.42) / 0.23) ** 2)) + 3e-3;
+    oval("Little nose", material2("#d49d88", 0.62), 0, 1.55, 1.335, 0.115, 0.073, 0.059);
+    const lip = material2("#968072"), muzzleZ = (x2, y) => 1.15 + 0.22 * Math.sqrt(Math.max(0, 1 - (x2 / 0.35) ** 2 - ((y - 1.42) / 0.23) ** 2)) + 3e-3;
     const mouthPoints = [[0, 1.485], [0, 1.4], [-0.07, 1.375]].map(([x2, y]) => [x2, y, muzzleZ(x2, y)]);
     line("Inset lip crease", mouthPoints, 5e-3, lip);
     line("Inset lip crease", [[0, 1.4], [0.07, 1.375]].map(([x2, y]) => [x2, y, muzzleZ(x2, y)]), 5e-3, lip);
@@ -33367,8 +33589,8 @@ void main() {
         for (let k = 0; k <= 4; k++) {
           const t = k / 4, dir = n.clone().addScaledVector(tangent, t * length / Math.min(...radii)).normalize(), normal = new Vector3(dir.x / radii[0], dir.y / radii[1], dir.z / radii[2]).normalize();
           const point2 = new Vector3(center[0] + dir.x * radii[0], center[1] + dir.y * radii[1], center[2] + dir.z * radii[2]).addScaledVector(normal, 3e-3 + Math.sin(t * Math.PI) * 0.012 + t * 5e-3);
-          for (const sign3 of [-1, 1]) {
-            const q = point2.clone().addScaledVector(side, sign3 * width * (1 - 0.92 * t));
+          for (const sign4 of [-1, 1]) {
+            const q = point2.clone().addScaledVector(side, sign4 * width * (1 - 0.92 * t));
             hairPositions.push(q.x, q.y, q.z);
             hairNormals.push(normal.x, normal.y, normal.z);
             hairColors.push(color.r, color.g, color.b);
@@ -33409,7 +33631,7 @@ void main() {
     glass.position.set(0, 0.19, 0.094);
     door.add(glass);
     box("Window mullion", wood, 0, 0.19, 0.113, 0.019, 0.29, 0.025, door);
-    oval("Brass door knob", material("#9d783d", 0.32), 0.32, -0.12, 0.11, 0.044, 0.044, 0.04, door);
+    oval("Brass door knob", material2("#9d783d", 0.32), 0.32, -0.12, 0.11, 0.044, 0.044, 0.04, door);
     for (const yy of [-0.2, 0.16]) box("Iron hinge", darkwood, -0.36, yy, 0.085, 0.15, 0.025, 0.025, door);
     const windowGroup = new Group();
     windowGroup.position.set(1.49, 1.26, 0.05);
@@ -33432,7 +33654,7 @@ void main() {
     }
     mossGeometry.setAttribute("position", new Float32BufferAttribute(leafPositions, 3));
     mossGeometry.computeVertexNormals();
-    const mossLeafMaterial = material("#859c41");
+    const mossLeafMaterial = material2("#859c41");
     mossLeafMaterial.side = DoubleSide;
     const tufts = new InstancedMesh(mossGeometry, mossLeafMaterial, Math.ceil(14500 * density));
     for (let i2 = 0; i2 < Math.ceil(14500 * density); i2++) {
@@ -33448,7 +33670,7 @@ void main() {
     roof.add(tufts);
     function mushroom(x2, y, z, size) {
       const stem = oval("Mushroom stem", cream, x2, y + size * 0.32, z, size * 0.12, size * 0.34, size * 0.12, roof);
-      const cap = oval("Orange mushroom cap", material("#c3652d"), x2, y + size * 0.64, z, size * 0.39, size * 0.255, size * 0.35, roof);
+      const cap = oval("Orange mushroom cap", material2("#c3652d"), x2, y + size * 0.64, z, size * 0.39, size * 0.255, size * 0.35, roof);
       for (let i2 = 0; i2 < 7; i2++) {
         const a = random() * Math.PI * 2, r = random() * 0.26;
         oval("Cream mushroom spot", cream, x2 + Math.cos(a) * r * size, y + size * (0.64 + 0.255 * Math.sqrt(1 - r * r / (0.39 * 0.39))), z + Math.sin(a) * r * size, size * 0.045, size * 0.018, size * 0.038, roof);
@@ -33457,17 +33679,17 @@ void main() {
     mushroom(0.45, 2.73, -0.48, 0.95);
     mushroom(1, 2.59, -0.19, 0.62);
     mushroom(-0.7, 2.67, -0.4, 0.3);
-    const earth = oval("Moss garden island", material("#6d6545"), 0, 0.03, 0.14, 1.87, 0.11, 1.57);
+    const earth = oval("Moss garden island", material2("#6d6545"), 0, 0.03, 0.14, 1.87, 0.11, 1.57);
     for (let i2 = 0; i2 < 160; i2++) {
       const a = random() * Math.PI * 2, r = 1.42 + random() * 0.32;
-      oval("Garden moss", material(i2 % 2 ? "#687b35" : "#7b873e"), Math.cos(a) * r, 0.11, Math.sin(a) * r * 0.85, 0.09 + random() * 0.1, 0.05 + random() * 0.09, 0.1);
+      oval("Garden moss", material2(i2 % 2 ? "#687b35" : "#7b873e"), Math.cos(a) * r, 0.11, Math.sin(a) * r * 0.85, 0.09 + random() * 0.1, 0.05 + random() * 0.09, 0.1);
     }
     for (let i2 = 0; i2 < 3; i2++) {
-      const stone = oval("Doorstep stone", material("#b4a087"), i2 % 2 * 0.13, 0.11 - i2 * 0.018, 1.33 + i2 * 0.24, 0.36 - i2 * 0.04, 0.07, 0.17);
+      const stone = oval("Doorstep stone", material2("#b4a087"), i2 % 2 * 0.13, 0.11 - i2 * 0.018, 1.33 + i2 * 0.24, 0.36 - i2 * 0.04, 0.07, 0.17);
       stone.rotation.y = i2 * 0.21;
     }
     for (const side of [-1, 1]) {
-      oval("Acorn", material("#ae723a"), side * 1.35, 0.2, 0.98, 0.19, 0.22, 0.14);
+      oval("Acorn", material2("#ae723a"), side * 1.35, 0.2, 0.98, 0.19, 0.22, 0.14);
       oval("Acorn cap", darkwood, side * 1.35, 0.36, 0.98, 0.21, 0.095, 0.16);
       line("Twig", [[side * 1.5, 0.13, 0.25], [side * 1.61, 0.57, 0.2], [side * 1.67, 0.82, 0.19]], 0.022, wood);
       line("Twig branch", [[side * 1.6, 0.47, 0.2], [side * 1.85, 0.64, 0.2]], 0.013, wood);
@@ -33475,14 +33697,14 @@ void main() {
     for (let i2 = 0; i2 < 12; i2++) {
       const a = random() * 6.28, x2 = Math.cos(a) * 1.72, z = Math.sin(a) * 1.33;
       for (let j = 0; j < 5; j++) oval("Daisy petal", cream, x2 + Math.cos(j * 6.28 / 5) * 0.045, 0.14, z + Math.sin(j * 6.28 / 5) * 0.045, 0.04, 0.018, 0.028);
-      oval("Daisy heart", material("#d7a44a"), x2, 0.16, z, 0.025, 0.016, 0.025);
+      oval("Daisy heart", material2("#d7a44a"), x2, 0.16, z, 0.025, 0.016, 0.025);
     }
     return house;
   }
 
   // src/town-grounds.js
   var mat = (color, extra = {}) => new MeshStandardMaterial({ color, roughness: 0.85, ...extra });
-  function kit(group) {
+  function kit2(group) {
     const box = (w, h, d, x2, y, z, m) => {
       const mesh = new Mesh(new BoxGeometry(w, h, d), m);
       mesh.position.set(x2, y, z);
@@ -33542,7 +33764,7 @@ void main() {
     t.colorSpace = SRGBColorSpace;
     return t;
   }
-  function sign2(group, text, x2, y, z, action) {
+  function sign3(group, text, x2, y, z, action) {
     const c = document.createElement("canvas");
     c.width = 512;
     c.height = 256;
@@ -33566,9 +33788,9 @@ void main() {
     return mesh;
   }
   function createGarden() {
-    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), soil = mat("#ffffff", { map: soilTexture() }), leaf = mat("#769a43"), darkLeaf = mat("#4e7535"), stem = mat("#738347"), plants = new Group();
+    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), soil = mat("#ffffff", { map: soilTexture() }), leaf = mat("#769a43"), darkLeaf = mat("#4e7535"), stem = mat("#738347"), plants = new Group();
     group.add(plants);
-    const grow = kit(plants);
+    const grow = kit2(plants);
     box(3.15, 0.15, 2.25, 0, 0.02, 0, soil);
     box(3.3, 0.24, 0.1, 0, 0.12, 1.15, wood);
     box(3.3, 0.24, 0.1, 0, 0.12, -1.15, wood);
@@ -33631,7 +33853,7 @@ void main() {
     oval(1.75, 0.22, 0.95, 0.15, 0.2, 0.15, can);
     tube([[1.78, 0.17, 0.94], [2.03, 0.22, 0.8], [2.1, 0.3, 0.75]], 0.045, can);
     tube([[1.66, 0.24, 1], [1.57, 0.55, 1], [1.84, 0.55, 1], [1.87, 0.26, 1]], 0.015, can);
-    sign2(group, "\u5C0F\u83DC\u56ED", -0.95, 0.65, 1.22);
+    sign3(group, "\u5C0F\u83DC\u56ED", -0.95, 0.65, 1.22);
     plants.traverse((o) => o.userData.townAction = "harvest");
     group.userData.plants = plants;
     group.userData.setGrowth = (p) => {
@@ -33642,7 +33864,7 @@ void main() {
     return group;
   }
   function createPlaza() {
-    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
+    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
     const floor = new Mesh(new CylinderGeometry(1, 1, 0.14, 64), mat("#b6aa90"));
     floor.scale.set(3.15 * Math.SQRT2, 1, 1.8 * Math.SQRT2);
     floor.position.y = 0.02;
@@ -33686,7 +33908,7 @@ void main() {
     }
     const furnitureStart = group.children.length;
     const bench = (x2, z, rotation) => {
-      const seat = new Group(), k = kit(seat);
+      const seat = new Group(), k = kit2(seat);
       for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.045, 0.08, 0, 0.3, -0.08 + i2 * 0.09, wood);
       for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.07, 0.04, 0, 0.36 + i2 * 0.08, -0.17, wood);
       [-0.3, 0.3].forEach((x3) => {
@@ -33706,7 +33928,7 @@ void main() {
     const board = (x2, z, title, action) => {
       box(0.85, 0.8, 0.1, x2, 0.74, z, wood);
       [-0.35, 0.35].forEach((dx) => box(0.06, 1.2, 0.06, x2 + dx, 0.6, z, wood));
-      sign2(group, title, x2, 0.8, z + 0.065, action);
+      sign3(group, title, x2, 0.8, z + 0.065, action);
       for (let i2 = 0; i2 < 4; i2++) box(0.15, 0.15, 0.012, x2 - 0.25 + i2 % 2 * 0.48, 0.56 + Math.floor(i2 / 2) * 0.18, z + 0.06, mat(["#e4d08c", "#b9cbbd"][i2 % 2]));
     };
     board(-1.8, -1.2, "\u9F20\u9F20\u65E5\u5386", "calendar");
@@ -33728,7 +33950,7 @@ void main() {
     const celebration = new Group();
     celebration.visible = false;
     group.add(celebration);
-    const fest = kit(celebration);
+    const fest = kit2(celebration);
     for (const x2 of [-2.15, 2.15]) fest.box(0.035, 1.6, 0.035, x2, 0.82, -0.65, wood);
     fest.tube([[-2.15, 1.55, -0.65], [0, 1.3, -0.65], [2.15, 1.55, -0.65]], 9e-3, wood);
     for (let i2 = 0; i2 < 11; i2++) {
@@ -33741,7 +33963,7 @@ void main() {
       flag.position.set(x2, 1.3 + 0.25 * (x2 / 2.15) ** 2, -0.65);
       celebration.add(flag);
     }
-    const cake = new Group(), cakeKit = kit(cake);
+    const cake = new Group(), cakeKit = kit2(cake);
     const cakeBody = new Mesh(new CylinderGeometry(0.3, 0.3, 0.18, 24), mat("#f0d6b3"));
     cakeBody.position.y = 0.17;
     cake.add(cakeBody);
@@ -33796,7 +34018,7 @@ void main() {
     group.add(mesh);
   }
   function createRestaurant() {
-    const group = new Group(), { box, oval } = kit(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
+    const group = new Group(), { box, oval } = kit2(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
     box(3.4, 0.14, 2.6, 0, 0.07, 0, stone);
     box(3, 1.6, 2.05, 0, 0.94, -0.14, wall);
     box(3, 0.28, 2.08, 0, 0.24, -0.14, mat(8885898));
@@ -33840,7 +34062,7 @@ void main() {
     return group;
   }
   function createSnackShop() {
-    const group = new Group(), { box, oval, tube } = kit(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
+    const group = new Group(), { box, oval, tube } = kit2(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
     box(3.5, 0.12, 2.7, 0, 0.02, 0, floor);
     box(2.9, 1.4, 0.1, 0, 0.78, -0.94, cream);
     for (const x2 of [-1.42, 1.42]) for (const z of [-0.92, 0.92]) box(0.12, 1.8, 0.12, x2, 0.94, z, cream);
@@ -33893,12 +34115,12 @@ void main() {
       }
       tube([[side * 1.67, 0.45, -0.9], [side * 1.67, 0.48, 0], [side * 1.67, 0.45, 0.9]], 0.012, wood);
     }
-    sign2(group, "\u6BCF\u65E5\u65B0\u9C9C", 1.25, 0.48, 1.3).scale.set(0.45, 0.7, 1);
+    sign3(group, "\u6BCF\u65E5\u65B0\u9C9C", 1.25, 0.48, 1.3).scale.set(0.45, 0.7, 1);
     group.userData.footprint = 3.5 * 2.7;
     return group;
   }
   function createClinic() {
-    const group = new Group(), { box, oval, tube } = kit(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
+    const group = new Group(), { box, oval, tube } = kit2(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
     const rounded = (w, d, h, x2, y, z, m) => {
       const r = 0.22, s = new Shape();
       s.moveTo(-w / 2 + r, -d / 2);
@@ -33976,18 +34198,18 @@ void main() {
     return group;
   }
   function createRemembranceHouse(memorial = false) {
-    const group = new Group(), { box, oval, tube } = kit(group), wall = mat("#eee5cc"), trim = mat(memorial ? "#a7b39a" : "#929ea3"), roof = mat(memorial ? "#c0c9b3" : "#718794"), wood = mat("#a07d55"), stone = mat("#c6c0ad"), leaf = mat("#748257"), door = mat(memorial ? "#8a9976" : "#535d60");
+    const group = new Group(), { box, oval, tube } = kit2(group), wall = mat("#eee5cc"), trim = mat(memorial ? "#a7b39a" : "#929ea3"), roof = mat(memorial ? "#c0c9b3" : "#718794"), wood = mat("#a07d55"), stone = mat("#c6c0ad"), leaf = mat("#748257"), door = mat(memorial ? "#8a9976" : "#535d60");
     box(3.5, 0.12, 2.7, 0, 0.02, 0, stone);
     box(2.8, 1.45, 1.85, 0, 0.83, -0.27, wall);
     box(2.85, 0.15, 1.9, 0, 0.18, -0.27, trim);
-    const arch = (x2, y, z, w, h, material) => {
+    const arch = (x2, y, z, w, h, material2) => {
       const shape = new Shape(), r = w / 2;
       shape.moveTo(-r, 0);
       shape.lineTo(r, 0);
       shape.lineTo(r, h - r);
       shape.absarc(0, h - r, r, 0, Math.PI, false);
       shape.lineTo(-r, 0);
-      const mesh = new Mesh(new ShapeGeometry(shape, 20), material);
+      const mesh = new Mesh(new ShapeGeometry(shape, 20), material2);
       mesh.position.set(x2, y, z);
       group.add(mesh);
       return mesh;
@@ -34092,7 +34314,7 @@ void main() {
     return group;
   }
   function createCemetery() {
-    const group = new Group(), { box, oval, tube } = kit(group), stone = mat("#aaa99a"), cap = mat("#c4c2af"), grass = mat("#8f9e72"), leaf = mat("#697d50"), iron = mat("#6c6653"), wood = mat("#9c7951");
+    const group = new Group(), { box, oval, tube } = kit2(group), stone = mat("#aaa99a"), cap = mat("#c4c2af"), grass = mat("#8f9e72"), leaf = mat("#697d50"), iron = mat("#6c6653"), wood = mat("#9c7951");
     box(4.2, 0.1, 3.2, 0, 0.01, 0, grass);
     box(0.65, 0.04, 3.1, 0, 0.09, 0, cap);
     box(4, 0.035, 0.45, 0, 0.09, 0.08, cap);
@@ -34149,7 +34371,7 @@ void main() {
         });
         graves.remove(child);
       }
-      const k = kit(graves);
+      const k = kit2(graves);
       for (let i2 = 0; i2 < 8; i2++) {
         const side = i2 < 4 ? -1 : 1, x2 = side * (0.88 + i2 % 2 * 0.6), z = i2 % 4 < 2 ? -0.65 : 0.85;
         k.box(0.38, 0.06, 0.5, x2, 0.12, z, cap);
@@ -34170,7 +34392,7 @@ void main() {
     return group;
   }
   function createSchool() {
-    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
+    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
     const cylinder = (top, bottom, h, x2, y, z, m) => {
       const mesh = new Mesh(new CylinderGeometry(top, bottom, h, 40), m);
       mesh.position.set(x2, y, z);
@@ -34199,7 +34421,7 @@ void main() {
     oval(0, 0.94, 0.84, 0.29, 0.25, 0.055, mat("#68452e"));
     box(0.65, 0.08, 0.3, 0, 0.13, 1.02, wood);
     oval(0.19, 0.52, 0.89, 0.04, 0.04, 0.04, gold);
-    sign2(group, "\u9F20\u9F20\u5B66\u6821", 0, 1.2, 1.19);
+    sign3(group, "\u9F20\u9F20\u5B66\u6821", 0, 1.2, 1.19);
     for (const [x2, y, z, a] of [[-0.78, 0.84, 0.5, -0.65], [0.78, 0.84, 0.5, 0.65], [-0.52, 2.01, 0.32, -0.55], [0.52, 2.01, 0.32, 0.55]]) {
       const frame = new Mesh(new TorusGeometry(0.23, 0.04, 8, 32), roof);
       frame.position.set(x2, y, z);
@@ -34221,7 +34443,7 @@ void main() {
     group.add(cap);
     box(1, 0.63, 0.055, -1.65, 0.62, 0.95, green);
     [-2.06, -1.24].forEach((x2) => box(0.055, 0.82, 0.055, x2, 0.43, 0.95, wood));
-    sign2(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99);
+    sign3(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99);
     for (const x2 of [-1.65, -0.72]) {
       box(0.68, 0.42, 0.43, x2, 0.3, 1.62, wood);
       for (const dx of [-0.27, 0.27]) box(0.04, 0.42, 0.04, x2 + dx, 0.22, 1.62, wood);
@@ -34233,7 +34455,7 @@ void main() {
     for (const x2 of [1.48, 2]) tube([[x2, 1.1, 0.65], [x2, 0.45, 0.65]], 0.01, gold);
     box(0.6, 0.06, 0.25, 1.74, 0.43, 0.65, wood);
     box(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, wood);
-    sign2(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8);
+    sign3(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8);
     for (let i2 = 0; i2 < 24; i2++) {
       const x2 = -2.3 + i2 * 0.2;
       box(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
@@ -34242,7 +34464,7 @@ void main() {
     return group;
   }
   function createWheelPark() {
-    const group = new Group(), { box, oval, tube } = kit(group), wood = mat("#ffffff", { map: woodTexture() }), dark = mat("#805638"), stone = mat("#c5b99d"), grass = mat("#90a165"), track = mat("#c89258"), line = mat("#ece0bc"), metal = mat("#9b9c8c", { metalness: 0.4, roughness: 0.45 }), wheels = [];
+    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), dark = mat("#805638"), stone = mat("#c5b99d"), grass = mat("#90a165"), track = mat("#c89258"), line = mat("#ece0bc"), metal = mat("#9b9c8c", { metalness: 0.4, roughness: 0.45 }), wheels = [];
     const disk = (r, h, x2, y, z, m) => {
       const o = new Mesh(new CylinderGeometry(r, r, h, 64), m);
       o.position.set(x2, y, z);
@@ -34265,7 +34487,7 @@ void main() {
     ring(2.05, 2.07, 0.093, line);
     disk(0.92, 0.12, 0, 0.13, 0, stone);
     function wheel(x2, z, r) {
-      const rotor = new Group(), parts = kit(rotor);
+      const rotor = new Group(), parts = kit2(rotor);
       rotor.position.set(x2, r + 0.2, z);
       group.add(rotor);
       wheels.push(rotor);
@@ -34333,9 +34555,9 @@ void main() {
     function paperMaterial() {
       return mat("#eee4c6");
     }
-    sign2(group, "\u8DD1\u8F6E\u516C\u56ED", -0.85, 1.01, 1.59);
+    sign3(group, "\u8DD1\u8F6E\u516C\u56ED", -0.85, 1.01, 1.59);
     [-1.27, -0.43].forEach((x2) => box(0.055, 1.15, 0.055, x2, 0.56, 1.56, wood));
-    sign2(group, "\u8FD0\u52A8\u4E0E\u996E\u6C34", 1.12, 0.77, 1.5);
+    sign3(group, "\u8FD0\u52A8\u4E0E\u996E\u6C34", 1.12, 0.77, 1.5);
     group.userData.wheels = wheels;
     group.userData.setRunning = (dt, active) => {
       if (active) wheels.forEach((w, i2) => w.rotation.z -= dt * (i2 ? 1.8 : 1.3));
@@ -35262,8 +35484,8 @@ void main() {
       if ("Material" in fbxTree.Objects) {
         const materialNodes = fbxTree.Objects.Material;
         for (const nodeID in materialNodes) {
-          const material = this.parseMaterial(materialNodes[nodeID], textureMap);
-          if (material !== null) materialMap.set(parseInt(nodeID), material);
+          const material2 = this.parseMaterial(materialNodes[nodeID], textureMap);
+          if (material2 !== null) materialMap.set(parseInt(nodeID), material2);
         }
       }
       return materialMap;
@@ -35280,22 +35502,22 @@ void main() {
       }
       if (!connections.has(ID)) return null;
       const parameters = this.parseParameters(materialNode, textureMap, ID);
-      let material;
+      let material2;
       switch (type.toLowerCase()) {
         case "phong":
-          material = new MeshPhongMaterial();
+          material2 = new MeshPhongMaterial();
           break;
         case "lambert":
-          material = new MeshLambertMaterial();
+          material2 = new MeshLambertMaterial();
           break;
         default:
           console.warn('THREE.FBXLoader: unknown material type "%s". Defaulting to MeshPhongMaterial.', type);
-          material = new MeshPhongMaterial();
+          material2 = new MeshPhongMaterial();
           break;
       }
-      material.setValues(parameters);
-      material.name = name;
-      return material;
+      material2.setValues(parameters);
+      material2.name = name;
+      return material2;
     }
     // Parse FBX material and return parameters suitable for a three.js material
     // Also parse the texture map and return any textures associated with the material
@@ -35748,7 +35970,7 @@ void main() {
     createMesh(relationships, geometryMap, materialMap) {
       let model;
       let geometry = null;
-      let material = null;
+      let material2 = null;
       const materials = [];
       relationships.children.forEach(function(child) {
         if (geometryMap.has(child.ID)) {
@@ -35759,19 +35981,19 @@ void main() {
         }
       });
       if (materials.length > 1) {
-        material = materials;
+        material2 = materials;
       } else if (materials.length > 0) {
-        material = materials[0];
+        material2 = materials[0];
       } else {
-        material = new MeshPhongMaterial({
+        material2 = new MeshPhongMaterial({
           name: Loader.DEFAULT_MATERIAL_NAME,
           color: 13421772
         });
-        materials.push(material);
+        materials.push(material2);
       }
       if ("color" in geometry.attributes) {
-        materials.forEach(function(material2) {
-          material2.vertexColors = true;
+        materials.forEach(function(material3) {
+          material3.vertexColors = true;
         });
       }
       if (geometry.groups.length > 0) {
@@ -35789,10 +36011,10 @@ void main() {
         }
       }
       if (geometry.FBX_Deformer) {
-        model = new SkinnedMesh(geometry, material);
+        model = new SkinnedMesh(geometry, material2);
         model.normalizeSkinWeights();
       } else {
-        model = new Mesh(geometry, material);
+        model = new Mesh(geometry, material2);
       }
       return model;
     }
@@ -35801,12 +36023,12 @@ void main() {
         if (geometryMap.has(child.ID)) geo = geometryMap.get(child.ID);
         return geo;
       }, null);
-      const material = new LineBasicMaterial({
+      const material2 = new LineBasicMaterial({
         name: Loader.DEFAULT_MATERIAL_NAME,
         color: 3342591,
         linewidth: 1
       });
-      return new Line(geometry, material);
+      return new Line(geometry, material2);
     }
     // parse the model node for transform data
     getTransformData(model, modelNode) {
@@ -37558,7 +37780,8 @@ void main() {
     ["\u6BA1\u4EEA\u9986", -2.1, 5.9, 9408932, "\u6E29\u67D4\u9001\u522B\u5C0F\u9547\u91CC\u7684\u9F20\u9F20"],
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"],
-    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"]
+    ["\u9F20\u9F20\u996D\u9986", 4.5, -10, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"],
+    ["Mariah Carey\u540D\u4EBA\u5802", 6, 12, 15063243, "\u4E13\u8F91\u3001\u7167\u7247\u548C\u9ED1\u80F6\u6536\u85CF\u5C55"]
   ];
   places.forEach((p) => {
     const d = destinations.find((d2) => d2[0] === p[0]);
@@ -37566,6 +37789,12 @@ void main() {
     p[2] = d[2];
   });
   function roundedBuilding(name, x2, z, color) {
+    if (name === "Mariah Carey\u540D\u4EBA\u5802") {
+      const model = createMariahHall();
+      model.position.set(x2, 0, z);
+      model.traverse((o) => o.userData.place = name);
+      return model;
+    }
     if (name === "\u9F20\u9F20\u996D\u9986") {
       const model = createRestaurant();
       model.position.set(x2, 0, z);
@@ -37726,11 +37955,11 @@ void main() {
         if (!child.isMesh) return;
         child.castShadow = true;
         child.receiveShadow = true;
-        const material = (original) => {
+        const material2 = (original) => {
           const name = (child.name + " " + (original?.name || "")).toLowerCase();
           return name.includes("eye") ? eye : name.includes("hige") || name.includes("whisk") ? whisker : fur;
         };
-        child.material = Array.isArray(child.material) ? child.material.map(material) : material(child.material);
+        child.material = Array.isArray(child.material) ? child.material.map(material2) : material2(child.material);
       });
       const box = new Box3().setFromObject(model), size = box.getSize(new Vector3()), center = box.getCenter(new Vector3()), scale = 0.62 / Math.max(size.x, size.y, size.z);
       model.scale.setScalar(scale);
@@ -38073,8 +38302,14 @@ void main() {
     speech.className = "town-npc-speech";
     speech.hidden = true;
     host.appendChild(speech);
-    const indoorNames = ["\u9F20\u9F20\u996D\u9986", "\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
+    const indoorNames = ["Mariah Carey\u540D\u4EBA\u5802", "\u9F20\u9F20\u996D\u9986", "\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
     function clearRoom() {
+      if (activePlace === "Mariah Carey\u540D\u4EBA\u5802") room.traverse((o) => {
+        if (o.material?.map) {
+          o.material.userData.disposed = true;
+          o.material.map.dispose();
+        }
+      });
       for (let i2 = clickable.length - 1; i2 >= 0; i2--) if (clickable[i2].userData.roomAction) clickable.splice(i2, 1);
       roomLabels.splice(0).forEach((item) => item.button.remove());
       while (room.children.length) {
@@ -38091,7 +38326,7 @@ void main() {
     }
     function buildRoom(name) {
       clearRoom();
-      const palettes = { "\u9F20\u9F20\u996D\u9986": [12429704, 15657177, 6641478], "\u9F20\u9F20\u5C0F\u5C4B": [11898210, 14796448, 9728078], "\u8BCA\u6240": [14411495, 15791861, 8632004], "\u96F6\u98DF\u94FA": [13942676, 15983537, 11060131], "\u9F20\u9F20\u5B66\u6821": [12425066, 14929058, 9990466], "\u7EAA\u5FF5\u9986": [13946042, 15656398, 10924951], "\u6BA1\u4EEA\u9986": [13157817, 15656401, 9149087] }, [floorColor, wallColor, trimColor] = palettes[name];
+      const palettes = { "Mariah Carey\u540D\u4EBA\u5802": [15261129, 15853782, 12559998], "\u9F20\u9F20\u996D\u9986": [12429704, 15657177, 6641478], "\u9F20\u9F20\u5C0F\u5C4B": [11898210, 14796448, 9728078], "\u8BCA\u6240": [14411495, 15791861, 8632004], "\u96F6\u98DF\u94FA": [13942676, 15983537, 11060131], "\u9F20\u9F20\u5B66\u6821": [12425066, 14929058, 9990466], "\u7EAA\u5FF5\u9986": [13946042, 15656398, 10924951], "\u6BA1\u4EEA\u9986": [13157817, 15656401, 9149087] }, [floorColor, wallColor, trimColor] = palettes[name];
       const add = (w, h, d, x2, y, z, color) => {
         const mesh = new Mesh(new BoxGeometry(w, h, d), new MeshStandardMaterial({ color, roughness: 0.8 }));
         mesh.position.set(x2, y, z);
@@ -38157,7 +38392,7 @@ void main() {
         add(0.76, 0.025, 0.04, x2, 1.1, z + 0.03, trimColor);
         add(0.86, 0.07, 0.16, x2, 0.61, z + 0.04, trimColor);
       };
-      for (const x2 of [-3, 3]) windowFrame(x2, -2.89);
+      if (name !== "Mariah Carey\u540D\u4EBA\u5802") for (const x2 of [-3, 3]) windowFrame(x2, -2.89);
       const table = (x2, z, w, d, color) => {
         add(w, 0.09, d, x2, 0.58, z, color);
         for (const dx of [-w * 0.38, w * 0.38]) for (const dz of [-d * 0.36, d * 0.36]) add(0.07, 0.53, 0.07, x2 + dx, 0.27, z + dz, color);
@@ -38216,7 +38451,11 @@ void main() {
         });
         label(text, x2, z);
       };
-      if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
+      if (name === "Mariah Carey\u540D\u4EBA\u5802") {
+        populateMariahRoom(room);
+        label("\u5531\u7247\u5C55\u67DC", 1.1, -0.5);
+        label("\u4E13\u8F91\u5899", 0, -2.7);
+      } else if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
         bed(-2.2, -1.6, "\u5E8A\u94FA");
         for (let i2 = 0; i2 < 13; i2++) add(0.018, 1.5, 0.025, -3.6 + i2 * 0.6, 1, -2.88, 12886392);
         bouquet(-3.25, 0.12, 1.9);
@@ -38393,7 +38632,8 @@ void main() {
         });
         room.visible = true;
         target.set(0, 0, 0);
-        distance2 = 13;
+        distance2 = name === "Mariah Carey\u540D\u4EBA\u5802" ? 16 : 13;
+        if (name === "Mariah Carey\u540D\u4EBA\u5802") target.x = 1.2;
         pitch = 0.92;
         yaw = 0.18;
       } else {
@@ -38979,8 +39219,8 @@ void main() {
       ambient.intensity = (night ? 0.65 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
       sun.intensity = (night ? 0.38 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
       sun.color.set(night ? 7968194 : dusk ? 16758383 : 16770237);
-      lampBulbs.forEach(({ material, light, pool }) => {
-        material.emissiveIntensity = lampsOn ? night ? 1.8 : 1.6 : 0;
+      lampBulbs.forEach(({ material: material2, light, pool }) => {
+        material2.emissiveIntensity = lampsOn ? night ? 1.8 : 1.6 : 0;
         light.intensity = lampsOn ? night ? 7 : 7 : 0;
         pool.material.opacity = lampsOn ? night ? 0.035 : 0.07 : 0;
       });
@@ -39020,7 +39260,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

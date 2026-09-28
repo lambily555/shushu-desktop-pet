@@ -1,5 +1,7 @@
 (function(root){
   const actions=[
+    ['hall-visit','Mariah Carey名人堂','唱片展柜','欣赏黑胶与粉胶展',{stamina:-3,mood:4}],
+    ['hall-notes','Mariah Carey名人堂','专辑墙','记录专辑收藏',{stamina:-4,knowledge:2,mood:2}],
     ['home-tidy','鼠鼠小屋','木桌','整理小屋',{stamina:-4,mood:4}],
     ['home-bedding','鼠鼠小屋','坐垫','更换垫料',{bedding:-1,health:2,mood:3}],
     ['clinic-check','诊所','检查台','健康检查',{stamina:-2},'查看健康、饮水与饱腹状况'],
