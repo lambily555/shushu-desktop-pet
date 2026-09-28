@@ -409,7 +409,7 @@ function renderTownContext(){
   const pages={
     '跑轮公园':`<div class="town-place-stat"><span>当前体力</span><b>${Math.round(townState.stamina)}</b></div><p>在公园锻炼会改善健康和心情，但需要消耗体力。</p>${contextButton('exercise','跑一会儿跑轮','健康 +1，心情 +2，体力 -18',townState.stamina<18)}`,
     '诊所':`<div class="town-place-stat"><span>当前健康</span><b>${Math.round(townState.health)}</b></div><p>${townState.health<70?'白大夫建议做一次温和治疗。':'白大夫检查后说，鼠鼠现在状态不错。'}</p>${townState.health<95?contextButton('treat','接受诊疗','花费 6 颗瓜子，恢复健康'):''}`,
-    'Mariah Carey名人堂':'<p>21张专辑封面、6幅日常与舞台照片，搭配黑胶、粉胶、唱机、人形立牌和金色音符展台。拖动旋转、滚轮缩放可近看展品。</p>',
+    'Mariah Carey名人堂':contextButton('hall-enter','让鼠鼠进入名人堂','到达后可选择进入鼠鼠视角',!townState.alive||!!townState.hospitalStay||townState.sleepRequested)+(townContext.hallArrival?'<section><h4>鼠鼠已经进入名人堂</h4><p>愿意进入鼠鼠视角，沉浸式参观吗？</p>'+contextButton('hall-immersive','进入鼠鼠视角','WASD 移动 · 鼠标环顾 · Esc 返回')+contextButton('hall-overview','继续上帝视角','自由旋转、平移并点击展品')+'</section>':'')+contextButton('hall-reset','查看展厅全貌','点击专辑、照片或人形立牌，镜头会聚焦展品')+'<p>21张专辑封面、6幅日常与舞台照片，搭配黑胶、粉胶、唱机、人形立牌和金色音符展台。拖动旋转、滚轮缩放可近看展品。</p>',
     '鼠鼠饭馆':'<p>灰瓦木门的小饭馆，屋内设有厨房、点餐柜台和四组餐桌。居民会自行前来用餐；点击返回小镇即可退出室内视角。</p>',
     '零食铺':`<div class="town-place-stat"><span>粮仓存量</span><b>${townState.food} 份</b></div>${contextButton('buy-food','购买 5 份粮食','花费 10 颗瓜子，直接送入粮仓')}`,
     '中心广场':plazaPage,
@@ -421,6 +421,8 @@ function renderTownContext(){
     '墓地':`<p>安静查看已经离开的小镇居民。</p><ul class="town-memory-list">${memorials}</ul>`
   };body.innerHTML=pages[place]||'<p>这里的生活正在慢慢展开。</p>';const choices=TownInteractions.actions.filter(a=>a.place===place);body.innerHTML+='<section><h4>地点互动</h4><p>下列项目每个小镇日可进行一次。</p>'+choices.map(a=>(a.id==='funeral-message'?'<textarea id="townFarewellMessage" maxlength="80" rows="3" placeholder="写下给小镇故友的寄语（最多80字）"></textarea>':'')+contextButton('place-'+a.id,a.title,TownInteractions.description(a),townState.placeInteractions?.[a.id]===calendar.date||!!townState.hospitalStay)).join('')+'</section>';if(townState.hospitalStay&&place==='诊所')body.innerHTML+='<p>住院休养中，预计出院：'+new Date(townState.hospitalStay.until).toISOString().slice(0,16).replace('T',' ')+'（小镇时间）</p>';
 }
+window.addEventListener('town-hall-arrival',()=>{townContext={type:'place',place:'Mariah Carey名人堂',hallArrival:true};openTownOverlay('townContext');renderTownContext()});
+window.addEventListener('town-exhibit-select',event=>{$('#townActionResult').textContent='正在近看：'+event.detail.title+'。点击“查看展厅全貌”返回。'});
 function showPlaceContext(place){townContext={type:'place',place,npcId:null};openTownOverlay('townContext');renderTownContext()}
 function showNpcContext(npcIndex){const npc=townState.npcs[npcIndex];if(!npc?.alive)return;townContext={type:'npc',place:npc.place,npcId:npc.id};openTownOverlay('townContext');renderTownContext()}
 function showMainContext(){townContext={type:'main',place:townState.currentPlace,npcId:null};openTownOverlay('townContext');renderTownContext()}
@@ -450,6 +452,10 @@ $('#townContext')?.addEventListener('click',event=>{
   if(action==='calendar-prev'||action==='calendar-next'){const [year,month]=(townContext.calendarMonth||townSim.townCalendar(townState).date.slice(0,7)).split('-').map(Number);townContext.calendarMonth=new Date(Date.UTC(year,month-1+(action==='calendar-next'?1:-1),1)).toISOString().slice(0,7);townContext.calendarDay=townContext.calendarMonth+'-01';renderTownContext()}
   else if(action==='calendar-day'){townContext.calendarDay=event.target.closest('[data-date]').dataset.date;renderTownContext()}
   else if(action.startsWith('school-open-')){townContext.schoolObject='school-'+action.slice(12);renderTownContext()}
+  else if(action==='hall-enter')window.TownApp?.enterHall();
+  else if(action==='hall-immersive'){if(window.TownApp?.startFirstPerson())$('#townContext').hidden=true}
+  else if(action==='hall-overview'){townContext.hallArrival=false;renderTownContext()}
+  else if(action==='hall-reset')window.TownApp?.resetHallView();
   else if(action==='water')townResult(townSim.refillWater(townState));
   else if(action==='eat'||action==='rest')window.dispatchEvent(new CustomEvent('town-player-action',{detail:{action,place:'鼠鼠小屋'}}));
   else if(action.startsWith('place-'))performPlaceInteraction(action.slice(6));

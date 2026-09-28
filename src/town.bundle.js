@@ -32804,7 +32804,7 @@ void main() {
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
     ["\u9F20\u9F20\u5B66\u6821", 10, 6.5, true, "\u5B66\u4E60", [1.4, 1.8]],
     ["\u9F20\u9F20\u996D\u9986", 4.5, -10, true, "\u7528\u9910", [-1.4, 0.5]],
-    ["Mariah Carey\u540D\u4EBA\u5802", 6, 12, true, "\u6B23\u8D4F\u5C55\u89C8", [0, 0.2]]
+    ["Mariah Carey\u540D\u4EBA\u5802", -11.5, 8.5, true, "\u6B23\u8D4F\u5C55\u89C8", [0, 0.2]]
   ];
   var byName = new Map(destinations.map((d) => [d[0], d]));
   var distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -33368,15 +33368,16 @@ void main() {
   function standee(group, x2, z, height = 1.9) {
     const { disc } = kit(group);
     disc(x2, 0.08, z, 0.32, 13810336);
-    const points = [[0.33, 0.08], [0.43, 0.09], [0.48, 0.38], [0.53, 0.09], [0.66, 0.09], [0.59, 0.4], [0.61, 0.56], [0.63, 0.69], [0.59, 0.76], [0.56, 0.8], [0.57, 0.86], [0.55, 0.9], [0.5, 0.915], [0.46, 0.88], [0.46, 0.82], [0.41, 0.78], [0.38, 0.7], [0.37, 0.55], [0.4, 0.45]];
-    const shape = new Shape(points.map(([u, v]) => new Vector2((u - 0.5) * height, v * height)));
+    const points = [[0.05, 0.73], [0.26, 0.67], [0.35, 0.63], [0.34, 0.45], [0.39, 0.04], [0.54, 0.01], [0.57, 0.42], [0.67, 0.01], [0.87, 0.01], [0.81, 0.43], [0.88, 0.57], [0.87, 0.63], [0.99, 0.65], [0.98, 0.77], [0.89, 0.86], [0.88, 0.94], [0.69, 0.995], [0.44, 0.98], [0.35, 0.92], [0.34, 0.86], [0.28, 0.8], [0.15, 0.81], [0.01, 0.79]];
+    const shape = new Shape(points.map(([u, v]) => new Vector2((u - 0.5) * height * 0.321, v * height)));
     shape.closePath();
     const geo = new ShapeGeometry(shape);
     const pos = geo.attributes.position, uv = geo.attributes.uv;
-    for (let i2 = 0; i2 < pos.count; i2++) uv.setXY(i2, pos.getX(i2) / height + 0.5, pos.getY(i2) / height);
-    const m = imageMaterial(7, "\u4EBA\u5F62\u7ACB\u724C", true);
+    for (let i2 = 0; i2 < pos.count; i2++) uv.setXY(i2, pos.getX(i2) / (height * 0.321) + 0.5, pos.getY(i2) / height);
+    const m = imageMaterial(29, "\u4EBA\u5F62\u7ACB\u724C", true);
     const mesh = new Mesh(geo, m);
     mesh.position.set(x2, 0.12, z);
+    mesh.userData.hallExhibit = "Mariah Carey \u4EBA\u5F62\u7ACB\u724C";
     group.add(mesh);
     return mesh;
   }
@@ -33414,6 +33415,7 @@ void main() {
       box(0.48, 0.48, 0.06, x2, y, z, 14864305);
       const cover = new Mesh(new PlaneGeometry(0.45, 0.45), imageMaterial(index, title));
       cover.position.set(x2, y, z + 0.035);
+      cover.userData.hallExhibit = title;
       group.add(cover);
       exhibits.push(cover);
       box(0.6, 0.035, 0.18, x2, y - 0.26, z + 0.05, 12756093);
@@ -33424,6 +33426,8 @@ void main() {
       const picture = new Mesh(new PlaneGeometry(0.51, 0.7), imageMaterial(index, "\u7167\u7247 " + index, true));
       picture.rotation.y = Math.PI / 2;
       picture.position.set(x2 + 0.045, y, z);
+      picture.userData.hallExhibit = "\u7167\u7247 " + (i2 + 1);
+      picture.userData.hallSide = true;
       group.add(picture);
       exhibits.push(picture);
     });
@@ -33438,7 +33442,7 @@ void main() {
     vinyl(group, 2.55, 0.75, 1.2, 2105639);
     box(0.045, 0.07, 0.48, 3.05, 0.8, 1.2, 12828345);
     box(0.7, 0.9, 0.1, 3.5, 0.6, -1.7, 14664344);
-    standee(group, 3, -1.4, 2.4);
+    const figure = standee(group, 3, -1.4, 2.4);
     disc(0, 0.12, -1.7, 0.65, 15325373);
     disc(0, 0.26, -1.7, 0.48, 13481613);
     box(0.07, 1.08, 0.07, 0, 0.9, -1.7, 13675858, { metalness: 0.7 });
@@ -33453,6 +33457,7 @@ void main() {
     box(1.5, 0.38, 0.08, -2.6, 0.65, 1.36, 13350815);
     for (const x2 of [-3.2, -2]) box(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
     group.userData.hallExhibits = exhibits;
+    group.userData.hallClickable = [...exhibits, figure];
     group.userData.albumCount = hallAlbums.length;
     group.userData.photoCount = hallPhotos.length;
   }
@@ -37781,7 +37786,7 @@ void main() {
     ["\u5893\u5730", 2.8, 5.9, 7834499, "\u5B89\u9759\u7EAA\u5FF5\u6BCF\u4E00\u6BB5\u5C0F\u5C0F\u751F\u547D"],
     ["\u9F20\u9F20\u5B66\u6821", 9, 8, 13938037, "\u949F\u697C\u3001\u6559\u5BA4\u548C\u5B66\u4E60\u5EAD\u9662"],
     ["\u9F20\u9F20\u996D\u9986", 4.5, -10, 12957340, "\u53A8\u623F\u3001\u67DC\u53F0\u548C\u8212\u9002\u7684\u7528\u9910\u533A"],
-    ["Mariah Carey\u540D\u4EBA\u5802", 6, 12, 15063243, "\u4E13\u8F91\u3001\u7167\u7247\u548C\u9ED1\u80F6\u6536\u85CF\u5C55"]
+    ["Mariah Carey\u540D\u4EBA\u5802", -11.5, 8.5, 15063243, "\u4E13\u8F91\u3001\u7167\u7247\u548C\u9ED1\u80F6\u6536\u85CF\u5C55"]
   ];
   places.forEach((p) => {
     const d = destinations.find((d2) => d2[0] === p[0]);
@@ -38177,6 +38182,7 @@ void main() {
     }
     let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
+    let panMode = false, focusedExhibit = null;
     let firstPerson = false, playerYaw = 0, playerPitch = 0, playerSavedCamera = null, jumpHeight = 0, jumpVelocity = 0;
     const playerKeys = /* @__PURE__ */ new Set();
     const target = new Vector3(0, 0, 1);
@@ -38304,6 +38310,7 @@ void main() {
     host.appendChild(speech);
     const indoorNames = ["Mariah Carey\u540D\u4EBA\u5802", "\u9F20\u9F20\u996D\u9986", "\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
     function clearRoom() {
+      focusedExhibit = null;
       if (activePlace === "Mariah Carey\u540D\u4EBA\u5802") room.traverse((o) => {
         if (o.material?.map) {
           o.material.userData.disposed = true;
@@ -38763,6 +38770,12 @@ void main() {
       }, 4200);
     }
     function returnToTown() {
+      const actor = life.actors.get("main");
+      if (!firstPerson && actor?.controlled) {
+        actor.controlled = false;
+        actor.phase = actor.inside ? "exit-room" : "idle";
+        actor.wait = 0;
+      }
       if (firstPerson) {
         stopFirstPerson();
         window.dispatchEvent(new CustomEvent("town-view-close"));
@@ -38828,8 +38841,9 @@ void main() {
     crosshair.textContent = "+";
     host.appendChild(crosshair);
     function startFirstPerson() {
+      if (firstPerson) return true;
       const actor = life.actors.get("main");
-      if (!worldState.celebration || !actor || actor.frozen) return false;
+      if (!actor || actor.frozen || !worldState.celebration && actor.inside !== "Mariah Carey\u540D\u4EBA\u5802") return false;
       clearFocus();
       if (activePlace) leavePlace();
       playerSavedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
@@ -38999,6 +39013,58 @@ void main() {
         playerPitch = Math.max(-1.3, Math.min(1.3, playerPitch - e.movementY * 3e-3));
       }
     });
+    function enterHall() {
+      const actor = life.actors.get("main");
+      if (!actor || actor.frozen || actor.forcedSleep) return false;
+      if (firstPerson) stopFirstPerson();
+      clearFocus();
+      actor.controlled = true;
+      actor.path = [];
+      actor.partner = null;
+      actor.inside = actor.place = actor.destination = "Mariah Carey\u540D\u4EBA\u5802";
+      actor.position = { x: 0, z: 2.3 };
+      actor.phase = "controlled";
+      actor.heading = Math.PI;
+      actor.speech = "\u6B22\u8FCE\u4E00\u8D77\u53C2\u89C2\u540D\u4EBA\u5802";
+      enterPlace(actor.inside);
+      window.dispatchEvent(new CustomEvent("town-hall-arrival"));
+      return true;
+    }
+    function focusExhibit(index) {
+      if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return false;
+      const exhibit = room.userData.hallClickable[index];
+      if (!exhibit) return false;
+      clearFocus(false);
+      focusedExhibit = index;
+      const bounds = new Box3().setFromObject(exhibit);
+      bounds.getCenter(target);
+      yaw = exhibit.userData.hallSide ? Math.PI / 2 : 0;
+      pitch = 0.04;
+      distance2 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
+      positionCamera();
+      window.dispatchEvent(new CustomEvent("town-exhibit-select", { detail: { title: exhibit.userData.hallExhibit } }));
+      return true;
+    }
+    function resetHallView() {
+      if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return;
+      focusedExhibit = null;
+      target.set(1.2, 0, 0);
+      distance2 = 16;
+      pitch = 0.92;
+      yaw = 0.18;
+      positionCamera();
+    }
+    const panButton = document.createElement("button");
+    panButton.type = "button";
+    panButton.className = "town-pan-button";
+    panButton.textContent = "\u5E73\u79FB\u89C6\u89D2";
+    panButton.setAttribute("aria-pressed", "false");
+    panButton.onclick = () => {
+      panMode = !panMode;
+      panButton.setAttribute("aria-pressed", String(panMode));
+      panButton.textContent = panMode ? "\u5E73\u79FB\u4E2D \xB7 \u70B9\u51FB\u6539\u4E3A\u65CB\u8F6C" : "\u5E73\u79FB\u89C6\u89D2";
+    };
+    host.appendChild(panButton);
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
       if (firstPerson) {
@@ -39006,6 +39072,7 @@ void main() {
         else canvas.requestPointerLock?.();
         return;
       }
+      clearFocus(false);
       drag = { x: e.clientX, y: e.clientY, yaw, pitch, target: target.clone(), button: e.button, moved: false };
       canvas.setPointerCapture(e.pointerId);
     });
@@ -39020,7 +39087,7 @@ void main() {
       if (!drag) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
-      if (drag.button === 2 || e.shiftKey) {
+      if (panMode || drag.button === 2 || drag.button === 1 || e.shiftKey) {
         const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
         target.copy(drag.target).addScaledVector(right, -dx * distance2 * 15e-4).addScaledVector(forward, dy * distance2 * 15e-4);
       } else {
@@ -39031,9 +39098,15 @@ void main() {
     });
     canvas.addEventListener("pointerup", (e) => {
       if (firstPerson) return;
-      if (drag && !drag.moved) {
+      if (drag && !drag.moved && drag.button === 0) {
         const rect = canvas.getBoundingClientRect(), mouse = new Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1), ray = new Raycaster();
         ray.setFromCamera(mouse, camera);
+        const hallHit = activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? ray.intersectObjects(room.userData.hallClickable, false)[0] : null;
+        if (hallHit) {
+          focusExhibit(room.userData.hallClickable.indexOf(hallHit.object));
+          drag = null;
+          return;
+        }
         const hit = ray.intersectObjects(clickable, true).find((hit2) => {
           for (let node = hit2.object; node; node = node.parent) if (!node.visible) return false;
           return true;
@@ -39054,7 +39127,7 @@ void main() {
     canvas.addEventListener("wheel", (e) => {
       e.preventDefault();
       if (firstPerson) return;
-      distance2 = Math.max(activePlace ? 5 : 14, Math.min(activePlace ? 20 : 38, distance2 + e.deltaY * 0.015));
+      distance2 = Math.max(focusedExhibit !== null ? 0.6 : activePlace ? 5 : 14, Math.min(activePlace ? 20 : 38, distance2 + e.deltaY * 0.015));
       positionCamera();
     }, { passive: false });
     function resize() {
@@ -39209,8 +39282,8 @@ void main() {
       const oldBoard = worldState.schoolBoard;
       worldState = next;
       if (activePlace === "\u9F20\u9F20\u5B66\u6821" && oldBoard !== next.schoolBoard) buildRoom(activePlace);
-      if (firstPerson && !next.celebration) stopFirstPerson();
-      playerTools.hidden = !next.celebration;
+      if (firstPerson && !next.celebration && life.actors.get("main")?.inside !== "Mariah Carey\u540D\u4EBA\u5802") stopFirstPerson();
+      playerTools.hidden = !firstPerson && !next.celebration;
       const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
       if (night) sky.multiplyScalar(0.22);
       else if (dusk) sky.multiplyScalar(0.55);
@@ -39260,7 +39333,10 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    window.TownApp = { enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ panMode, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+      const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
+      return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
+    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight }, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

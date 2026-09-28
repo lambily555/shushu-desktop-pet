@@ -855,3 +855,5 @@ button.town-furniture-label{pointer-events:auto;cursor:pointer;box-shadow:0 5px 
 .town-water-label[data-quality="待换水"],.town-water-status[data-quality="待换水"]{background:#fff0cc;color:#826026;border-color:#c7a45b}
 .town-water-label[data-quality="变质"],.town-water-label[data-quality="缺水"],.town-water-status[data-quality="变质"],.town-water-status[data-quality="缺水"]{background:#f8e2dc;color:#9b443a;border-color:#c98072}
 .town-water-status b{color:inherit;font-size:16px}.town-water-status span{font-size:12px}
+
+.town-pan-button{position:absolute;left:24px;bottom:132px;padding:9px 14px;border:1px solid #b4c4ae;border-radius:12px;background:#fffdf2;color:#435248;cursor:pointer}.town-pan-button[aria-pressed="true"]{background:#d5e4ce}.town-scene[data-view="first-person"] .town-pan-button{display:none}
