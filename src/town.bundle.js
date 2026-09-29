@@ -504,7 +504,7 @@
      */
     clamp,
     /**
-     * Computes the Euclidean modulo of the given parameters that
+     * Computes the Euclidean modulo of the given parameters tha
      * is `( ( n % m ) + m ) % m`.
      *
      * @static
@@ -534,7 +534,7 @@
      *
      * @static
      * @method
-     * @param {number} x - The start point
+     * @param {number} x - The start poin
      * @param {number} y - The end point.
      * @param {number} value - A value between start and end.
      * @return {number} The interpolation factor.
@@ -546,7 +546,7 @@
      *
      * @static
      * @method
-     * @param {number} x - The start point
+     * @param {number} x - The start poin
      * @param {number} y - The end point.
      * @param {number} t - The interpolation factor in the closed interval `[0, 1]`.
      * @return {number} The interpolated value.
@@ -1218,7 +1218,7 @@
       return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, but
+     * Sets this vector to a vector with the same direction as this one, bu
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -1242,7 +1242,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percent
+     * Linearly interpolates between the given vectors, where alpha is the percen
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -1709,7 +1709,7 @@
     }
     /**
      * Returns the rotational conjugate of this quaternion. The conjugate of a
-     * quaternion represents the same rotation in the opposite direction about
+     * quaternion represents the same rotation in the opposite direction abou
      * the rotational axis.
      *
      * @return {Quaternion} A reference to this quaternion.
@@ -2514,7 +2514,7 @@
       return this.divideScalar(this.length() || 1);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, but
+     * Sets this vector to a vector with the same direction as this one, bu
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -2539,7 +2539,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percent
+     * Linearly interpolates between the given vectors, where alpha is the percen
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -2564,7 +2564,7 @@
       return this.crossVectors(this, v);
     }
     /**
-     * Calculates the cross product of the given vectors and stores the result
+     * Calculates the cross product of the given vectors and stores the resul
      * in this instance.
      *
      * @param {Vector3} a - The first vector.
@@ -3015,7 +3015,7 @@
       return this.multiplyMatrices(m, this);
     }
     /**
-     * Multiples the given 3x3 matrices and stores the result
+     * Multiples the given 3x3 matrices and stores the resul
      * in this matrix.
      *
      * @param {Matrix3} a - The first matrix.
@@ -3550,7 +3550,7 @@
         return {
           data,
           width: image.width,
-          height: image.height
+          height: image.heigh
         };
       } else {
         warn("ImageUtils.sRGBToLinear(): Unsupported image type. No color space conversion applied.");
@@ -3880,7 +3880,7 @@
         flipY: this.flipY,
         generateMipmaps: this.generateMipmaps,
         premultiplyAlpha: this.premultiplyAlpha,
-        unpackAlignment: this.unpackAlignment
+        unpackAlignment: this.unpackAlignmen
       };
       if (Object.keys(this.userData).length > 0) output.userData = this.userData;
       if (!isRootObject) {
@@ -4594,7 +4594,7 @@
       return this.divideScalar(this.length() || 1);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, but
+     * Sets this vector to a vector with the same direction as this one, bu
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -4620,7 +4620,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percent
+     * Linearly interpolates between the given vectors, where alpha is the percen
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -5428,7 +5428,7 @@
       return this.multiplyMatrices(m, this);
     }
     /**
-     * Multiples the given 4x4 matrices and stores the result
+     * Multiples the given 4x4 matrices and stores the resul
      * in this matrix.
      *
      * @param {Matrix4} a - The first matrix.
@@ -6967,7 +6967,7 @@
       return this;
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D object
+     * Searches through the 3D object and its children, starting with the 3D objec
      * itself, and returns the first with a matching ID.
      *
      * @param {number} id - The id.
@@ -6977,7 +6977,7 @@
       return this.getObjectByProperty("id", id);
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D object
+     * Searches through the 3D object and its children, starting with the 3D objec
      * itself, and returns the first with a matching name.
      *
      * @param {string} name - The name.
@@ -6987,7 +6987,7 @@
       return this.getObjectByProperty("name", name);
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D object
+     * Searches through the 3D object and its children, starting with the 3D objec
      * itself, and returns the first with a matching property value.
      *
      * @param {string} name - The name of the property.
@@ -7006,7 +7006,7 @@
       return void 0;
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D object
+     * Searches through the 3D object and its children, starting with the 3D objec
      * itself, and returns all 3D objects with a matching property value.
      *
      * @param {string} name - The name of the property.
@@ -7070,7 +7070,7 @@
      * 3D object. Renderable 3D objects such as {@link Mesh}, {@link Line} or {@link Points}
      * implement this method in order to use raycasting.
      *
-     * @abstract
+     * @abstrac
      * @param {Raycaster} raycaster - The raycaster.
      * @param {Array<Object>} intersects - An array holding the result of the method.
      */
@@ -7121,7 +7121,7 @@
       }
     }
     /**
-     * Updates the transformation matrix in local space by computing it from the current
+     * Updates the transformation matrix in local space by computing it from the curren
      * position, rotation and scale values.
      */
     updateMatrix() {
@@ -7553,7 +7553,7 @@
     }
     /**
      * Updates the controller with the given input source, XR frame and reference space.
-     * This updates the transformations of the groups that represent the different
+     * This updates the transformations of the groups that represent the differen
      * coordinate systems of the controller.
      *
      * @param {XRInputSource} inputSource - The input source.
@@ -8328,7 +8328,7 @@
     }
     /**
      * Linearly interpolates this color's HSL values toward the HSL values of the
-     * given color. It differs from {@link Color#lerp} by not interpolating straight
+     * given color. It differs from {@link Color#lerp} by not interpolating straigh
      * from one color to the other, but instead going through all the hues in between
      * those two colors. The alpha argument can be thought of as the ratio between
      * the two colors, where 0.0 is this color and 1.0 is the first argument.
@@ -8577,7 +8577,7 @@
      * @param {Vector3} b - The second corner of the triangle.
      * @param {Vector3} c - The third corner of the triangle.
      * @param {Vector3} target - The target vector that is used to store the method's result.
-     * @return {?Vector3} The barycentric coordinates for the given point
+     * @return {?Vector3} The barycentric coordinates for the given poin
      */
     static getBarycoord(point2, a, b, c, target) {
       _v0$2.subVectors(c, a);
@@ -8788,7 +8788,7 @@
      *
      * @param {Vector3} point - A point in 3D space.
      * @param {Vector3} target - The target vector that is used to store the method's result.
-     * @return {?Vector3} The barycentric coordinates for the given point
+     * @return {?Vector3} The barycentric coordinates for the given poin
      */
     getBarycoord(point2, target) {
       return _Triangle.getBarycoord(point2, this.a, this.b, this.c, target);
@@ -8833,8 +8833,8 @@
      * @param {Box3} box - The box to intersect.
      * @return {boolean} Whether this triangle intersects with the given box or not.
      */
-    intersectsBox(box) {
-      return box.intersectsTriangle(this);
+    intersectsBox(box2) {
+      return box2.intersectsTriangle(this);
     }
     /**
      * Returns the closest point on the triangle to the given point.
@@ -8979,17 +8979,17 @@
       return this;
     }
     /**
-     * Computes the world-axis-aligned bounding box for the given 3D object
+     * Computes the world-axis-aligned bounding box for the given 3D objec
      * (including its children), accounting for the object's, and children's,
      * world transforms. The function may result in a larger box than strictly necessary.
      *
-     * Note: To compute the correct bounding box, make sure the given 3D object
+     * Note: To compute the correct bounding box, make sure the given 3D objec
      * has an up-to-date world matrix that reflects the current transformation of its
      * ancestor nodes. Call `object.updateWorldMatrix( true, false )` beforehand if
      * you're unsure.
      *
      * @param {Object3D} object - The 3D object to compute the bounding box for.
-     * @param {boolean} [precise=false] - If set to `true`, the method computes the smallest
+     * @param {boolean} [precise=false] - If set to `true`, the method computes the smalles
      * world-axis-aligned bounding box at the expense of more computation.
      * @return {Box3} A reference to this bounding box.
      */
@@ -9011,9 +9011,9 @@
      * @param {Box3} box - The box to copy.
      * @return {Box3} A reference to this bounding box.
      */
-    copy(box) {
-      this.min.copy(box.min);
-      this.max.copy(box.max);
+    copy(box2) {
+      this.min.copy(box2.min);
+      this.max.copy(box2.max);
       return this;
     }
     /**
@@ -9156,8 +9156,8 @@
      * @param {Box3} box - The bounding box to test.
      * @return {boolean} Whether the bounding box contains the given bounding box or not.
      */
-    containsBox(box) {
-      return this.min.x <= box.min.x && box.max.x <= this.max.x && this.min.y <= box.min.y && box.max.y <= this.max.y && this.min.z <= box.min.z && box.max.z <= this.max.z;
+    containsBox(box2) {
+      return this.min.x <= box2.min.x && box2.max.x <= this.max.x && this.min.y <= box2.min.y && box2.max.y <= this.max.y && this.min.z <= box2.min.z && box2.max.z <= this.max.z;
     }
     /**
      * Returns a point as a proportion of this box's width, height and depth.
@@ -9179,8 +9179,8 @@
      * @param {Box3} box - The bounding box to test.
      * @return {boolean} Whether the given bounding box intersects with this bounding box.
      */
-    intersectsBox(box) {
-      return box.max.x >= this.min.x && box.min.x <= this.max.x && box.max.y >= this.min.y && box.min.y <= this.max.y && box.max.z >= this.min.z && box.min.z <= this.max.z;
+    intersectsBox(box2) {
+      return box2.max.x >= this.min.x && box2.min.x <= this.max.x && box2.max.y >= this.min.y && box2.min.y <= this.max.y && box2.max.z >= this.min.z && box2.min.z <= this.max.z;
     }
     /**
      * Returns `true` if the given bounding sphere intersects with this bounding box.
@@ -9325,9 +9325,9 @@
      * @param {Box3} box - The bounding box to intersect with.
      * @return {Box3} A reference to this bounding box.
      */
-    intersect(box) {
-      this.min.max(box.min);
-      this.max.min(box.max);
+    intersect(box2) {
+      this.min.max(box2.min);
+      this.max.min(box2.max);
       if (this.isEmpty()) this.makeEmpty();
       return this;
     }
@@ -9339,9 +9339,9 @@
      * @param {Box3} box - The bounding box that will be unioned with this instance.
      * @return {Box3} A reference to this bounding box.
      */
-    union(box) {
-      this.min.min(box.min);
-      this.max.max(box.max);
+    union(box2) {
+      this.min.min(box2.min);
+      this.max.max(box2.max);
       return this;
     }
     /**
@@ -9381,8 +9381,8 @@
      * @param {Box3} box - The box to test for equality.
      * @return {boolean} Whether this bounding box is equal with the given one.
      */
-    equals(box) {
-      return box.min.equals(this.min) && box.max.equals(this.max);
+    equals(box2) {
+      return box2.min.equals(this.min) && box2.max.equals(this.max);
     }
     /**
      * Returns a serialized structure of the bounding box.
@@ -9529,7 +9529,7 @@
       return this;
     }
     /**
-     * Copies a vector from the given buffer attribute to this one. The start
+     * Copies a vector from the given buffer attribute to this one. The star
      * and destination position in the attribute buffers are represented by the
      * given indices.
      *
@@ -9959,7 +9959,7 @@
     /**
      * Returns `true` if the sphere is empty (the radius set to a negative number).
      *
-     * Spheres with a radius of `0` contain only their center point and are not
+     * Spheres with a radius of `0` contain only their center point and are no
      * considered to be empty.
      *
      * @return {boolean} Whether this sphere is empty or not.
@@ -10014,8 +10014,8 @@
      * @param {Box3} box - The box to test.
      * @return {boolean} Whether this sphere intersects with the given box or not.
      */
-    intersectsBox(box) {
-      return box.intersectsSphere(this);
+    intersectsBox(box2) {
+      return box2.intersectsSphere(this);
     }
     /**
      * Returns `true` if this sphere intersects with the given plane.
@@ -10027,7 +10027,7 @@
       return Math.abs(plane.distanceToPoint(this.center)) <= this.radius;
     }
     /**
-     * Clamps a point within the sphere. If the point is outside the sphere, it
+     * Clamps a point within the sphere. If the point is outside the sphere, i
      * will clamp it to the closest point on the edge of the sphere. Points
      * already inside the sphere will not be affected.
      *
@@ -10281,7 +10281,7 @@
     /**
      * Adds a group to this geometry.
      *
-     * @param {number} start - The first element in this draw call. That is the first
+     * @param {number} start - The first element in this draw call. That is the firs
      * vertex for non-indexed geometry, otherwise the first triangle index.
      * @param {number} count - Specifies how many vertices (or indices) are part of this group.
      * @param {number} [materialIndex=0] - The material array index to use.
@@ -10637,7 +10637,7 @@
       if (groups.length === 0) {
         groups = [{
           start: 0,
-          count: index.count
+          count: index.coun
         }];
       }
       for (let i2 = 0, il = groups.length; i2 < il; ++i2) {
@@ -11768,33 +11768,33 @@
      * @param {Vector3} target - The target vector that is used to store the method's result.
      * @return {?Vector3} The intersection point.
      */
-    intersectBox(box, target) {
+    intersectBox(box2, target) {
       let tmin, tmax, tymin, tymax, tzmin, tzmax;
       const invdirx = 1 / this.direction.x, invdiry = 1 / this.direction.y, invdirz = 1 / this.direction.z;
       const origin = this.origin;
       if (invdirx >= 0) {
-        tmin = (box.min.x - origin.x) * invdirx;
-        tmax = (box.max.x - origin.x) * invdirx;
+        tmin = (box2.min.x - origin.x) * invdirx;
+        tmax = (box2.max.x - origin.x) * invdirx;
       } else {
-        tmin = (box.max.x - origin.x) * invdirx;
-        tmax = (box.min.x - origin.x) * invdirx;
+        tmin = (box2.max.x - origin.x) * invdirx;
+        tmax = (box2.min.x - origin.x) * invdirx;
       }
       if (invdiry >= 0) {
-        tymin = (box.min.y - origin.y) * invdiry;
-        tymax = (box.max.y - origin.y) * invdiry;
+        tymin = (box2.min.y - origin.y) * invdiry;
+        tymax = (box2.max.y - origin.y) * invdiry;
       } else {
-        tymin = (box.max.y - origin.y) * invdiry;
-        tymax = (box.min.y - origin.y) * invdiry;
+        tymin = (box2.max.y - origin.y) * invdiry;
+        tymax = (box2.min.y - origin.y) * invdiry;
       }
       if (tmin > tymax || tymin > tmax) return null;
       if (tymin > tmin || isNaN(tmin)) tmin = tymin;
       if (tymax < tmax || isNaN(tmax)) tmax = tymax;
       if (invdirz >= 0) {
-        tzmin = (box.min.z - origin.z) * invdirz;
-        tzmax = (box.max.z - origin.z) * invdirz;
+        tzmin = (box2.min.z - origin.z) * invdirz;
+        tzmax = (box2.max.z - origin.z) * invdirz;
       } else {
-        tzmin = (box.max.z - origin.z) * invdirz;
-        tzmax = (box.min.z - origin.z) * invdirz;
+        tzmin = (box2.max.z - origin.z) * invdirz;
+        tzmax = (box2.min.z - origin.z) * invdirz;
       }
       if (tmin > tzmax || tzmin > tmax) return null;
       if (tzmin > tmin || tmin !== tmin) tmin = tzmin;
@@ -11808,8 +11808,8 @@
      * @param {Box3} box - The box to intersect.
      * @return {boolean} Whether this ray intersects with the given box or not.
      */
-    intersectsBox(box) {
-      return this.intersectBox(box, _vector$7) !== null;
+    intersectsBox(box2) {
+      return this.intersectBox(box2, _vector$7) !== null;
     }
     /**
      * Intersects this ray with the given triangle, returning the intersection
@@ -12156,7 +12156,7 @@
     return {
       distance: distance2,
       point: _intersectionPointWorld.clone(),
-      object
+      objec
     };
   }
   function checkGeometryIntersection(object, material2, raycaster, ray, uv, uv1, normal, a, b, c) {
@@ -12221,7 +12221,7 @@
     /**
      * Computes the bounding box of the skinned mesh, and updates {@link SkinnedMesh#boundingBox}.
      * The bounding box is not automatically computed by the engine; this method must be called by your app.
-     * If the skinned mesh is animated, the bounding box should be recomputed per frame in order to reflect
+     * If the skinned mesh is animated, the bounding box should be recomputed per frame in order to reflec
      * the current animation state.
      */
     computeBoundingBox() {
@@ -12880,7 +12880,7 @@
       return this;
     }
     /**
-     * Sets the plane from the given normal and coplanar point (that is a point
+     * Sets the plane from the given normal and coplanar point (that is a poin
      * that lies onto the plane).
      *
      * @param {Vector3} normal - The normal.
@@ -13009,8 +13009,8 @@
      * @param {Box3} box - The bounding box to test.
      * @return {boolean} Whether the given bounding box intersects with the plane or not.
      */
-    intersectsBox(box) {
-      return box.intersectsPlane(this);
+    intersectsBox(box2) {
+      return box2.intersectsPlane(this);
     }
     /**
      * Returns `true` if the given bounding sphere intersects with the plane.
@@ -13220,13 +13220,13 @@
      * @param {Box3} box - The bounding box to test.
      * @return {boolean} Whether the bounding box is intersecting this frustum or not.
      */
-    intersectsBox(box) {
+    intersectsBox(box2) {
       const planes = this.planes;
       for (let i2 = 0; i2 < 6; i2++) {
         const plane = planes[i2];
-        _vector$6.x = plane.normal.x > 0 ? box.max.x : box.min.x;
-        _vector$6.y = plane.normal.y > 0 ? box.max.y : box.min.y;
-        _vector$6.z = plane.normal.z > 0 ? box.max.z : box.min.z;
+        _vector$6.x = plane.normal.x > 0 ? box2.max.x : box2.min.x;
+        _vector$6.y = plane.normal.y > 0 ? box2.max.y : box2.min.y;
+        _vector$6.z = plane.normal.z > 0 ? box2.max.z : box2.min.z;
         if (plane.distanceToPoint(_vector$6) < 0) {
           return false;
         }
@@ -13444,7 +13444,7 @@
       face: null,
       faceIndex: null,
       barycoord: null,
-      object
+      objec
     };
   }
   var PointsMaterial = class extends Material {
@@ -13585,7 +13585,7 @@
         face: null,
         faceIndex: null,
         barycoord: null,
-        object
+        objec
       });
     }
   }
@@ -14097,7 +14097,7 @@
      * This method returns a vector in 2D or 3D space (depending on the curve definition)
      * for the given interpolation factor.
      *
-     * @abstract
+     * @abstrac
      * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
      * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
      * @return {(Vector2|Vector3)} The position on the curve. It can be a 2D or 3D vector depending on the curve definition.
@@ -14237,7 +14237,7 @@
     /**
      * Returns a unit vector tangent for the given interpolation factor.
      * If the derived curve does not implement its tangent derivation,
-     * two points a small delta apart will be used to find its gradient
+     * two points a small delta apart will be used to find its gradien
      * which seems to give a reasonable approximation.
      *
      * @param {number} t - The interpolation factor.
@@ -14834,7 +14834,7 @@
       }
       return point2;
     }
-    // Line curve is linear, so we can overwrite default getPointAt
+    // Line curve is linear, so we can overwrite default getPointA
     getPointAt(u, optionalTarget) {
       return this.getPoint(u, optionalTarget);
     }
@@ -14894,7 +14894,7 @@
       }
       return point2;
     }
-    // Line curve is linear, so we can overwrite default getPointAt
+    // Line curve is linear, so we can overwrite default getPointA
     getPointAt(u, optionalTarget) {
       return this.getPoint(u, optionalTarget);
     }
@@ -15403,7 +15403,7 @@
     }
     /**
      * Adds an ellipse as an instance of {@link EllipseCurve} to the path, positioned relative
-     * to the current point
+     * to the current poin
      *
      * @param {number} [aX=0] - The x coordinate of the center of the ellipse offsetted from the previous curve.
      * @param {number} [aY=0] - The y coordinate of the center of the ellipse offsetted from the previous curve.
@@ -15941,7 +15941,7 @@
       // previous and next nodes in z-order
       nextZ: null,
       steiner: false
-      // indicates whether this is a steiner point
+      // indicates whether this is a steiner poin
     };
   }
   function signedArea(data, start, end, dim) {
@@ -17976,7 +17976,7 @@
     /**
      * Copies a sample value to the result buffer.
      *
-     * @abstract
+     * @abstrac
      * @param {number} i1 - An index into the sample value buffer.
      * @param {number} t0 - The previous interpolation factor.
      * @param {number} t - The current interpolation factor.
@@ -18230,8 +18230,8 @@
      *
      * The Bezier interpolant requires tangent data to be set via the `settings` property
      * on the track before creating the interpolant. The settings should contain:
-     * - `inTangents`: Float32Array with [time, value] pairs per keyframe per component
-     * - `outTangents`: Float32Array with [time, value] pairs per keyframe per component
+     * - `inTangents`: Float32Array with [time, value] pairs per keyframe per componen
+     * - `outTangents`: Float32Array with [time, value] pairs per keyframe per componen
      *
      * @static
      * @param {TypedArray} [result] - The result buffer.
@@ -18747,7 +18747,7 @@
       return null;
     }
     /**
-     * Returns an array of new AnimationClips created from the morph target
+     * Returns an array of new AnimationClips created from the morph targe
      * sequences of a geometry, trying to sort morph target names into
      * animation-group-based patterns like "Walk_001, Walk_002, Run_001, Run_002...".
      *
@@ -19085,7 +19085,7 @@
      * This method needs to be implemented by all concrete loaders. It holds the
      * logic for loading assets from the backend.
      *
-     * @abstract
+     * @abstrac
      * @param {string} url - The path/URL of the file to be loaded.
      * @param {Function} onLoad - Executed when the loading process has been finished.
      * @param {onProgressCallback} [onProgress] - Executed while the loading is in progress.
@@ -19110,7 +19110,7 @@
      * This method needs to be implemented by all concrete loaders. It holds the
      * logic for parsing the asset into three.js entities.
      *
-     * @abstract
+     * @abstrac
      * @param {any} data - The data to parse.
      */
     parse() {
@@ -19173,7 +19173,7 @@
     /**
      * This method can be implemented in loaders for aborting ongoing requests.
      *
-     * @abstract
+     * @abstrac
      * @return {Loader} A reference to this instance.
      */
     abort() {
@@ -20701,7 +20701,7 @@
     _getValue_toArray(buffer, offset) {
       this.resolvedProperty.toArray(buffer, offset);
     }
-    // Direct
+    // Direc
     _setValue_direct(buffer, offset) {
       this.targetObject[this.propertyName] = buffer[offset];
     }
@@ -20734,7 +20734,7 @@
       }
       this.targetObject.matrixWorldNeedsUpdate = true;
     }
-    // ArrayElement
+    // ArrayElemen
     _setValue_arrayElement(buffer, offset) {
       this.resolvedProperty[this.propertyIndex] = buffer[offset];
     }
@@ -20914,7 +20914,7 @@
   ];
   PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [
     [
-      // Direct
+      // Direc
       PropertyBinding.prototype._setValue_direct,
       PropertyBinding.prototype._setValue_direct_setNeedsUpdate,
       PropertyBinding.prototype._setValue_direct_setMatrixWorldNeedsUpdate
@@ -20926,7 +20926,7 @@
       PropertyBinding.prototype._setValue_array_setMatrixWorldNeedsUpdate
     ],
     [
-      // ArrayElement
+      // ArrayElemen
       PropertyBinding.prototype._setValue_arrayElement,
       PropertyBinding.prototype._setValue_arrayElement_setNeedsUpdate,
       PropertyBinding.prototype._setValue_arrayElement_setMatrixWorldNeedsUpdate
@@ -21029,7 +21029,7 @@
      * differently to ray casting than lines or points.
      *
      * Note that for meshes, faces must be pointed towards the origin of the ray in order
-     * to be detected; intersections of the ray passing through the back of a face will not
+     * to be detected; intersections of the ray passing through the back of a face will no
      * be detected. To raycast against both faces of an object, you'll want to set  {@link Material#side}
      * to `THREE.DoubleSide`.
      *
@@ -21045,7 +21045,7 @@
       return intersects2;
     }
     /**
-     * Checks all intersection between the ray and the objects with or without
+     * Checks all intersection between the ray and the objects with or withou
      * the descendants. Intersections are returned sorted by distance, closest first.
      *
      * @param {Array<Object3D>} objects - The 3D objects to check for intersection with the ray.
@@ -21426,7 +21426,7 @@
           if (range.start <= previousRange.start + previousRange.count + 1) {
             previousRange.count = Math.max(
               previousRange.count,
-              range.start + range.count - previousRange.start
+              range.start + range.count - previousRange.star
             );
           } else {
             ++mergeIndex;
@@ -21441,7 +21441,7 @@
             range.start * array.BYTES_PER_ELEMENT,
             array,
             range.start,
-            range.count
+            range.coun
           );
         }
         attribute.clearUpdateRanges();
@@ -23010,7 +23010,7 @@
     }
     /**
      * Generates a PMREM from an equirectangular texture, which can be either LDR
-     * or HDR. The ideal input image size is 1k (1024 x 512), as this matches best
+     * or HDR. The ideal input image size is 1k (1024 x 512), as this matches bes
      * with the 256 x 256 cubemap output. The minimum supported input image size
      * is 64 x 32.
      *
@@ -23023,7 +23023,7 @@
     }
     /**
      * Generates a PMREM from an cubemap texture, which can be either LDR
-     * or HDR. The ideal input cube size is 256 x 256, as this matches best
+     * or HDR. The ideal input cube size is 256 x 256, as this matches bes
      * with the 256 x 256 cubemap output. The minimum supported input cube
      * size is 16 x 16 per face.
      *
@@ -23243,7 +23243,7 @@
      * applies incremental roughness filtering to avoid over-blurring.
      *
      * @private
-     * @param {WebGLRenderTarget} cubeUVRenderTarget
+     * @param {WebGLRenderTarget} cubeUVRenderTarge
      * @param {number} lodIn - Source LOD level to read from
      * @param {number} lodOut - Target LOD level to write to
      */
@@ -23280,15 +23280,15 @@
      * This is a two-pass Gaussian blur for a cubemap. Normally this is done
      * vertically and horizontally, but this breaks down on a cube. Here we apply
      * the blur latitudinally (around the poles), and then longitudinally (towards
-     * the poles) to approximate the orthogonally-separable blur. It is least
+     * the poles) to approximate the orthogonally-separable blur. It is leas
      * accurate at the poles, but still does a decent job.
      *
      * Used for initial scene blur in fromScene() method when sigma > 0.
      *
      * @private
-     * @param {WebGLRenderTarget} cubeUVRenderTarget
+     * @param {WebGLRenderTarget} cubeUVRenderTarge
      * @param {number} lodIn
-     * @param {number} lodOut
+     * @param {number} lodOu
      * @param {number} sigma
      * @param {Vector3} [poleAxis]
      */
@@ -25776,7 +25776,7 @@
             },
             fragmentShader: {
               log: fragmentLog,
-              prefix: prefixFragment
+              prefix: prefixFragmen
             }
           };
         }
@@ -26514,7 +26514,7 @@
       push,
       unshift,
       finish,
-      sort
+      sor
     };
   }
   function WebGLRenderLists() {
@@ -27017,7 +27017,7 @@
         radius: { value: 4 }
       },
       vertexShader: vertex,
-      fragmentShader: fragment
+      fragmentShader: fragmen
     });
     const shadowMaterialHorizontal = shadowMaterialVertical.clone();
     shadowMaterialHorizontal.defines.HORIZONTAL_PASS = 1;
@@ -28096,7 +28096,7 @@
       compressedTexSubImage3D,
       scissor,
       viewport,
-      reset
+      rese
     };
   }
   function WebGLTextures(_gl, extensions, state, properties, capabilities, utils, info) {
@@ -28533,7 +28533,7 @@
           if (range.start <= previousEnd + 1 && currentRow === previousRow && getRow(range.start + range.count - 1, image.width, componentStride) === currentRow) {
             previousRange.count = Math.max(
               previousRange.count,
-              range.start + range.count - previousRange.start
+              range.start + range.count - previousRange.star
             );
           } else {
             ++mergeIndex;
@@ -31206,7 +31206,7 @@ void main() {
       const INTEGER_FORMATS = /* @__PURE__ */ new Set([
         RGBAIntegerFormat,
         RGIntegerFormat,
-        RedIntegerFormat
+        RedIntegerForma
       ]);
       const UNSIGNED_TYPES = /* @__PURE__ */ new Set([
         UnsignedByteType,
@@ -31296,7 +31296,7 @@ void main() {
           premultipliedAlpha,
           preserveDrawingBuffer,
           powerPreference,
-          failIfMajorPerformanceCaveat
+          failIfMajorPerformanceCavea
         };
         if ("setAttribute" in canvas) canvas.setAttribute("data-engine", `three.js r${REVISION}`);
         canvas.addEventListener("webglcontextlost", onContextLost, false);
@@ -32817,9 +32817,9 @@ void main() {
     const d = byName.get(name) || byName.get("\u9F20\u9F20\u5C0F\u5C4B"), a = facing(d[0]);
     return { x: d[1] + Math.sin(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9), z: d[2] + Math.cos(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9) };
   }
-  function blocked(x2, z) {
+  function blocked(x2, z, ignoreName = null) {
     return destinations.some((d) => {
-      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") return false;
+      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A" || d[0] === ignoreName) return false;
       if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") return Math.hypot(x2 - d[1], z - d[2]) < 2.2;
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
       if (d[0] === "\u5893\u5730") {
@@ -33081,7 +33081,7 @@ void main() {
         actor.wait = 0;
       }
     }
-    return { actors, add, tick, setResting, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, path: void 0, visited: [...a.visited] })) }) };
+    return { actors, add, tick, setResting, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
   }
 
   // src/town-lights.js
@@ -33203,22 +33203,31 @@ void main() {
 
   // src/town-player.js
   var obstacles = {
-    "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [-2.6, 1.6, 0.8, 0.35]],
+    "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [0.3, 1.6, 0.8, 0.35]],
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
     "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [2.5, 0.5, 0.95, 0.4], [-1.4, -0.2, 0.65, 0.4], [-1.4, 1.6, 0.65, 0.4], [1, -0.2, 0.65, 0.4], [1, 1.6, 0.65, 0.4]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
     "\u7EAA\u5FF5\u9986": [[-2.2, -1.4, 0.75, 0.45], [0, -1.4, 0.75, 0.45], [2.2, -1.4, 0.75, 0.45], [0, 1.5, 1.05, 0.4]],
-    "\u9F20\u9F20\u5B66\u6821": [[-2.6, -2.4, 0.82, 0.32], [-1, -0.6, 0.65, 0.4], [1.4, -0.6, 0.65, 0.4], [-1, 1.1, 0.65, 0.4], [1.4, 1.1, 0.65, 0.4]],
+    "\u9F20\u9F20\u5B66\u6821": [[-2, -1.7, 0.82, 0.32], [-1, -0.6, 0.65, 0.4], [1.4, -0.6, 0.65, 0.4], [-1, 1.1, 0.65, 0.4], [1.4, 1.1, 0.65, 0.4]],
     "\u6BA1\u4EEA\u9986": [[0, -1, 1.3, 0.65], [-2.6, -2.4, 0.82, 0.32], [0, 1.4, 1.05, 0.4]]
   };
   function canWalk(actor, x2, z) {
     if (actor.inside) {
+      const gate = actor.doorway, throughDoor = gate?.open && Math.abs(x2 - gate.x) < gate.width / 2 - 0.13 && z > 2.4 && z < 4.5;
+      if (throughDoor) return true;
       if (Math.abs(x2) > 3.7 || z < -2.7 || z > 2.8) return false;
+      if (actor.inside === "\u9F20\u9F20\u5B66\u6821" && (x2 / 3.9) ** 2 + (z / 2.9) ** 2 > 0.92) return false;
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d]) => Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1);
     }
     if (Math.hypot(x2, z) > 17.4) return false;
-    return ![[0, 0], [0.12, 0], [-0.12, 0], [0, 0.12], [0, -0.12]].some(([dx, dz]) => blocked(x2 + dx, z + dz));
+    let ignore = null;
+    const portal = actor.entryPortal;
+    if (portal?.angle > 1) {
+      const a = facing(portal.name), dx = x2 - portal.model.position.x, dz = z - portal.model.position.z, lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a), layout = portal.layout;
+      if (Math.abs(lx - layout.doorX) < layout.doorWidth / 2 - 0.055 && lz > portal.front - 0.3 && lz < portal.front + 1.2) ignore = portal.name;
+    }
+    return ![[0, 0], [0.08, 0], [-0.08, 0], [0, 0.08], [0, -0.08]].some(([dx, dz]) => blocked(x2 + dx, z + dz, ignore));
   }
   function movePlayer(actor, dx, dz) {
     const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.08));
@@ -33235,6 +33244,273 @@ void main() {
     }
     actor.moving = moved;
     return moved;
+  }
+
+  // src/town-building-portals.js
+  var buildingLayouts = {
+    "Mariah Carey\u540D\u4EBA\u5802": { width: 3.1, depth: 2.3, z: 0, floor: 0.38, height: 1.7, doorX: -0.8, doorWidth: 0.62, doorHeight: 1.4, wall: 15394006, trim: 6445909, glass: true },
+    "\u9F20\u9F20\u996D\u9986": { width: 3, depth: 2.05, z: -0.14, floor: 0.14, height: 1.6, doorX: -0.6, doorWidth: 0.8, doorHeight: 1.25, wall: 15657177, trim: 6641478 },
+    "\u8BCA\u6240": { width: 2.88, depth: 1.85, z: -0.175, floor: 0.2, height: 1.45, doorX: 0, doorWidth: 0.64, doorHeight: 1.2, wall: 15857137, trim: 8828613, glass: true },
+    "\u96F6\u98DF\u94FA": { width: 2.9, depth: 1.88, z: 0, floor: 0.1, height: 1.6, doorX: -0.95, doorWidth: 0.64, doorHeight: 1.25, wall: 15983537, trim: 11060131 },
+    "\u7EAA\u5FF5\u9986": { width: 2.8, depth: 1.85, z: -0.27, floor: 0.23, height: 1.3, doorX: 0, doorWidth: 0.7, doorHeight: 1.08, wall: 15656396, trim: 10990490 },
+    "\u6BA1\u4EEA\u9986": { width: 2.8, depth: 1.85, z: -0.27, floor: 0.23, height: 1.3, doorX: 0, doorWidth: 0.85, doorHeight: 1.05, wall: 15656396, trim: 9608867 },
+    "\u9F20\u9F20\u5B66\u6821": { width: 2.32, depth: 2.36, z: -0.35, floor: 0.13, height: 1.22, doorX: 0, doorWidth: 0.56, doorHeight: 0.82, wall: 12095577, trim: 6833454, round: true },
+    "\u9F20\u9F20\u5C0F\u5C4B": { width: 2.15, depth: 2.14, z: 0, floor: 0.1, height: 1.25, doorX: 0, doorWidth: 0.78, doorHeight: 0.84, wall: 14796448, trim: 10051642, cottage: true }
+  };
+  function box(parent, w, h, d, x2, y, z, mat2) {
+    const mesh = new Mesh(new BoxGeometry(w, h, d), mat2);
+    mesh.position.set(x2, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    parent.add(mesh);
+    return mesh;
+  }
+  function doorwayHole(mesh, layout, root) {
+    let geometry = mesh.geometry.toNonIndexed();
+    const p = geometry.attributes.position, kept = [];
+    mesh.updateWorldMatrix(true, false);
+    root.updateWorldMatrix(true, false);
+    const matrix = root.matrixWorld.clone().invert().multiply(mesh.matrixWorld), v = new Vector3();
+    for (let i2 = 0; i2 < p.count; i2 += 3) {
+      let inside = 0;
+      for (let j = 0; j < 3; j++) {
+        v.fromBufferAttribute(p, i2 + j).applyMatrix4(matrix);
+        if (Math.abs(v.x - layout.doorX) < layout.doorWidth / 2 + 0.02 && v.y > layout.floor - 0.03 && v.y < layout.floor + layout.doorHeight + 0.025 && v.z > layout.z + 0.15) inside++;
+      }
+      if (inside < 2) kept.push(i2, i2 + 1, i2 + 2);
+    }
+    geometry.setIndex(kept);
+    mesh.geometry = geometry;
+    const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    mesh.material = mats.map((m) => {
+      const copy = m.clone();
+      copy.side = DoubleSide;
+      return copy;
+    });
+    if (!Array.isArray(mesh.material) || mesh.material.length === 1) mesh.material = mesh.material[0];
+  }
+  function installBuildingPortal(model, name) {
+    const layout = buildingLayouts[name];
+    if (!layout) return;
+    const front = layout.z + layout.depth / 2, back = layout.z - layout.depth / 2, top = layout.floor + layout.height;
+    model.updateWorldMatrix(true, true);
+    const removed = [];
+    model.traverse((mesh) => {
+      if (!mesh.isMesh) return;
+      const centre = new Vector3().setFromMatrixPosition(mesh.matrixWorld);
+      model.worldToLocal(centre);
+      const p = mesh.geometry.parameters || {};
+      if (layout.cottage) {
+        if (mesh.name === "Round timber entrance") {
+          return;
+        }
+        if (mesh.name === "Individual door plank" || mesh.name === "Door window frame" || mesh.name === "Window mullion" || mesh.name === "Brass door knob" || mesh.name === "Iron hinge" || mesh.name === "Thick oak door frame") return;
+        if (mesh.name === "Rounded grey cottage" || mesh.name === "Cream chest" || mesh.name === "Left cheek" || mesh.name === "Right cheek" || mesh.name === "Surface following tapered fur") doorwayHole(mesh, layout, model);
+        return;
+      }
+      const bounds = new Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()), actual = bounds.getCenter(new Vector3());
+      if (Math.abs(actual.x - layout.doorX) < layout.doorWidth / 2 + 0.06 && actual.y > layout.floor && actual.y < layout.floor + layout.doorHeight + 0.025 && actual.z > front - 0.07 && actual.z < front + 0.25) removed.push(mesh);
+      else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height === 0.22 && p.width === 3.1) removed.push(mesh);
+      else if (name === "\u8BCA\u6240" && mesh.geometry.type === "ExtrudeGeometry" && p.depth > 0.2) removed.push(mesh);
+      else if (centre.y > layout.floor + 0.04 && centre.y < top - 0.04 && Math.abs(centre.x) < layout.width / 2 + 0.12 && centre.z > back - 0.1 && centre.z < front + 0.09) removed.push(mesh);
+      else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height > 1 && centre.y < top && centre.z >= front) removed.push(mesh);
+    });
+    removed.forEach((mesh) => mesh.parent.remove(mesh));
+    if (layout.cottage) {
+      const old = model.getObjectByName("Round timber entrance");
+      if (old) old.parent.remove(old);
+    }
+    const shell = new Group();
+    shell.name = "Shared exterior and interior shell";
+    model.add(shell);
+    const wall = new MeshStandardMaterial({ color: layout.wall, roughness: 0.88 }), trim = new MeshStandardMaterial({ color: layout.trim, roughness: 0.62 }), glass = new MeshPhysicalMaterial({ color: 14478064, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: DoubleSide, clearcoat: 1, envMapIntensity: 0.7 });
+    const roof = box(shell, layout.width, 0.07, layout.depth, 0, top, layout.z, wall);
+    roof.userData.cutawayRoof = true;
+    if (layout.cottage) {
+      box(shell, layout.width, layout.height, 0.065, 0, layout.floor + layout.height / 2, back, wall);
+      for (const side2 of [-1, 1]) box(shell, 0.065, layout.height, layout.depth, side2 * layout.width / 2, layout.floor + layout.height / 2, layout.z, wall);
+      const side = (layout.width - layout.doorWidth) / 2;
+      for (const sign4 of [-1, 1]) box(shell, side, layout.height, 0.065, sign4 * (layout.doorWidth + side) / 2, layout.floor + layout.height / 2, front, wall);
+      box(shell, layout.doorWidth, layout.height - layout.doorHeight, 0.065, 0, layout.floor + (layout.height + layout.doorHeight) / 2, front, wall);
+    } else {
+      if (layout.round) {
+        const body = new Mesh(new CylinderGeometry(1.16, 1.16, layout.height, 96, 12, true), wall.clone());
+        body.position.set(0, layout.floor + layout.height / 2, layout.z);
+        shell.add(body);
+        doorwayHole(body, layout, model);
+      } else {
+        box(shell, layout.width, layout.height, 0.065, 0, layout.floor + layout.height / 2, back, wall);
+        for (const side of [-1, 1]) {
+          const mat2 = layout.glass ? glass : wall;
+          box(shell, 0.065, layout.height, layout.depth, side * layout.width / 2, layout.floor + layout.height / 2, layout.z, mat2);
+          if (layout.glass) for (const z of [back, layout.z, front]) box(shell, 0.035, layout.height, 0.035, side * layout.width / 2, layout.floor + layout.height / 2, z, trim);
+        }
+        const left = -layout.width / 2, right = layout.width / 2, a = layout.doorX - layout.doorWidth / 2, b = layout.doorX + layout.doorWidth / 2;
+        for (const [lo, hi] of [[left, a], [b, right]]) {
+          const width = hi - lo, x2 = (lo + hi) / 2;
+          if (layout.glass) {
+            box(shell, width, layout.height, 0.025, x2, layout.floor + layout.height / 2, front, glass);
+            for (const xx of [lo, hi]) box(shell, 0.025, layout.height, 0.06, xx, layout.floor + layout.height / 2, front, trim);
+            box(shell, width, 0.025, 0.055, x2, layout.floor + 0.025, front, trim);
+            box(shell, width, 0.025, 0.055, x2, top - 0.025, front, trim);
+          } else {
+            const sill = layout.floor + 0.4, paneHeight = 0.65;
+            box(shell, width, 0.4, 0.065, x2, layout.floor + 0.2, front, wall);
+            box(shell, width, top - sill - paneHeight, 0.065, x2, (top + sill + paneHeight) / 2, front, wall);
+            box(shell, width, paneHeight, 0.025, x2, sill + paneHeight / 2, front, glass);
+            for (const xx of [lo, hi, x2]) box(shell, 0.03, paneHeight, 0.065, xx, sill + paneHeight / 2, front, trim);
+            box(shell, width, 0.035, 0.065, x2, sill, front, trim);
+            box(shell, width, 0.035, 0.065, x2, sill + paneHeight, front, trim);
+          }
+        }
+        box(shell, layout.doorWidth, layout.height - layout.doorHeight, 0.065, layout.doorX, layout.floor + (layout.height + layout.doorHeight) / 2, front, wall);
+      }
+    }
+    const pivot = new Group();
+    pivot.position.set(layout.doorX - layout.doorWidth / 2, layout.floor, front + 0.015);
+    model.add(pivot);
+    const w = layout.doorWidth, h = layout.doorHeight;
+    if (layout.cottage) {
+      const door = new Mesh(new CircleGeometry(w / 2, 48), trim);
+      door.material = trim.clone();
+      door.material.side = DoubleSide;
+      door.position.set(w / 2, h / 2, 0);
+      door.scale.y = h / w;
+      pivot.add(door);
+    } else {
+      box(pivot, w, h * 0.42, 0.045, w / 2, h * 0.21, 0, trim);
+      box(pivot, w, h * 0.09, 0.045, w / 2, h * 0.955, 0, trim);
+      for (const x2 of [0.025, w - 0.025]) box(pivot, 0.05, h * 0.53, 0.045, x2, h * 0.685, 0, trim);
+      box(pivot, w - 0.1, h * 0.49, 0.018, w / 2, h * 0.685, 0, glass);
+      box(pivot, 0.025, h * 0.49, 0.03, w / 2, h * 0.685, 0, trim);
+    }
+    const handle = new Mesh(new SphereGeometry(0.025, 16, 10), new MeshStandardMaterial({ color: 13808761, metalness: 0.75, roughness: 0.27 }));
+    handle.position.set(w - 0.085, h * 0.44, 0.05);
+    pivot.add(handle);
+    pivot.traverse((mesh) => {
+      if (mesh.isMesh) mesh.userData.buildingDoor = name;
+    });
+    const ceilingLight = new PointLight(16769712, 1.1, 4, 2);
+    ceilingLight.position.set(0, top - 0.15, layout.z);
+    model.add(ceilingLight);
+    box(shell, layout.width * 0.4, 0.018, 0.18, 0, top - 0.045, layout.z, new MeshStandardMaterial({ color: 16771783, emissive: 16768941, emissiveIntensity: 0.5 }));
+    const portal = { name, layout, model, door: pivot, target: 0, angle: 0, front, roof, shell, light: ceilingLight, exteriorChildren: model.children.filter((child) => child !== shell && child !== pivot && child !== ceilingLight) };
+    model.userData.portal = portal;
+    return portal;
+  }
+  function placeRoom(room, portal) {
+    const { layout, model } = portal;
+    room.position.copy(model.position);
+    room.rotation.y = model.rotation.y;
+    const scale = layout.width / 8;
+    room.scale.set(scale, scale, layout.depth / 6);
+    const offset = new Vector3(0, layout.floor, layout.z).applyAxisAngle(new Vector3(0, 1, 0), model.rotation.y);
+    room.position.add(offset);
+    room.updateMatrixWorld(true);
+  }
+  function localDoor(portal) {
+    return { x: portal.layout.doorX * 8 / portal.layout.width, z: 3, width: portal.layout.doorWidth * 8 / portal.layout.width };
+  }
+
+  // node_modules/.pnpm/three@0.185.1/node_modules/three/examples/jsm/environments/RoomEnvironment.js
+  var RoomEnvironment = class extends Scene {
+    constructor() {
+      super();
+      this.name = "RoomEnvironment";
+      this.position.y = -3.5;
+      const geometry = new BoxGeometry();
+      geometry.deleteAttribute("uv");
+      const roomMaterial = new MeshStandardMaterial({ side: BackSide });
+      const boxMaterial = new MeshStandardMaterial();
+      const mainLight = new PointLight(16777215, 900, 28, 2);
+      mainLight.position.set(0.418, 16.199, 0.3);
+      this.add(mainLight);
+      const room = new Mesh(geometry, roomMaterial);
+      room.position.set(-0.757, 13.219, 0.717);
+      room.scale.set(31.713, 28.305, 28.591);
+      this.add(room);
+      const boxes = new InstancedMesh(geometry, boxMaterial, 6);
+      const transform = new Object3D();
+      transform.position.set(-10.906, 2.009, 1.846);
+      transform.rotation.set(0, -0.195, 0);
+      transform.scale.set(2.328, 7.905, 4.651);
+      transform.updateMatrix();
+      boxes.setMatrixAt(0, transform.matrix);
+      transform.position.set(-5.607, -0.754, -0.758);
+      transform.rotation.set(0, 0.994, 0);
+      transform.scale.set(1.97, 1.534, 3.955);
+      transform.updateMatrix();
+      boxes.setMatrixAt(1, transform.matrix);
+      transform.position.set(6.167, 0.857, 7.803);
+      transform.rotation.set(0, 0.561, 0);
+      transform.scale.set(3.927, 6.285, 3.687);
+      transform.updateMatrix();
+      boxes.setMatrixAt(2, transform.matrix);
+      transform.position.set(-2.017, 0.018, 6.124);
+      transform.rotation.set(0, 0.333, 0);
+      transform.scale.set(2.002, 4.566, 2.064);
+      transform.updateMatrix();
+      boxes.setMatrixAt(3, transform.matrix);
+      transform.position.set(2.291, -0.756, -2.621);
+      transform.rotation.set(0, -0.286, 0);
+      transform.scale.set(1.546, 1.552, 1.496);
+      transform.updateMatrix();
+      boxes.setMatrixAt(4, transform.matrix);
+      transform.position.set(-2.193, -0.369, -5.547);
+      transform.rotation.set(0, 0.516, 0);
+      transform.scale.set(3.875, 3.487, 2.986);
+      transform.updateMatrix();
+      boxes.setMatrixAt(5, transform.matrix);
+      this.add(boxes);
+      const light1 = new Mesh(geometry, createAreaLightMaterial(50));
+      light1.position.set(-16.116, 14.37, 8.208);
+      light1.scale.set(0.1, 2.428, 2.739);
+      this.add(light1);
+      const light2 = new Mesh(geometry, createAreaLightMaterial(50));
+      light2.position.set(-16.109, 18.021, -8.207);
+      light2.scale.set(0.1, 2.425, 2.751);
+      this.add(light2);
+      const light3 = new Mesh(geometry, createAreaLightMaterial(17));
+      light3.position.set(14.904, 12.198, -1.832);
+      light3.scale.set(0.15, 4.265, 6.331);
+      this.add(light3);
+      const light4 = new Mesh(geometry, createAreaLightMaterial(43));
+      light4.position.set(-0.462, 8.89, 14.52);
+      light4.scale.set(4.38, 5.441, 0.088);
+      this.add(light4);
+      const light5 = new Mesh(geometry, createAreaLightMaterial(20));
+      light5.position.set(3.235, 11.486, -12.541);
+      light5.scale.set(2.5, 2, 0.1);
+      this.add(light5);
+      const light6 = new Mesh(geometry, createAreaLightMaterial(100));
+      light6.position.set(0, 20, 0);
+      light6.scale.set(1, 0.1, 1);
+      this.add(light6);
+    }
+    /**
+     * Frees internal resources. This method should be called
+     * when the environment is no longer required.
+     */
+    dispose() {
+      const resources = /* @__PURE__ */ new Set();
+      this.traverse((object) => {
+        if (object.isMesh) {
+          resources.add(object.geometry);
+          resources.add(object.material);
+        }
+      });
+      for (const resource of resources) {
+        resource.dispose();
+      }
+    }
+  };
+  function createAreaLightMaterial(intensity) {
+    const material2 = new MeshLambertMaterial({
+      color: 0,
+      emissive: 16777215,
+      emissiveIntensity: intensity
+    });
+    return material2;
   }
 
   // src/town-mariah-hall.js
@@ -33316,7 +33592,7 @@ void main() {
     return m;
   }
   function kit(group) {
-    const box = (w, h, d, x2, y, z, color, extra = {}) => {
+    const box2 = (w, h, d, x2, y, z, color, extra = {}) => {
       const m = new Mesh(new BoxGeometry(w, h, d), material(color, extra));
       m.position.set(x2, y, z);
       m.castShadow = true;
@@ -33331,7 +33607,7 @@ void main() {
       group.add(m);
       return m;
     };
-    return { box, disc };
+    return { box: box2, disc };
   }
   function sign2(group, title, x2, y, z, w, h) {
     const c = document.createElement("canvas");
@@ -33377,24 +33653,24 @@ void main() {
     return mesh;
   }
   function createMariahHall() {
-    const group = new Group(), { box } = kit(group);
-    box(3.45, 0.16, 2.7, 0, 0.08, 0, 13092028);
-    box(3.1, 0.22, 2.3, 0, 0.28, 0, 15262679);
-    box(3.1, 1.7, 0.1, 0, 1.22, -1.1, 15394006);
-    for (const x2 of [-1.5, 1.5]) box(0.11, 1.9, 2.25, x2, 1.3, 0, 15394006);
-    box(3.35, 0.22, 2.6, 0, 2.22, 0, 15920868);
+    const group = new Group(), { box: box2 } = kit(group);
+    box2(3.45, 0.16, 2.7, 0, 0.08, 0, 13092028);
+    box2(3.1, 0.22, 2.3, 0, 0.28, 0, 15262679);
+    box2(3.1, 1.7, 0.1, 0, 1.22, -1.1, 15394006);
+    for (const x2 of [-1.5, 1.5]) box2(0.11, 1.9, 2.25, x2, 1.3, 0, 15394006);
+    box2(3.35, 0.22, 2.6, 0, 2.22, 0, 15920868);
     for (const [y, color] of [[2.04, 14920127], [1.98, 10729690]]) {
-      box(3.25, 0.035, 0.05, 0, y, 1.2, color, { emissive: color, emissiveIntensity: 0.45 });
-      box(0.05, 0.035, 2.4, 1.58, y, 0, color, { emissive: color, emissiveIntensity: 0.45 });
+      box2(3.25, 0.035, 0.05, 0, y, 1.2, color, { emissive: color, emissiveIntensity: 0.45 });
+      box2(0.05, 0.035, 2.4, 1.58, y, 0, color, { emissive: color, emissiveIntensity: 0.45 });
     }
-    for (const x2 of [-1.45, -0.5, 0.55, 1.45]) box(0.04, 1.65, 0.055, x2, 1.16, 1.16, 5658716);
-    for (const y of [0.45, 1, 1.55]) box(3, 0.025, 0.04, 0, y, 1.16, 5658716);
-    box(3, 1.55, 0.025, 0, 1.15, 1.13, 14338752, { transparent: true, opacity: 0.18, depthWrite: false });
-    box(0.62, 1.4, 0.065, -0.8, 1.08, 1.18, 5986905);
-    box(0.46, 0.67, 0.035, -0.8, 1.27, 1.22, 11254209, { transparent: true, opacity: 0.5 });
-    box(0.055, 0.72, 0.04, -0.8, 1.25, 1.25, 6447201);
-    box(0.5, 0.045, 0.04, -0.8, 1.25, 1.25, 6447201);
-    box(1.3, 0.45, 0.65, 0.6, 0.65, 0.48, 14075048);
+    for (const x2 of [-1.45, -0.5, 0.55, 1.45]) box2(0.04, 1.65, 0.055, x2, 1.16, 1.16, 5658716);
+    for (const y of [0.45, 1, 1.55]) box2(3, 0.025, 0.04, 0, y, 1.16, 5658716);
+    box2(3, 1.55, 0.025, 0, 1.15, 1.13, 14338752, { transparent: true, opacity: 0.18, depthWrite: false });
+    box2(0.62, 1.4, 0.065, -0.8, 1.08, 1.18, 5986905);
+    box2(0.46, 0.67, 0.035, -0.8, 1.27, 1.22, 11254209, { transparent: true, opacity: 0.5 });
+    box2(0.055, 0.72, 0.04, -0.8, 1.25, 1.25, 6447201);
+    box2(0.5, 0.045, 0.04, -0.8, 1.25, 1.25, 6447201);
+    box2(1.3, 0.45, 0.65, 0.6, 0.65, 0.48, 14075048);
     vinyl(group, 0.28, 1.13, 0.5, 2105639, true);
     vinyl(group, 1.03, 1.13, 0.5, 14459063, true);
     standee(group, 1.16, -0.4, 1.8);
@@ -33403,21 +33679,21 @@ void main() {
     return group;
   }
   function populateMariahRoom(group) {
-    const { box, disc } = kit(group);
+    const { box: box2, disc } = kit(group);
     const exhibits = [];
     hallAlbums.forEach(([index, title], i2) => {
       const row = Math.floor(i2 / 7), col = i2 % 7, x2 = -3.25 + col * 1.08, y = 0.56 + row * 0.57, z = -2.83;
-      box(0.48, 0.48, 0.06, x2, y, z, 14864305);
+      box2(0.48, 0.48, 0.06, x2, y, z, 14864305);
       const cover = new Mesh(new PlaneGeometry(0.45, 0.45), imageMaterial(index, title));
       cover.position.set(x2, y, z + 0.035);
       cover.userData.hallExhibit = title;
       group.add(cover);
       exhibits.push(cover);
-      box(0.6, 0.035, 0.18, x2, y - 0.26, z + 0.05, 12756093);
+      box2(0.6, 0.035, 0.18, x2, y - 0.26, z + 0.05, 12756093);
     });
     hallPhotos.forEach((index, i2) => {
       const x2 = -3.84, y = 0.72 + i2 % 2 * 0.9, z = -2.1 + Math.floor(i2 / 2) * 1.45;
-      box(0.08, 0.75, 0.56, x2, y, z, 12886392);
+      box2(0.08, 0.75, 0.56, x2, y, z, 12886392);
       const picture = new Mesh(new PlaneGeometry(0.51, 0.7), imageMaterial(index, "\u7167\u7247 " + index, true));
       picture.rotation.y = Math.PI / 2;
       picture.position.set(x2 + 0.045, y, z);
@@ -33427,20 +33703,20 @@ void main() {
       exhibits.push(picture);
     });
     for (const x2 of [-2.1, 1.1]) {
-      box(1.7, 0.52, 0.7, x2, 0.26, -0.5, 15590094);
+      box2(1.7, 0.52, 0.7, x2, 0.26, -0.5, 15590094);
       vinyl(group, x2 - 0.42, 0.59, -0.5, 2105639);
       vinyl(group, x2 + 0.42, 0.59, -0.5, 14459063);
-      box(1.75, 0.36, 0.75, x2, 0.76, -0.5, 14872049, { transparent: true, opacity: 0.12, depthWrite: false });
+      box2(1.75, 0.36, 0.75, x2, 0.76, -0.5, 14872049, { transparent: true, opacity: 0.12, depthWrite: false });
     }
-    box(1.3, 0.64, 0.75, 2.7, 0.32, 1.2, 11967351);
-    box(1.05, 0.08, 0.65, 2.7, 0.68, 1.2, 6181978);
+    box2(1.3, 0.64, 0.75, 2.7, 0.32, 1.2, 11967351);
+    box2(1.05, 0.08, 0.65, 2.7, 0.68, 1.2, 6181978);
     vinyl(group, 2.55, 0.75, 1.2, 2105639);
-    box(0.045, 0.07, 0.48, 3.05, 0.8, 1.2, 12828345);
-    box(0.7, 0.9, 0.1, 3.5, 0.6, -1.7, 14664344);
+    box2(0.045, 0.07, 0.48, 3.05, 0.8, 1.2, 12828345);
+    box2(0.7, 0.9, 0.1, 3.5, 0.6, -1.7, 14664344);
     const figure = standee(group, 3, -1.4, 2.4);
     disc(0, 0.12, -1.7, 0.65, 15325373);
     disc(0, 0.26, -1.7, 0.48, 13481613);
-    box(0.07, 1.08, 0.07, 0, 0.9, -1.7, 13675858, { metalness: 0.7 });
+    box2(0.07, 1.08, 0.07, 0, 0.9, -1.7, 13675858, { metalness: 0.7 });
     const head = new Mesh(new SphereGeometry(0.14, 20, 12), material(13675858, { metalness: 0.7 }));
     head.scale.set(1.35, 0.55, 1);
     head.position.set(-0.12, 0.4, -1.7);
@@ -33448,10 +33724,10 @@ void main() {
     const ring = new Mesh(new TorusGeometry(0.18, 0.025, 8, 40), material(13675858, { metalness: 0.7 }));
     ring.position.set(0.1, 1.36, -1.7);
     group.add(ring);
-    const seat = box(1.5, 0.13, 0.5, -2.6, 0.4, 1.6, 13350815);
+    const seat = box2(1.5, 0.13, 0.5, 0.3, 0.4, 1.6, 13350815);
     group.userData.hallSeat = seat;
-    box(1.5, 0.38, 0.08, -2.6, 0.65, 1.84, 13350815);
-    for (const x2 of [-3.2, -2]) box(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
+    box2(1.5, 0.38, 0.08, 0.3, 0.65, 1.84, 13350815);
+    for (const x2 of [-0.3, 0.9]) box2(0.08, 0.4, 0.08, x2, 0.2, 1.6, 10324079);
     group.userData.hallExhibits = exhibits;
     group.userData.hallClickable = [...exhibits, figure];
     group.userData.albumCount = hallAlbums.length;
@@ -33531,7 +33807,7 @@ void main() {
       parent.add(mesh);
       return mesh;
     }
-    function box(name, mat2, x2, y, z, w, h, d, parent = house) {
+    function box2(name, mat2, x2, y, z, w, h, d, parent = house) {
       const mesh = new Mesh(new BoxGeometry(w, h, d), mat2);
       mesh.name = name;
       mesh.position.set(x2, y, z);
@@ -33624,16 +33900,16 @@ void main() {
     door.add(backing);
     for (let i2 = -4; i2 <= 4; i2++) {
       const x2 = i2 * 0.112, h = 2 * Math.sqrt(Math.max(0, 0.49 * 0.49 - x2 * x2));
-      if (h > 0) box("Individual door plank", wood, x2, 0, 0.022, 0.105, h, 0.065, door);
+      if (h > 0) box2("Individual door plank", wood, x2, 0, 0.022, 0.105, h, 0.065, door);
     }
     ring("Thick oak door frame", wood, 0, 0, 0.035, 0.54, 0.073, door);
     ring("Door window frame", wood, 0, 0.19, 0.1, 0.17, 0.036, door);
     const glass = new Mesh(new CircleGeometry(0.147, 32), glow);
     glass.position.set(0, 0.19, 0.094);
     door.add(glass);
-    box("Window mullion", wood, 0, 0.19, 0.113, 0.019, 0.29, 0.025, door);
+    box2("Window mullion", wood, 0, 0.19, 0.113, 0.019, 0.29, 0.025, door);
     oval("Brass door knob", material2("#9d783d", 0.32), 0.32, -0.12, 0.11, 0.044, 0.044, 0.04, door);
-    for (const yy of [-0.2, 0.16]) box("Iron hinge", darkwood, -0.36, yy, 0.085, 0.15, 0.025, 0.025, door);
+    for (const yy of [-0.2, 0.16]) box2("Iron hinge", darkwood, -0.36, yy, 0.085, 0.15, 0.025, 0.025, door);
     const windowGroup = new Group();
     windowGroup.position.set(1.49, 1.26, 0.05);
     windowGroup.rotation.y = Math.PI / 2;
@@ -33641,8 +33917,8 @@ void main() {
     ring("Round side window", wood, 0, 0, 0, 0.35, 0.064, windowGroup);
     const windowPane = new Mesh(new CircleGeometry(0.3, 48), glow);
     windowGroup.add(windowPane);
-    box("Cross frame", darkwood, 0, 0, 0.025, 0.035, 0.6, 0.04, windowGroup);
-    box("Cross frame", darkwood, 0, 0, 0.025, 0.6, 0.035, 0.04, windowGroup);
+    box2("Cross frame", darkwood, 0, 0, 0.025, 0.035, 0.6, 0.04, windowGroup);
+    box2("Cross frame", darkwood, 0, 0, 0.025, 0.6, 0.035, 0.04, windowGroup);
     const roof = new Group();
     roof.name = "Removable moss roof";
     house.add(roof);
@@ -33706,7 +33982,7 @@ void main() {
   // src/town-grounds.js
   var mat = (color, extra = {}) => new MeshStandardMaterial({ color, roughness: 0.85, ...extra });
   function kit2(group) {
-    const box = (w, h, d, x2, y, z, m) => {
+    const box2 = (w, h, d, x2, y, z, m) => {
       const mesh = new Mesh(new BoxGeometry(w, h, d), m);
       mesh.position.set(x2, y, z);
       mesh.castShadow = true;
@@ -33727,7 +34003,7 @@ void main() {
       group.add(mesh);
       return mesh;
     };
-    return { box, oval, tube };
+    return { box: box2, oval, tube };
   }
   function woodTexture() {
     const c = document.createElement("canvas");
@@ -33789,22 +34065,22 @@ void main() {
     return mesh;
   }
   function createGarden() {
-    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), soil = mat("#ffffff", { map: soilTexture() }), leaf = mat("#769a43"), darkLeaf = mat("#4e7535"), stem = mat("#738347"), plants = new Group();
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), soil = mat("#ffffff", { map: soilTexture() }), leaf = mat("#769a43"), darkLeaf = mat("#4e7535"), stem = mat("#738347"), plants = new Group();
     group.add(plants);
     const grow = kit2(plants);
-    box(3.15, 0.15, 2.25, 0, 0.02, 0, soil);
-    box(3.3, 0.24, 0.1, 0, 0.12, 1.15, wood);
-    box(3.3, 0.24, 0.1, 0, 0.12, -1.15, wood);
-    [-1.6, 1.6].forEach((x2) => box(0.1, 0.24, 2.4, x2, 0.12, 0, wood));
+    box2(3.15, 0.15, 2.25, 0, 0.02, 0, soil);
+    box2(3.3, 0.24, 0.1, 0, 0.12, 1.15, wood);
+    box2(3.3, 0.24, 0.1, 0, 0.12, -1.15, wood);
+    [-1.6, 1.6].forEach((x2) => box2(0.1, 0.24, 2.4, x2, 0.12, 0, wood));
     for (let x2 = -1.55; x2 < 1.6; x2 += 0.25) {
-      box(0.07, 0.6, 0.07, x2, 0.35, -1.18, wood);
+      box2(0.07, 0.6, 0.07, x2, 0.35, -1.18, wood);
       const top = new Mesh(new ConeGeometry(0.065, 0.12, 4), wood);
       top.position.set(x2, 0.71, -1.18);
       group.add(top);
     }
-    box(3.2, 0.065, 0.08, 0, 0.55, -1.18, wood);
-    [-0.52, 0.52].forEach((x2) => box(0.07, 0.08, 2.2, x2, 0.17, 0, wood));
-    box(3.1, 0.08, 0.06, 0, 0.17, 0, wood);
+    box2(3.2, 0.065, 0.08, 0, 0.55, -1.18, wood);
+    [-0.52, 0.52].forEach((x2) => box2(0.07, 0.08, 2.2, x2, 0.17, 0, wood));
+    box2(3.1, 0.08, 0.06, 0, 0.17, 0, wood);
     const cabbage = (x2, z) => {
       for (let j = 0; j < 7; j++) {
         const a = j * Math.PI * 2 / 7;
@@ -33865,7 +34141,7 @@ void main() {
     return group;
   }
   function createPlaza() {
-    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
     const floor = new Mesh(new CylinderGeometry(1, 1, 0.14, 64), mat("#b6aa90"));
     floor.scale.set(3.15 * Math.SQRT2, 1, 1.8 * Math.SQRT2);
     floor.position.y = 0.02;
@@ -33874,7 +34150,7 @@ void main() {
     for (let row = -7; row <= 7; row++) for (let col = -12; col <= 12; col++) {
       const x2 = col * 0.36 + row % 2 * 0.16, z = row * 0.35;
       if ((x2 / (3.1 * Math.SQRT2)) ** 2 + (z / (1.75 * Math.SQRT2)) ** 2 > 1 || Math.hypot(x2, z) < 0.86) continue;
-      const slab = box(0.33, 0.045, 0.31, x2, 0.115, z, mat(["#cfc4ac", "#bdbaa5", "#d9ceb4"][Math.abs(col + row) % 3]));
+      const slab = box2(0.33, 0.045, 0.31, x2, 0.115, z, mat(["#cfc4ac", "#bdbaa5", "#d9ceb4"][Math.abs(col + row) % 3]));
       slab.rotation.y = Math.sin(col * 7 + row) * 0.04;
     }
     const ring = new Mesh(new TorusGeometry(0.73, 0.11, 8, 40), stone);
@@ -33883,7 +34159,7 @@ void main() {
     ring.visible = false;
     group.add(ring);
     for (let i2 = 0; i2 < 20; i2++) {
-      const a = i2 * Math.PI / 10, brick = box(0.225, 0.18, 0.16, Math.cos(a) * 0.73, 0.25, Math.sin(a) * 0.73, mat(i2 % 2 ? "#c8bca4" : "#d7ccb6"));
+      const a = i2 * Math.PI / 10, brick = box2(0.225, 0.18, 0.16, Math.cos(a) * 0.73, 0.25, Math.sin(a) * 0.73, mat(i2 % 2 ? "#c8bca4" : "#d7ccb6"));
       brick.rotation.y = Math.PI / 2 - a;
     }
     const water = new Mesh(new CircleGeometry(0.7, 40), mat("#7faeb6", { metalness: 0.25, roughness: 0.22, transparent: true, opacity: 0.83 }));
@@ -33927,15 +34203,15 @@ void main() {
     bench(-0.7, 1.45, 0);
     bench(0.7, 1.45, 0);
     const board = (x2, z, title, action) => {
-      box(0.85, 0.8, 0.1, x2, 0.74, z, wood);
-      [-0.35, 0.35].forEach((dx) => box(0.06, 1.2, 0.06, x2 + dx, 0.6, z, wood));
+      box2(0.85, 0.8, 0.1, x2, 0.74, z, wood);
+      [-0.35, 0.35].forEach((dx) => box2(0.06, 1.2, 0.06, x2 + dx, 0.6, z, wood));
       sign3(group, title, x2, 0.8, z + 0.065, action);
-      for (let i2 = 0; i2 < 4; i2++) box(0.15, 0.15, 0.012, x2 - 0.25 + i2 % 2 * 0.48, 0.56 + Math.floor(i2 / 2) * 0.18, z + 0.06, mat(["#e4d08c", "#b9cbbd"][i2 % 2]));
+      for (let i2 = 0; i2 < 4; i2++) box2(0.15, 0.15, 0.012, x2 - 0.25 + i2 % 2 * 0.48, 0.56 + Math.floor(i2 / 2) * 0.18, z + 0.06, mat(["#e4d08c", "#b9cbbd"][i2 % 2]));
     };
     board(-1.8, -1.2, "\u9F20\u9F20\u65E5\u5386", "calendar");
     board(1, -1.3, "\u7269\u54C1\u4EA4\u6362", "exchange");
     for (const [x2, z] of [[-2.6, -0.8], [2.6, -0.65], [-1.75, 1.28], [1.75, 1.28]]) {
-      box(0.58, 0.24, 0.32, x2, 0.18, z, wood);
+      box2(0.58, 0.24, 0.32, x2, 0.18, z, wood);
       for (let i2 = 0; i2 < 6; i2++) {
         const px2 = x2 - 0.23 + i2 * 0.085;
         oval(px2, 0.37, z, 0.055, 0.14, 0.04, mat("#65934b"));
@@ -33945,7 +34221,7 @@ void main() {
         }
       }
     }
-    const stall = box(0.8, 0.45, 0.45, 2.5, 0.26, -0.15, wood);
+    const stall = box2(0.8, 0.45, 0.45, 2.5, 0.26, -0.15, wood);
     stall.userData.townAction = "exchange";
     [-0.2, 0, 0.2].forEach((x2) => oval(2.5 + x2, 0.54, -0.15, 0.08, 0.05, 0.075, mat("#d9b879")));
     const celebration = new Group();
@@ -34019,43 +34295,43 @@ void main() {
     group.add(mesh);
   }
   function createRestaurant() {
-    const group = new Group(), { box, oval } = kit2(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
-    box(3.4, 0.14, 2.6, 0, 0.07, 0, stone);
-    box(3, 1.6, 2.05, 0, 0.94, -0.14, wall);
-    box(3, 0.28, 2.08, 0, 0.24, -0.14, mat(8885898));
+    const group = new Group(), { box: box2, oval } = kit2(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
+    box2(3.4, 0.14, 2.6, 0, 0.07, 0, stone);
+    box2(3, 1.6, 2.05, 0, 0.94, -0.14, wall);
+    box2(3, 0.28, 2.08, 0, 0.24, -0.14, mat(8885898));
     for (const side of [-1, 1]) {
-      const r = box(1.9, 0.12, 2.65, side * 0.77, 2.02, -0.14, roof);
+      const r = box2(1.9, 0.12, 2.65, side * 0.77, 2.02, -0.14, roof);
       r.rotation.z = -side * 0.42;
       for (let row = 0; row < 5; row++) for (let col = 0; col < 8; col++) {
-        const tile = box(0.37, 0.035, 0.32, side * (0.18 + row * 0.31), 2.31 - row * 0.138, -1.25 + col * 0.32, roof);
+        const tile = box2(0.37, 0.035, 0.32, side * (0.18 + row * 0.31), 2.31 - row * 0.138, -1.25 + col * 0.32, roof);
         tile.rotation.z = -side * 0.42;
       }
     }
-    box(0.14, 0.14, 2.7, 0, 2.4, -0.14, wood);
-    box(3.1, 0.12, 0.1, 0, 1.76, 0.93, wood);
-    for (let i2 = 0; i2 < 17; i2++) box(0.055, 0.32, 0.04, -1.4 + i2 * 0.175, 1.96, 0.9, wood);
-    box(0.8, 1.25, 0.07, -0.6, 0.75, 0.92, wood);
-    box(0.62, 0.55, 0.04, -0.6, 1.02, 0.97, mat(10137255));
-    box(0.045, 0.55, 0.045, -0.6, 1.02, 1, wood);
-    box(0.62, 0.045, 0.045, -0.6, 1.02, 1, wood);
+    box2(0.14, 0.14, 2.7, 0, 2.4, -0.14, wood);
+    box2(3.1, 0.12, 0.1, 0, 1.76, 0.93, wood);
+    for (let i2 = 0; i2 < 17; i2++) box2(0.055, 0.32, 0.04, -1.4 + i2 * 0.175, 1.96, 0.9, wood);
+    box2(0.8, 1.25, 0.07, -0.6, 0.75, 0.92, wood);
+    box2(0.62, 0.55, 0.04, -0.6, 1.02, 0.97, mat(10137255));
+    box2(0.045, 0.55, 0.045, -0.6, 1.02, 1, wood);
+    box2(0.62, 0.045, 0.045, -0.6, 1.02, 1, wood);
     oval(-0.29, 0.63, 1, 0.035, 0.035, 0.035, mat(12229207));
-    box(1.15, 0.9, 0.045, 0.62, 1, 0.92, mat(4471600));
-    box(1.25, 0.65, 0.5, 0.65, 0.39, 1.1, wood);
-    box(1.35, 0.07, 0.6, 0.65, 0.75, 1.1, mat(12956305));
+    box2(1.15, 0.9, 0.045, 0.62, 1, 0.92, mat(4471600));
+    box2(1.25, 0.65, 0.5, 0.65, 0.39, 1.1, wood);
+    box2(1.35, 0.07, 0.6, 0.65, 0.75, 1.1, mat(12956305));
     for (let i2 = 0; i2 < 3; i2++) {
       oval(0.3 + i2 * 0.3, 0.85, 1.1, 0.12, 0.05, 0.12, mat(14731668));
-      box(0.17, 0.32, 0.025, 0.3 + i2 * 0.3, 1.48, 0.96, mat(15785914));
+      box2(0.17, 0.32, 0.025, 0.3 + i2 * 0.3, 1.48, 0.96, mat(15785914));
     }
     for (const x2 of [-1.08, 1.08]) {
-      box(0.14, 0.23, 0.1, x2, 1.32, 1.03, wood);
-      box(0.09, 0.16, 0.08, x2, 1.32, 1.09, mat(16047002, { emissive: 13280341, emissiveIntensity: 0.4 }));
+      box2(0.14, 0.23, 0.1, x2, 1.32, 1.03, wood);
+      box2(0.09, 0.16, 0.08, x2, 1.32, 1.09, mat(16047002, { emissive: 13280341, emissiveIntensity: 0.4 }));
     }
-    box(0.045, 0.72, 1.3, 1.52, 1, -0.2, wood);
-    for (let i2 = 0; i2 < 5; i2++) box(0.055, 0.72, 0.045, 1.55, 1, -0.78 + i2 * 0.29, wood);
+    box2(0.045, 0.72, 1.3, 1.52, 1, -0.2, wood);
+    for (let i2 = 0; i2 < 5; i2++) box2(0.055, 0.72, 0.045, 1.55, 1, -0.78 + i2 * 0.29, wood);
     storeSign(group, "\u9F20\u9F20\u996D\u9986", 0, 1.77, 1.015, 2, 0.32, "#c8b291", "#493b2e");
     for (const x2 of [-1.15, 1.15]) {
       oval(x2, 0.54, 1.52, 0.3, 0.055, 0.23, wood);
-      box(0.06, 0.5, 0.06, x2, 0.28, 1.52, wood);
+      box2(0.06, 0.5, 0.06, x2, 0.28, 1.52, wood);
       for (const dx of [-0.36, 0.36]) oval(x2 + dx, 0.26, 1.52, 0.13, 0.2, 0.13, wood);
     }
     for (let i2 = 0; i2 < 9; i2++) oval(-1.4 + i2 * 0.35, 0.17, -1.2, 0.14, 0.12, 0.13, green);
@@ -34063,33 +34339,33 @@ void main() {
     return group;
   }
   function createSnackShop() {
-    const group = new Group(), { box, oval, tube } = kit2(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
-    box(3.5, 0.12, 2.7, 0, 0.02, 0, floor);
-    box(2.9, 1.4, 0.1, 0, 0.78, -0.94, cream);
-    for (const x2 of [-1.42, 1.42]) for (const z of [-0.92, 0.92]) box(0.12, 1.8, 0.12, x2, 0.94, z, cream);
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), cream = mat("#f2dfa1"), pink = mat("#dca3a0"), mint = mat("#a8c2a0"), wood = mat("#c49c68"), floor = mat("#c9bda3");
+    box2(3.5, 0.12, 2.7, 0, 0.02, 0, floor);
+    box2(2.9, 1.4, 0.1, 0, 0.78, -0.94, cream);
+    for (const x2 of [-1.42, 1.42]) for (const z of [-0.92, 0.92]) box2(0.12, 1.8, 0.12, x2, 0.94, z, cream);
     for (const side of [-1, 1]) {
-      const roof = box(3.3, 0.12, 1.4, 0, 1.92, side * 0.55, cream);
+      const roof = box2(3.3, 0.12, 1.4, 0, 1.92, side * 0.55, cream);
       roof.rotation.x = side * 0.38;
       for (let row = 0; row < 4; row++) for (let col = 0; col < 10; col++) {
-        const z = side * (0.15 + row * 0.29), tile = box(0.31, 0.045, 0.31, -1.45 + col * 0.32, 2.25 - Math.abs(z) * 0.4, z, mat(row % 2 ? "#f3e5b4" : "#ead699"));
+        const z = side * (0.15 + row * 0.29), tile = box2(0.31, 0.045, 0.31, -1.45 + col * 0.32, 2.25 - Math.abs(z) * 0.4, z, mat(row % 2 ? "#f3e5b4" : "#ead699"));
         tile.rotation.x = side * 0.38;
       }
     }
     tube([[-1.62, 2.27, 0], [0, 2.27, 0], [1.62, 2.27, 0]], 0.06, cream);
     for (let i2 = 0; i2 < 8; i2++) {
-      const awning = box(0.35, 0.07, 0.65, -1.24 + i2 * 0.355, 1.55, 1.05, [mint, cream, pink, pink, cream, mint, pink, cream][i2]);
+      const awning = box2(0.35, 0.07, 0.65, -1.24 + i2 * 0.355, 1.55, 1.05, [mint, cream, pink, pink, cream, mint, pink, cream][i2]);
       awning.rotation.x = 0.17;
       oval(-1.24 + i2 * 0.355, 1.48, 1.37, 0.175, 0.055, 0.08, [mint, cream, pink, pink, cream, mint, pink, cream][i2]);
     }
-    box(2.5, 0.38, 0.09, 0, 1.89, 1.03, pink);
+    box2(2.5, 0.38, 0.09, 0, 1.89, 1.03, pink);
     storeSign(group, "\u9F20\u9F20\u96F6\u98DF\u94FA", 0, 1.9, 1.085, 2.35, 0.34, "#f5e4b2", "#915e3d");
     const rack = (x2, z, w) => {
-      box(w, 0.64, 0.32, x2, 0.39, z, mint);
+      box2(w, 0.64, 0.32, x2, 0.39, z, mint);
       for (const y of [0.47, 0.78]) {
-        box(w, 0.055, 0.4, x2, y, z, cream);
+        box2(w, 0.055, 0.4, x2, y, z, cream);
         for (let j = 0; j < 3; j++) {
           const cx = x2 - w * 0.32 + j * w * 0.32;
-          box(w * 0.29, 0.1, 0.34, cx, y + 0.06, z, pink);
+          box2(w * 0.29, 0.1, 0.34, cx, y + 0.06, z, pink);
           for (let n = 0; n < 9; n++) {
             const a = n * 2.4, r = 0.05 * Math.sqrt(n);
             oval(cx + Math.cos(a) * r, y + 0.15, z + Math.sin(a) * r, 0.04, 0.035, 0.055, mat(["#c48543", "#a65438", "#e6bd63"][j]));
@@ -34099,20 +34375,20 @@ void main() {
     };
     rack(0, -0.68, 2.45);
     rack(0.95, 0.3, 0.7);
-    box(1.65, 0.62, 0.5, 0.35, 0.35, 1.02, mint);
-    box(1.78, 0.07, 0.56, 0.35, 0.7, 1.02, pink);
+    box2(1.65, 0.62, 0.5, 0.35, 0.35, 1.02, mint);
+    box2(1.78, 0.07, 0.56, 0.35, 0.7, 1.02, pink);
     for (let i2 = 0; i2 < 4; i2++) {
       const x2 = -0.27 + i2 * 0.4;
-      box(0.36, 0.08, 0.4, x2, 0.78, 1.02, cream);
+      box2(0.36, 0.08, 0.4, x2, 0.78, 1.02, cream);
       for (let j = 0; j < 5; j++) oval(x2 + (j % 3 - 1) * 0.07, 0.85, 1.02 + Math.floor(j / 3) * 0.09 - 0.05, 0.04, 0.04, 0.06, mat(i2 % 2 ? "#d4ab62" : "#9f6540"));
     }
-    box(0.65, 0.48, 0.5, -1.03, 0.27, 0.95, mint);
-    box(0.72, 0.06, 0.55, -1.03, 0.53, 0.95, pink);
+    box2(0.65, 0.48, 0.5, -1.03, 0.27, 0.95, mint);
+    box2(0.72, 0.06, 0.55, -1.03, 0.53, 0.95, pink);
     oval(-1.03, 0.58, 0.95, 0.14, 0.02, 0.14, cream);
     for (const side of [-1, 1]) {
       for (let i2 = 0; i2 < 5; i2++) {
         const z = -0.9 + i2 * 0.45;
-        box(0.022, 0.48, 0.022, side * 1.67, 0.3, z, wood);
+        box2(0.022, 0.48, 0.022, side * 1.67, 0.3, z, wood);
       }
       tube([[side * 1.67, 0.45, -0.9], [side * 1.67, 0.48, 0], [side * 1.67, 0.45, 0.9]], 0.012, wood);
     }
@@ -34121,7 +34397,7 @@ void main() {
     return group;
   }
   function createClinic() {
-    const group = new Group(), { box, oval, tube } = kit2(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
     const rounded = (w, d, h, x2, y, z, m) => {
       const r = 0.22, s = new Shape();
       s.moveTo(-w / 2 + r, -d / 2);
@@ -34144,65 +34420,65 @@ void main() {
     };
     rounded(3.5, 2.7, 0.12, 0, -0.02, 0, white);
     rounded(2.95, 1.88, 0.45, 0, 0.13, -0.22, blue);
-    box(2.88, 1.45, 0.09, 0, 0.98, -1.1, white);
+    box2(2.88, 1.45, 0.09, 0, 0.98, -1.1, white);
     for (const side of [-1, 1]) {
-      box(0.09, 1.2, 1.77, side * 1.43, 1.02, -0.22, glass);
-      box(0.11, 1.58, 0.11, side * 1.43, 0.96, 0.67, white);
+      box2(0.09, 1.2, 1.77, side * 1.43, 1.02, -0.22, glass);
+      box2(0.11, 1.58, 0.11, side * 1.43, 0.96, 0.67, white);
     }
     for (const x2 of [-1.04, 1.04]) {
-      box(0.72, 1.16, 0.035, x2, 1.07, 0.71, glass);
-      box(0.025, 1.23, 0.025, x2, 0.99, 0.74, metal);
+      box2(0.72, 1.16, 0.035, x2, 1.07, 0.71, glass);
+      box2(0.025, 1.23, 0.025, x2, 0.99, 0.74, metal);
     }
-    box(0.64, 1.2, 0.035, 0, 0.89, 0.75, glass);
-    for (const x2 of [-0.34, 0.34]) box(0.035, 1.3, 0.04, x2, 0.9, 0.77, white);
-    for (const x2 of [-0.055, 0.055]) box(0.018, 0.19, 0.025, x2, 0.75, 0.79, metal);
+    box2(0.64, 1.2, 0.035, 0, 0.89, 0.75, glass);
+    for (const x2 of [-0.34, 0.34]) box2(0.035, 1.3, 0.04, x2, 0.9, 0.77, white);
+    for (const x2 of [-0.055, 0.055]) box2(0.018, 0.19, 0.025, x2, 0.75, 0.79, metal);
     for (const y of [1.67, 1.76]) {
-      box(3.06, 0.08, 0.13, 0, y, -1.13, white);
-      box(3.06, 0.08, 0.13, 0, y, 0.75, white);
-      for (const side of [-1, 1]) box(0.13, 0.08, 1.95, side * 1.47, y, -0.19, white);
+      box2(3.06, 0.08, 0.13, 0, y, -1.13, white);
+      box2(3.06, 0.08, 0.13, 0, y, 0.75, white);
+      for (const side of [-1, 1]) box2(0.13, 0.08, 1.95, side * 1.47, y, -0.19, white);
     }
     const cross = (x2, y, z, size) => {
-      box(size * 0.27, size, 0.025, x2, y, z, red);
-      box(size, size * 0.27, 0.027, x2, y, z, red);
+      box2(size * 0.27, size, 0.025, x2, y, z, red);
+      box2(size, size * 0.27, 0.027, x2, y, z, red);
     };
     cross(0, 1.32, -1.03, 0.33);
-    box(1.8, 0.36, 0.055, 0, 1.43, 0.85, white);
+    box2(1.8, 0.36, 0.055, 0, 1.43, 0.85, white);
     storeSign(group, "\u9F20\u9F20\u533B\u9662", 0, 1.44, 0.884, 1.65, 0.32, "#f0f6f3", "#3f7180");
     const bed = (x2, z) => {
-      box(0.68, 0.17, 0.92, x2, 0.39, z, blue);
-      box(0.63, 0.09, 0.85, x2, 0.52, z, white);
-      box(0.5, 0.08, 0.24, x2, 0.59, z - 0.25, white);
+      box2(0.68, 0.17, 0.92, x2, 0.39, z, blue);
+      box2(0.63, 0.09, 0.85, x2, 0.52, z, white);
+      box2(0.5, 0.08, 0.24, x2, 0.59, z - 0.25, white);
       for (const end of [-1, 1]) {
-        box(0.65, 0.28, 0.04, x2, 0.58, z + end * 0.45, blue);
+        box2(0.65, 0.28, 0.04, x2, 0.58, z + end * 0.45, blue);
         for (const side of [-1, 1]) oval(x2 + side * 0.26, 0.2, z + end * 0.32, 0.06, 0.06, 0.04, metal);
       }
       for (const side of [-1, 1]) tube([[x2 + side * 0.33, 0.5, z - 0.25], [x2 + side * 0.33, 0.68, z - 0.25], [x2 + side * 0.33, 0.68, z + 0.25], [x2 + side * 0.33, 0.5, z + 0.25]], 0.012, metal);
     };
     bed(-0.88, -0.32);
     bed(0.88, -0.32);
-    box(0.55, 0.85, 0.24, 0, 0.56, -0.85, blue);
+    box2(0.55, 0.85, 0.24, 0, 0.56, -0.85, blue);
     for (let i2 = 0; i2 < 3; i2++) {
-      box(0.46, 0.015, 0.23, 0, 0.23 + i2 * 0.25, -0.83, white);
-      for (const x2 of [-0.12, 0.12]) box(0.055, 0.13, 0.055, x2, 0.32 + i2 * 0.25, -0.8, white);
+      box2(0.46, 0.015, 0.23, 0, 0.23 + i2 * 0.25, -0.83, white);
+      for (const x2 of [-0.12, 0.12]) box2(0.055, 0.13, 0.055, x2, 0.32 + i2 * 0.25, -0.8, white);
     }
-    box(0.9, 0.37, 0.38, -0.92, 0.25, 1.01, white);
-    box(0.95, 0.04, 0.42, -0.92, 0.46, 1.01, blue);
-    box(0.15, 0.11, 0.12, -0.92, 0.54, 1.01, white);
+    box2(0.9, 0.37, 0.38, -0.92, 0.25, 1.01, white);
+    box2(0.95, 0.04, 0.42, -0.92, 0.46, 1.01, blue);
+    box2(0.15, 0.11, 0.12, -0.92, 0.54, 1.01, white);
     for (const x2 of [0.65, 1.02]) {
-      box(0.29, 0.055, 0.28, x2, 0.28, 1.04, blue);
-      box(0.29, 0.29, 0.05, x2, 0.45, 0.92, blue);
-      for (const dx of [-0.1, 0.1]) box(0.025, 0.26, 0.025, x2 + dx, 0.13, 1.04, metal);
+      box2(0.29, 0.055, 0.28, x2, 0.28, 1.04, blue);
+      box2(0.29, 0.29, 0.05, x2, 0.45, 0.92, blue);
+      for (const dx of [-0.1, 0.1]) box2(0.025, 0.26, 0.025, x2 + dx, 0.13, 1.04, metal);
     }
     for (const x2 of [-0.3, 0.3]) tube([[x2, 0.16, 1.27], [x2, 0.4, 1.27], [x2, 0.4, 0.85]], 0.013, metal);
-    box(0.58, 0.045, 0.5, 0, 0.14, 1.04, white);
+    box2(0.58, 0.045, 0.5, 0, 0.14, 1.04, white);
     group.userData.footprint = 3.5 * 2.7;
     return group;
   }
   function createRemembranceHouse(memorial = false) {
-    const group = new Group(), { box, oval, tube } = kit2(group), wall = mat("#eee5cc"), trim = mat(memorial ? "#a7b39a" : "#929ea3"), roof = mat(memorial ? "#c0c9b3" : "#718794"), wood = mat("#a07d55"), stone = mat("#c6c0ad"), leaf = mat("#748257"), door = mat(memorial ? "#8a9976" : "#535d60");
-    box(3.5, 0.12, 2.7, 0, 0.02, 0, stone);
-    box(2.8, 1.45, 1.85, 0, 0.83, -0.27, wall);
-    box(2.85, 0.15, 1.9, 0, 0.18, -0.27, trim);
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wall = mat("#eee5cc"), trim = mat(memorial ? "#a7b39a" : "#929ea3"), roof = mat(memorial ? "#c0c9b3" : "#718794"), wood = mat("#a07d55"), stone = mat("#c6c0ad"), leaf = mat("#748257"), door = mat(memorial ? "#8a9976" : "#535d60");
+    box2(3.5, 0.12, 2.7, 0, 0.02, 0, stone);
+    box2(2.8, 1.45, 1.85, 0, 0.83, -0.27, wall);
+    box2(2.85, 0.15, 1.9, 0, 0.18, -0.27, trim);
     const arch = (x2, y, z, w, h, material2) => {
       const shape = new Shape(), r = w / 2;
       shape.moveTo(-r, 0);
@@ -34235,7 +34511,7 @@ void main() {
     window2(0.96, 0.662);
     for (const side of [-1, 1]) for (const z of [-0.75, -0.1]) window2(side * 1.405, z, side * Math.PI / 2);
     for (const side of [-1, 1]) {
-      const panel = box(1.66, 0.09, 2.12, side * 0.7, 1.87, -0.27, roof);
+      const panel = box2(1.66, 0.09, 2.12, side * 0.7, 1.87, -0.27, roof);
       panel.rotation.z = -side * 0.36;
       for (let i2 = 0; i2 < 6; i2++) {
         const x2 = side * (0.13 + i2 * 0.25);
@@ -34254,25 +34530,25 @@ void main() {
       arch(0, 0.23, 0.68, 0.85, 1.08, stone);
       arch(0, 0.23, 0.69, 0.7, 0.97, door);
       for (const x2 of [-0.045, 0.045]) oval(x2, 0.7, 0.71, 0.025, 0.025, 0.015, mat("#c7a76a"));
-      box(0.012, 0.86, 0.015, 0, 0.66, 0.71, wood);
+      box2(0.012, 0.86, 0.015, 0, 0.66, 0.71, wood);
       for (const x2 of [-0.68, 0.68]) {
         const pillar = new Mesh(new CylinderGeometry(0.075, 0.085, 1.16, 16), wall);
         pillar.position.set(x2, 0.87, 0.88);
         group.add(pillar);
-        for (const y of [0.28, 1.45]) box(0.23, 0.1, 0.25, x2, y, 0.88, stone);
+        for (const y of [0.28, 1.45]) box2(0.23, 0.1, 0.25, x2, y, 0.88, stone);
         for (let i2 = 0; i2 < 8; i2++) {
           const a = i2 * Math.PI / 4;
           tube([[x2 + Math.cos(a) * 0.08, 0.35, 0.88 + Math.sin(a) * 0.08], [x2 + Math.cos(a) * 0.08, 1.38, 0.88 + Math.sin(a) * 0.08]], 8e-3, stone);
         }
       }
-      box(1.65, 0.1, 0.55, 0, 1.53, 0.84, wall);
+      box2(1.65, 0.1, 0.55, 0, 1.53, 0.84, wall);
     } else {
-      box(0.85, 1.05, 0.045, 0, 0.77, 0.69, door);
-      box(0.018, 1, 0.025, 0, 0.77, 0.725, trim);
-      for (const x2 of [-0.06, 0.06]) box(0.02, 0.16, 0.025, x2, 0.72, 0.73, mat("#ba9d61"));
-      box(1.15, 0.1, 0.43, 0, 1.39, 0.85, trim);
+      box2(0.85, 1.05, 0.045, 0, 0.77, 0.69, door);
+      box2(0.018, 1, 0.025, 0, 0.77, 0.725, trim);
+      for (const x2 of [-0.06, 0.06]) box2(0.02, 0.16, 0.025, x2, 0.72, 0.73, mat("#ba9d61"));
+      box2(1.15, 0.1, 0.43, 0, 1.39, 0.85, trim);
     }
-    for (let i2 = 0; i2 < 3; i2++) box(1.04, 0.07, 0.18, 0, 0.19 - i2 * 0.05, 0.81 + i2 * 0.17, stone);
+    for (let i2 = 0; i2 < 3; i2++) box2(1.04, 0.07, 0.18, 0, 0.19 - i2 * 0.05, 0.81 + i2 * 0.17, stone);
     storeSign(group, memorial ? "\u9F20\u9F20\u7EAA\u5FF5\u9986" : "\u9F20\u9F20\u6BA1\u4EEA\u9986", 0, 1.77, 0.72, 1.6, 0.26, "#f0e5c9", "#655340");
     const flowers = (x2, z) => {
       oval(x2, 0.17, z, 0.15, 0.12, 0.14, leaf);
@@ -34282,23 +34558,23 @@ void main() {
       }
     };
     for (const side of [-1, 1]) {
-      box(0.33, 0.14, 1.95, side * 1.56, 0.12, -0.1, stone);
+      box2(0.33, 0.14, 1.95, side * 1.56, 0.12, -0.1, stone);
       for (let i2 = 0; i2 < 6; i2++) oval(side * 1.56, 0.28, -0.85 + i2 * 0.3, 0.13, 0.13, 0.14, leaf);
-      for (let i2 = 0; i2 < 4; i2++) box(0.02, 0.42, 0.02, side * 1.73, 0.27, -0.9 + i2 * 0.55, wood);
+      for (let i2 = 0; i2 < 4; i2++) box2(0.02, 0.42, 0.02, side * 1.73, 0.27, -0.9 + i2 * 0.55, wood);
       tube([[side * 1.73, 0.42, -0.9], [side * 1.73, 0.45, 0.1], [side * 1.73, 0.42, 0.9]], 0.011, wood);
       flowers(side * 1.05, 0.94);
     }
     if (memorial) {
-      const display = box(0.68, 0.62, 0.08, 1.14, 0.6, 1.05, wood);
+      const display = box2(0.68, 0.62, 0.08, 1.14, 0.6, 1.05, wood);
       for (let i2 = 0; i2 < 9; i2++) {
         const x2 = 0.94 + i2 % 3 * 0.2, y = 0.44 + Math.floor(i2 / 3) * 0.17;
         oval(x2, y, 1.1, 0.065, 0.065, 0.018, stone);
         oval(x2, y, 1.12, 0.037, 0.04, 8e-3, trim);
       }
-      box(0.72, 0.05, 0.35, 1.14, 0.25, 1.04, wood);
-      box(0.55, 0.025, 0.3, -0.95, 0.42, 1.09, wood);
-      for (const x2 of [-1.13, -0.77]) box(0.035, 0.36, 0.04, x2, 0.22, 1.09, wood);
-      box(0.55, 0.22, 0.035, -0.95, 0.53, 0.96, wood);
+      box2(0.72, 0.05, 0.35, 1.14, 0.25, 1.04, wood);
+      box2(0.55, 0.025, 0.3, -0.95, 0.42, 1.09, wood);
+      for (const x2 of [-1.13, -0.77]) box2(0.035, 0.36, 0.04, x2, 0.22, 1.09, wood);
+      box2(0.55, 0.22, 0.035, -0.95, 0.53, 0.96, wood);
     } else {
       for (const x2 of [-1.03, 1.03]) {
         const wreath = new Mesh(new TorusGeometry(0.14, 0.04, 8, 20), leaf);
@@ -34315,10 +34591,10 @@ void main() {
     return group;
   }
   function createCemetery() {
-    const group = new Group(), { box, oval, tube } = kit2(group), stone = mat("#aaa99a"), cap = mat("#c4c2af"), grass = mat("#8f9e72"), leaf = mat("#697d50"), iron = mat("#6c6653"), wood = mat("#9c7951");
-    box(4.2, 0.1, 3.2, 0, 0.01, 0, grass);
-    box(0.65, 0.04, 3.1, 0, 0.09, 0, cap);
-    box(4, 0.035, 0.45, 0, 0.09, 0.08, cap);
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), stone = mat("#aaa99a"), cap = mat("#c4c2af"), grass = mat("#8f9e72"), leaf = mat("#697d50"), iron = mat("#6c6653"), wood = mat("#9c7951");
+    box2(4.2, 0.1, 3.2, 0, 0.01, 0, grass);
+    box2(0.65, 0.04, 3.1, 0, 0.09, 0, cap);
+    box2(4, 0.035, 0.45, 0, 0.09, 0.08, cap);
     for (let i2 = 0; i2 < 155; i2++) {
       const x2 = Math.sin(i2 * 17.3) * 0.25, z = Math.cos(i2 * 7.1) * 1.45;
       oval(x2, 0.12, z, 0.035, 0.016, 0.045, i2 % 3 ? stone : cap);
@@ -34327,30 +34603,30 @@ void main() {
       const x2 = Math.sin(i2 * 12.7) * 1.9, z = Math.cos(i2 * 6.7) * 0.16;
       oval(x2, 0.12, z, 0.035, 0.015, 0.04, stone);
     }
-    box(4.2, 0.36, 0.1, 0, 0.23, -1.56, stone);
+    box2(4.2, 0.36, 0.1, 0, 0.23, -1.56, stone);
     for (const side of [-1, 1]) {
-      box(0.1, 0.36, 3.2, side * 2.05, 0.23, 0, stone);
-      box(1.52, 0.36, 0.1, side * 1.3, 0.23, 1.56, stone);
+      box2(0.1, 0.36, 3.2, side * 2.05, 0.23, 0, stone);
+      box2(1.52, 0.36, 0.1, side * 1.3, 0.23, 1.56, stone);
       for (let i2 = 0; i2 < 13; i2++) {
         const z = -1.5 + i2 * 0.25;
-        box(0.015, 0.64, 0.015, side * 2.05, 0.71, z, iron);
+        box2(0.015, 0.64, 0.015, side * 2.05, 0.71, z, iron);
       }
       tube([[side * 2.05, 0.57, -1.5], [side * 2.05, 0.57, 1.5]], 0.012, iron);
       tube([[side * 2.05, 0.83, -1.5], [side * 2.05, 0.83, 1.5]], 0.012, iron);
-      box(0.17, 0.84, 0.18, side * 0.58, 0.44, 1.58, wood);
-      box(0.25, 0.06, 0.25, side * 0.58, 0.88, 1.58, cap);
+      box2(0.17, 0.84, 0.18, side * 0.58, 0.44, 1.58, wood);
+      box2(0.25, 0.06, 0.25, side * 0.58, 0.88, 1.58, cap);
     }
-    for (let i2 = 0; i2 < 17; i2++) box(0.015, 0.64, 0.015, -2 + i2 * 0.25, 0.71, -1.56, iron);
-    for (const y of [0.57, 0.83]) box(4.1, 0.022, 0.022, 0, y, -1.56, iron);
+    for (let i2 = 0; i2 < 17; i2++) box2(0.015, 0.64, 0.015, -2 + i2 * 0.25, 0.71, -1.56, iron);
+    for (const y of [0.57, 0.83]) box2(4.1, 0.022, 0.022, 0, y, -1.56, iron);
     for (const x2 of [-1.92, 1.92, -0.47, 0.47]) for (let i2 = 0; i2 < 10; i2++) {
       const z = -1.35 + i2 * 0.28;
       if (Math.abs(z) < 0.32) continue;
       oval(x2, 0.19, z, 0.09, 0.13, 0.1, leaf);
     }
-    box(1.78, 1.08, 0.24, 0, 0.64, -1.27, stone);
+    box2(1.78, 1.08, 0.24, 0, 0.64, -1.27, stone);
     for (let row = 0; row < 3; row++) for (let col = 0; col < 5; col++) {
       const x2 = -0.7 + col * 0.35, y = 0.3 + row * 0.32;
-      box(0.29, 0.24, 0.025, x2, y, -1.135, iron);
+      box2(0.29, 0.24, 0.025, x2, y, -1.135, iron);
       oval(x2, y - 0.015, -1.08, 0.063, 0.075, 0.05, cap);
     }
     storeSign(group, "\u9F20\u9F20\u7EAA\u5FF5\u5893\u56ED", -1.25, 0.29, 1.622, 1.25, 0.22, "#d2bd93", "#66533c");
@@ -34393,7 +34669,7 @@ void main() {
     return group;
   }
   function createSchool() {
-    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
     const cylinder = (top, bottom, h, x2, y, z, m) => {
       const mesh = new Mesh(new CylinderGeometry(top, bottom, h, 40), m);
       mesh.position.set(x2, y, z);
@@ -34402,25 +34678,25 @@ void main() {
       group.add(mesh);
       return mesh;
     };
-    box(4.7, 0.12, 3.8, 0, 0.02, 0.3, stone);
+    box2(4.7, 0.12, 3.8, 0, 0.02, 0.3, stone);
     cylinder(1.26, 1.35, 0.2, 0, 0.13, -0.35, stone);
     cylinder(1.16, 1.16, 1.15, 0, 0.8, -0.35, wood);
     cylinder(0.99, 1.5, 0.28, 0, 1.46, -0.35, roof);
     cylinder(0.83, 0.83, 0.85, 0, 1.99, -0.35, wood);
     cylinder(0.25, 1.18, 0.48, 0, 2.65, -0.35, roof);
     for (const [radius, y] of [[1.38, 1.48], [1.07, 2.54], [0.78, 2.69], [0.49, 2.81]]) for (let i2 = 0; i2 < 28; i2++) {
-      const a = i2 * Math.PI * 2 / 28, m = box(0.17, 0.045, 0.23, Math.sin(a) * radius, y, Math.cos(a) * radius - 0.35, roof);
+      const a = i2 * Math.PI * 2 / 28, m = box2(0.17, 0.045, 0.23, Math.sin(a) * radius, y, Math.cos(a) * radius - 0.35, roof);
       m.rotation.y = a;
       m.rotation.x = 0.25;
     }
     for (let i2 = 0; i2 < 38; i2++) {
       const a = i2 * Math.PI * 2 / 38;
-      const plank = box(0.015, 1.04, 0.025, Math.sin(a) * 1.167, 0.81, Math.cos(a) * 1.167 - 0.35, mat("#a37b48"));
+      const plank = box2(0.015, 1.04, 0.025, Math.sin(a) * 1.167, 0.81, Math.cos(a) * 1.167 - 0.35, mat("#a37b48"));
       plank.rotation.y = a;
     }
-    const door = box(0.56, 0.82, 0.08, 0, 0.52, 0.83, mat("#68452e"));
+    const door = box2(0.56, 0.82, 0.08, 0, 0.52, 0.83, mat("#68452e"));
     oval(0, 0.94, 0.84, 0.29, 0.25, 0.055, mat("#68452e"));
-    box(0.65, 0.08, 0.3, 0, 0.13, 1.02, wood);
+    box2(0.65, 0.08, 0.3, 0, 0.13, 1.02, wood);
     oval(0.19, 0.52, 0.89, 0.04, 0.04, 0.04, gold);
     sign3(group, "\u9F20\u9F20\u5B66\u6821", 0, 1.2, 1.19);
     for (const [x2, y, z, a] of [[-0.78, 0.84, 0.5, -0.65], [0.78, 0.84, 0.5, 0.65], [-0.52, 2.01, 0.32, -0.55], [0.52, 2.01, 0.32, 0.55]]) {
@@ -34430,11 +34706,11 @@ void main() {
       group.add(frame);
       const pane = oval(x2, y, z, 0.21, 0.21, 0.035, green);
       pane.rotation.y = a;
-      box(0.025, 0.38, 0.07, x2, y, z + 0.03, wood);
-      box(0.38, 0.025, 0.07, x2, y, z + 0.03, wood);
+      box2(0.025, 0.38, 0.07, x2, y, z + 0.03, wood);
+      box2(0.38, 0.025, 0.07, x2, y, z + 0.03, wood);
     }
     cylinder(0.53, 0.57, 0.12, 0, 3.04, -0.35, wood);
-    for (const x2 of [-0.38, 0.38]) for (const z of [-0.73, 0.03]) box(0.09, 0.66, 0.09, x2, 3.4, z, wood);
+    for (const x2 of [-0.38, 0.38]) for (const z of [-0.73, 0.03]) box2(0.09, 0.66, 0.09, x2, 3.4, z, wood);
     cylinder(0.08, 0.15, 0.08, 0, 3.62, -0.35, gold);
     cylinder(0.12, 0.23, 0.33, 0, 3.43, -0.35, gold);
     oval(0, 3.22, -0.35, 0.035, 0.06, 0.035, gold);
@@ -34442,30 +34718,30 @@ void main() {
     cap.rotation.y = Math.PI / 4;
     cap.position.set(0, 3.95, -0.35);
     group.add(cap);
-    box(1, 0.63, 0.055, -1.65, 0.62, 0.95, green);
-    [-2.06, -1.24].forEach((x2) => box(0.055, 0.82, 0.055, x2, 0.43, 0.95, wood));
+    box2(1, 0.63, 0.055, -1.65, 0.62, 0.95, green);
+    [-2.06, -1.24].forEach((x2) => box2(0.055, 0.82, 0.055, x2, 0.43, 0.95, wood));
     sign3(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99);
     for (const x2 of [-1.65, -0.72]) {
-      box(0.68, 0.42, 0.43, x2, 0.3, 1.62, wood);
-      for (const dx of [-0.27, 0.27]) box(0.04, 0.42, 0.04, x2 + dx, 0.22, 1.62, wood);
-      box(0.3, 0.035, 0.23, x2, 0.54, 1.62, paper);
-      box(0.35, 0.2, 0.3, x2, 0.16, 1.97, wood);
+      box2(0.68, 0.42, 0.43, x2, 0.3, 1.62, wood);
+      for (const dx of [-0.27, 0.27]) box2(0.04, 0.42, 0.04, x2 + dx, 0.22, 1.62, wood);
+      box2(0.3, 0.035, 0.23, x2, 0.54, 1.62, paper);
+      box2(0.35, 0.2, 0.3, x2, 0.16, 1.97, wood);
     }
-    for (const x2 of [1.35, 2.13]) box(0.065, 1.1, 0.065, x2, 0.56, 0.65, wood);
-    box(0.9, 0.06, 0.07, 1.74, 1.13, 0.65, wood);
+    for (const x2 of [1.35, 2.13]) box2(0.065, 1.1, 0.065, x2, 0.56, 0.65, wood);
+    box2(0.9, 0.06, 0.07, 1.74, 1.13, 0.65, wood);
     for (const x2 of [1.48, 2]) tube([[x2, 1.1, 0.65], [x2, 0.45, 0.65]], 0.01, gold);
-    box(0.6, 0.06, 0.25, 1.74, 0.43, 0.65, wood);
-    box(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, wood);
+    box2(0.6, 0.06, 0.25, 1.74, 0.43, 0.65, wood);
+    box2(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, wood);
     sign3(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8);
     for (let i2 = 0; i2 < 24; i2++) {
       const x2 = -2.3 + i2 * 0.2;
-      box(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
+      box2(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
     }
     group.userData.footprint = 4.7 * 3.8;
     return group;
   }
   function createWheelPark() {
-    const group = new Group(), { box, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), dark = mat("#805638"), stone = mat("#c5b99d"), grass = mat("#90a165"), track = mat("#c89258"), line = mat("#ece0bc"), metal = mat("#9b9c8c", { metalness: 0.4, roughness: 0.45 }), wheels = [];
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), dark = mat("#805638"), stone = mat("#c5b99d"), grass = mat("#90a165"), track = mat("#c89258"), line = mat("#ece0bc"), metal = mat("#9b9c8c", { metalness: 0.4, roughness: 0.45 }), wheels = [];
     const disk = (r, h, x2, y, z, m) => {
       const o = new Mesh(new CylinderGeometry(r, r, h, 64), m);
       o.position.set(x2, y, z);
@@ -34506,7 +34782,7 @@ void main() {
         slat.rotation.z = -a;
       }
       parts.oval(0, 0, 0.24, 0.14, 0.14, 0.07, dark);
-      box(r * 0.85, 0.1, 0.68, x2, 0.17, z, wood);
+      box2(r * 0.85, 0.1, 0.68, x2, 0.17, z, wood);
       for (const dz of [-0.3, 0.3]) {
         const stand = new Mesh(new CylinderGeometry(0.08, 0.22, r + 0.18, 3), wood);
         stand.position.set(x2, (r + 0.18) / 2 + 0.18, z + dz);
@@ -34520,24 +34796,24 @@ void main() {
     wheel(0.96, 0.52, 0.27);
     wheel(-0.65, -1.02, 0.25);
     for (const [x2, z] of [[0.9, -0.75], [-0.75, 1.07]]) {
-      for (const dx of [-0.3, 0.3]) box(0.08, 0.32, 0.08, x2 + dx, 0.25, z, wood);
-      box(0.68, 0.06, 0.08, x2, 0.42, z, line);
+      for (const dx of [-0.3, 0.3]) box2(0.08, 0.32, 0.08, x2 + dx, 0.25, z, wood);
+      box2(0.68, 0.06, 0.08, x2, 0.42, z, line);
     }
-    for (let i2 = 0; i2 < 7; i2++) box(0.36, 0.05, 0.1, 0.88, 0.14, -0.35 + i2 * 0.105, wood);
+    for (let i2 = 0; i2 < 7; i2++) box2(0.36, 0.05, 0.1, 0.88, 0.14, -0.35 + i2 * 0.105, wood);
     for (let i2 = 0; i2 < 3; i2++) {
-      box(0.78, 0.18, 0.25, 1.48, 0.18 + i2 * 0.18, -0.74 - i2 * 0.2, wood);
+      box2(0.78, 0.18, 0.25, 1.48, 0.18 + i2 * 0.18, -0.74 - i2 * 0.2, wood);
     }
-    box(0.8, 0.55, 0.06, 1.48, 0.75, -1.28, wood);
+    box2(0.8, 0.55, 0.06, 1.48, 0.75, -1.28, wood);
     disk(0.2, 0.15, 0.5, 0.16, 1.03, wood);
     disk(0.165, 0.015, 0.5, 0.245, 1.03, mat("#72a4af", { roughness: 0.2 }));
     tube([[0.55, 0.24, 1.03], [0.55, 0.44, 1.03], [0.49, 0.46, 1.03]], 0.017, metal);
-    box(0.65, 0.12, 0.25, 0.87, 0.26, 1.51, wood);
-    for (const x2 of [0.6, 1.14]) box(0.05, 0.23, 0.05, x2, 0.15, 1.51, wood);
+    box2(0.65, 0.12, 0.25, 0.87, 0.26, 1.51, wood);
+    for (const x2 of [0.6, 1.14]) box2(0.05, 0.23, 0.05, x2, 0.15, 1.51, wood);
     for (let i2 = 0; i2 < 38; i2++) {
       const a = i2 * Math.PI * 2 / 38;
       if (a < 0.23 || a > Math.PI * 2 - 0.23) continue;
       const x2 = Math.sin(a) * 2.19, z = Math.cos(a) * 2.19;
-      box(0.03, 0.36, 0.03, x2, 0.26, z, dark);
+      box2(0.03, 0.36, 0.03, x2, 0.26, z, dark);
       tube([[x2 * 0.985, 0.26, z * 0.985], [x2, 0.46, z], [x2 * 1.025, 0.54, z * 1.025]], 9e-3, dark);
     }
     for (const y of [0.25, 0.41]) tube(Array.from({ length: 48 }, (_, i2) => {
@@ -34548,7 +34824,7 @@ void main() {
       const a = i2 * 2.4, x2 = Math.sin(a) * 2.12, z = Math.cos(a) * 2.12;
       oval(x2, 0.1, z, 0.09, 0.025, 0.065, grass);
       if (i2 % 3 === 0) {
-        box(0.015, 0.13, 0.015, x2, 0.16, z, line);
+        box2(0.015, 0.13, 0.015, x2, 0.16, z, line);
         oval(x2, 0.24, z, 0.06, 0.035, 0.06, mat("#c67b43"));
         oval(x2 + 0.01, 0.25, z + 0.02, 0.016, 9e-3, 0.015, paperMaterial());
       }
@@ -34557,7 +34833,7 @@ void main() {
       return mat("#eee4c6");
     }
     sign3(group, "\u8DD1\u8F6E\u516C\u56ED", -0.85, 1.01, 1.59);
-    [-1.27, -0.43].forEach((x2) => box(0.055, 1.15, 0.055, x2, 0.56, 1.56, wood));
+    [-1.27, -0.43].forEach((x2) => box2(0.055, 1.15, 0.055, x2, 0.56, 1.56, wood));
     sign3(group, "\u8FD0\u52A8\u4E0E\u996E\u6C34", 1.12, 0.77, 1.5);
     group.userData.wheels = wheels;
     group.userData.setRunning = (dt, active) => {
@@ -35250,7 +35526,7 @@ void main() {
       super(manager);
     }
     /**
-     * Starts loading from the given URL and passes the loaded FBX asset
+     * Starts loading from the given URL and passes the loaded FBX asse
      * to the `onLoad()` callback.
      *
      * @param {string} url - The path/URL of the file to be loaded. This can also be a data URI.
@@ -35377,7 +35653,7 @@ void main() {
       }
       return images;
     }
-    // Parse embedded image data in FBXTree.Video.Content
+    // Parse embedded image data in FBXTree.Video.Conten
     parseImage(videoNode) {
       const content = videoNode.Content;
       const fileName = videoNode.RelativeFilename || videoNode.Filename;
@@ -35900,7 +36176,7 @@ void main() {
       }
       return model;
     }
-    // Create a DirectionalLight, PointLight or SpotLight
+    // Create a DirectionalLight, PointLight or SpotLigh
     createLight(relationships) {
       let model;
       let lightAttribute;
@@ -36407,7 +36683,7 @@ void main() {
       return {
         normal: normalVector,
         tangent,
-        bitangent
+        bitangen
       };
     }
     flattenVertex(vertex2, normalTangent, normalBitangent) {
@@ -37539,7 +37815,7 @@ void main() {
       }
       return a;
     }
-    // Note: see getInt64() comment
+    // Note: see getInt64() commen
     getUint64() {
       let low, high;
       if (this.littleEndian) {
@@ -37738,7 +38014,7 @@ void main() {
       // -> ZXY extrinsic
       "XYZ"
       // -> ZYX extrinsic
-      //'SphericXYZ', // not possible to support
+      //'SphericXYZ', // not possible to suppor
     ];
     if (order === 6) {
       console.warn("THREE.FBXLoader: unsupported Euler Order: Spherical XYZ. Animations and rotations may be incorrect.");
@@ -37827,8 +38103,9 @@ void main() {
       return model;
     }
     if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
-      const cottage = createCottage({ density: 0.25 });
-      cottage.scale.setScalar(0.8);
+      const cottage = new Group(), body2 = createCottage({ density: 0.25 });
+      body2.scale.setScalar(0.8);
+      cottage.add(body2);
       cottage.position.set(x2, 0, z);
       cottage.traverse((o) => o.userData.place = name);
       return cottage;
@@ -37858,7 +38135,7 @@ void main() {
       door.position.set(0, 0.38, -0.85);
       group.add(door);
     }
-    const box = (w, h, d, px2, py2, pz2, tone) => {
+    const box2 = (w, h, d, px2, py2, pz2, tone) => {
       const mesh = new Mesh(new BoxGeometry(w, h, d), new MeshStandardMaterial({ color: tone, roughness: 0.85 }));
       mesh.position.set(px2, py2, pz2);
       mesh.castShadow = true;
@@ -37866,58 +38143,58 @@ void main() {
       return mesh;
     };
     if (!["\u4E2D\u5FC3\u5E7F\u573A", "\u8DD1\u8F6E\u516C\u56ED", "\u5C0F\u83DC\u56ED", "\u5893\u5730"].includes(name)) {
-      box(2.8, 0.15, 2, 0, 0.06, 0, 12891293);
+      box2(2.8, 0.15, 2, 0, 0.06, 0, 12891293);
       [-0.78, 0.78].forEach((x3) => {
-        box(0.55, 0.48, 0.08, x3, 0.66, 0.86, 15524538);
-        box(0.04, 0.49, 0.1, x3, 0.66, 0.91, 7953475);
-        box(0.56, 0.04, 0.1, x3, 0.66, 0.91, 7953475);
+        box2(0.55, 0.48, 0.08, x3, 0.66, 0.86, 15524538);
+        box2(0.04, 0.49, 0.1, x3, 0.66, 0.91, 7953475);
+        box2(0.56, 0.04, 0.1, x3, 0.66, 0.91, 7953475);
       });
-      box(0.52, 0.72, 0.09, 0, 0.4, 0.88, 7755840);
-      box(0.8, 0.12, 0.42, 0, 0.08, 1.04, 11706762);
-      for (let y = 0.23; y < 0.98; y += 0.18) box(2.52, 0.025, 1.67, 0, y, 0, 10785660);
+      box2(0.52, 0.72, 0.09, 0, 0.4, 0.88, 7755840);
+      box2(0.8, 0.12, 0.42, 0, 0.08, 1.04, 11706762);
+      for (let y = 0.23; y < 0.98; y += 0.18) box2(2.52, 0.025, 1.67, 0, y, 0, 10785660);
     }
     if (name === "\u8BCA\u6240") {
-      box(0.18, 0.65, 0.12, 0, 1.25, 1, 5409913);
-      box(0.6, 0.18, 0.12, 0, 1.25, 1, 5409913);
+      box2(0.18, 0.65, 0.12, 0, 1.25, 1, 5409913);
+      box2(0.6, 0.18, 0.12, 0, 1.25, 1, 5409913);
     }
     if (name === "\u96F6\u98DF\u94FA") {
-      for (let i2 = 0; i2 < 8; i2++) box(0.34, 0.1, 0.85, -1.2 + i2 * 0.34, 1.02, 1.08, i2 % 2 ? 16049865 : 12154707);
-      box(2.3, 0.35, 0.55, 0, 0.25, 1.25, 9464906);
-      for (let i2 = 0; i2 < 5; i2++) box(0.3, 0.15, 0.32, -0.85 + i2 * 0.42, 0.5, 1.25, 14201685);
+      for (let i2 = 0; i2 < 8; i2++) box2(0.34, 0.1, 0.85, -1.2 + i2 * 0.34, 1.02, 1.08, i2 % 2 ? 16049865 : 12154707);
+      box2(2.3, 0.35, 0.55, 0, 0.25, 1.25, 9464906);
+      for (let i2 = 0; i2 < 5; i2++) box2(0.3, 0.15, 0.32, -0.85 + i2 * 0.42, 0.5, 1.25, 14201685);
     }
     if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
-      box(0.32, 0.9, 0.35, 0.75, 1.5, -0.25, 10119760);
-      box(1, 0.12, 0.5, -1.5, 0.12, 0.3, 12226919);
+      box2(0.32, 0.9, 0.35, 0.75, 1.5, -0.25, 10119760);
+      box2(1, 0.12, 0.5, -1.5, 0.12, 0.3, 12226919);
     }
     if (name === "\u7EAA\u5FF5\u9986") {
-      [-1, -0.5, 0.5, 1].forEach((x3) => box(0.14, 1.1, 0.18, x3, 0.6, 1, 14866887));
-      box(2.8, 0.18, 0.45, 0, 1.15, 1, 13155495);
+      [-1, -0.5, 0.5, 1].forEach((x3) => box2(0.14, 1.1, 0.18, x3, 0.6, 1, 14866887));
+      box2(2.8, 0.18, 0.45, 0, 1.15, 1, 13155495);
     }
     if (name === "\u6BA1\u4EEA\u9986") {
-      box(2.7, 0.14, 0.7, 0, 1.03, 1, 7108467);
-      [-1, 1].forEach((x3) => box(0.12, 0.9, 0.12, x3, 0.5, 1.25, 11184540));
+      box2(2.7, 0.14, 0.7, 0, 1.03, 1, 7108467);
+      [-1, 1].forEach((x3) => box2(0.12, 0.9, 0.12, x3, 0.5, 1.25, 11184540));
     }
     if (["\u8DD1\u8F6E\u516C\u56ED", "\u5C0F\u83DC\u56ED", "\u5893\u5730"].includes(name)) {
       while (group.children.length) {
         group.remove(group.children[0]);
       }
-      box(3, 0.12, 2.2, 0, 0.02, 0, name === "\u5C0F\u83DC\u56ED" ? 7099452 : 11187858);
-      for (let x3 = -1.5; x3 <= 1.5; x3 += 0.3) box(0.06, 0.5, 0.06, x3, 0.25, -1.12, 14733743);
-      box(3, 0.07, 0.07, 0, 0.35, -1.12, 13087635);
+      box2(3, 0.12, 2.2, 0, 0.02, 0, name === "\u5C0F\u83DC\u56ED" ? 7099452 : 11187858);
+      for (let x3 = -1.5; x3 <= 1.5; x3 += 0.3) box2(0.06, 0.5, 0.06, x3, 0.25, -1.12, 14733743);
+      box2(3, 0.07, 0.07, 0, 0.35, -1.12, 13087635);
     }
     if (name === "\u8DD1\u8F6E\u516C\u56ED") {
       const wheel = new Mesh(new TorusGeometry(0.82, 0.1, 12, 48), new MeshStandardMaterial({ color: 9267536 }));
       wheel.position.y = 1;
       group.add(wheel);
       for (let i2 = 0; i2 < 12; i2++) {
-        const spoke = box(0.04, 1.6, 0.06, 0, 1, 0, 11770483);
+        const spoke = box2(0.04, 1.6, 0.06, 0, 1, 0, 11770483);
         spoke.rotation.z = i2 * Math.PI / 6;
       }
-      box(1.5, 0.15, 0.9, 0, 0.18, 0, 7694160);
+      box2(1.5, 0.15, 0.9, 0, 0.18, 0, 7694160);
     }
     if (name === "\u5C0F\u83DC\u56ED") {
       for (let x3 = -1; x3 <= 1; x3 += 0.65) {
-        box(0.42, 0.13, 1.6, x3, 0.16, 0, 5323305);
+        box2(0.42, 0.13, 1.6, x3, 0.16, 0, 5323305);
         for (let z2 = -0.65; z2 <= 0.65; z2 += 0.4) {
           const leaf = new Mesh(new SphereGeometry(0.18, 10, 8), new MeshStandardMaterial({ color: 5998664 }));
           leaf.scale.y = 0.55;
@@ -37928,8 +38205,8 @@ void main() {
     }
     if (name === "\u5893\u5730") {
       for (let x3 = -0.9; x3 <= 0.9; x3 += 0.9) {
-        box(0.48, 0.55, 0.16, x3, 0.32, 0, 12172725);
-        box(0.64, 0.09, 0.6, x3, 0.12, 0.2, 13158845);
+        box2(0.48, 0.55, 0.16, x3, 0.32, 0, 12172725);
+        box2(0.64, 0.09, 0.6, x3, 0.12, 0.2, 13158845);
       }
     }
     group.traverse((o) => o.userData.place = name);
@@ -37962,9 +38239,9 @@ void main() {
         };
         child.material = Array.isArray(child.material) ? child.material.map(material2) : material2(child.material);
       });
-      const box = new Box3().setFromObject(model), size = box.getSize(new Vector3()), center = box.getCenter(new Vector3()), scale = 0.62 / Math.max(size.x, size.y, size.z);
+      const box2 = new Box3().setFromObject(model), size = box2.getSize(new Vector3()), center = box2.getCenter(new Vector3()), scale = 0.62 / Math.max(size.x, size.y, size.z);
       model.scale.setScalar(scale);
-      model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
+      model.position.set(-center.x * scale, -box2.min.y * scale, -center.z * scale);
       rig.add(model);
       model.updateMatrixWorld(true);
       const tuckShoulder = (armName, foreArmName) => {
@@ -37980,7 +38257,7 @@ void main() {
       const tuckForearm = (foreArmName, handName) => {
         const foreArm = bones[foreArmName], hand = bones[handName];
         if (!foreArm || !hand || !foreArm.bone.parent) return;
-        const elbow = model.worldToLocal(foreArm.bone.getWorldPosition(new Vector3())), side = Math.sign(elbow.x) || (foreArmName.includes("Left") ? 1 : -1), paw = new Vector3(side * size.x * 0.105, center.y + size.y * 0.035, box.max.z + size.z * 0.035), target = foreArm.bone.parent.worldToLocal(model.localToWorld(paw)), current = hand.bone.position.clone().normalize().applyQuaternion(foreArm.base), desired = target.sub(foreArm.bone.position).normalize(), correction = new Quaternion().setFromUnitVectors(current, desired);
+        const elbow = model.worldToLocal(foreArm.bone.getWorldPosition(new Vector3())), side = Math.sign(elbow.x) || (foreArmName.includes("Left") ? 1 : -1), paw = new Vector3(side * size.x * 0.105, center.y + size.y * 0.035, box2.max.z + size.z * 0.035), target = foreArm.bone.parent.worldToLocal(model.localToWorld(paw)), current = hand.bone.position.clone().normalize().applyQuaternion(foreArm.base), desired = target.sub(foreArm.bone.position).normalize(), correction = new Quaternion().setFromUnitVectors(current, desired);
         foreArm.base = correction.multiply(foreArm.base.clone());
         foreArm.bone.quaternion.copy(foreArm.base);
       };
@@ -38011,7 +38288,7 @@ void main() {
     camera.position.set(13, 15, 17);
     camera.lookAt(0, 0, 1);
     const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     renderer.toneMapping = ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true;
@@ -38021,8 +38298,16 @@ void main() {
     const sun = new DirectionalLight(16770237, 3.1);
     sun.position.set(-8, 15, -7);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 0.5, far: 60 });
+    sun.shadow.normalBias = 0.015;
+    sun.shadow.bias = -15e-5;
     scene.add(sun);
+    const pmrem = new PMREMGenerator(renderer), environment = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(environment, 0.04).texture;
+    scene.environmentIntensity = 0.25;
+    environment.dispose();
+    pmrem.dispose();
     const ground = new Mesh(new CylinderGeometry(18, 18.5, 0.65, 64), new MeshStandardMaterial({ color: 10468753, roughness: 1 }));
     ground.position.y = -0.35;
     ground.receiveShadow = true;
@@ -38084,6 +38369,7 @@ void main() {
       const obj = roundedBuilding(...place);
       obj.rotation.y = facing(place[0]);
       placeModels.set(place[0], obj);
+      installBuildingPortal(obj, place[0]);
       clickable.push(obj);
       scene.add(obj);
     });
@@ -38179,11 +38465,13 @@ void main() {
     let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     let focusedExhibit = null;
+    let lookSensitivity = 1;
     let showFirstPersonHud = false;
     let firstPerson = false, playerYaw = 0, playerPitch = 0, playerSavedCamera = null, jumpHeight = 0, jumpVelocity = 0;
     const playerKeys = /* @__PURE__ */ new Set();
+    const roomCache = /* @__PURE__ */ new Map();
     const target = new Vector3(0, 0, 1);
-    const room = new Group();
+    let room = new Group();
     room.visible = false;
     scene.add(room);
     const weatherFx = new Group();
@@ -38237,7 +38525,7 @@ void main() {
         return;
       }
       const viewingInside = indoorNames.includes(activePlace);
-      rig.visible = viewingInside ? actor.inside === activePlace : !actor.inside;
+      rig.visible = actor.inside ? !!roomCache.get(actor.inside)?.visible && (!viewingInside || actor.inside === activePlace) : !viewingInside;
       walk(rig, t, 0, actor.position.x, actor.position.z, actor);
       let hat = rig.userData.birthdayHat;
       if (!hat) {
@@ -38295,6 +38583,13 @@ void main() {
         poseBone(rig, "Head", Math.sin(t * 2) * 0.07, Math.sin(t) * 0.05, 0);
         poseBone(rig, "LeftForeArm", -0.22 - Math.max(0, Math.sin(t * 3)) * 0.3);
       }
+      if (actor.inside && roomCache.has(actor.inside)) {
+        const insideRoom = roomCache.get(actor.inside), y = actor.seated ? 0.47 : rig.position.y;
+        rig.position.set(actor.position.x, 0, actor.position.z);
+        insideRoom.localToWorld(rig.position);
+        rig.position.y += y * (actor.seated ? insideRoom.scale.y : 1);
+        rig.rotation.y = actor.heading + facing(actor.inside);
+      }
       let bubble = lifeBubbles.get(actor.id);
       if (!bubble) {
         bubble = document.createElement("div");
@@ -38318,28 +38613,39 @@ void main() {
     const indoorNames = ["Mariah Carey\u540D\u4EBA\u5802", "\u9F20\u9F20\u996D\u9986", "\u9F20\u9F20\u5C0F\u5C4B", "\u8BCA\u6240", "\u96F6\u98DF\u94FA", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821"];
     function clearRoom() {
       focusedExhibit = null;
-      if (activePlace === "Mariah Carey\u540D\u4EBA\u5802") room.traverse((o) => {
-        if (o.material?.map) {
-          o.material.userData.disposed = true;
-          o.material.map.dispose();
-        }
-      });
-      for (let i2 = clickable.length - 1; i2 >= 0; i2--) if (clickable[i2].userData.roomAction) clickable.splice(i2, 1);
-      roomLabels.splice(0).forEach((item) => item.button.remove());
-      while (room.children.length) {
-        const child = room.children[0];
-        child.traverse((o) => {
+      roomLabels.splice(0).forEach((item) => item.button.hidden = true);
+    }
+    function buildRoom(name, refresh = false) {
+      clearRoom();
+      if (refresh && roomCache.has(name)) {
+        const old = roomCache.get(name);
+        old.userData.labels.forEach((l) => l.button.remove());
+        old.traverse((o) => {
           if (o.isMesh) {
             o.geometry.dispose();
-            if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose());
-            else o.material.dispose();
+            for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+              if (m.map) {
+                m.userData.disposed = true;
+                m.map.dispose();
+              }
+              m.dispose();
+            }
           }
         });
-        room.remove(child);
+        scene.remove(old);
+        roomCache.delete(name);
       }
-    }
-    function buildRoom(name) {
-      clearRoom();
+      if (roomCache.has(name)) {
+        room = roomCache.get(name);
+        roomLabels.push(...room.userData.labels);
+        return;
+      }
+      room = new Group();
+      room.name = name + "\u5BA4\u5185";
+      room.visible = false;
+      scene.add(room);
+      roomCache.set(name, room);
+      placeRoom(room, placeModels.get(name).userData.portal);
       const palettes = { "Mariah Carey\u540D\u4EBA\u5802": [15261129, 15853782, 12559998], "\u9F20\u9F20\u996D\u9986": [12429704, 15657177, 6641478], "\u9F20\u9F20\u5C0F\u5C4B": [11898210, 14796448, 9728078], "\u8BCA\u6240": [14411495, 15791861, 8632004], "\u96F6\u98DF\u94FA": [13942676, 15983537, 11060131], "\u9F20\u9F20\u5B66\u6821": [12425066, 14929058, 9990466], "\u7EAA\u5FF5\u9986": [13946042, 15656398, 10924951], "\u6BA1\u4EEA\u9986": [13157817, 15656401, 9149087] }, [floorColor, wallColor, trimColor] = palettes[name];
       const add = (w, h, d, x2, y, z, color) => {
         const mesh = new Mesh(new BoxGeometry(w, h, d), new MeshStandardMaterial({ color, roughness: 0.8 }));
@@ -38361,15 +38667,15 @@ void main() {
         roomLabels.push({ button, point: new Vector3(x2, 0.95, z) });
       };
       add(8, 0.18, 6, 0, -0.1, 0, floorColor);
-      add(8, 1.9, 0.16, 0, 0.85, -3, wallColor);
+      const cutaway = [add(8, 1.9, 0.16, 0, 0.85, -3, wallColor)];
       const sideWall = add(0.16, 1.9, 6, -4, 0.85, 0, wallColor);
+      cutaway.push(sideWall);
       if (name === "\u8BCA\u6240") {
         sideWall.material.color.set(12180706);
         sideWall.material.transparent = true;
         sideWall.material.opacity = 0.3;
       }
-      add(8, 0.2, 0.16, 0, 0, 3, trimColor);
-      add(0.16, 0.2, 6, 4, 0, 0, trimColor);
+      cutaway.push(add(8, 0.2, 0.16, 0, 0, 3, trimColor), add(0.16, 0.2, 6, 4, 0, 0, trimColor));
       const tiled = ["\u8BCA\u6240", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"].includes(name);
       for (let x2 = -3.8; x2 < 4; x2 += tiled ? 0.6 : 0.4) add(0.012, 0.01, 6, x2, 0, 0, trimColor);
       if (tiled) for (let z = -2.8; z < 3; z += 0.6) add(8, 0.01, 0.012, 0, 0, z, trimColor);
@@ -38406,7 +38712,6 @@ void main() {
         add(0.76, 0.025, 0.04, x2, 1.1, z + 0.03, trimColor);
         add(0.86, 0.07, 0.16, x2, 0.61, z + 0.04, trimColor);
       };
-      if (name !== "Mariah Carey\u540D\u4EBA\u5802") for (const x2 of [-3, 3]) windowFrame(x2, -2.89);
       const table = (x2, z, w, d, color) => {
         add(w, 0.09, d, x2, 0.58, z, color);
         for (const dx of [-w * 0.38, w * 0.38]) for (const dz of [-d * 0.36, d * 0.36]) add(0.07, 0.53, 0.07, x2 + dx, 0.27, z + dz, color);
@@ -38564,10 +38869,10 @@ void main() {
         cylinder(-2.7, 0.65, 1.1, 0.19, 0.025, 15983537);
         for (let i2 = 0; i2 < 8; i2++) add(0.85, 0.25, 0.03, -3.3 + i2 * 0.9, 1.65, -2.85, i2 % 3 === 0 ? 14723491 : i2 % 3 === 1 ? 11060131 : 15983537);
       } else if (name === "\u9F20\u9F20\u5B66\u6821") {
-        shelf(-2.6, -2.4, "\u4E66\u67DC");
+        shelf(-2, -1.7, "\u4E66\u67DC");
         roomLabels.at(-1).button.remove();
         roomLabels.pop();
-        label("\u4E66\u67DC", -2.6, -2.4, "school-books");
+        label("\u4E66\u67DC", -2, -1.7, "school-books");
         const board = add(2.6, 1.3, 0.1, 0.5, 1, -2.65, 3693896), c = document.createElement("canvas");
         c.width = 512;
         c.height = 256;
@@ -38630,6 +38935,9 @@ void main() {
         add(0.58, 0.65, 0.045, 0, 1.25, -2.88, trimColor);
         add(0.47, 0.54, 0.025, 0, 1.25, -2.85, 14603453);
       }
+      room.userData.cutaway = cutaway;
+      cutaway.forEach((o) => o.visible = false);
+      room.userData.labels = [...roomLabels];
     }
     function enterPlace(name) {
       clearFocus(false);
@@ -38637,66 +38945,52 @@ void main() {
       savedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       activePlace = name;
       document.querySelector("#townPlace b").textContent = name;
-      document.querySelector("#townPlace span").textContent = indoorNames.includes(name) ? "\u5C4B\u9876\u5256\u89C6 \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E" : "\u8FD1\u8DDD\u79BB\u67E5\u770B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
-      const indoor = indoorNames.includes(name);
-      if (indoor) {
+      document.querySelector("#townPlace span").textContent = indoorNames.includes(name) ? "\u5EFA\u7B51\u5185\u5916\u5171\u7528\u6A21\u578B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E" : "\u8FD1\u8DDD\u79BB\u67E5\u770B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
+      if (indoorNames.includes(name)) {
         buildRoom(name);
-        scene.children.forEach((child) => {
-          if (!child.isLight && child !== room) child.visible = false;
-        });
         room.visible = true;
-        target.set(0, 0, 0);
-        distance2 = name === "Mariah Carey\u540D\u4EBA\u5802" ? 16 : 13;
-        if (name === "Mariah Carey\u540D\u4EBA\u5802") target.x = 1.2;
-        pitch = 0.92;
-        yaw = 0.18;
+        if (firstPerson) placeModels.get(name).userData.portal.exteriorChildren.forEach((child) => child.visible = false);
+        else {
+          placeModels.get(name).visible = false;
+          room.userData.cutaway.forEach((o) => o.visible = true);
+          target.copy(room.localToWorld(new Vector3(name === "Mariah Carey\u540D\u4EBA\u5802" ? 1.2 : 0, 1, 0)));
+          distance2 = name === "Mariah Carey\u540D\u4EBA\u5802" ? 6 : 5;
+          pitch = 0.92;
+          yaw = facing(name) + 0.18;
+        }
       } else {
         const place = places.find((p) => p[0] === name);
         target.set(place[1], 0.2, place[2]);
         distance2 = name === "\u5893\u5730" ? 6.2 : 8;
-        pitch = name === "\u5893\u5730" ? 1 : 0.85;
+        pitch = 0.85;
         yaw = facing(name) + 0.2;
-        if (name === "\u5893\u5730") {
-          document.querySelector("#townPlace span").textContent = "\u56ED\u5185\u4FEF\u89C6 \xB7 \u5927\u95E8\u671D\u5411\u9053\u8DEF \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
-          placeModels.forEach((model, key) => model.visible = key === "\u5893\u5730");
-        }
-      }
-      if (indoor) {
-        window.TownInteractions.actions.filter((a) => a.place === name && name === "\u9F20\u9F20\u5B66\u6821").forEach((a, i2) => {
-          const button = document.createElement("button");
-          button.className = "town-label town-furniture-label";
-          button.textContent = a.title;
-          button.title = window.TownInteractions.description(a);
-          button.onclick = () => window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "place-" + a.id, place: name } }));
-          host.appendChild(button);
-          roomLabels.push({ button, point: new Vector3(i2 ? -2.6 : 1.4, 0.95, i2 ? -1.65 : 1.95) });
-        });
       }
       syncPups();
       syncLife();
-      returnButton.hidden = false;
+      returnButton.hidden = firstPerson;
       host.dataset.place = name;
-      positionCamera();
+      if (!firstPerson) positionCamera();
       window.dispatchEvent(new CustomEvent("town-place-select", { detail: { place: name } }));
     }
     function leavePlace() {
       if (!activePlace) return;
       clearFocus(false);
-      room.visible = false;
+      if (indoorNames.includes(activePlace)) {
+        placeModels.get(activePlace).visible = true;
+        placeModels.get(activePlace).userData.portal.exteriorChildren.forEach((child) => child.visible = true);
+        room.userData.cutaway?.forEach((o) => o.visible = false);
+        room.visible = false;
+      }
       clearRoom();
-      scene.children.forEach((child) => {
-        if (child !== room) child.visible = true;
-      });
-      yaw = savedCamera.yaw;
-      pitch = savedCamera.pitch;
-      distance2 = savedCamera.distance;
-      target.copy(savedCamera.target);
+      if (savedCamera) {
+        ({ yaw, pitch, distance: distance2 } = savedCamera);
+        target.copy(savedCamera.target);
+      }
       activePlace = null;
       savedCamera = null;
       returnButton.hidden = true;
       delete host.dataset.place;
-      applyWorld(worldState);
-      positionCamera();
+      if (!firstPerson) positionCamera();
       document.querySelector("#townPlace b").textContent = "\u4E2D\u5FC3\u5E7F\u573A";
       document.querySelector("#townPlace span").textContent = "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
       window.dispatchEvent(new CustomEvent("town-view-close"));
@@ -38768,12 +39062,14 @@ void main() {
       if (!activePlace) returnButton.hidden = true;
     }
     function sayToResident(index, text) {
-      if (index !== focusedResident) focusResident(index);
+      if (firstPerson) focusedResident = index;
+      else if (index !== focusedResident) focusResident(index);
       speech.textContent = text || "\u5431\u5431\uFF0C\u6B22\u8FCE\u6765\u627E\u6211\u804A\u5929\u3002";
       speech.hidden = false;
       clearTimeout(speech._timer);
       speech._timer = setTimeout(() => {
         speech.hidden = true;
+        if (firstPerson) focusedResident = -1;
       }, 4200);
     }
     function returnToTown() {
@@ -38832,6 +39128,41 @@ void main() {
     playerNotice.hidden = true;
     playerNotice.setAttribute("role", "status");
     host.appendChild(playerNotice);
+    const firstContext = document.createElement("aside");
+    firstContext.className = "town-first-context";
+    firstContext.hidden = true;
+    host.appendChild(firstContext);
+    function updateFirstContext(place) {
+      if (!firstPerson) {
+        firstContext.hidden = true;
+        return;
+      }
+      const name = place || "\u5C0F\u9547\u9053\u8DEF";
+      if (firstContext.dataset.place === name) return;
+      firstContext.dataset.place = name;
+      firstContext.replaceChildren();
+      const heading = document.createElement("strong");
+      heading.textContent = `\u9F20\u9F20 \xB7 ${name}`;
+      firstContext.appendChild(heading);
+      const hint = document.createElement("small");
+      hint.textContent = "WASD \u79FB\u52A8 \xB7 E \u5F00\u95E8/\u4E92\u52A8 \xB7 \u9F20\u6807\u73AF\u987E";
+      firstContext.appendChild(hint);
+      const actions = window.TownInteractions.actions.filter((action) => action.place === place);
+      if (actions.length) {
+        const list = document.createElement("div");
+        list.className = "town-first-actions";
+        actions.forEach((action) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = action.title;
+          button.title = window.TownInteractions.description(action);
+          button.onclick = () => window.dispatchEvent(new CustomEvent("town-first-action", { detail: { id: action.id } }));
+          list.appendChild(button);
+        });
+        firstContext.appendChild(list);
+      }
+      firstContext.hidden = false;
+    }
     function sayAsMain(text) {
       const actor = life.actors.get("main");
       if (actor) actor.speech = text;
@@ -38851,7 +39182,7 @@ void main() {
     function startFirstPerson() {
       if (firstPerson) return true;
       const actor = life.actors.get("main");
-      if (!actor || actor.frozen || !worldState.celebration && actor.inside !== "Mariah Carey\u540D\u4EBA\u5802") return false;
+      if (!actor || actor.frozen) return false;
       clearFocus();
       if (activePlace) leavePlace();
       playerSavedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
@@ -38861,7 +39192,7 @@ void main() {
       actor.partner = null;
       actor.phase = "controlled";
       actor.speech = "";
-      playerYaw = actor.heading + Math.PI;
+      playerYaw = actor.heading + Math.PI + (actor.inside ? facing(actor.inside) : 0);
       playerPitch = 0;
       playerKeys.clear();
       jumpHeight = 0;
@@ -38874,25 +39205,29 @@ void main() {
       crosshair.hidden = false;
       playerTools.querySelector("[data-player-enter]").hidden = true;
       playerTools.querySelector("[data-player-exit]").hidden = false;
+      updateFirstContext(actor.inside || actor.place);
       window.dispatchEvent(new CustomEvent("town-view-close"));
       return true;
     }
     function stopFirstPerson() {
       if (!firstPerson) return;
+      const actor = life.actors.get("main");
       firstPerson = false;
       jumpHeight = 0;
       jumpVelocity = 0;
       playerKeys.clear();
       document.exitPointerLock?.();
-      const actor = life.actors.get("main");
       if (actor) {
-        actor.controlled = !!actor.seated;
-        actor.phase = actor.seated ? "controlled" : actor.inside ? "exit-room" : "idle";
-        actor.wait = 0;
+        actor.controlled = !!actor.inside;
+        actor.phase = actor.inside ? "controlled" : "idle";
+        actor.wait = 1;
         actor.moving = false;
+        delete actor.entryPortal;
+        delete actor.doorway;
       }
-      if (activePlace && !actor?.seated) leavePlace();
-      if (playerSavedCamera && !actor?.seated) {
+      if (activePlace) leavePlace();
+      if (actor?.inside) enterPlace(actor.inside);
+      else if (playerSavedCamera) {
         ({ yaw, pitch, distance: distance2 } = playerSavedCamera);
         target.copy(playerSavedCamera.target);
       }
@@ -38902,9 +39237,10 @@ void main() {
       playerTools.querySelector("[data-player-hud]").hidden = true;
       crosshair.hidden = true;
       playerNotice.hidden = true;
+      firstContext.hidden = true;
+      delete firstContext.dataset.place;
       playerTools.querySelector("[data-player-enter]").hidden = false;
       playerTools.querySelector("[data-player-exit]").hidden = true;
-      if (actor?.seated) resetHallView();
       positionCamera();
     }
     playerTools.querySelector("[data-player-hud]").onclick = () => {
@@ -38914,30 +39250,106 @@ void main() {
     };
     playerTools.querySelector("[data-player-enter]").onclick = startFirstPerson;
     playerTools.querySelector("[data-player-exit]").onclick = stopFirstPerson;
+    function setLookSensitivity(value) {
+      const n = Number(value);
+      lookSensitivity = Number.isFinite(n) ? Math.max(0.25, Math.min(3, n)) : 1;
+      return lookSensitivity;
+    }
+    function portalPoint(portal) {
+      return portal.model.localToWorld(new Vector3(portal.layout.doorX, portal.layout.floor, portal.front));
+    }
+    function nearbyPortal(actor) {
+      if (actor.inside) return placeModels.get(actor.inside)?.userData.portal;
+      let nearest = null, dist = 0.8;
+      for (const model of placeModels.values()) {
+        const p = model.userData.portal;
+        if (!p) continue;
+        const door = portalPoint(p), d = Math.hypot(actor.position.x - door.x, actor.position.z - door.z);
+        if (d < dist) {
+          dist = d;
+          nearest = p;
+        }
+      }
+      return nearest;
+    }
+    function toggleDoor(actor) {
+      const portal = nearbyPortal(actor);
+      if (!portal) return false;
+      const gate = localDoor(portal), position = actor.inside ? new Vector3(actor.position.x, 0, actor.position.z) : roomCache.get(portal.name).worldToLocal(new Vector3(actor.position.x, portal.layout.floor, actor.position.z));
+      if (Math.hypot((position.x - gate.x) * portal.layout.width / 8, (position.z - 3) * portal.layout.depth / 6) > 0.8) return false;
+      if (portal.target && Math.abs(position.z - 3) < 0.35 && Math.abs(position.x - gate.x) < gate.width / 2 + 0.25) {
+        sayAsMain("\u5148\u79BB\u5F00\u95E8\u6846\uFF0C\u518D\u5173\u95E8");
+        return true;
+      }
+      portal.target = portal.target ? 0 : 1;
+      actor.entryPortal = portal;
+      actor.doorway = { ...gate, open: portal.angle > 1 };
+      sayAsMain(portal.target ? "\u95E8\u5DF2\u63A8\u5F00\uFF0C\u7528 WASD \u81EA\u5DF1\u8D70\u8FDB\u53BB\u6216\u51FA\u53BB\uFF1B\u6309 E \u5173\u95E8" : "\u5173\u4E0A\u95E8");
+      return true;
+    }
     function updatePlayer(dt) {
+      for (const model of placeModels.values()) {
+        const portal2 = model.userData.portal;
+        if (!portal2) continue;
+        portal2.angle += Math.sign(portal2.target * 1.45 - portal2.angle) * Math.min(Math.abs(portal2.target * 1.45 - portal2.angle), dt * 2.5);
+        portal2.door.rotation.y = -portal2.angle;
+      }
       if (!firstPerson) return;
       const actor = life.actors.get("main");
       if (!actor) return;
       let forward = (playerKeys.has("KeyW") || playerKeys.has("ArrowUp") ? 1 : 0) - (playerKeys.has("KeyS") || playerKeys.has("ArrowDown") ? 1 : 0), right = (playerKeys.has("KeyD") || playerKeys.has("ArrowRight") ? 1 : 0) - (playerKeys.has("KeyA") || playerKeys.has("ArrowLeft") ? 1 : 0);
-      const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.6 : 0.9;
-      const norm = Math.hypot(forward, right) || 1;
+      const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.3 : 0.75, norm = Math.hypot(forward, right) || 1;
       forward /= norm;
       right /= norm;
-      if (!actor.seated) movePlayer(actor, (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed, (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed);
-      if (!actor.seated) actor.heading = playerYaw + Math.PI;
+      let dx = (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed, dz = (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed;
+      const portal = actor.inside ? placeModels.get(actor.inside).userData.portal : nearbyPortal(actor);
+      actor.entryPortal = portal;
+      actor.doorway = portal ? { ...localDoor(portal), open: portal.angle > 1 } : null;
+      if (actor.inside) {
+        const angle = facing(actor.inside), c = Math.cos(angle), sn = Math.sin(angle), x2 = dx * c - dz * sn;
+        dz = (dx * sn + dz * c) / room.scale.z;
+        dx = x2 / room.scale.x;
+      }
+      if (!actor.seated) movePlayer(actor, dx, dz);
+      if (actor.inside) {
+        const gate = localDoor(portal);
+        if (actor.position.z > 3.4 && Math.abs(actor.position.x - gate.x) < gate.width / 2) {
+          const outside = room.localToWorld(new Vector3(actor.position.x, 0, actor.position.z));
+          actor.inside = null;
+          actor.position = { x: outside.x, z: outside.z };
+          leavePlace();
+        }
+      } else if (portal?.angle > 1) {
+        const inside = roomCache.get(portal.name).worldToLocal(new Vector3(actor.position.x, portal.layout.floor, actor.position.z)), gate = localDoor(portal);
+        if (inside.z < 2.95 && inside.z > 2.4 && Math.abs(inside.x - gate.x) < gate.width / 2 - 0.12) {
+          actor.inside = actor.place = actor.destination = portal.name;
+          actor.position = { x: inside.x, z: inside.z };
+          enterPlace(portal.name);
+          if (portal.name === "Mariah Carey\u540D\u4EBA\u5802") window.dispatchEvent(new CustomEvent("town-hall-arrival"));
+        }
+      }
+      if (!actor.seated) actor.heading = playerYaw + Math.PI - (actor.inside ? facing(actor.inside) : 0);
       if (jumpHeight > 0 || jumpVelocity > 0) {
         jumpVelocity -= dt * 4;
         jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt);
         if (jumpHeight === 0) jumpVelocity = 0;
       }
-      camera.position.set(actor.position.x, (actor.seated ? 1.3 : 1.05) + jumpHeight, actor.position.z);
+      const position = new Vector3(actor.position.x, 0, actor.position.z);
+      if (actor.inside) room.localToWorld(position);
+      camera.position.copy(position);
+      if (!actor.inside && portal) {
+        const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
+        camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
+      }
+      camera.position.y += (actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
     }
     function playerInteract(source = "keyboard") {
+      if (firstPerson && toggleDoor(life.actors.get("main"))) return;
       const sitter = life.actors.get("main");
-      if (source === "keyboard" && sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x + 2.6, sitter.position.z - 1.6) < 1.2)) {
+      if (source === "keyboard" && sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x - 0.3, sitter.position.z - 1.6) < 1.2)) {
         toggleHallSeat();
         return;
       }
@@ -38945,15 +39357,6 @@ void main() {
       const actor = life.actors.get("main");
       if (!actor) return;
       if (actor.inside) {
-        if (Math.hypot(actor.position.x, actor.position.z - 2.6) < 0.75) {
-          const old = actor.inside;
-          leavePlace();
-          const place = places.find((p) => p[0] === old);
-          actor.inside = null;
-          actor.position = entrance(old);
-          playerYaw = facing(old);
-          return;
-        }
         const nearby = roomLabels.map((l) => ({ ...l, d: Math.hypot(l.point.x - actor.position.x, l.point.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
         if (nearby?.d < 1.2) {
           const text = nearby.button.textContent, extra = window.TownInteractions.actions.find((a) => a.place === actor.inside && a.object === text), action = extra ? "place-" + extra.id : text.startsWith("\u6C34\u58F6") ? "water" : text.startsWith("\u7CAE\u4ED3") ? "supply" : text === "\u8BCA\u7597\u5E8A" ? "treat" : text.includes("\u5E8A") ? "rest" : text === "\u98DF\u76C6" ? "eat" : "inspect";
@@ -38999,9 +39402,7 @@ void main() {
       if (nearest?.d < 1.15) {
         const name = nearest.p[0];
         if (indoorNames.includes(name)) {
-          actor.inside = name;
-          actor.position = { x: 0, z: 2.6 };
-          enterPlace(name);
+          toggleDoor(actor);
         } else {
           window.dispatchEvent(new CustomEvent("town-player-action", { detail: { action: name === "\u5C0F\u83DC\u56ED" ? "harvest" : name === "\u8DD1\u8F6E\u516C\u56ED" ? "exercise" : "inspect", text: name, place: name } }));
         }
@@ -39035,28 +39436,21 @@ void main() {
     });
     document.addEventListener("mousemove", (e) => {
       if (firstPerson && document.pointerLockElement === canvas) {
-        playerYaw -= e.movementX * 3e-3;
-        playerPitch = Math.max(-1.3, Math.min(1.3, playerPitch - e.movementY * 3e-3));
+        playerYaw -= e.movementX * 3e-3 * lookSensitivity;
+        playerPitch = Math.max(-1.3, Math.min(1.3, playerPitch - e.movementY * 3e-3 * lookSensitivity));
       }
     });
     function enterHall() {
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep) return false;
       if (firstPerson) stopFirstPerson();
-      clearFocus();
-      actor.controlled = true;
-      actor.path = [];
-      actor.partner = null;
-      actor.inside = actor.place = actor.destination = "Mariah Carey\u540D\u4EBA\u5802";
-      actor.position = { x: 0, z: 2.3 };
+      if (activePlace) leavePlace();
+      const portal = placeModels.get("Mariah Carey\u540D\u4EBA\u5802").userData.portal, gate = localDoor(portal), point2 = roomCache.get(portal.name).localToWorld(new Vector3(gate.x, 0, 4.4));
+      actor.inside = null;
+      actor.position = { x: point2.x, z: point2.z };
       actor.seated = false;
-      actor.action = "\u53C2\u89C2";
-      actor.phase = "controlled";
-      actor.heading = Math.PI;
-      actor.speech = "\u6B22\u8FCE\u4E00\u8D77\u53C2\u89C2\u540D\u4EBA\u5802";
-      enterPlace(actor.inside);
-      window.dispatchEvent(new CustomEvent("town-hall-arrival"));
-      return true;
+      actor.heading = facing(portal.name) + Math.PI;
+      return startFirstPerson();
     }
     function toggleHallSeat() {
       const actor = life.actors.get("main");
@@ -39068,12 +39462,12 @@ void main() {
       actor.path = [];
       actor.partner = null;
       actor.moving = false;
-      actor.position = { x: -2.6, z: actor.seated ? 1.6 : 0.9 };
+      actor.position = { x: 0.3, z: actor.seated ? 1.6 : 0.9 };
       actor.heading = Math.PI;
       actor.action = actor.seated ? "\u5750\u4E0B\u6B23\u8D4F\u4E13\u8F91" : "\u53C2\u89C2";
       actor.speech = "";
       if (firstPerson) {
-        playerYaw = 0;
+        playerYaw = facing("Mariah Carey\u540D\u4EBA\u5802");
         playerPitch = 0.08;
         playerKeys.clear();
         jumpHeight = 0;
@@ -39089,7 +39483,7 @@ void main() {
       focusedExhibit = index;
       const bounds = new Box3().setFromObject(exhibit);
       bounds.getCenter(target);
-      yaw = exhibit.userData.hallSide ? Math.PI / 2 : 0;
+      yaw = facing(activePlace) + (exhibit.userData.hallSide ? Math.PI / 2 : 0);
       pitch = 0.04;
       distance2 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
       positionCamera();
@@ -39099,10 +39493,10 @@ void main() {
     function resetHallView() {
       if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return;
       focusedExhibit = null;
-      target.set(1.2, 0, 0);
-      distance2 = 16;
+      target.copy(room.localToWorld(new Vector3(1.2, 0, 0)));
+      distance2 = 6;
       pitch = 0.92;
-      yaw = 0.18;
+      yaw = facing(activePlace) + 0.18;
       positionCamera();
     }
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -39119,8 +39513,8 @@ void main() {
     canvas.addEventListener("pointermove", (e) => {
       if (firstPerson) {
         if (e.buttons === 1 && document.pointerLockElement !== canvas) {
-          playerYaw -= e.movementX * 3e-3;
-          playerPitch = Math.max(-1.3, Math.min(1.3, playerPitch - e.movementY * 3e-3));
+          playerYaw -= e.movementX * 3e-3 * lookSensitivity;
+          playerPitch = Math.max(-1.3, Math.min(1.3, playerPitch - e.movementY * 3e-3 * lookSensitivity));
         }
         return;
       }
@@ -39257,6 +39651,9 @@ void main() {
         item.tag.title = `${(data.parents || ["\u9F20\u9F20", data.parent]).filter(Boolean).join("\u4E0E")}\u7684\u5B69\u5B50`;
       });
     }
+    indoorNames.forEach((name) => buildRoom(name));
+    clearRoom();
+    roomCache.forEach((indoor) => indoor.visible = false);
     const clock = new Clock();
     let previousTime = 0;
     function draw() {
@@ -39295,6 +39692,11 @@ void main() {
       } else if (t > hoverUntil || !hoverPointer || drag) hoveredActor = null;
       renderActor(pet, life.actors.get("main"), t);
       const main = life.actors.get("main");
+      if (firstPerson && main) updateFirstContext(main.inside || main.place);
+      const near = firstPerson && !main?.inside && main ? nearbyPortal(main) : null;
+      roomCache.forEach((indoor, name) => {
+        indoor.visible = activePlace === name || near?.name === name;
+      });
       mainTag.textContent = "\u9F20\u9F20";
       placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, firstPerson || !pet.visible || focusedResident !== -1 && focusedResident !== -2, true);
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
@@ -39306,11 +39708,11 @@ void main() {
         const actor = life.actors.get(npc.lifeId);
         renderActor(npc.rig, actor, t);
         npc.tag.textContent = (worldState.npcs?.[index]?.name || roles[index]) + " " + (worldState.npcs?.[index]?.sex === "male" ? "\u2642" : "\u2640");
-        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || (focusedResident !== -1 ? focusedResident !== index : hoveredActor !== npc.lifeId), true);
+        placeLabel(npc.tag, npc.rig.position.clone().add(new Vector3(0, 0.8, 0)), occupied, !npc.rig.visible || (firstPerson ? Math.hypot(npc.rig.position.x - camera.position.x, npc.rig.position.z - camera.position.z) > 2.8 : focusedResident !== -1 ? focusedResident !== index : hoveredActor !== npc.lifeId), true);
       });
       pups.forEach((item) => {
         renderActor(item.rig, life.actors.get(item.data.id), t);
-        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
+        placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (firstPerson ? Math.hypot(item.rig.position.x - camera.position.x, item.rig.position.z - camera.position.z) > 2.8 : focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
       });
       roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, true));
       layoutSpeech();
@@ -39321,16 +39723,20 @@ void main() {
     function applyWorld(next = {}) {
       const oldBoard = worldState.schoolBoard;
       worldState = next;
-      if (activePlace === "\u9F20\u9F20\u5B66\u6821" && oldBoard !== next.schoolBoard) buildRoom(activePlace);
-      if (firstPerson && !next.celebration && life.actors.get("main")?.inside !== "Mariah Carey\u540D\u4EBA\u5802") stopFirstPerson();
-      playerTools.hidden = !firstPerson && !next.celebration;
+      setLookSensitivity(next.lookSensitivity ?? 1);
+      if (oldBoard !== next.schoolBoard) {
+        buildRoom("\u9F20\u9F20\u5B66\u6821", true);
+        if (activePlace && indoorNames.includes(activePlace)) buildRoom(activePlace);
+      }
+      playerTools.hidden = false;
+      playerTools.querySelector("[data-player-enter]").disabled = next.alive === false;
       const night = ["\u591C\u665A", "\u6DF1\u591C"].includes(next.part), dusk = next.part === "\u508D\u665A", lampsOn = night || dusk, sky = new Color(next.weather?.sky || 13359017);
       if (night) sky.multiplyScalar(0.22);
       else if (dusk) sky.multiplyScalar(0.55);
       scene.background.copy(sky);
       scene.fog.color.copy(sky);
-      ambient.intensity = (night ? 0.65 : dusk ? 1.1 : 2.4) * (next.weather?.light || 1);
-      sun.intensity = (night ? 0.38 : dusk ? 1.15 : 3.1) * (next.weather?.light || 1);
+      ambient.intensity = (night ? 0.65 : dusk ? 1.1 : 1.3) * (next.weather?.light || 1);
+      sun.intensity = (night ? 0.38 : dusk ? 1.15 : 2.2) * (next.weather?.light || 1);
       sun.color.set(night ? 7968194 : dusk ? 16758383 : 16770237);
       lampBulbs.forEach(({ material: material2, light, pool }) => {
         material2.emissiveIntensity = lampsOn ? night ? 1.8 : 1.6 : 0;
@@ -39373,7 +39779,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { toggleHallSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { setLookSensitivity, toggleHallSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

@@ -21,6 +21,6 @@ export function populateMariahRoom(group){const {box,disc}=kit(group);const exhi
  box(1.3,.64,.75,2.7,.32,1.2,0xb69b77);box(1.05,.08,.65,2.7,.68,1.2,0x5e545a);vinyl(group,2.55,.75,1.2,0x202127);box(.045,.07,.48,3.05,.8,1.2,0xc3beb9);box(.7,.9,.1,3.5,.6,-1.7,0xdfc298);const figure=standee(group,3,-1.4,2.4);
  // A golden musical-note sculpture on a raised circular plinth.
  disc(0,.12,-1.7,.65,0xe9d8bd);disc(0,.26,-1.7,.48,0xcdb68d);box(.07,1.08,.07,0,.9,-1.7,0xd0ad52,{metalness:.7});const head=new THREE.Mesh(new THREE.SphereGeometry(.14,20,12),material(0xd0ad52,{metalness:.7}));head.scale.set(1.35,.55,1);head.position.set(-.12,.4,-1.7);group.add(head);const ring=new THREE.Mesh(new THREE.TorusGeometry(.18,.025,8,40),material(0xd0ad52,{metalness:.7}));ring.position.set(.1,1.36,-1.7);group.add(ring);
- const seat=box(1.5,.13,.5,-2.6,.4,1.6,0xcbb79f);group.userData.hallSeat=seat;box(1.5,.38,.08,-2.6,.65,1.84,0xcbb79f);for(const x of [-3.2,-2])box(.08,.4,.08,x,.2,1.6,0x9d886f);
+ const seat=box(1.5,.13,.5,.3,.4,1.6,0xcbb79f);group.userData.hallSeat=seat;box(1.5,.38,.08,.3,.65,1.84,0xcbb79f);for(const x of [-.3,.9])box(.08,.4,.08,x,.2,1.6,0x9d886f);
  group.userData.hallExhibits=exhibits;group.userData.hallClickable=[...exhibits,figure];group.userData.albumCount=hallAlbums.length;group.userData.photoCount=hallPhotos.length;
 }

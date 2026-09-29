@@ -862,3 +862,8 @@ body[data-town-view="first-person"][data-town-hud="hidden"] .town-toolbar,body[d
 
 body[data-town-view="first-person"][data-town-hud="hidden"] .town-room-return{display:none!important}
 body[data-town-view="first-person"][data-town-hud="hidden"] .town-exit{display:none!important}
+/* A compact, readable first-person guide keeps actions available without covering the scene. */
+.town-first-context{position:absolute;z-index:21;left:14px;bottom:14px;max-width:min(430px,calc(100% - 150px));padding:8px 10px;border-radius:10px;background:#f9f6ebd9;color:#344b3b;box-shadow:0 2px 12px #152b2820;display:grid;gap:3px;font:12px/1.3 'Microsoft YaHei',sans-serif}
+.town-first-context[hidden]{display:none}.town-first-context strong{font-size:13px}.town-first-context small{font-size:10px;color:#627066}.town-first-actions{display:flex;gap:4px;overflow-x:auto;max-width:100%;padding-top:3px}.town-first-actions button{white-space:nowrap;padding:4px 7px;border:1px solid #9eb59e;border-radius:7px;background:#eff4e9;color:#365142;font:11px 'Microsoft YaHei',sans-serif;cursor:pointer}
+body[data-town-view="first-person"][data-town-hud="hidden"] .town-label.town-npc-label:not([hidden]){display:block!important;border:0;background:none;box-shadow:none;padding:0;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 3px #1a271c,0 0 5px #1a271c;pointer-events:none}
+body[data-town-view="first-person"][data-town-hud="hidden"] .town-life-bubble:not([hidden]),body[data-town-view="first-person"][data-town-hud="hidden"] .town-npc-speech:not([hidden]){display:block!important}
