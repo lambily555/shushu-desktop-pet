@@ -47,7 +47,7 @@ export function createCottage({density=1}={}){
   }
  }}
  coat([0,1.3,0],[1.48,1.38,1.14],42000,false,p=>p.y>.17&&p.y<2.4&&!(p.z>.73&&p.y<1.7));
- coat([0,.82,.72],[1.08,.89,.55],14000,true,p=>p.z>.76);
+ coat([0,.82,.72],[1.08,.89,.55],14000,true,p=>p.z>.76&&!(p.z>.88&&(p.x/.62)**2+((p.y-.65)/.62)**2<1));
  for(const side of [-1,1])coat([side*.51,1.39,.95],[.55,.41,.34],10000,true,p=>p.z>1.03);
  coat([0,1.42,1.15],[.35,.23,.22],3000,true,p=>p.z>1.28&&p.y<1.54);
  const hairGeometry=new THREE.BufferGeometry();hairGeometry.setAttribute('position',new THREE.Float32BufferAttribute(hairPositions,3));hairGeometry.setAttribute('normal',new THREE.Float32BufferAttribute(hairNormals,3));hairGeometry.setAttribute('color',new THREE.Float32BufferAttribute(hairColors,3));hairGeometry.setIndex(hairIndices);const hair=new THREE.Mesh(hairGeometry,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}));hair.name='Surface following tapered fur';house.add(hair);

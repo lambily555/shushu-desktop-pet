@@ -33275,9 +33275,11 @@ void main() {
       let inside = 0;
       for (let j = 0; j < 3; j++) {
         v.fromBufferAttribute(p, i2 + j).applyMatrix4(matrix);
-        if (Math.abs(v.x - layout.doorX) < layout.doorWidth / 2 + 0.02 && v.y > layout.floor - 0.03 && v.y < layout.floor + layout.doorHeight + 0.025 && v.z > layout.z + 0.15) inside++;
+        if (layout.cottage) {
+          if (v.z > 0.68 && (v.x / 0.49) ** 2 + ((v.y - 0.52) / 0.49) ** 2 < 1) inside++;
+        } else if (Math.abs(v.x - layout.doorX) < layout.doorWidth / 2 + 0.02 && v.y > layout.floor - 0.03 && v.y < layout.floor + layout.doorHeight + 0.025 && v.z > layout.z + 0.15) inside++;
       }
-      if (inside < 2) kept.push(i2, i2 + 1, i2 + 2);
+      if (!inside) kept.push(i2, i2 + 1, i2 + 2);
     }
     geometry.setIndex(kept);
     mesh.geometry = geometry;
@@ -33305,7 +33307,7 @@ void main() {
           return;
         }
         if (mesh.name === "Individual door plank" || mesh.name === "Door window frame" || mesh.name === "Window mullion" || mesh.name === "Brass door knob" || mesh.name === "Iron hinge" || mesh.name === "Thick oak door frame") return;
-        if (mesh.name === "Rounded grey cottage" || mesh.name === "Cream chest" || mesh.name === "Left cheek" || mesh.name === "Right cheek" || mesh.name === "Surface following tapered fur") doorwayHole(mesh, layout, model);
+        if (mesh.name === "Rounded grey cottage" || mesh.name === "Cream chest") doorwayHole(mesh, layout, model);
         return;
       }
       const bounds = new Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()), actual = bounds.getCenter(new Vector3());
@@ -33326,15 +33328,16 @@ void main() {
     const wall = new MeshStandardMaterial({ color: layout.wall, roughness: 0.88 }), trim = new MeshStandardMaterial({ color: layout.trim, roughness: 0.62 }), glass = new MeshPhysicalMaterial({ color: 14478064, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: DoubleSide, clearcoat: 1, envMapIntensity: 0.7 });
     const roof = box(shell, layout.width, 0.07, layout.depth, 0, top, layout.z, wall);
     roof.userData.cutawayRoof = true;
+    if (layout.cottage) shell.visible = false;
     if (layout.cottage) {
       box(shell, layout.width, layout.height, 0.065, 0, layout.floor + layout.height / 2, back, wall);
-      for (const side2 of [-1, 1]) box(shell, 0.065, layout.height, layout.depth, side2 * layout.width / 2, layout.floor + layout.height / 2, layout.z, wall);
-      const side = (layout.width - layout.doorWidth) / 2;
-      for (const sign4 of [-1, 1]) box(shell, side, layout.height, 0.065, sign4 * (layout.doorWidth + side) / 2, layout.floor + layout.height / 2, front, wall);
-      box(shell, layout.doorWidth, layout.height - layout.doorHeight, 0.065, 0, layout.floor + (layout.height + layout.doorHeight) / 2, front, wall);
+      for (const side of [-1, 1]) box(shell, 0.065, layout.height, layout.depth, side * layout.width / 2, layout.floor + layout.height / 2, layout.z, wall);
+      const frame = new Mesh(new TorusGeometry(0.43, 0.045, 10, 48), trim);
+      frame.position.set(0, 0.52, front + 0.022);
+      shell.add(frame);
     } else {
       if (layout.round) {
-        const body = new Mesh(new CylinderGeometry(1.16, 1.16, layout.height, 96, 12, true), wall.clone());
+        const body = new Mesh(new CylinderGeometry(1.16, 1.16, layout.height, 192, 48, true), wall.clone());
         body.position.set(0, layout.floor + layout.height / 2, layout.z);
         shell.add(body);
         doorwayHole(body, layout, model);
@@ -33880,7 +33883,7 @@ void main() {
       }
     }
     coat([0, 1.3, 0], [1.48, 1.38, 1.14], 42e3, false, (p) => p.y > 0.17 && p.y < 2.4 && !(p.z > 0.73 && p.y < 1.7));
-    coat([0, 0.82, 0.72], [1.08, 0.89, 0.55], 14e3, true, (p) => p.z > 0.76);
+    coat([0, 0.82, 0.72], [1.08, 0.89, 0.55], 14e3, true, (p) => p.z > 0.76 && !(p.z > 0.88 && (p.x / 0.62) ** 2 + ((p.y - 0.65) / 0.62) ** 2 < 1));
     for (const side of [-1, 1]) coat([side * 0.51, 1.39, 0.95], [0.55, 0.41, 0.34], 1e4, true, (p) => p.z > 1.03);
     coat([0, 1.42, 1.15], [0.35, 0.23, 0.22], 3e3, true, (p) => p.z > 1.28 && p.y < 1.54);
     const hairGeometry = new BufferGeometry();
@@ -38949,8 +38952,13 @@ void main() {
       if (indoorNames.includes(name)) {
         buildRoom(name);
         room.visible = true;
-        if (firstPerson) placeModels.get(name).userData.portal.exteriorChildren.forEach((child) => child.visible = false);
-        else {
+        if (firstPerson) {
+          const portal = placeModels.get(name).userData.portal;
+          if (portal.layout.cottage) {
+            portal.exteriorChildren.forEach((child) => child.visible = false);
+            portal.shell.visible = true;
+          }
+        } else {
           placeModels.get(name).visible = false;
           room.userData.cutaway.forEach((o) => o.visible = true);
           target.copy(room.localToWorld(new Vector3(name === "Mariah Carey\u540D\u4EBA\u5802" ? 1.2 : 0, 1, 0)));
@@ -38977,7 +38985,11 @@ void main() {
       clearFocus(false);
       if (indoorNames.includes(activePlace)) {
         placeModels.get(activePlace).visible = true;
-        placeModels.get(activePlace).userData.portal.exteriorChildren.forEach((child) => child.visible = true);
+        const portal = placeModels.get(activePlace).userData.portal;
+        if (portal.layout.cottage) {
+          portal.exteriorChildren.forEach((child) => child.visible = true);
+          portal.shell.visible = false;
+        }
         room.userData.cutaway?.forEach((o) => o.visible = false);
         room.visible = false;
       }
@@ -39654,7 +39666,8 @@ void main() {
     indoorNames.forEach((name) => buildRoom(name));
     clearRoom();
     roomCache.forEach((indoor) => indoor.visible = false);
-    const clock = new Clock();
+    const roomBounds = new Map(indoorNames.map((name) => [name, new Box3().setFromObject(placeModels.get(name))]));
+    const clock = new Clock(), viewArea = new Frustum(), viewMatrix = new Matrix4();
     let previousTime = 0;
     function draw() {
       requestAnimationFrame(draw);
@@ -39693,9 +39706,9 @@ void main() {
       renderActor(pet, life.actors.get("main"), t);
       const main = life.actors.get("main");
       if (firstPerson && main) updateFirstContext(main.inside || main.place);
-      const near = firstPerson && !main?.inside && main ? nearbyPortal(main) : null;
+      viewArea.setFromProjectionMatrix(viewMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
       roomCache.forEach((indoor, name) => {
-        indoor.visible = activePlace === name || near?.name === name;
+        indoor.visible = activePlace === name || firstPerson && viewArea.intersectsBox(roomBounds.get(name));
       });
       mainTag.textContent = "\u9F20\u9F20";
       placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, firstPerson || !pet.visible || focusedResident !== -1 && focusedResident !== -2, true);
