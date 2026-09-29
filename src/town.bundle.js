@@ -504,7 +504,7 @@
      */
     clamp,
     /**
-     * Computes the Euclidean modulo of the given parameters tha
+     * Computes the Euclidean modulo of the given parameters that
      * is `( ( n % m ) + m ) % m`.
      *
      * @static
@@ -534,7 +534,7 @@
      *
      * @static
      * @method
-     * @param {number} x - The start poin
+     * @param {number} x - The start point
      * @param {number} y - The end point.
      * @param {number} value - A value between start and end.
      * @return {number} The interpolation factor.
@@ -546,7 +546,7 @@
      *
      * @static
      * @method
-     * @param {number} x - The start poin
+     * @param {number} x - The start point
      * @param {number} y - The end point.
      * @param {number} t - The interpolation factor in the closed interval `[0, 1]`.
      * @return {number} The interpolated value.
@@ -1218,7 +1218,7 @@
       return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, bu
+     * Sets this vector to a vector with the same direction as this one, but
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -1242,7 +1242,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percen
+     * Linearly interpolates between the given vectors, where alpha is the percent
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -1709,7 +1709,7 @@
     }
     /**
      * Returns the rotational conjugate of this quaternion. The conjugate of a
-     * quaternion represents the same rotation in the opposite direction abou
+     * quaternion represents the same rotation in the opposite direction about
      * the rotational axis.
      *
      * @return {Quaternion} A reference to this quaternion.
@@ -2514,7 +2514,7 @@
       return this.divideScalar(this.length() || 1);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, bu
+     * Sets this vector to a vector with the same direction as this one, but
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -2539,7 +2539,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percen
+     * Linearly interpolates between the given vectors, where alpha is the percent
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -2564,7 +2564,7 @@
       return this.crossVectors(this, v);
     }
     /**
-     * Calculates the cross product of the given vectors and stores the resul
+     * Calculates the cross product of the given vectors and stores the result
      * in this instance.
      *
      * @param {Vector3} a - The first vector.
@@ -3015,7 +3015,7 @@
       return this.multiplyMatrices(m, this);
     }
     /**
-     * Multiples the given 3x3 matrices and stores the resul
+     * Multiples the given 3x3 matrices and stores the result
      * in this matrix.
      *
      * @param {Matrix3} a - The first matrix.
@@ -3550,7 +3550,7 @@
         return {
           data,
           width: image.width,
-          height: image.heigh
+          height: image.height
         };
       } else {
         warn("ImageUtils.sRGBToLinear(): Unsupported image type. No color space conversion applied.");
@@ -3880,7 +3880,7 @@
         flipY: this.flipY,
         generateMipmaps: this.generateMipmaps,
         premultiplyAlpha: this.premultiplyAlpha,
-        unpackAlignment: this.unpackAlignmen
+        unpackAlignment: this.unpackAlignment
       };
       if (Object.keys(this.userData).length > 0) output.userData = this.userData;
       if (!isRootObject) {
@@ -4594,7 +4594,7 @@
       return this.divideScalar(this.length() || 1);
     }
     /**
-     * Sets this vector to a vector with the same direction as this one, bu
+     * Sets this vector to a vector with the same direction as this one, but
      * with the specified length.
      *
      * @param {number} length - The new length of this vector.
@@ -4620,7 +4620,7 @@
       return this;
     }
     /**
-     * Linearly interpolates between the given vectors, where alpha is the percen
+     * Linearly interpolates between the given vectors, where alpha is the percent
      * distance along the line - alpha = 0 will be first vector, and alpha = 1 will
      * be the second one. The result is stored in this instance.
      *
@@ -5428,7 +5428,7 @@
       return this.multiplyMatrices(m, this);
     }
     /**
-     * Multiples the given 4x4 matrices and stores the resul
+     * Multiples the given 4x4 matrices and stores the result
      * in this matrix.
      *
      * @param {Matrix4} a - The first matrix.
@@ -6967,7 +6967,7 @@
       return this;
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D objec
+     * Searches through the 3D object and its children, starting with the 3D object
      * itself, and returns the first with a matching ID.
      *
      * @param {number} id - The id.
@@ -6977,7 +6977,7 @@
       return this.getObjectByProperty("id", id);
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D objec
+     * Searches through the 3D object and its children, starting with the 3D object
      * itself, and returns the first with a matching name.
      *
      * @param {string} name - The name.
@@ -6987,7 +6987,7 @@
       return this.getObjectByProperty("name", name);
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D objec
+     * Searches through the 3D object and its children, starting with the 3D object
      * itself, and returns the first with a matching property value.
      *
      * @param {string} name - The name of the property.
@@ -7006,7 +7006,7 @@
       return void 0;
     }
     /**
-     * Searches through the 3D object and its children, starting with the 3D objec
+     * Searches through the 3D object and its children, starting with the 3D object
      * itself, and returns all 3D objects with a matching property value.
      *
      * @param {string} name - The name of the property.
@@ -7070,7 +7070,7 @@
      * 3D object. Renderable 3D objects such as {@link Mesh}, {@link Line} or {@link Points}
      * implement this method in order to use raycasting.
      *
-     * @abstrac
+     * @abstract
      * @param {Raycaster} raycaster - The raycaster.
      * @param {Array<Object>} intersects - An array holding the result of the method.
      */
@@ -7121,7 +7121,7 @@
       }
     }
     /**
-     * Updates the transformation matrix in local space by computing it from the curren
+     * Updates the transformation matrix in local space by computing it from the current
      * position, rotation and scale values.
      */
     updateMatrix() {
@@ -7553,7 +7553,7 @@
     }
     /**
      * Updates the controller with the given input source, XR frame and reference space.
-     * This updates the transformations of the groups that represent the differen
+     * This updates the transformations of the groups that represent the different
      * coordinate systems of the controller.
      *
      * @param {XRInputSource} inputSource - The input source.
@@ -8328,7 +8328,7 @@
     }
     /**
      * Linearly interpolates this color's HSL values toward the HSL values of the
-     * given color. It differs from {@link Color#lerp} by not interpolating straigh
+     * given color. It differs from {@link Color#lerp} by not interpolating straight
      * from one color to the other, but instead going through all the hues in between
      * those two colors. The alpha argument can be thought of as the ratio between
      * the two colors, where 0.0 is this color and 1.0 is the first argument.
@@ -8577,7 +8577,7 @@
      * @param {Vector3} b - The second corner of the triangle.
      * @param {Vector3} c - The third corner of the triangle.
      * @param {Vector3} target - The target vector that is used to store the method's result.
-     * @return {?Vector3} The barycentric coordinates for the given poin
+     * @return {?Vector3} The barycentric coordinates for the given point
      */
     static getBarycoord(point2, a, b, c, target) {
       _v0$2.subVectors(c, a);
@@ -8788,7 +8788,7 @@
      *
      * @param {Vector3} point - A point in 3D space.
      * @param {Vector3} target - The target vector that is used to store the method's result.
-     * @return {?Vector3} The barycentric coordinates for the given poin
+     * @return {?Vector3} The barycentric coordinates for the given point
      */
     getBarycoord(point2, target) {
       return _Triangle.getBarycoord(point2, this.a, this.b, this.c, target);
@@ -8979,17 +8979,17 @@
       return this;
     }
     /**
-     * Computes the world-axis-aligned bounding box for the given 3D objec
+     * Computes the world-axis-aligned bounding box for the given 3D object
      * (including its children), accounting for the object's, and children's,
      * world transforms. The function may result in a larger box than strictly necessary.
      *
-     * Note: To compute the correct bounding box, make sure the given 3D objec
+     * Note: To compute the correct bounding box, make sure the given 3D object
      * has an up-to-date world matrix that reflects the current transformation of its
      * ancestor nodes. Call `object.updateWorldMatrix( true, false )` beforehand if
      * you're unsure.
      *
      * @param {Object3D} object - The 3D object to compute the bounding box for.
-     * @param {boolean} [precise=false] - If set to `true`, the method computes the smalles
+     * @param {boolean} [precise=false] - If set to `true`, the method computes the smallest
      * world-axis-aligned bounding box at the expense of more computation.
      * @return {Box3} A reference to this bounding box.
      */
@@ -9529,7 +9529,7 @@
       return this;
     }
     /**
-     * Copies a vector from the given buffer attribute to this one. The star
+     * Copies a vector from the given buffer attribute to this one. The start
      * and destination position in the attribute buffers are represented by the
      * given indices.
      *
@@ -9959,7 +9959,7 @@
     /**
      * Returns `true` if the sphere is empty (the radius set to a negative number).
      *
-     * Spheres with a radius of `0` contain only their center point and are no
+     * Spheres with a radius of `0` contain only their center point and are not
      * considered to be empty.
      *
      * @return {boolean} Whether this sphere is empty or not.
@@ -10027,7 +10027,7 @@
       return Math.abs(plane.distanceToPoint(this.center)) <= this.radius;
     }
     /**
-     * Clamps a point within the sphere. If the point is outside the sphere, i
+     * Clamps a point within the sphere. If the point is outside the sphere, it
      * will clamp it to the closest point on the edge of the sphere. Points
      * already inside the sphere will not be affected.
      *
@@ -10281,7 +10281,7 @@
     /**
      * Adds a group to this geometry.
      *
-     * @param {number} start - The first element in this draw call. That is the firs
+     * @param {number} start - The first element in this draw call. That is the first
      * vertex for non-indexed geometry, otherwise the first triangle index.
      * @param {number} count - Specifies how many vertices (or indices) are part of this group.
      * @param {number} [materialIndex=0] - The material array index to use.
@@ -10637,7 +10637,7 @@
       if (groups.length === 0) {
         groups = [{
           start: 0,
-          count: index.coun
+          count: index.count
         }];
       }
       for (let i2 = 0, il = groups.length; i2 < il; ++i2) {
@@ -12156,7 +12156,7 @@
     return {
       distance: distance2,
       point: _intersectionPointWorld.clone(),
-      objec
+      object
     };
   }
   function checkGeometryIntersection(object, material2, raycaster, ray, uv, uv1, normal, a, b, c) {
@@ -12221,7 +12221,7 @@
     /**
      * Computes the bounding box of the skinned mesh, and updates {@link SkinnedMesh#boundingBox}.
      * The bounding box is not automatically computed by the engine; this method must be called by your app.
-     * If the skinned mesh is animated, the bounding box should be recomputed per frame in order to reflec
+     * If the skinned mesh is animated, the bounding box should be recomputed per frame in order to reflect
      * the current animation state.
      */
     computeBoundingBox() {
@@ -12880,7 +12880,7 @@
       return this;
     }
     /**
-     * Sets the plane from the given normal and coplanar point (that is a poin
+     * Sets the plane from the given normal and coplanar point (that is a point
      * that lies onto the plane).
      *
      * @param {Vector3} normal - The normal.
@@ -13444,7 +13444,7 @@
       face: null,
       faceIndex: null,
       barycoord: null,
-      objec
+      object
     };
   }
   var PointsMaterial = class extends Material {
@@ -13585,7 +13585,7 @@
         face: null,
         faceIndex: null,
         barycoord: null,
-        objec
+        object
       });
     }
   }
@@ -14097,7 +14097,7 @@
      * This method returns a vector in 2D or 3D space (depending on the curve definition)
      * for the given interpolation factor.
      *
-     * @abstrac
+     * @abstract
      * @param {number} t - A interpolation factor representing a position on the curve. Must be in the range `[0,1]`.
      * @param {(Vector2|Vector3)} [optionalTarget] - The optional target vector the result is written to.
      * @return {(Vector2|Vector3)} The position on the curve. It can be a 2D or 3D vector depending on the curve definition.
@@ -14237,7 +14237,7 @@
     /**
      * Returns a unit vector tangent for the given interpolation factor.
      * If the derived curve does not implement its tangent derivation,
-     * two points a small delta apart will be used to find its gradien
+     * two points a small delta apart will be used to find its gradient
      * which seems to give a reasonable approximation.
      *
      * @param {number} t - The interpolation factor.
@@ -14834,7 +14834,7 @@
       }
       return point2;
     }
-    // Line curve is linear, so we can overwrite default getPointA
+    // Line curve is linear, so we can overwrite default getPointAt
     getPointAt(u, optionalTarget) {
       return this.getPoint(u, optionalTarget);
     }
@@ -14894,7 +14894,7 @@
       }
       return point2;
     }
-    // Line curve is linear, so we can overwrite default getPointA
+    // Line curve is linear, so we can overwrite default getPointAt
     getPointAt(u, optionalTarget) {
       return this.getPoint(u, optionalTarget);
     }
@@ -15403,7 +15403,7 @@
     }
     /**
      * Adds an ellipse as an instance of {@link EllipseCurve} to the path, positioned relative
-     * to the current poin
+     * to the current point
      *
      * @param {number} [aX=0] - The x coordinate of the center of the ellipse offsetted from the previous curve.
      * @param {number} [aY=0] - The y coordinate of the center of the ellipse offsetted from the previous curve.
@@ -15941,7 +15941,7 @@
       // previous and next nodes in z-order
       nextZ: null,
       steiner: false
-      // indicates whether this is a steiner poin
+      // indicates whether this is a steiner point
     };
   }
   function signedArea(data, start, end, dim) {
@@ -17976,7 +17976,7 @@
     /**
      * Copies a sample value to the result buffer.
      *
-     * @abstrac
+     * @abstract
      * @param {number} i1 - An index into the sample value buffer.
      * @param {number} t0 - The previous interpolation factor.
      * @param {number} t - The current interpolation factor.
@@ -18230,8 +18230,8 @@
      *
      * The Bezier interpolant requires tangent data to be set via the `settings` property
      * on the track before creating the interpolant. The settings should contain:
-     * - `inTangents`: Float32Array with [time, value] pairs per keyframe per componen
-     * - `outTangents`: Float32Array with [time, value] pairs per keyframe per componen
+     * - `inTangents`: Float32Array with [time, value] pairs per keyframe per component
+     * - `outTangents`: Float32Array with [time, value] pairs per keyframe per component
      *
      * @static
      * @param {TypedArray} [result] - The result buffer.
@@ -18747,7 +18747,7 @@
       return null;
     }
     /**
-     * Returns an array of new AnimationClips created from the morph targe
+     * Returns an array of new AnimationClips created from the morph target
      * sequences of a geometry, trying to sort morph target names into
      * animation-group-based patterns like "Walk_001, Walk_002, Run_001, Run_002...".
      *
@@ -19085,7 +19085,7 @@
      * This method needs to be implemented by all concrete loaders. It holds the
      * logic for loading assets from the backend.
      *
-     * @abstrac
+     * @abstract
      * @param {string} url - The path/URL of the file to be loaded.
      * @param {Function} onLoad - Executed when the loading process has been finished.
      * @param {onProgressCallback} [onProgress] - Executed while the loading is in progress.
@@ -19110,7 +19110,7 @@
      * This method needs to be implemented by all concrete loaders. It holds the
      * logic for parsing the asset into three.js entities.
      *
-     * @abstrac
+     * @abstract
      * @param {any} data - The data to parse.
      */
     parse() {
@@ -19173,7 +19173,7 @@
     /**
      * This method can be implemented in loaders for aborting ongoing requests.
      *
-     * @abstrac
+     * @abstract
      * @return {Loader} A reference to this instance.
      */
     abort() {
@@ -20701,7 +20701,7 @@
     _getValue_toArray(buffer, offset) {
       this.resolvedProperty.toArray(buffer, offset);
     }
-    // Direc
+    // Direct
     _setValue_direct(buffer, offset) {
       this.targetObject[this.propertyName] = buffer[offset];
     }
@@ -20734,7 +20734,7 @@
       }
       this.targetObject.matrixWorldNeedsUpdate = true;
     }
-    // ArrayElemen
+    // ArrayElement
     _setValue_arrayElement(buffer, offset) {
       this.resolvedProperty[this.propertyIndex] = buffer[offset];
     }
@@ -20914,7 +20914,7 @@
   ];
   PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [
     [
-      // Direc
+      // Direct
       PropertyBinding.prototype._setValue_direct,
       PropertyBinding.prototype._setValue_direct_setNeedsUpdate,
       PropertyBinding.prototype._setValue_direct_setMatrixWorldNeedsUpdate
@@ -20926,7 +20926,7 @@
       PropertyBinding.prototype._setValue_array_setMatrixWorldNeedsUpdate
     ],
     [
-      // ArrayElemen
+      // ArrayElement
       PropertyBinding.prototype._setValue_arrayElement,
       PropertyBinding.prototype._setValue_arrayElement_setNeedsUpdate,
       PropertyBinding.prototype._setValue_arrayElement_setMatrixWorldNeedsUpdate
@@ -21029,7 +21029,7 @@
      * differently to ray casting than lines or points.
      *
      * Note that for meshes, faces must be pointed towards the origin of the ray in order
-     * to be detected; intersections of the ray passing through the back of a face will no
+     * to be detected; intersections of the ray passing through the back of a face will not
      * be detected. To raycast against both faces of an object, you'll want to set  {@link Material#side}
      * to `THREE.DoubleSide`.
      *
@@ -21045,7 +21045,7 @@
       return intersects2;
     }
     /**
-     * Checks all intersection between the ray and the objects with or withou
+     * Checks all intersection between the ray and the objects with or without
      * the descendants. Intersections are returned sorted by distance, closest first.
      *
      * @param {Array<Object3D>} objects - The 3D objects to check for intersection with the ray.
@@ -21426,7 +21426,7 @@
           if (range.start <= previousRange.start + previousRange.count + 1) {
             previousRange.count = Math.max(
               previousRange.count,
-              range.start + range.count - previousRange.star
+              range.start + range.count - previousRange.start
             );
           } else {
             ++mergeIndex;
@@ -21441,7 +21441,7 @@
             range.start * array.BYTES_PER_ELEMENT,
             array,
             range.start,
-            range.coun
+            range.count
           );
         }
         attribute.clearUpdateRanges();
@@ -23010,7 +23010,7 @@
     }
     /**
      * Generates a PMREM from an equirectangular texture, which can be either LDR
-     * or HDR. The ideal input image size is 1k (1024 x 512), as this matches bes
+     * or HDR. The ideal input image size is 1k (1024 x 512), as this matches best
      * with the 256 x 256 cubemap output. The minimum supported input image size
      * is 64 x 32.
      *
@@ -23023,7 +23023,7 @@
     }
     /**
      * Generates a PMREM from an cubemap texture, which can be either LDR
-     * or HDR. The ideal input cube size is 256 x 256, as this matches bes
+     * or HDR. The ideal input cube size is 256 x 256, as this matches best
      * with the 256 x 256 cubemap output. The minimum supported input cube
      * size is 16 x 16 per face.
      *
@@ -23243,7 +23243,7 @@
      * applies incremental roughness filtering to avoid over-blurring.
      *
      * @private
-     * @param {WebGLRenderTarget} cubeUVRenderTarge
+     * @param {WebGLRenderTarget} cubeUVRenderTarget
      * @param {number} lodIn - Source LOD level to read from
      * @param {number} lodOut - Target LOD level to write to
      */
@@ -23280,15 +23280,15 @@
      * This is a two-pass Gaussian blur for a cubemap. Normally this is done
      * vertically and horizontally, but this breaks down on a cube. Here we apply
      * the blur latitudinally (around the poles), and then longitudinally (towards
-     * the poles) to approximate the orthogonally-separable blur. It is leas
+     * the poles) to approximate the orthogonally-separable blur. It is least
      * accurate at the poles, but still does a decent job.
      *
      * Used for initial scene blur in fromScene() method when sigma > 0.
      *
      * @private
-     * @param {WebGLRenderTarget} cubeUVRenderTarge
+     * @param {WebGLRenderTarget} cubeUVRenderTarget
      * @param {number} lodIn
-     * @param {number} lodOu
+     * @param {number} lodOut
      * @param {number} sigma
      * @param {Vector3} [poleAxis]
      */
@@ -25776,7 +25776,7 @@
             },
             fragmentShader: {
               log: fragmentLog,
-              prefix: prefixFragmen
+              prefix: prefixFragment
             }
           };
         }
@@ -26514,7 +26514,7 @@
       push,
       unshift,
       finish,
-      sor
+      sort
     };
   }
   function WebGLRenderLists() {
@@ -27017,7 +27017,7 @@
         radius: { value: 4 }
       },
       vertexShader: vertex,
-      fragmentShader: fragmen
+      fragmentShader: fragment
     });
     const shadowMaterialHorizontal = shadowMaterialVertical.clone();
     shadowMaterialHorizontal.defines.HORIZONTAL_PASS = 1;
@@ -28096,7 +28096,7 @@
       compressedTexSubImage3D,
       scissor,
       viewport,
-      rese
+      reset
     };
   }
   function WebGLTextures(_gl, extensions, state, properties, capabilities, utils, info) {
@@ -28533,7 +28533,7 @@
           if (range.start <= previousEnd + 1 && currentRow === previousRow && getRow(range.start + range.count - 1, image.width, componentStride) === currentRow) {
             previousRange.count = Math.max(
               previousRange.count,
-              range.start + range.count - previousRange.star
+              range.start + range.count - previousRange.start
             );
           } else {
             ++mergeIndex;
@@ -31206,7 +31206,7 @@ void main() {
       const INTEGER_FORMATS = /* @__PURE__ */ new Set([
         RGBAIntegerFormat,
         RGIntegerFormat,
-        RedIntegerForma
+        RedIntegerFormat
       ]);
       const UNSIGNED_TYPES = /* @__PURE__ */ new Set([
         UnsignedByteType,
@@ -31296,7 +31296,7 @@ void main() {
           premultipliedAlpha,
           preserveDrawingBuffer,
           powerPreference,
-          failIfMajorPerformanceCavea
+          failIfMajorPerformanceCaveat
         };
         if ("setAttribute" in canvas) canvas.setAttribute("data-engine", `three.js r${REVISION}`);
         canvas.addEventListener("webglcontextlost", onContextLost, false);
@@ -35526,7 +35526,7 @@ void main() {
       super(manager);
     }
     /**
-     * Starts loading from the given URL and passes the loaded FBX asse
+     * Starts loading from the given URL and passes the loaded FBX asset
      * to the `onLoad()` callback.
      *
      * @param {string} url - The path/URL of the file to be loaded. This can also be a data URI.
@@ -35653,7 +35653,7 @@ void main() {
       }
       return images;
     }
-    // Parse embedded image data in FBXTree.Video.Conten
+    // Parse embedded image data in FBXTree.Video.Content
     parseImage(videoNode) {
       const content = videoNode.Content;
       const fileName = videoNode.RelativeFilename || videoNode.Filename;
@@ -36176,7 +36176,7 @@ void main() {
       }
       return model;
     }
-    // Create a DirectionalLight, PointLight or SpotLigh
+    // Create a DirectionalLight, PointLight or SpotLight
     createLight(relationships) {
       let model;
       let lightAttribute;
@@ -36683,7 +36683,7 @@ void main() {
       return {
         normal: normalVector,
         tangent,
-        bitangen
+        bitangent
       };
     }
     flattenVertex(vertex2, normalTangent, normalBitangent) {
@@ -37815,7 +37815,7 @@ void main() {
       }
       return a;
     }
-    // Note: see getInt64() commen
+    // Note: see getInt64() comment
     getUint64() {
       let low, high;
       if (this.littleEndian) {
@@ -38014,7 +38014,7 @@ void main() {
       // -> ZXY extrinsic
       "XYZ"
       // -> ZYX extrinsic
-      //'SphericXYZ', // not possible to suppor
+      //'SphericXYZ', // not possible to support
     ];
     if (order === 6) {
       console.warn("THREE.FBXLoader: unsupported Euler Order: Spherical XYZ. Animations and rotations may be incorrect.");
