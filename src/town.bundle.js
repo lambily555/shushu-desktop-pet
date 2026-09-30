@@ -32794,7 +32794,7 @@ void main() {
   // src/town-life.js
   var destinations = [
     ["\u8DD1\u8F6E\u516C\u56ED", -11, -7.5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
-    ["\u8BCA\u6240", -4.5, -10, true, "\u68C0\u67E5", [-1.9, -0.8]],
+    ["\u8BCA\u6240", -4.5, -10, true, "\u68C0\u67E5", [0.4, -0.8]],
     ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
     ["\u7EAA\u5FF5\u9986", -11, 3.5, true, "\u53C2\u89C2", [0, -0.5]],
@@ -32958,7 +32958,7 @@ void main() {
           } else if (d[3]) {
             actor.inside = actor.destination;
             actor.position = point(0, 2.6);
-            const stations = actor.action === "\u7761\u89C9" ? [-2.2, -1.6] : actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
+            const stations = actor.action === "\u4F4F\u9662" ? [-1.15, -0.8] : actor.action === "\u7761\u89C9" ? [-2.2, -1.6] : actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
             go(actor, point(...stations), "using", true);
           } else if (actor.action === "\u793E\u4EA4") {
             actor.phase = "meeting";
@@ -33054,6 +33054,11 @@ void main() {
         other.phase = "idle";
         other.wait = 1;
       }
+      if (requested && actor.clinicSeat) {
+        actor.clinicSeat = 0;
+        actor.seated = false;
+        actor.controlled = false;
+      }
       actor.forcedSleep = !!requested;
       actor.forcedHospital = hospitalized;
       actor.partner = null;
@@ -33063,7 +33068,7 @@ void main() {
       if (requested && actor.inside === (hospitalized ? "\u8BCA\u6240" : "\u9F20\u9F20\u5C0F\u5C4B")) {
         actor.destination = actor.inside;
         actor.action = hospitalized ? "\u4F4F\u9662" : "\u7761\u89C9";
-        go(actor, point(...hospitalized ? [-1.9, -0.8] : [-2.2, -1.6]), "using", true);
+        go(actor, point(...hospitalized ? [-1.15, -0.8] : [-2.2, -1.6]), "using", true);
       } else actor.phase = actor.inside ? "exit-room" : "idle";
     }
     function setCelebration(next) {
@@ -34400,7 +34405,7 @@ void main() {
     return group;
   }
   function createClinic() {
-    const group = new Group(), { box: box2, oval, tube } = kit2(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
+    const group = new Group(), { box: box2 } = kit2(group), white = mat("#f1f5f1"), blue = mat("#86b6c5"), metal = mat("#a8bec4", { metalness: 0.45, roughness: 0.4 }), glass = mat("#badde1", { transparent: true, opacity: 0.24, roughness: 0.15, depthWrite: false }), red = mat("#c75653");
     const rounded = (w, d, h, x2, y, z, m) => {
       const r = 0.22, s = new Shape();
       s.moveTo(-w / 2 + r, -d / 2);
@@ -34447,33 +34452,16 @@ void main() {
     cross(0, 1.32, -1.03, 0.33);
     box2(1.8, 0.36, 0.055, 0, 1.43, 0.85, white);
     storeSign(group, "\u9F20\u9F20\u533B\u9662", 0, 1.44, 0.884, 1.65, 0.32, "#f0f6f3", "#3f7180");
-    const bed = (x2, z) => {
-      box2(0.68, 0.17, 0.92, x2, 0.39, z, blue);
-      box2(0.63, 0.09, 0.85, x2, 0.52, z, white);
-      box2(0.5, 0.08, 0.24, x2, 0.59, z - 0.25, white);
-      for (const end of [-1, 1]) {
-        box2(0.65, 0.28, 0.04, x2, 0.58, z + end * 0.45, blue);
-        for (const side of [-1, 1]) oval(x2 + side * 0.26, 0.2, z + end * 0.32, 0.06, 0.06, 0.04, metal);
-      }
-      for (const side of [-1, 1]) tube([[x2 + side * 0.33, 0.5, z - 0.25], [x2 + side * 0.33, 0.68, z - 0.25], [x2 + side * 0.33, 0.68, z + 0.25], [x2 + side * 0.33, 0.5, z + 0.25]], 0.012, metal);
-    };
-    bed(-0.88, -0.32);
-    bed(0.88, -0.32);
-    box2(0.55, 0.85, 0.24, 0, 0.56, -0.85, blue);
-    for (let i2 = 0; i2 < 3; i2++) {
-      box2(0.46, 0.015, 0.23, 0, 0.23 + i2 * 0.25, -0.83, white);
-      for (const x2 of [-0.12, 0.12]) box2(0.055, 0.13, 0.055, x2, 0.32 + i2 * 0.25, -0.8, white);
+    for (const side of [-1, 1]) {
+      const chair = new Group(), seat = kit2(chair);
+      chair.position.set(side * 1.08, 0, 1.22);
+      chair.userData.townAction = "clinic-seat";
+      chair.userData.seatSide = side;
+      seat.box(0.44, 0.08, 0.38, 0, 0.31, 0, blue);
+      seat.box(0.44, 0.43, 0.07, 0, 0.55, -0.17, blue);
+      for (const x2 of [-0.17, 0.17]) for (const z of [-0.13, 0.13]) seat.box(0.045, 0.28, 0.045, x2, 0.14, z, metal);
+      group.add(chair);
     }
-    box2(0.9, 0.37, 0.38, -0.92, 0.25, 1.01, white);
-    box2(0.95, 0.04, 0.42, -0.92, 0.46, 1.01, blue);
-    box2(0.15, 0.11, 0.12, -0.92, 0.54, 1.01, white);
-    for (const x2 of [0.65, 1.02]) {
-      box2(0.29, 0.055, 0.28, x2, 0.28, 1.04, blue);
-      box2(0.29, 0.29, 0.05, x2, 0.45, 0.92, blue);
-      for (const dx of [-0.1, 0.1]) box2(0.025, 0.26, 0.025, x2 + dx, 0.13, 1.04, metal);
-    }
-    for (const x2 of [-0.3, 0.3]) tube([[x2, 0.16, 1.27], [x2, 0.4, 1.27], [x2, 0.4, 0.85]], 0.013, metal);
-    box2(0.58, 0.045, 0.5, 0, 0.14, 1.04, white);
     group.userData.footprint = 3.5 * 2.7;
     return group;
   }
@@ -38530,6 +38518,7 @@ void main() {
       const viewingInside = indoorNames.includes(activePlace);
       rig.visible = actor.inside ? !!roomCache.get(actor.inside)?.visible && (!viewingInside || actor.inside === activePlace) : !viewingInside;
       walk(rig, t, 0, actor.position.x, actor.position.z, actor);
+      rig.rotation.x = rig.rotation.z = 0;
       let hat = rig.userData.birthdayHat;
       if (!hat) {
         hat = birthdayHat();
@@ -38544,11 +38533,13 @@ void main() {
         poseBone(rig, "Head", Math.sin(t * 2) * 0.08);
       }
       if (actor.phase === "activity" && rig.userData.model) {
-        if (["\u68C0\u67E5", "\u4F4F\u9662"].includes(actor.action)) rig.position.y = 0.62;
         const resting = ["\u4F11\u606F", "\u7761\u89C9", "\u4F4F\u9662"].includes(actor.action);
         if (resting) {
-          rig.userData.model.rotation.z = 0.75;
-          rig.position.y = actor.action === "\u4F4F\u9662" ? 0.62 : actor.action === "\u7761\u89C9" && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" ? 0.65 : 0.12;
+          if (actor.action === "\u4F4F\u9662") rig.userData.model.rotation.z = 0;
+          else {
+            rig.userData.model.rotation.z = 0.75;
+            rig.position.y = actor.action === "\u7761\u89C9" && actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" ? 0.65 : 0.12;
+          }
         } else {
           poseBone(rig, "Head", 0.22 + Math.sin(t * 3) * 0.06);
           poseBone(rig, "LeftForeArm", -0.45 + Math.sin(t * 4) * 0.12);
@@ -38572,6 +38563,13 @@ void main() {
           }
         }
       }
+      if (actor.clinicSeat) {
+        rig.position.y = 0.26;
+        poseBone(rig, "LeftUpLeg", -1.05);
+        poseBone(rig, "RightUpLeg", -1.05);
+        poseBone(rig, "LeftLeg", 1.1);
+        poseBone(rig, "RightLeg", 1.1);
+      }
       if (actor.seated && actor.inside === "Mariah Carey\u540D\u4EBA\u5802") {
         rig.position.y = 0.47;
         poseBone(rig, "LeftUpLeg", -1.05);
@@ -38592,6 +38590,11 @@ void main() {
         insideRoom.localToWorld(rig.position);
         rig.position.y += y * (actor.seated ? insideRoom.scale.y : 1);
         rig.rotation.y = actor.heading + facing(actor.inside);
+        if (actor.action === "\u4F4F\u9662" && actor.phase === "activity" && actor.inside === "\u8BCA\u6240") {
+          rig.rotation.order = "YXZ";
+          rig.rotation.x = rig.rotation.z = -Math.PI / 2;
+          rig.position.y += 0.72 * insideRoom.scale.y + 0.16;
+        }
       }
       let bubble = lifeBubbles.get(actor.id);
       if (!bubble) {
@@ -39086,7 +39089,8 @@ void main() {
     }
     function returnToTown() {
       const actor = life.actors.get("main");
-      if (actor?.seated) toggleHallSeat();
+      if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
+      else if (actor?.seated) toggleHallSeat();
       if (!firstPerson && actor?.controlled) {
         actor.controlled = false;
         actor.phase = actor.inside ? "exit-room" : "idle";
@@ -39230,8 +39234,8 @@ void main() {
       playerKeys.clear();
       document.exitPointerLock?.();
       if (actor) {
-        actor.controlled = !!actor.inside;
-        actor.phase = actor.inside ? "controlled" : "idle";
+        actor.controlled = !!actor.inside || !!actor.clinicSeat;
+        actor.phase = actor.controlled ? "controlled" : "idle";
         actor.wait = 1;
         actor.moving = false;
         delete actor.entryPortal;
@@ -39353,7 +39357,7 @@ void main() {
         const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
         camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
       }
-      camera.position.y += (actor.seated ? 0.68 : 0.52) + jumpHeight;
+      camera.position.y += (actor.clinicSeat ? 0.38 : actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
@@ -39361,6 +39365,20 @@ void main() {
     function playerInteract(source = "keyboard") {
       if (firstPerson && toggleDoor(life.actors.get("main"))) return;
       const sitter = life.actors.get("main");
+      if (sitter?.clinicSeat) {
+        toggleClinicSeat(sitter.clinicSeat);
+        return;
+      }
+      if (firstPerson && !sitter?.inside) {
+        const clinic = placeModels.get("\u8BCA\u6240");
+        for (const side of [-1, 1]) {
+          const seat = clinic.localToWorld(new Vector3(side * 1.08, 0, 1.22));
+          if (Math.hypot(sitter.position.x - seat.x, sitter.position.z - seat.z) < 0.8) {
+            toggleClinicSeat(side);
+            return;
+          }
+        }
+      }
       if (source === "keyboard" && sitter?.inside === "Mariah Carey\u540D\u4EBA\u5802" && (sitter.seated || Math.hypot(sitter.position.x - 0.3, sitter.position.z - 1.6) < 1.2)) {
         toggleHallSeat();
         return;
@@ -39396,7 +39414,8 @@ void main() {
           return;
         }
         if (node?.userData.townAction) {
-          window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: node.userData.townAction } }));
+          if (node.userData.townAction === "clinic-seat") toggleClinicSeat(node.userData.seatSide);
+          else window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: node.userData.townAction } }));
           return;
         }
         if (node?.userData.place && !indoorNames.includes(node.userData.place)) {
@@ -39436,8 +39455,10 @@ void main() {
         if (e.code === "KeyE") {
           if (!e.repeat) playerInteract();
         } else if (e.code === "Space") {
-          if (life.actors.get("main")?.seated) toggleHallSeat();
-          if (!e.repeat && jumpHeight === 0) jumpVelocity = 1.7;
+          const seated = life.actors.get("main")?.seated;
+          if (life.actors.get("main")?.clinicSeat) toggleClinicSeat(life.actors.get("main").clinicSeat);
+          else if (seated) toggleHallSeat();
+          if (!seated && !e.repeat && jumpHeight === 0) jumpVelocity = 1.7;
         } else playerKeys.add(e.code);
       }
     }, true);
@@ -39502,6 +39523,31 @@ void main() {
       window.dispatchEvent(new CustomEvent("town-exhibit-select", { detail: { title: exhibit.userData.hallExhibit } }));
       return true;
     }
+    function toggleClinicSeat(side) {
+      const actor = life.actors.get("main");
+      if (!actor || actor.frozen || actor.forcedSleep || actor.inside) return false;
+      if (actor.clinicSeat) {
+        actor.position.z += 0.48;
+        actor.clinicSeat = 0;
+        actor.seated = false;
+        actor.controlled = firstPerson;
+        actor.phase = firstPerson ? "controlled" : "idle";
+        actor.action = "\u4F11\u606F";
+        return false;
+      }
+      const chair = placeModels.get("\u8BCA\u6240").localToWorld(new Vector3((side || 1) * 1.08, 0, 1.22));
+      if (firstPerson && Math.hypot(actor.position.x - chair.x, actor.position.z - chair.z) > 0.85) return false;
+      actor.position = { x: chair.x, z: chair.z };
+      actor.clinicSeat = side || 1;
+      actor.seated = true;
+      actor.controlled = true;
+      actor.phase = "controlled";
+      actor.path = [];
+      actor.moving = false;
+      actor.action = "\u5750\u5728\u533B\u9662\u6905\u5B50\u4E0A";
+      actor.speech = "";
+      return true;
+    }
     function resetHallView() {
       if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return;
       focusedExhibit = null;
@@ -39560,7 +39606,8 @@ void main() {
         if (hit) {
           let object = hit.object;
           while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.pupId && !object.userData.roomAction && !object.userData.townAction && !object.userData.place) object = object.parent;
-          if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
+          if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
+          else if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
           else if (object?.userData.pupId) focusPup(object.userData.pupId);
           else if (object?.userData.mainPet) focusPet();

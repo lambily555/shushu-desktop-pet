@@ -1,6 +1,6 @@
 // Scene-time movement is separate from real-time needs and aging.
 export const destinations=[
- ['跑轮公园',-11,-7.5,false,'跑轮',[-1.9,-.8]],['诊所',-4.5,-10,true,'检查',[-1.9,-.8]],
+ ['跑轮公园',-11,-7.5,false,'跑轮',[-1.9,-.8]],['诊所',-4.5,-10,true,'检查',[.4,-.8]],
  ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
  ['纪念馆',-11,3.5,true,'参观',[0,-.5]],['鼠鼠小屋',-5,6.5,true,'休息',[-2.2,-.7]],
  ['小菜园',0,-14.4,false,'照看菜园',[0,0]],['殡仪馆',-8,11,true,'工作',[0,1]],
@@ -46,7 +46,7 @@ export function createTownLife(onEvent=()=>{}){
    else if(actor.phase==='arrived'){
     actor.place=actor.destination;onEvent({id:actor.id,type:'status',action:actor.action==='睡觉'?'回家睡觉':actor.action,place:actor.destination});const d=byName.get(actor.destination);
     if(celebration&&actor.destination==='中心广场'){const index=[...actors.keys()].indexOf(actor.id),a=index/Math.max(actors.size,1)*Math.PI*2;go(actor,point(Math.cos(a)*2.15,-1.3+Math.sin(a)*1.2),'celebrating')}
-    else if(d[3]){actor.inside=actor.destination;actor.position=point(0,2.6);const stations=actor.action==='睡觉'?[-2.2,-1.6]:actor.action==='饮水'?[1.4,-.7]:actor.action==='进食'?[1.7,.7]:d[5];go(actor,point(...stations),'using',true)}
+    else if(d[3]){actor.inside=actor.destination;actor.position=point(0,2.6);const stations=actor.action==='住院'?[-1.15,-.8]:actor.action==='睡觉'?[-2.2,-1.6]:actor.action==='饮水'?[1.4,-.7]:actor.action==='进食'?[1.7,.7]:d[5];go(actor,point(...stations),'using',true)}
     else if(actor.action==='社交'){actor.phase='meeting';actor.wait=35;actor.speech='等朋友一起聊聊';go(actor,point(-1.9+(actors.size?([...actors.keys()].indexOf(actor.id)%4)*.85:0),.65),'meeting')}
     else{actor.wait=0;if(actor.destination==='墓地')go(actor,point(d[1],d[2]),'using');else if(actor.action==='跑轮')go(actor,point(d[1],d[2]+.2),'using',true);else{actor.phase='using'}}
    }
@@ -65,7 +65,7 @@ export function createTownLife(onEvent=()=>{}){
    else if(actor.phase==='talking'){actor.wait-=dt;const other=actors.get(actor.partner);actor.speech=actor.wait>6?`你好，${other?.name||'朋友'}！`:actor.wait>3?'今天的嫩叶很香哦。':'下次一起去公园吧！';if(actor.wait<=0){actor.partner=null;complete(actor)}}
   }
  }
- function setResting(requested,hospitalized=false){requested=!!requested||hospitalized;const actor=actors.get('main');if(!actor||actor.frozen||(!!actor.forcedSleep===!!requested&&!!actor.forcedHospital===hospitalized))return;const other=actors.get(actor.partner);if(other){other.partner=null;other.phase='idle';other.wait=1}actor.forcedSleep=!!requested;actor.forcedHospital=hospitalized;actor.partner=null;actor.speech='';actor.path=[];actor.wait=0;if(requested&&actor.inside===(hospitalized?'诊所':'鼠鼠小屋')){actor.destination=actor.inside;actor.action=hospitalized?'住院':'睡觉';go(actor,point(...(hospitalized?[-1.9,-.8]:[-2.2,-1.6])),'using',true)}else actor.phase=actor.inside?'exit-room':'idle'}
+ function setResting(requested,hospitalized=false){requested=!!requested||hospitalized;const actor=actors.get('main');if(!actor||actor.frozen||(!!actor.forcedSleep===!!requested&&!!actor.forcedHospital===hospitalized))return;const other=actors.get(actor.partner);if(other){other.partner=null;other.phase='idle';other.wait=1}if(requested&&actor.clinicSeat){actor.clinicSeat=0;actor.seated=false;actor.controlled=false}actor.forcedSleep=!!requested;actor.forcedHospital=hospitalized;actor.partner=null;actor.speech='';actor.path=[];actor.wait=0;if(requested&&actor.inside===(hospitalized?'诊所':'鼠鼠小屋')){actor.destination=actor.inside;actor.action=hospitalized?'住院':'睡觉';go(actor,point(...(hospitalized?[-1.15,-.8]:[-2.2,-1.6])),'using',true)}else actor.phase=actor.inside?'exit-room':'idle'}
  function setCelebration(next){if((next?.key||null)===(celebration?.key||null)){celebration=next;return}celebration=next;for(const actor of actors.values()){if(actor.frozen||actor.forcedSleep)continue;actor.partner=null;actor.speech='';actor.path=[];actor.phase=actor.inside?'exit-room':'idle';actor.wait=0}}
  return {actors,add,tick,setResting,setCelebration,remove:id=>actors.delete(id),inspect:()=>({elapsed,conversations,actors:[...actors.values()].map(a=>({...a,entryPortal:undefined,path:undefined,visited:[...a.visited]}))})};
 }

@@ -75,7 +75,7 @@ export function createSnackShop(){
  sign(group,'每日新鲜',1.25,.48,1.3).scale.set(.45,.7,1);group.userData.footprint=3.5*2.7;return group;
 }
 export function createClinic(){
- const group=new THREE.Group(),{box,oval,tube}=kit(group),white=mat('#f1f5f1'),blue=mat('#86b6c5'),metal=mat('#a8bec4',{metalness:.45,roughness:.4}),glass=mat('#badde1',{transparent:true,opacity:.24,roughness:.15,depthWrite:false}),red=mat('#c75653');
+ const group=new THREE.Group(),{box}=kit(group),white=mat('#f1f5f1'),blue=mat('#86b6c5'),metal=mat('#a8bec4',{metalness:.45,roughness:.4}),glass=mat('#badde1',{transparent:true,opacity:.24,roughness:.15,depthWrite:false}),red=mat('#c75653');
  const rounded=(w,d,h,x,y,z,m)=>{const r=.22,s=new THREE.Shape();s.moveTo(-w/2+r,-d/2);s.lineTo(w/2-r,-d/2);s.quadraticCurveTo(w/2,-d/2,w/2,-d/2+r);s.lineTo(w/2,d/2-r);s.quadraticCurveTo(w/2,d/2,w/2-r,d/2);s.lineTo(-w/2+r,d/2);s.quadraticCurveTo(-w/2,d/2,-w/2,d/2-r);s.lineTo(-w/2,-d/2+r);s.quadraticCurveTo(-w/2,-d/2,-w/2+r,-d/2);const geometry=new THREE.ExtrudeGeometry(s,{depth:h,bevelEnabled:true,bevelThickness:.025,bevelSize:.025,bevelSegments:2,steps:1,curveSegments:8});geometry.rotateX(-Math.PI/2);const mesh=new THREE.Mesh(geometry,m);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh};
  rounded(3.5,2.7,.12,0,-.02,0,white);rounded(2.95,1.88,.45,0,.13,-.22,blue);
  // An open roof and transparent facade reveal beds and cabinets from above.
@@ -85,11 +85,7 @@ export function createClinic(){
  for(const y of [1.67,1.76]){box(3.06,.08,.13,0,y,-1.13,white);box(3.06,.08,.13,0,y,.75,white);for(const side of [-1,1])box(.13,.08,1.95,side*1.47,y,-.19,white)}
  const cross=(x,y,z,size)=>{box(size*.27,size,.025,x,y,z,red);box(size,size*.27,.027,x,y,z,red)};cross(0,1.32,-1.03,.33);
  box(1.8,.36,.055,0,1.43,.85,white);storeSign(group,'鼠鼠医院',0,1.44,.884,1.65,.32,'#f0f6f3','#3f7180');
- const bed=(x,z)=>{box(.68,.17,.92,x,.39,z,blue);box(.63,.09,.85,x,.52,z,white);box(.5,.08,.24,x,.59,z-.25,white);for(const end of [-1,1]){box(.65,.28,.04,x,.58,z+end*.45,blue);for(const side of [-1,1])oval(x+side*.26,.2,z+end*.32,.06,.06,.04,metal)}for(const side of [-1,1])tube([[x+side*.33,.5,z-.25],[x+side*.33,.68,z-.25],[x+side*.33,.68,z+.25],[x+side*.33,.5,z+.25]],.012,metal)};bed(-.88,-.32);bed(.88,-.32);
- box(.55,.85,.24,0,.56,-.85,blue);for(let i=0;i<3;i++){box(.46,.015,.23,0,.23+i*.25,-.83,white);for(const x of [-.12,.12])box(.055,.13,.055,x,.32+i*.25,-.8,white)}
- box(.9,.37,.38,-.92,.25,1.01,white);box(.95,.04,.42,-.92,.46,1.01,blue);box(.15,.11,.12,-.92,.54,1.01,white);
- for(const x of [.65,1.02]){box(.29,.055,.28,x,.28,1.04,blue);box(.29,.29,.05,x,.45,.92,blue);for(const dx of [-.1,.1])box(.025,.26,.025,x+dx,.13,1.04,metal)}
- for(const x of [-.3,.3])tube([[x,.16,1.27],[x,.4,1.27],[x,.4,.85]],.013,metal);box(.58,.045,.5,0,.14,1.04,white);
+ for(const side of [-1,1]){const chair=new THREE.Group(),seat=kit(chair);chair.position.set(side*1.08,0,1.22);chair.userData.townAction='clinic-seat';chair.userData.seatSide=side;seat.box(.44,.08,.38,0,.31,0,blue);seat.box(.44,.43,.07,0,.55,-.17,blue);for(const x of [-.17,.17])for(const z of [-.13,.13])seat.box(.045,.28,.045,x,.14,z,metal);group.add(chair)}
  group.userData.footprint=3.5*2.7;return group;
 }
 export function createRemembranceHouse(memorial=false){
