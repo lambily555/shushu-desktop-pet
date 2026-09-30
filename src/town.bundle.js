@@ -33313,7 +33313,7 @@ void main() {
       const bounds = new Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()), actual = bounds.getCenter(new Vector3());
       if (Math.abs(actual.x - layout.doorX) < layout.doorWidth / 2 + 0.06 && actual.y > layout.floor && actual.y < layout.floor + layout.doorHeight + 0.025 && actual.z > front - 0.07 && actual.z < front + 0.25) removed.push(mesh);
       else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height === 0.22 && p.width === 3.1) removed.push(mesh);
-      else if (name === "\u8BCA\u6240" && mesh.geometry.type === "ExtrudeGeometry" && p.depth > 0.2) removed.push(mesh);
+      else if (name === "\u8BCA\u6240" && mesh.geometry.type === "ExtrudeGeometry" && p.options?.depth > 0.2) removed.push(mesh);
       else if (centre.y > layout.floor + 0.04 && centre.y < top - 0.04 && Math.abs(centre.x) < layout.width / 2 + 0.12 && centre.z > back - 0.1 && centre.z < front + 0.09) removed.push(mesh);
       else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height > 1 && centre.y < top && centre.z >= front) removed.push(mesh);
     });
