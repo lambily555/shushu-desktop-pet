@@ -38517,6 +38517,8 @@ void main() {
       }
       const viewingInside = indoorNames.includes(activePlace);
       rig.visible = actor.inside ? !!roomCache.get(actor.inside)?.visible && (!viewingInside || actor.inside === activePlace) : !viewingInside;
+      if (firstPerson && actor.id === "main") rig.visible = false;
+      if (rig.userData.model) rig.userData.model.visible = !(firstPerson && actor.id === "main");
       walk(rig, t, 0, actor.position.x, actor.position.z, actor);
       rig.rotation.x = rig.rotation.z = 0;
       let hat = rig.userData.birthdayHat;
@@ -38564,7 +38566,7 @@ void main() {
         }
       }
       if (actor.clinicSeat) {
-        rig.position.y = 0.26;
+        rig.position.y = 0.35;
         poseBone(rig, "LeftUpLeg", -1.05);
         poseBone(rig, "RightUpLeg", -1.05);
         poseBone(rig, "LeftLeg", 1.1);
@@ -39203,6 +39205,8 @@ void main() {
       if (activePlace) leavePlace();
       playerSavedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
       firstPerson = true;
+      pet.visible = false;
+      if (pet.userData.model) pet.userData.model.visible = false;
       actor.controlled = true;
       actor.path = [];
       actor.partner = null;
@@ -39229,6 +39233,8 @@ void main() {
       if (!firstPerson) return;
       const actor = life.actors.get("main");
       firstPerson = false;
+      pet.visible = true;
+      if (pet.userData.model) pet.userData.model.visible = true;
       jumpHeight = 0;
       jumpVelocity = 0;
       playerKeys.clear();
@@ -39353,11 +39359,12 @@ void main() {
       const position = new Vector3(actor.position.x, 0, actor.position.z);
       if (actor.inside) room.localToWorld(position);
       camera.position.copy(position);
+      if (actor.clinicSeat) camera.position.z += 0.18;
       if (!actor.inside && portal) {
         const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
         camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
       }
-      camera.position.y += (actor.clinicSeat ? 0.38 : actor.seated ? 0.68 : 0.52) + jumpHeight;
+      camera.position.y += (actor.clinicSeat ? 0.7 : actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
@@ -39545,6 +39552,11 @@ void main() {
       actor.path = [];
       actor.moving = false;
       actor.action = "\u5750\u5728\u533B\u9662\u6905\u5B50\u4E0A";
+      actor.heading = 0;
+      if (firstPerson) {
+        playerYaw = Math.PI;
+        playerPitch = 0;
+      }
       actor.speech = "";
       return true;
     }
@@ -39811,7 +39823,7 @@ void main() {
       placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.setEvent(next.celebration);
       placeModels.get("\u5C0F\u83DC\u56ED").userData.setGrowth(next.gardenProgress ?? 0.5);
       pet.scale.setScalar(window.TownSimulation.growthScale(next.ageYears ?? 0.7));
-      pet.visible = next.alive !== false || next.pendingFarewell?.phase !== "buried";
+      pet.visible = !firstPerson && (next.alive !== false || next.pendingFarewell?.phase !== "buried");
       residents.forEach((resident, i2) => {
         const data = next.npcs?.[i2], inside = indoorNames.includes(activePlace);
         resident.rig.visible = data?.alive !== false && (!inside || places[i2][0] === activePlace);
@@ -39839,7 +39851,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { setLookSensitivity, toggleHallSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { setLookSensitivity, toggleHallSeat, toggleClinicSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

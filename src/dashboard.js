@@ -448,7 +448,7 @@ $('#townSettingsButton')?.addEventListener('click',()=>openTownOverlay('townSett
 document.querySelectorAll('[data-town-close]').forEach(button=>button.onclick=()=>button.closest('.town-overlay').hidden=true);
 document.querySelector('[data-town-context-close]')?.addEventListener('click',()=>{window.TownApp?.returnToTown?.();$('#townContext').hidden=true});
 $('#townLookSensitivity').addEventListener('input',event=>{const value=Math.max(.25,Math.min(3,Number(event.target.value)||1));townState.lookSensitivity=value;$('#townLookSensitivityValue').textContent=value.toFixed(2)+'×';window.TownApp?.setLookSensitivity(value);saveTown()});
-document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{settleTown();townState[input.dataset.townSetting]=input.checked;saveTown();renderTown()}));
+document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{const checked=input.checked;settleTown();townState[input.dataset.townSetting]=checked;saveTown();renderTown()}));
 $('#townMainSex')?.addEventListener('change',event=>{townState.mainSex=event.target.value;saveTown();renderTown();renderTownContext()});
 $('#townContext')?.addEventListener('click',event=>{
   const action=event.target.closest('[data-town-action]')?.dataset.townAction;if(!action)return;
