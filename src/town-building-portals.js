@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // Dimensions are in the town's world units, including the original front-door positions.
 export const buildingLayouts={
  'Mariah Carey名人堂':{width:3.1,depth:2.3,z:0,floor:.38,height:1.7,doorX:-.8,doorWidth:.62,doorHeight:1.4,wall:0xeae4d6,trim:0x625b55,glass:true},
- '鼠鼠饭馆':{width:3,depth:2.05,z:-.14,floor:.14,height:1.6,doorX:-.6,doorWidth:.8,doorHeight:1.25,wall:0xeee8d9,trim:0x655746},
+ '鼠鼠饭馆':{width:4,depth:2.65,z:-.14,floor:.14,height:1.6,doorX:-.6,doorWidth:.8,doorHeight:1.25,wall:0xeee8d9,trim:0x655746},
  '诊所':{width:2.88,depth:1.85,z:-.175,floor:.2,height:1.45,doorX:0,doorWidth:.64,doorHeight:1.2,wall:0xf1f5f1,trim:0x86b6c5,glass:true},
  '零食铺':{width:2.9,depth:1.88,z:0,floor:.1,height:1.6,doorX:-.95,doorWidth:.64,doorHeight:1.25,wall:0xf3e3b1,trim:0xa8c3a3},
  '纪念馆':{width:2.8,depth:1.85,z:-.27,floor:.23,height:1.3,doorX:0,doorWidth:.7,doorHeight:1.08,wall:0xeee5cc,trim:0xa7b39a},

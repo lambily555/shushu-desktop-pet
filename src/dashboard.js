@@ -411,7 +411,7 @@ function renderTownContext(){
     '跑轮公园':`<div class="town-place-stat"><span>当前体力</span><b>${Math.round(townState.stamina)}</b></div><p>在公园锻炼会改善健康和心情，但需要消耗体力。</p>${contextButton('exercise','跑一会儿跑轮','健康 +1，心情 +2，体力 -18',townState.stamina<18)}`,
     '诊所':`<div class="town-place-stat"><span>当前健康</span><b>${Math.round(townState.health)}</b></div><p>${townState.health<70?'白大夫建议做一次温和治疗。':'白大夫检查后说，鼠鼠现在状态不错。'}</p>${townState.health<95?contextButton('treat','接受诊疗','花费 6 颗瓜子，恢复健康'):''}`,
     'Mariah Carey名人堂':(!townState.alive?'<p>当前鼠鼠已离世，选择新的鼠鼠伙伴后即可参观和坐下。</p>':townState.hospitalStay?'<p>鼠鼠正在住院休养，出院后即可参观和坐下。</p>':'')+contextButton('hall-enter','让鼠鼠进入名人堂',townState.sleepRequested?'唤醒鼠鼠并前往门口，自行开门进入':'前往门口，按 E 开关门，WASD 自行进出',!townState.alive||!!townState.hospitalStay)+(townContext.hallArrival?'<section><h4>鼠鼠正在名人堂参观</h4><p>WASD 自行移动、鼠标环顾；靠近大门按 E 开关门。上帝视角和第一视角可以随时切换。</p></section>':'')+contextButton('hall-seat','坐下 / 起身','面朝专辑墙，第一视角靠近长椅按 E 也可坐下',!townState.alive||!!townState.hospitalStay)+contextButton('hall-reset','查看展厅全貌','点击专辑、照片或人形立牌，镜头会聚焦展品')+'<p>21张专辑封面、6幅日常与舞台照片，搭配黑胶、粉胶、唱机、人形立牌和金色音符展台。拖动旋转、滚轮缩放可近看展品。</p>',
-    '鼠鼠饭馆':'<p>灰瓦木门的小饭馆，屋内设有厨房、点餐柜台和四组餐桌。居民会自行前来用餐；点击返回小镇即可退出室内视角。</p>',
+    '鼠鼠饭馆':'<p>灰瓦木门的小饭馆，屋内设有厨房、门旁点餐柜台和三组餐桌。点击餐椅可坐下或起身；第一视角靠近餐椅按 E 可互动。</p>',
     '零食铺':`<div class="town-place-stat"><span>粮仓存量</span><b>${townState.food} 份</b></div>${contextButton('buy-food','购买 5 份粮食','花费 10 颗瓜子，直接送入粮仓')}`,
     '中心广场':plazaPage,
     '鼠鼠学校':schoolPage,

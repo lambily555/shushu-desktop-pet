@@ -32826,7 +32826,7 @@ void main() {
         const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
         return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (Math.abs(lx) > 1.95 || lz < -1.03 || lz > 1.46 && Math.abs(lx) > 0.45 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
       }
-      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < (d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.75 : 1.62) && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < (d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.4 : 1.2);
+      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < (d[0] === "\u9F20\u9F20\u996D\u9986" ? 2.1 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.75 : 1.62) && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < (d[0] === "\u9F20\u9F20\u996D\u9986" ? 1.5 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.4 : 1.2);
     }) || Math.hypot(x2, z + 1.3) < 0.9;
   }
   function route(start, end) {
@@ -33054,8 +33054,9 @@ void main() {
         other.phase = "idle";
         other.wait = 1;
       }
-      if (requested && actor.clinicSeat) {
+      if (requested && (actor.clinicSeat || actor.restaurantSeat !== void 0)) {
         actor.clinicSeat = 0;
+        delete actor.restaurantSeat;
         actor.seated = false;
         actor.controlled = false;
       }
@@ -33211,7 +33212,7 @@ void main() {
     "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [0.3, 1.6, 0.8, 0.35]],
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
-    "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [2.5, 0.5, 0.95, 0.4], [-1.4, -0.2, 0.65, 0.4], [-1.4, 1.6, 0.65, 0.4], [1, -0.2, 0.65, 0.4], [1, 1.6, 0.65, 0.4]],
+    "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [3.35, 1.4, 0.35, 0.75], [-2, -0.5, 0.65, 0.4], [1.4, -0.5, 0.65, 0.4], [1.4, 1.55, 0.65, 0.4]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
     "\u7EAA\u5FF5\u9986": [[-2.2, -1.4, 0.75, 0.45], [0, -1.4, 0.75, 0.45], [2.2, -1.4, 0.75, 0.45], [0, 1.5, 1.05, 0.4]],
     "\u9F20\u9F20\u5B66\u6821": [[-2, -1.7, 0.82, 0.32], [-1, -0.6, 0.65, 0.4], [1.4, -0.6, 0.65, 0.4], [-1, 1.1, 0.65, 0.4], [1.4, 1.1, 0.65, 0.4]],
@@ -33254,7 +33255,7 @@ void main() {
   // src/town-building-portals.js
   var buildingLayouts = {
     "Mariah Carey\u540D\u4EBA\u5802": { width: 3.1, depth: 2.3, z: 0, floor: 0.38, height: 1.7, doorX: -0.8, doorWidth: 0.62, doorHeight: 1.4, wall: 15394006, trim: 6445909, glass: true },
-    "\u9F20\u9F20\u996D\u9986": { width: 3, depth: 2.05, z: -0.14, floor: 0.14, height: 1.6, doorX: -0.6, doorWidth: 0.8, doorHeight: 1.25, wall: 15657177, trim: 6641478 },
+    "\u9F20\u9F20\u996D\u9986": { width: 4, depth: 2.65, z: -0.14, floor: 0.14, height: 1.6, doorX: -0.6, doorWidth: 0.8, doorHeight: 1.25, wall: 15657177, trim: 6641478 },
     "\u8BCA\u6240": { width: 2.88, depth: 1.85, z: -0.175, floor: 0.2, height: 1.45, doorX: 0, doorWidth: 0.64, doorHeight: 1.2, wall: 15857137, trim: 8828613, glass: true },
     "\u96F6\u98DF\u94FA": { width: 2.9, depth: 1.88, z: 0, floor: 0.1, height: 1.6, doorX: -0.95, doorWidth: 0.64, doorHeight: 1.25, wall: 15983537, trim: 11060131 },
     "\u7EAA\u5FF5\u9986": { width: 2.8, depth: 1.85, z: -0.27, floor: 0.23, height: 1.3, doorX: 0, doorWidth: 0.7, doorHeight: 1.08, wall: 15656396, trim: 10990490 },
@@ -34304,46 +34305,20 @@ void main() {
   }
   function createRestaurant() {
     const group = new Group(), { box: box2, oval } = kit2(group), wall = mat(15657437), wood = mat(7428675, { map: woodTexture() }), roof = mat(6714481), stone = mat(10988192), green = mat(7439453);
-    box2(3.4, 0.14, 2.6, 0, 0.07, 0, stone);
-    box2(3, 1.6, 2.05, 0, 0.94, -0.14, wall);
-    box2(3, 0.28, 2.08, 0, 0.24, -0.14, mat(8885898));
+    box2(4.25, 0.14, 2.9, 0, 0.07, -0.14, stone);
+    box2(4, 1.6, 2.65, 0, 0.94, -0.14, wall);
     for (const side of [-1, 1]) {
-      const r = box2(1.9, 0.12, 2.65, side * 0.77, 2.02, -0.14, roof);
-      r.rotation.z = -side * 0.42;
-      for (let row = 0; row < 5; row++) for (let col = 0; col < 8; col++) {
-        const tile = box2(0.37, 0.035, 0.32, side * (0.18 + row * 0.31), 2.31 - row * 0.138, -1.25 + col * 0.32, roof);
-        tile.rotation.z = -side * 0.42;
+      const r = box2(2.45, 0.12, 3.15, side * 1.02, 2.02, -0.14, roof);
+      r.rotation.z = -side * 0.36;
+      for (let row = 0; row < 6; row++) for (let col = 0; col < 9; col++) {
+        const tile = box2(0.42, 0.035, 0.36, side * (0.2 + row * 0.35), 2.39 - row * 0.126, -1.52 + col * 0.35, roof);
+        tile.rotation.z = -side * 0.36;
       }
     }
-    box2(0.14, 0.14, 2.7, 0, 2.4, -0.14, wood);
-    box2(3.1, 0.12, 0.1, 0, 1.76, 0.93, wood);
-    for (let i2 = 0; i2 < 17; i2++) box2(0.055, 0.32, 0.04, -1.4 + i2 * 0.175, 1.96, 0.9, wood);
-    box2(0.8, 1.25, 0.07, -0.6, 0.75, 0.92, wood);
-    box2(0.62, 0.55, 0.04, -0.6, 1.02, 0.97, mat(10137255));
-    box2(0.045, 0.55, 0.045, -0.6, 1.02, 1, wood);
-    box2(0.62, 0.045, 0.045, -0.6, 1.02, 1, wood);
-    oval(-0.29, 0.63, 1, 0.035, 0.035, 0.035, mat(12229207));
-    box2(1.15, 0.9, 0.045, 0.62, 1, 0.92, mat(4471600));
-    box2(1.25, 0.65, 0.5, 0.65, 0.39, 1.1, wood);
-    box2(1.35, 0.07, 0.6, 0.65, 0.75, 1.1, mat(12956305));
-    for (let i2 = 0; i2 < 3; i2++) {
-      oval(0.3 + i2 * 0.3, 0.85, 1.1, 0.12, 0.05, 0.12, mat(14731668));
-      box2(0.17, 0.32, 0.025, 0.3 + i2 * 0.3, 1.48, 0.96, mat(15785914));
-    }
-    for (const x2 of [-1.08, 1.08]) {
-      box2(0.14, 0.23, 0.1, x2, 1.32, 1.03, wood);
-      box2(0.09, 0.16, 0.08, x2, 1.32, 1.09, mat(16047002, { emissive: 13280341, emissiveIntensity: 0.4 }));
-    }
-    box2(0.045, 0.72, 1.3, 1.52, 1, -0.2, wood);
-    for (let i2 = 0; i2 < 5; i2++) box2(0.055, 0.72, 0.045, 1.55, 1, -0.78 + i2 * 0.29, wood);
-    storeSign(group, "\u9F20\u9F20\u996D\u9986", 0, 1.77, 1.015, 2, 0.32, "#c8b291", "#493b2e");
-    for (const x2 of [-1.15, 1.15]) {
-      oval(x2, 0.54, 1.52, 0.3, 0.055, 0.23, wood);
-      box2(0.06, 0.5, 0.06, x2, 0.28, 1.52, wood);
-      for (const dx of [-0.36, 0.36]) oval(x2 + dx, 0.26, 1.52, 0.13, 0.2, 0.13, wood);
-    }
-    for (let i2 = 0; i2 < 9; i2++) oval(-1.4 + i2 * 0.35, 0.17, -1.2, 0.14, 0.12, 0.13, green);
-    group.userData.footprint = 3.4 * 2.6;
+    box2(0.14, 0.14, 3.2, 0, 2.4, -0.14, wood);
+    storeSign(group, "\u9F20\u9F20\u996D\u9986", 0, 1.77, 1.225, 2, 0.32, "#c8b291", "#493b2e");
+    for (let i2 = 0; i2 < 11; i2++) oval(-1.8 + i2 * 0.36, 0.17, -1.48, 0.14, 0.12, 0.13, green);
+    group.userData.footprint = 4.25 * 2.9;
     return group;
   }
   function createSnackShop() {
@@ -38572,7 +38547,7 @@ void main() {
         poseBone(rig, "LeftLeg", 1.1);
         poseBone(rig, "RightLeg", 1.1);
       }
-      if (actor.seated && actor.inside === "Mariah Carey\u540D\u4EBA\u5802") {
+      if (actor.seated && ["Mariah Carey\u540D\u4EBA\u5802", "\u9F20\u9F20\u996D\u9986"].includes(actor.inside)) {
         rig.position.y = 0.47;
         poseBone(rig, "LeftUpLeg", -1.05);
         poseBone(rig, "RightUpLeg", -1.05);
@@ -38849,19 +38824,24 @@ void main() {
           cylinder(x2, 1.08, -2.3, 0.2, 0.16, 12821364);
           for (let i2 = 0; i2 < 5; i2++) oval(x2 + Math.cos(i2 * 1.3) * 0.1, 1.17, -2.3 + Math.sin(i2 * 1.3) * 0.1, 0.055, 0.025, 0.04, 14269817);
         }
-        add(1.8, 0.85, 0.7, 2.5, 0.42, 0.5, 6641478);
-        add(1.9, 0.08, 0.8, 2.5, 0.88, 0.5, 12429704);
-        label("\u70B9\u9910\u67DC\u53F0", 2.5, 0.5);
-        for (const x2 of [-1.4, 1]) for (const z of [-0.2, 1.6]) {
+        add(0.55, 0.85, 1.45, 3.35, 0.42, 1.4, 6641478);
+        add(0.65, 0.08, 1.55, 3.35, 0.88, 1.4, 12429704);
+        label("\u70B9\u9910\u67DC\u53F0", 3.35, 1.4);
+        room.userData.restaurantSeats = [];
+        for (const [x2, z] of [[-2, -0.5], [1.4, -0.5], [1.4, 1.55]]) {
           table(x2, z, 1.3, 0.8, 9992532);
-          for (const dz of [-0.65, 0.65]) {
-            cylinder(x2, 0.23, z + dz, 0.24, 0.4, 8547409);
-            cylinder(x2, 0.45, z + dz, 0.27, 0.06, 12429704);
+          for (const dz of [-0.68, 0.68]) {
+            const seat = cylinder(x2, 0.44, z + dz, 0.28, 0.09, 12429704);
+            cylinder(x2, 0.21, z + dz, 0.15, 0.38, 8547409);
+            const index = room.userData.restaurantSeats.push({ x: x2, z: z + dz, heading: dz < 0 ? 0 : Math.PI }) - 1;
+            seat.userData.roomAction = "restaurant-seat";
+            seat.userData.seatIndex = index;
+            clickable.push(seat);
           }
           cylinder(x2, 0.66, z, 0.2, 0.035, 15657177);
           for (let i2 = 0; i2 < 6; i2++) oval(x2 + Math.cos(i2) * 0.11, 0.7, z + Math.sin(i2) * 0.11, 0.055, 0.04, 0.04, i2 % 2 ? 8626268 : 14003302);
         }
-        label("\u7528\u9910\u533A", -1.4, 0.5);
+        label("\u7528\u9910\u533A", -2, -0.5);
       } else if (name === "\u96F6\u98DF\u94FA") {
         shelf(-2.2, -2.4, "\u7CAE\u98DF\u8D27\u67B6");
         shelf(0.5, -2.4, "\u96F6\u98DF\u8D27\u67B6");
@@ -39092,6 +39072,7 @@ void main() {
     function returnToTown() {
       const actor = life.actors.get("main");
       if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
+      else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
       else if (actor?.seated) toggleHallSeat();
       if (!firstPerson && actor?.controlled) {
         actor.controlled = false;
@@ -39364,7 +39345,7 @@ void main() {
         const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
         camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
       }
-      camera.position.y += (actor.clinicSeat ? 0.7 : actor.seated ? 0.68 : 0.52) + jumpHeight;
+      camera.position.y += (actor.clinicSeat ? 0.7 : actor.restaurantSeat !== void 0 ? 0.72 * room.scale.y : actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
@@ -39374,6 +39355,10 @@ void main() {
       const sitter = life.actors.get("main");
       if (sitter?.clinicSeat) {
         toggleClinicSeat(sitter.clinicSeat);
+        return;
+      }
+      if (sitter?.restaurantSeat !== void 0) {
+        toggleRestaurantSeat(sitter.restaurantSeat);
         return;
       }
       if (firstPerson && !sitter?.inside) {
@@ -39393,6 +39378,13 @@ void main() {
       if (!firstPerson) return;
       const actor = life.actors.get("main");
       if (!actor) return;
+      if (actor.inside === "\u9F20\u9F20\u996D\u9986") {
+        const seat = room.userData.restaurantSeats.map((s, index) => ({ ...s, index, d: Math.hypot(s.x - actor.position.x, s.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
+        if (seat?.d < 0.65) {
+          toggleRestaurantSeat(seat.index);
+          return;
+        }
+      }
       if (actor.inside) {
         const nearby = roomLabels.map((l) => ({ ...l, d: Math.hypot(l.point.x - actor.position.x, l.point.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
         if (nearby?.d < 1.2) {
@@ -39418,6 +39410,10 @@ void main() {
         }
         if (node?.userData.pupId) {
           window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id: node.userData.pupId } }));
+          return;
+        }
+        if (node?.userData.roomAction === "restaurant-seat") {
+          toggleRestaurantSeat(node.userData.seatIndex);
           return;
         }
         if (node?.userData.townAction) {
@@ -39462,8 +39458,9 @@ void main() {
         if (e.code === "KeyE") {
           if (!e.repeat) playerInteract();
         } else if (e.code === "Space") {
-          const seated = life.actors.get("main")?.seated;
-          if (life.actors.get("main")?.clinicSeat) toggleClinicSeat(life.actors.get("main").clinicSeat);
+          const actor = life.actors.get("main"), seated = actor?.seated;
+          if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
+          else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
           else if (seated) toggleHallSeat();
           if (!seated && !e.repeat && jumpHeight === 0) jumpVelocity = 1.7;
         } else playerKeys.add(e.code);
@@ -39528,6 +39525,41 @@ void main() {
       distance2 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
       positionCamera();
       window.dispatchEvent(new CustomEvent("town-exhibit-select", { detail: { title: exhibit.userData.hallExhibit } }));
+      return true;
+    }
+    function toggleRestaurantSeat(index) {
+      const actor = life.actors.get("main"), seats = roomCache.get("\u9F20\u9F20\u996D\u9986")?.userData.restaurantSeats;
+      if (!actor || actor.frozen || actor.forcedSleep || !seats?.[index] || activePlace !== "\u9F20\u9F20\u996D\u9986") return false;
+      if (actor.restaurantSeat !== void 0) {
+        const seat2 = seats[actor.restaurantSeat];
+        actor.position = { x: seat2.x, z: seat2.z + (seat2.heading === 0 ? -0.34 : 0.34) };
+        delete actor.restaurantSeat;
+        actor.seated = false;
+        actor.action = "\u7528\u9910";
+        return false;
+      }
+      if (firstPerson && actor.inside !== "\u9F20\u9F20\u996D\u9986") return false;
+      const seat = seats[index];
+      if (firstPerson && Math.hypot(actor.position.x - seat.x, actor.position.z - seat.z) > 1.1) return false;
+      actor.inside = actor.place = actor.destination = "\u9F20\u9F20\u996D\u9986";
+      actor.controlled = true;
+      actor.phase = "controlled";
+      actor.path = [];
+      actor.partner = null;
+      actor.moving = false;
+      actor.position = { x: seat.x, z: seat.z };
+      actor.heading = seat.heading;
+      actor.restaurantSeat = index;
+      actor.seated = true;
+      actor.action = "\u5750\u5728\u9910\u6905\u4E0A";
+      actor.speech = "";
+      if (firstPerson) {
+        playerYaw = facing("\u9F20\u9F20\u996D\u9986") + seat.heading;
+        playerPitch = 0;
+        playerKeys.clear();
+        jumpHeight = 0;
+        jumpVelocity = 0;
+      }
       return true;
     }
     function toggleClinicSeat(side) {
@@ -39618,7 +39650,8 @@ void main() {
         if (hit) {
           let object = hit.object;
           while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.pupId && !object.userData.roomAction && !object.userData.townAction && !object.userData.place) object = object.parent;
-          if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
+          if (object?.userData.roomAction === "restaurant-seat") toggleRestaurantSeat(object.userData.seatIndex);
+          else if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
           else if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
           else if (object?.userData.pupId) focusPup(object.userData.pupId);
@@ -39851,7 +39884,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { setLookSensitivity, toggleHallSeat, toggleClinicSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

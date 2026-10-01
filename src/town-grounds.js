@@ -43,18 +43,12 @@ export function birthdayHat(){const group=new THREE.Group();const hat=new THREE.
 function storeSign(group,text,x,y,z,width,height,background,ink){const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*height/width);const g=c.getContext('2d');g.fillStyle=background;g.fillRect(0,0,c.width,c.height);g.fillStyle=ink;g.font='bold '+Math.floor(c.height*.67)+'px Microsoft YaHei';g.textAlign='center';g.textBaseline='middle';g.fillText(text,c.width/2,c.height/2);const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const mesh=new THREE.Mesh(new THREE.PlaneGeometry(width,height),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));mesh.position.set(x,y,z);group.add(mesh)}
 export function createRestaurant(){
  const group=new THREE.Group(),{box,oval}=kit(group),wall=mat(0xeee9dd),wood=mat(0x715a43,{map:woodTexture()}),roof=mat(0x667471),stone=mat(0xa7aaa0),green=mat(0x71845d);
- box(3.4,.14,2.6,0,.07,0,stone);box(3,1.6,2.05,0,.94,-.14,wall);box(3,.28,2.08,0,.24,-.14,mat(0x87968a));
- for(const side of [-1,1]){const r=box(1.9,.12,2.65,side*.77,2.02,-.14,roof);r.rotation.z=-side*.42;for(let row=0;row<5;row++)for(let col=0;col<8;col++){const tile=box(.37,.035,.32,side*(.18+row*.31),2.31-row*.138,-1.25+col*.32,roof);tile.rotation.z=-side*.42}}
- box(.14,.14,2.7,0,2.4,-.14,wood);box(3.1,.12,.1,0,1.76,.93,wood);
- for(let i=0;i<17;i++)box(.055,.32,.04,-1.4+i*.175,1.96,.9,wood);
- box(.8,1.25,.07,-.6,.75,.92,wood);box(.62,.55,.04,-.6,1.02,.97,mat(0x9aaea7));box(.045,.55,.045,-.6,1.02,1,wood);box(.62,.045,.045,-.6,1.02,1,wood);oval(-.29,.63,1,.035,.035,.035,mat(0xba9a57));
- box(1.15,.9,.045,.62,1,.92,mat(0x443b30));box(1.25,.65,.5,.65,.39,1.1,wood);box(1.35,.07,.6,.65,.75,1.1,mat(0xc5b291));for(let i=0;i<3;i++){oval(.3+i*.3,.85,1.1,.12,.05,.12,mat(0xe0c994));box(.17,.32,.025,.3+i*.3,1.48,.96,mat(0xf0dfba))}
- for(const x of [-1.08,1.08]){box(.14,.23,.1,x,1.32,1.03,wood);box(.09,.16,.08,x,1.32,1.09,mat(0xf4db9a,{emissive:0xcaa455,emissiveIntensity:.4}))}
- box(.045,.72,1.3,1.52,1,-.2,wood);for(let i=0;i<5;i++)box(.055,.72,.045,1.55,1,-.78+i*.29,wood);
- storeSign(group,'鼠鼠饭馆',0,1.77,1.015,2,.32,'#c8b291','#493b2e');
- for(const x of [-1.15,1.15]){oval(x,.54,1.52,.3,.055,.23,wood);box(.06,.5,.06,x,.28,1.52,wood);for(const dx of [-.36,.36])oval(x+dx,.26,1.52,.13,.2,.13,wood)}
- for(let i=0;i<9;i++)oval(-1.4+i*.35,.17,-1.2,.14,.12,.13,green);
- group.userData.footprint=3.4*2.6;return group;
+ box(4.25,.14,2.9,0,.07,-.14,stone);box(4,1.6,2.65,0,.94,-.14,wall);
+ for(const side of [-1,1]){const r=box(2.45,.12,3.15,side*1.02,2.02,-.14,roof);r.rotation.z=-side*.36;for(let row=0;row<6;row++)for(let col=0;col<9;col++){const tile=box(.42,.035,.36,side*(.2+row*.35),2.39-row*.126,-1.52+col*.35,roof);tile.rotation.z=-side*.36}}
+ box(.14,.14,3.2,0,2.4,-.14,wood);
+ storeSign(group,'鼠鼠饭馆',0,1.77,1.225,2,.32,'#c8b291','#493b2e');
+ for(let i=0;i<11;i++)oval(-1.8+i*.36,.17,-1.48,.14,.12,.13,green);
+ group.userData.footprint=4.25*2.9;return group;
 }
 export function createSnackShop(){
  const group=new THREE.Group(),{box,oval,tube}=kit(group),cream=mat('#f2dfa1'),pink=mat('#dca3a0'),mint=mat('#a8c2a0'),wood=mat('#c49c68'),floor=mat('#c9bda3');
