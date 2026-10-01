@@ -1,4 +1,12 @@
 import assert from 'node:assert/strict';
 import {entrance,destinations,facing} from '../src/town-life.js';
-import {movePlayer,canWalk} from '../src/town-player.js';
+import {movePlayer,canWalk,schoolPlatformHeightAt} from '../src/town-player.js';
 const actor={position:entrance('鼠鼠小屋'),inside:null};const angle=facing('鼠鼠小屋'),house=destinations.find(d=>d[0]==='鼠鼠小屋');movePlayer(actor,-Math.sin(angle)*2,-Math.cos(angle)*2);assert.ok(Math.hypot(actor.position.x-house[1],actor.position.z-house[2])>1,'Cannot walk through house');actor.position={x:4,z:0};movePlayer(actor,1,0);assert.ok(Math.abs(actor.position.x-5)<1e-8);assert.equal(canWalk(actor,18,0),false);actor.inside='鼠鼠小屋';actor.position={x:0,z:2.6};movePlayer(actor,0,-1);assert.ok(actor.position.z<2);assert.equal(canWalk(actor,-2.2,-1.6),false);console.log('Player movement, map boundary, building and furniture collisions passed');
+const schoolAngle=facing('鼠鼠学校'),schoolPoint=(x,z)=>({x:9+x*Math.cos(schoolAngle)+z*Math.sin(schoolAngle),z:8-x*Math.sin(schoolAngle)+z*Math.cos(schoolAngle)});
+const platform=schoolPoint(-1.65,1.62),stool=schoolPoint(-1.65,1.97);
+actor.inside=null;actor.position=schoolPoint(-1.65,2.4);
+assert.equal(schoolPlatformHeightAt(platform.x,platform.z),.59,'raised platform has a landing surface');
+assert.equal(canWalk(actor,platform.x,platform.z),false,'ground movement cannot phase through raised platform');
+actor.platformHeight=.59;
+assert.equal(canWalk(actor,platform.x,platform.z),true,'jumped hamster can land on raised platform');
+assert.equal(canWalk(actor,stool.x,stool.z),false,'school stool blocks walking through it');

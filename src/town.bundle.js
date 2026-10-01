@@ -33054,9 +33054,11 @@ void main() {
         other.phase = "idle";
         other.wait = 1;
       }
-      if (requested && (actor.clinicSeat || actor.restaurantSeat !== void 0)) {
+      if (requested && (actor.clinicSeat || actor.restaurantSeat !== void 0 || actor.schoolSeat !== void 0)) {
         actor.clinicSeat = 0;
         delete actor.restaurantSeat;
+        delete actor.schoolSeat;
+        actor.platformHeight = 0;
         actor.seated = false;
         actor.controlled = false;
       }
@@ -33208,6 +33210,19 @@ void main() {
   }
 
   // src/town-player.js
+  var schoolAngle = facing("\u9F20\u9F20\u5B66\u6821");
+  function schoolLocal(x2, z) {
+    const dx = x2 - 9, dz = z - 8;
+    return { x: dx * Math.cos(schoolAngle) - dz * Math.sin(schoolAngle), z: dx * Math.sin(schoolAngle) + dz * Math.cos(schoolAngle) };
+  }
+  function schoolPlatformHeightAt(x2, z) {
+    const p = schoolLocal(x2, z);
+    return [-1.65, -0.72].some((px2) => Math.abs(p.x - px2) < 0.32 && Math.abs(p.z - 1.62) < 0.19) ? 0.59 : 0;
+  }
+  function nearSchoolPlatforms(x2, z) {
+    const p = schoolLocal(x2, z);
+    return [-1.65, -0.72].some((px2) => Math.hypot(p.x - px2, p.z - 1.62) < 1);
+  }
   var obstacles = {
     "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [0.3, 1.6, 0.8, 0.35]],
     "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
@@ -33227,6 +33242,9 @@ void main() {
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d]) => Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1);
     }
     if (Math.hypot(x2, z) > 17.4) return false;
+    const local = schoolLocal(x2, z);
+    if ([-1.65, -0.72].some((px2) => Math.abs(local.x - px2) < 0.43 && Math.abs(local.z - 1.62) < 0.31) && (actor.platformHeight || 0) < 0.51) return false;
+    if (actor.schoolSeat === void 0 && [[-1.65, 1.97, 0.27, 0.24], [-0.72, 1.97, 0.27, 0.24], [1.74, 0.65, 0.4, 0.22], [1.7, 1.7, 0.55, 0.24]].some(([sx, sz, w, d]) => Math.abs(local.x - sx) < w && Math.abs(local.z - sz) < d)) return false;
     let ignore = null;
     const portal = actor.entryPortal;
     if (portal?.angle > 1) {
@@ -33320,6 +33338,7 @@ void main() {
       if (Math.abs(actual.x - layout.doorX) < layout.doorWidth / 2 + 0.06 && actual.y > layout.floor && actual.y < layout.floor + layout.doorHeight + 0.025 && actual.z > front - 0.07 && actual.z < front + 0.25) removed.push(mesh);
       else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height === 0.22 && p.width === 3.1) removed.push(mesh);
       else if (name === "\u8BCA\u6240" && mesh.geometry.type === "ExtrudeGeometry" && p.options?.depth > 0.2) removed.push(mesh);
+      else if (name === "\u9F20\u9F20\u5B66\u6821" && mesh.geometry.type === "CylinderGeometry" && centre.y < layout.floor + 0.12) removed.push(mesh);
       else if (centre.y > layout.floor + 0.04 && centre.y < top - 0.04 && Math.abs(centre.x) < layout.width / 2 + 0.12 && centre.z > back - 0.1 && centre.z < front + 0.09) removed.push(mesh);
       else if (name === "Mariah Carey\u540D\u4EBA\u5802" && p.height > 1 && centre.y < top && centre.z >= front) removed.push(mesh);
     });
@@ -33332,7 +33351,11 @@ void main() {
     shell.name = "Shared exterior and interior shell";
     model.add(shell);
     const wall = new MeshStandardMaterial({ color: layout.wall, roughness: 0.88 }), trim = new MeshStandardMaterial({ color: layout.trim, roughness: 0.62 }), glass = new MeshPhysicalMaterial({ color: 14478064, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: DoubleSide, clearcoat: 1, envMapIntensity: 0.7 });
-    const roof = box(shell, layout.width, 0.07, layout.depth, 0, top, layout.z, wall);
+    const roof = layout.round ? new Mesh(new CylinderGeometry(layout.width / 2, layout.width / 2, 0.07, 64), wall) : box(shell, layout.width, 0.07, layout.depth, 0, top, layout.z, wall);
+    if (layout.round) {
+      roof.position.set(0, top, layout.z);
+      shell.add(roof);
+    }
     roof.userData.cutawayRoof = true;
     if (layout.cottage) shell.visible = false;
     if (layout.cottage) {
@@ -34635,7 +34658,7 @@ void main() {
     return group;
   }
   function createSchool() {
-    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), paper = mat("#eee5c9"), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
+    const group = new Group(), { box: box2, oval } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), roof = mat("#aa7245"), stone = mat("#c4baa4"), green = mat("#365d4b"), stepWood = mat("#b78956", { map: woodTexture() }), seatWood = mat("#9f7145", { map: woodTexture() }), gold = mat("#c8a155", { metalness: 0.65, roughness: 0.35 });
     const cylinder = (top, bottom, h, x2, y, z, m) => {
       const mesh = new Mesh(new CylinderGeometry(top, bottom, h, 40), m);
       mesh.position.set(x2, y, z);
@@ -34686,19 +34709,30 @@ void main() {
     group.add(cap);
     box2(1, 0.63, 0.055, -1.65, 0.62, 0.95, green);
     [-2.06, -1.24].forEach((x2) => box2(0.055, 0.82, 0.055, x2, 0.43, 0.95, wood));
-    sign3(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99);
+    sign3(group, "\u8BA4\u8BC6\u79CD\u5B50\n\u5B66\u4E60\u751F\u6D3B", -1.65, 0.65, 0.99, "school-books");
+    group.userData.schoolPlatforms = [[-1.65, 1.62], [-0.72, 1.62]];
+    group.userData.schoolSeats = [];
     for (const x2 of [-1.65, -0.72]) {
-      box2(0.68, 0.42, 0.43, x2, 0.3, 1.62, wood);
-      for (const dx of [-0.27, 0.27]) box2(0.04, 0.42, 0.04, x2 + dx, 0.22, 1.62, wood);
-      box2(0.3, 0.035, 0.23, x2, 0.54, 1.62, paper);
-      box2(0.35, 0.2, 0.3, x2, 0.16, 1.97, wood);
+      const platform = box2(0.68, 0.42, 0.43, x2, 0.3, 1.62, stepWood), top = box2(0.52, 0.08, 0.34, x2, 0.55, 1.62, stepWood);
+      platform.userData.townAction = top.userData.townAction = "school-platform";
+      const seat = box2(0.35, 0.2, 0.3, x2, 0.16, 1.97, seatWood);
+      seat.userData.townAction = "school-seat";
+      seat.userData.seatIndex = group.userData.schoolSeats.push({ x: x2, y: 0.26, z: 1.97 }) - 1;
     }
     for (const x2 of [1.35, 2.13]) box2(0.065, 1.1, 0.065, x2, 0.56, 0.65, wood);
     box2(0.9, 0.06, 0.07, 1.74, 1.13, 0.65, wood);
-    for (const x2 of [1.48, 2]) tube([[x2, 1.1, 0.65], [x2, 0.45, 0.65]], 0.01, gold);
-    box2(0.6, 0.06, 0.25, 1.74, 0.43, 0.65, wood);
-    box2(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, wood);
-    sign3(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8);
+    const swing = new Group(), swingKit = kit2(swing);
+    swing.position.set(1.74, 1.1, 0.65);
+    for (const x2 of [-0.26, 0.26]) swingKit.tube([[x2, 0, 0], [x2, -0.67, 0]], 0.012, gold);
+    swingKit.box(0.6, 0.06, 0.25, 0, -0.67, 0, seatWood);
+    swing.userData.townAction = "school-seat";
+    swing.userData.seatIndex = group.userData.schoolSeats.push({ x: 1.74, y: 0.46, z: 0.65 }) - 1;
+    group.userData.swing = swing;
+    group.add(swing);
+    const frontSeat = box2(0.9, 0.24, 0.3, 1.7, 0.16, 1.7, seatWood);
+    frontSeat.userData.townAction = "school-seat";
+    frontSeat.userData.seatIndex = group.userData.schoolSeats.push({ x: 1.7, y: 0.28, z: 1.7 }) - 1;
+    sign3(group, "\u6821\u56ED\u516C\u544A", 1.85, 0.8, -0.8, "school-board");
     for (let i2 = 0; i2 < 24; i2++) {
       const x2 = -2.3 + i2 * 0.2;
       box2(0.025, 0.35, 0.025, x2, 0.25, -1.58, wood);
@@ -38540,8 +38574,8 @@ void main() {
           }
         }
       }
-      if (actor.clinicSeat) {
-        rig.position.y = 0.35;
+      if (actor.clinicSeat || actor.schoolSeat !== void 0) {
+        rig.position.y = actor.schoolSeat !== void 0 ? placeModels.get("\u9F20\u9F20\u5B66\u6821").userData.schoolSeats[actor.schoolSeat].y : 0.35;
         poseBone(rig, "LeftUpLeg", -1.05);
         poseBone(rig, "RightUpLeg", -1.05);
         poseBone(rig, "LeftLeg", 1.1);
@@ -38560,6 +38594,9 @@ void main() {
       if (actor.phase === "talking") {
         poseBone(rig, "Head", Math.sin(t * 2) * 0.07, Math.sin(t) * 0.05, 0);
         poseBone(rig, "LeftForeArm", -0.22 - Math.max(0, Math.sin(t * 3)) * 0.3);
+      }
+      if (!actor.inside && actor.platformHeight && actor.schoolSeat === void 0) {
+        rig.position.y += Math.min(actor.platformHeight, schoolPlatformHeightAt(actor.position.x, actor.position.z));
       }
       if (actor.inside && roomCache.has(actor.inside)) {
         const insideRoom = roomCache.get(actor.inside), y = actor.seated ? 0.47 : rig.position.y;
@@ -39072,6 +39109,7 @@ void main() {
     function returnToTown() {
       const actor = life.actors.get("main");
       if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
+      else if (actor?.schoolSeat !== void 0) toggleSchoolSeat(actor.schoolSeat);
       else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
       else if (actor?.seated) toggleHallSeat();
       if (!firstPerson && actor?.controlled) {
@@ -39196,7 +39234,7 @@ void main() {
       playerYaw = actor.heading + Math.PI + (actor.inside ? facing(actor.inside) : 0);
       playerPitch = 0;
       playerKeys.clear();
-      jumpHeight = 0;
+      jumpHeight = actor.platformHeight || 0;
       jumpVelocity = 0;
       if (actor.inside) enterPlace(actor.inside);
       host.dataset.view = "first-person";
@@ -39313,7 +39351,10 @@ void main() {
         dz = (dx * sn + dz * c) / room.scale.z;
         dx = x2 / room.scale.x;
       }
-      if (!actor.seated) movePlayer(actor, dx, dz);
+      if (!actor.seated) {
+        actor.platformHeight = jumpHeight;
+        movePlayer(actor, dx, dz);
+      }
       if (actor.inside) {
         const gate = localDoor(portal);
         if (actor.position.z > 3.4 && Math.abs(actor.position.x - gate.x) < gate.width / 2) {
@@ -39332,11 +39373,16 @@ void main() {
         }
       }
       if (!actor.seated) actor.heading = playerYaw + Math.PI - (actor.inside ? facing(actor.inside) : 0);
+      const surface = actor.inside ? 0 : schoolPlatformHeightAt(actor.position.x, actor.position.z), previousHeight = jumpHeight;
       if (jumpHeight > 0 || jumpVelocity > 0) {
         jumpVelocity -= dt * 4;
         jumpHeight = Math.max(0, jumpHeight + jumpVelocity * dt);
-        if (jumpHeight === 0) jumpVelocity = 0;
+        if (surface && previousHeight >= surface - 0.03 && jumpVelocity <= 0 && jumpHeight < surface) {
+          jumpHeight = surface;
+          jumpVelocity = 0;
+        } else if (jumpHeight === 0) jumpVelocity = 0;
       }
+      actor.platformHeight = jumpHeight;
       const position = new Vector3(actor.position.x, 0, actor.position.z);
       if (actor.inside) room.localToWorld(position);
       camera.position.copy(position);
@@ -39345,7 +39391,7 @@ void main() {
         const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
         camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
       }
-      camera.position.y += (actor.clinicSeat ? 0.7 : actor.restaurantSeat !== void 0 ? 0.72 * room.scale.y : actor.seated ? 0.68 : 0.52) + jumpHeight;
+      camera.position.y += (actor.clinicSeat ? 0.7 : actor.schoolSeat !== void 0 ? placeModels.get("\u9F20\u9F20\u5B66\u6821").userData.schoolSeats[actor.schoolSeat].y + 0.45 : actor.restaurantSeat !== void 0 ? 0.72 * room.scale.y : actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
@@ -39357,11 +39403,23 @@ void main() {
         toggleClinicSeat(sitter.clinicSeat);
         return;
       }
+      if (sitter?.schoolSeat !== void 0) {
+        toggleSchoolSeat(sitter.schoolSeat);
+        return;
+      }
       if (sitter?.restaurantSeat !== void 0) {
         toggleRestaurantSeat(sitter.restaurantSeat);
         return;
       }
       if (firstPerson && !sitter?.inside) {
+        const school = placeModels.get("\u9F20\u9F20\u5B66\u6821");
+        for (const [index, seat] of school.userData.schoolSeats.entries()) {
+          const point2 = school.localToWorld(new Vector3(seat.x, 0, seat.z));
+          if (Math.hypot(sitter.position.x - point2.x, sitter.position.z - point2.z) < 0.72) {
+            toggleSchoolSeat(index);
+            return;
+          }
+        }
         const clinic = placeModels.get("\u8BCA\u6240");
         for (const side of [-1, 1]) {
           const seat = clinic.localToWorld(new Vector3(side * 1.08, 0, 1.22));
@@ -39416,6 +39474,14 @@ void main() {
           toggleRestaurantSeat(node.userData.seatIndex);
           return;
         }
+        if (node?.userData.townAction === "school-seat") {
+          toggleSchoolSeat(node.userData.seatIndex);
+          return;
+        }
+        if (node?.userData.townAction?.startsWith("school-")) {
+          window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: node.userData.townAction } }));
+          return;
+        }
         if (node?.userData.townAction) {
           if (node.userData.townAction === "clinic-seat") toggleClinicSeat(node.userData.seatSide);
           else window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: node.userData.townAction } }));
@@ -39460,9 +39526,10 @@ void main() {
         } else if (e.code === "Space") {
           const actor = life.actors.get("main"), seated = actor?.seated;
           if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
+          else if (actor?.schoolSeat !== void 0) toggleSchoolSeat(actor.schoolSeat);
           else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
           else if (seated) toggleHallSeat();
-          if (!seated && !e.repeat && jumpHeight === 0) jumpVelocity = 1.7;
+          if (!seated && !e.repeat && jumpVelocity === 0 && (jumpHeight === 0 || schoolPlatformHeightAt(actor.position.x, actor.position.z) === jumpHeight)) jumpVelocity = nearSchoolPlatforms(actor.position.x, actor.position.z) ? 2.4 : 1.7;
         } else playerKeys.add(e.code);
       }
     }, true);
@@ -39562,6 +39629,42 @@ void main() {
       }
       return true;
     }
+    function toggleSchoolSeat(index) {
+      const actor = life.actors.get("main"), school = placeModels.get("\u9F20\u9F20\u5B66\u6821"), seats = school.userData.schoolSeats;
+      if (!actor || actor.frozen || actor.forcedSleep || actor.inside || !seats[index]) return false;
+      if (actor.schoolSeat !== void 0) {
+        const seat2 = seats[actor.schoolSeat], point3 = school.localToWorld(new Vector3(seat2.x, 0, seat2.z + 0.48));
+        actor.position = { x: point3.x, z: point3.z };
+        delete actor.schoolSeat;
+        actor.seated = false;
+        actor.controlled = firstPerson;
+        actor.phase = firstPerson ? "controlled" : "idle";
+        actor.action = "\u5B66\u4E60";
+        return false;
+      }
+      const seat = seats[index], point2 = school.localToWorld(new Vector3(seat.x, 0, seat.z));
+      if (firstPerson && Math.hypot(actor.position.x - point2.x, actor.position.z - point2.z) > 0.85) return false;
+      actor.position = { x: point2.x, z: point2.z };
+      actor.schoolSeat = index;
+      actor.seated = true;
+      actor.controlled = true;
+      actor.phase = "controlled";
+      actor.path = [];
+      actor.partner = null;
+      actor.moving = false;
+      actor.action = index === 2 ? "\u5750\u5728\u5B66\u6821\u79CB\u5343\u4E0A" : "\u5750\u5728\u5B66\u6821\u95E8\u53E3";
+      actor.heading = facing("\u9F20\u9F20\u5B66\u6821") + Math.PI;
+      actor.platformHeight = 0;
+      actor.speech = "";
+      if (firstPerson) {
+        playerYaw = actor.heading + Math.PI;
+        playerPitch = 0;
+        playerKeys.clear();
+        jumpHeight = 0;
+        jumpVelocity = 0;
+      }
+      return true;
+    }
     function toggleClinicSeat(side) {
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep || actor.inside) return false;
@@ -39651,6 +39754,8 @@ void main() {
           let object = hit.object;
           while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.pupId && !object.userData.roomAction && !object.userData.townAction && !object.userData.place) object = object.parent;
           if (object?.userData.roomAction === "restaurant-seat") toggleRestaurantSeat(object.userData.seatIndex);
+          else if (object?.userData.townAction === "school-seat") toggleSchoolSeat(object.userData.seatIndex);
+          else if (object?.userData.townAction?.startsWith("school-")) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
           else if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
@@ -39884,7 +39989,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

@@ -120,7 +120,7 @@ export function createCemetery(){
  };group.userData.setMemorials([]);group.userData.footprint=4.2*3.2;group.userData.gate={x:0,z:1.6};return group;
 }
 export function createSchool(){
- const group=new THREE.Group(),{box,oval,tube}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),roof=mat('#aa7245'),stone=mat('#c4baa4'),green=mat('#365d4b'),paper=mat('#eee5c9'),gold=mat('#c8a155',{metalness:.65,roughness:.35});
+ const group=new THREE.Group(),{box,oval}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),roof=mat('#aa7245'),stone=mat('#c4baa4'),green=mat('#365d4b'),stepWood=mat('#b78956',{map:woodTexture()}),seatWood=mat('#9f7145',{map:woodTexture()}),gold=mat('#c8a155',{metalness:.65,roughness:.35});
  const cylinder=(top,bottom,h,x,y,z,m)=>{const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,h,40),m);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh};
  box(4.7,.12,3.8,0,.02,.3,stone);cylinder(1.26,1.35,.2,0,.13,-.35,stone);cylinder(1.16,1.16,1.15,0,.8,-.35,wood);cylinder(.99,1.5,.28,0,1.46,-.35,roof);cylinder(.83,.83,.85,0,1.99,-.35,wood);cylinder(.25,1.18,.48,0,2.65,-.35,roof);
  // Individual roof shingles and wall planks add depth rather than painted dots.
@@ -129,10 +129,13 @@ export function createSchool(){
  const door=box(.56,.82,.08,0,.52,.83,mat('#68452e'));oval(0,.94,.84,.29,.25,.055,mat('#68452e'));box(.65,.08,.3,0,.13,1.02,wood);oval(.19,.52,.89,.04,.04,.04,gold);sign(group,'鼠鼠学校',0,1.2,1.19);
  for(const [x,y,z,a] of [[-.78,.84,.5,-.65],[.78,.84,.5,.65],[-.52,2.01,.32,-.55],[.52,2.01,.32,.55]]){const frame=new THREE.Mesh(new THREE.TorusGeometry(.23,.04,8,32),roof);frame.position.set(x,y,z);frame.rotation.y=a;group.add(frame);const pane=oval(x,y,z,.21,.21,.035,green);pane.rotation.y=a;box(.025,.38,.07,x,y,z+.03,wood);box(.38,.025,.07,x,y,z+.03,wood)}
  cylinder(.53,.57,.12,0,3.04,-.35,wood);for(const x of [-.38,.38])for(const z of [-.73,.03])box(.09,.66,.09,x,3.4,z,wood);cylinder(.08,.15,.08,0,3.62,-.35,gold);cylinder(.12,.23,.33,0,3.43,-.35,gold);oval(0,3.22,-.35,.035,.06,.035,gold);const cap=new THREE.Mesh(new THREE.ConeGeometry(.76,.48,4),roof);cap.rotation.y=Math.PI/4;cap.position.set(0,3.95,-.35);group.add(cap);
- box(1,.63,.055,-1.65,.62,.95,green);[-2.06,-1.24].forEach(x=>box(.055,.82,.055,x,.43,.95,wood));sign(group,'认识种子\n学习生活',-1.65,.65,.99);
- for(const x of [-1.65,-.72]){box(.68,.42,.43,x,.3,1.62,wood);for(const dx of [-.27,.27])box(.04,.42,.04,x+dx,.22,1.62,wood);box(.3,.035,.23,x,.54,1.62,paper);box(.35,.2,.3,x,.16,1.97,wood)}
- for(const x of [1.35,2.13])box(.065,1.1,.065,x,.56,.65,wood);box(.9,.06,.07,1.74,1.13,.65,wood);for(const x of [1.48,2])tube([[x,1.1,.65],[x,.45,.65]],.01,gold);box(.6,.06,.25,1.74,.43,.65,wood);
- box(.9,.24,.3,1.7,.16,1.7,wood);sign(group,'校园公告',1.85,.8,-.8);for(let i=0;i<24;i++){const x=-2.3+i*.2;box(.025,.35,.025,x,.25,-1.58,wood)}group.userData.footprint=4.7*3.8;return group;
+ box(1,.63,.055,-1.65,.62,.95,green);[-2.06,-1.24].forEach(x=>box(.055,.82,.055,x,.43,.95,wood));sign(group,'认识种子\n学习生活',-1.65,.65,.99,'school-books');
+ group.userData.schoolPlatforms=[[-1.65,1.62],[-.72,1.62]];group.userData.schoolSeats=[];
+ for(const x of [-1.65,-.72]){const platform=box(.68,.42,.43,x,.3,1.62,stepWood),top=box(.52,.08,.34,x,.55,1.62,stepWood);platform.userData.townAction=top.userData.townAction='school-platform';const seat=box(.35,.2,.3,x,.16,1.97,seatWood);seat.userData.townAction='school-seat';seat.userData.seatIndex=group.userData.schoolSeats.push({x,y:.26,z:1.97})-1}
+ for(const x of [1.35,2.13])box(.065,1.1,.065,x,.56,.65,wood);box(.9,.06,.07,1.74,1.13,.65,wood);
+ const swing=new THREE.Group(),swingKit=kit(swing);swing.position.set(1.74,1.1,.65);for(const x of [-.26,.26])swingKit.tube([[x,0,0],[x,-.67,0]],.012,gold);swingKit.box(.6,.06,.25,0,-.67,0,seatWood);swing.userData.townAction='school-seat';swing.userData.seatIndex=group.userData.schoolSeats.push({x:1.74,y:.46,z:.65})-1;group.userData.swing=swing;group.add(swing);
+ const frontSeat=box(.9,.24,.3,1.7,.16,1.7,seatWood);frontSeat.userData.townAction='school-seat';frontSeat.userData.seatIndex=group.userData.schoolSeats.push({x:1.7,y:.28,z:1.7})-1;
+ sign(group,'校园公告',1.85,.8,-.8,'school-board');for(let i=0;i<24;i++){const x=-2.3+i*.2;box(.025,.35,.025,x,.25,-1.58,wood)}group.userData.footprint=4.7*3.8;return group;
 }
 export function createWheelPark(){
  const group=new THREE.Group(),{box,oval,tube}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),dark=mat('#805638'),stone=mat('#c5b99d'),grass=mat('#90a165'),track=mat('#c89258'),line=mat('#ece0bc'),metal=mat('#9b9c8c',{metalness:.4,roughness:.45}),wheels=[];
