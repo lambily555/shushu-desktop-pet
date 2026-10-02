@@ -33352,6 +33352,17 @@ void main() {
     shell.name = "Shared exterior and interior shell";
     model.add(shell);
     const wall = new MeshStandardMaterial({ color: layout.wall, roughness: 0.88 }), trim = new MeshStandardMaterial({ color: layout.trim, roughness: 0.62 }), glass = new MeshPhysicalMaterial({ color: 14478064, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: DoubleSide, clearcoat: 1, envMapIntensity: 0.7 });
+    if (name === "Mariah Carey\u540D\u4EBA\u5802") {
+      const h2 = layout.floor - 0.16, y = 0.16 + h2 / 2, foundation = new MeshStandardMaterial({ color: 15262679, roughness: 0.85 });
+      for (const z of [back + 0.04, front - 0.04]) {
+        const edge = box(shell, layout.width, h2, 0.08, 0, y, z, foundation);
+        edge.userData.hallFoundation = true;
+      }
+      for (const x2 of [-layout.width / 2 + 0.04, layout.width / 2 - 0.04]) {
+        const edge = box(shell, 0.08, h2, layout.depth - 0.16, x2, y, layout.z, foundation);
+        edge.userData.hallFoundation = true;
+      }
+    }
     const roof = layout.round ? new Mesh(new CylinderGeometry(layout.width / 2, layout.width / 2, 0.07, 64), wall) : box(shell, layout.width, 0.07, layout.depth, 0, top, layout.z, wall);
     if (layout.round) {
       roof.position.set(0, top, layout.z);

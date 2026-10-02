@@ -30,6 +30,7 @@ export function installBuildingPortal(model,name){const layout=buildingLayouts[n
  });removed.forEach(mesh=>mesh.parent.remove(mesh));
  if(layout.cottage){const old=model.getObjectByName('Round timber entrance');if(old)old.parent.remove(old);}
  const shell=new THREE.Group();shell.name='Shared exterior and interior shell';model.add(shell);const wall=new THREE.MeshStandardMaterial({color:layout.wall,roughness:.88}),trim=new THREE.MeshStandardMaterial({color:layout.trim,roughness:.62}),glass=new THREE.MeshPhysicalMaterial({color:0xdceaf0,roughness:.12,metalness:0,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide,clearcoat:1,envMapIntensity:.7});
+ if(name==='Mariah Carey名人堂'){const h=layout.floor-.16,y=.16+h/2,foundation=new THREE.MeshStandardMaterial({color:0xe8e3d7,roughness:.85});for(const z of [back+.04,front-.04]){const edge=box(shell,layout.width,h,.08,0,y,z,foundation);edge.userData.hallFoundation=true}for(const x of [-layout.width/2+.04,layout.width/2-.04]){const edge=box(shell,.08,h,layout.depth-.16,x,y,layout.z,foundation);edge.userData.hallFoundation=true}}
  const roof=layout.round?new THREE.Mesh(new THREE.CylinderGeometry(layout.width/2,layout.width/2,.07,64),wall):box(shell,layout.width,.07,layout.depth,0,top,layout.z,wall);if(layout.round){roof.position.set(0,top,layout.z);shell.add(roof)}roof.userData.cutawayRoof=true;if(layout.cottage)shell.visible=false;
  if(layout.cottage){
   // Keep the hamster silhouette intact; only the original circular doorway opens.
