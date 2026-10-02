@@ -33211,13 +33211,14 @@ void main() {
 
   // src/town-player.js
   var schoolAngle = facing("\u9F20\u9F20\u5B66\u6821");
+  var schoolPosition = destinations.find(([name]) => name === "\u9F20\u9F20\u5B66\u6821");
   function schoolLocal(x2, z) {
-    const dx = x2 - 9, dz = z - 8;
+    const dx = x2 - schoolPosition[1], dz = z - schoolPosition[2];
     return { x: dx * Math.cos(schoolAngle) - dz * Math.sin(schoolAngle), z: dx * Math.sin(schoolAngle) + dz * Math.cos(schoolAngle) };
   }
   function schoolPlatformHeightAt(x2, z) {
     const p = schoolLocal(x2, z);
-    return [-1.65, -0.72].some((px2) => Math.abs(p.x - px2) < 0.32 && Math.abs(p.z - 1.62) < 0.19) ? 0.59 : 0;
+    return [-1.65, -0.72].some((px2) => Math.abs(p.x - px2) < 0.43 && Math.abs(p.z - 1.62) < 0.31) ? 0.59 : 0;
   }
   function nearSchoolPlatforms(x2, z) {
     const p = schoolLocal(x2, z);
@@ -33242,9 +33243,9 @@ void main() {
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d]) => Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1);
     }
     if (Math.hypot(x2, z) > 17.4) return false;
-    const local = schoolLocal(x2, z);
-    if ([-1.65, -0.72].some((px2) => Math.abs(local.x - px2) < 0.43 && Math.abs(local.z - 1.62) < 0.31) && (actor.platformHeight || 0) < 0.51) return false;
-    if (actor.schoolSeat === void 0 && [[-1.65, 1.97, 0.27, 0.24], [-0.72, 1.97, 0.27, 0.24], [1.74, 0.65, 0.4, 0.22], [1.7, 1.7, 0.55, 0.24]].some(([sx, sz, w, d]) => Math.abs(local.x - sx) < w && Math.abs(local.z - sz) < d)) return false;
+    const local = schoolLocal(x2, z), height = actor.platformHeight || 0;
+    if ([-1.65, -0.72].some((px2) => Math.abs(local.x - px2) < 0.43 && Math.abs(local.z - 1.62) < 0.31) && height < 0.51) return false;
+    if (actor.schoolSeat === void 0 && [[-1.65, 1.97, 0.27, 0.24, 0.26], [-0.72, 1.97, 0.27, 0.24, 0.26], [1.74, 0.65, 0.4, 0.22, 0.46], [1.7, 1.7, 0.55, 0.24, 0.28]].some(([sx, sz, w, d, top]) => Math.abs(local.x - sx) < w && Math.abs(local.z - sz) < d && height < top)) return false;
     let ignore = null;
     const portal = actor.entryPortal;
     if (portal?.angle > 1) {
@@ -38596,7 +38597,7 @@ void main() {
         poseBone(rig, "LeftForeArm", -0.22 - Math.max(0, Math.sin(t * 3)) * 0.3);
       }
       if (!actor.inside && actor.platformHeight && actor.schoolSeat === void 0) {
-        rig.position.y += Math.min(actor.platformHeight, schoolPlatformHeightAt(actor.position.x, actor.position.z));
+        rig.position.y += actor.platformHeight;
       }
       if (actor.inside && roomCache.has(actor.inside)) {
         const insideRoom = roomCache.get(actor.inside), y = actor.seated ? 0.47 : rig.position.y;
