@@ -40,3 +40,5 @@ for(let i=0;i<64;i++){
 for(const [x,z] of [[3,2],[-3,2],[3,-2],[-3,-2]])assert.equal(canWalk({inside:'鼠鼠小屋'},x,z),false,'old square room corners are not walkable');
 assert.equal(canWalk({inside:'鼠鼠小屋',doorway:{open:true,x:0,width:2.9}},0,3.2),true,'rounded room retains its open-door route');
 console.log('Cottage curved shell containment, 64 outside views and rounded movement boundary passed');
+
+const memorial=makers['纪念馆']();installBuildingPortal(memorial,'纪念馆');memorial.updateMatrixWorld(true);const chairHits=new THREE.Raycaster(new THREE.Vector3(-.95,.8,1.09),new THREE.Vector3(0,-1,0),0,.5).intersectObject(memorial,true);assert.ok(chairHits.some(h=>h.object.userData.townAction==='memorial-seat'&&Math.abs(h.point.y-.4325)<.001),'outdoor memorial chair remains interactive at its real seat height');

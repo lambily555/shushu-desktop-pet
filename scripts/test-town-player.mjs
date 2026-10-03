@@ -23,3 +23,7 @@ assert.equal(height,.59,'the jump finishes standing on the platform');
 
 assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},2,-.65),false,'relocated cottage table blocks its new position');
 assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},-1.7,.8),true,'relocating the table frees its previous position');
+
+for(let z=-.5;z<=2.8;z+=.1)assert.equal(canWalk({inside:'纪念馆'},0,z),true,'memorial central aisle stays clear');
+assert.equal(canWalk({inside:'纪念馆'},-3.1,.65),false,'memorial side bench blocks walking');
+assert.equal(canWalk({inside:'纪念馆'},-2.35,.65),true,'memorial standing point is clear');
