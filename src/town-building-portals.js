@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {cottageShellGeometry,cottageDoorLining,cottageFloor,cottageRadius} from './town-cottage-interior.js';
 
 // Dimensions are in the town's world units, including the original front-door positions.
 export const buildingLayouts={
@@ -9,21 +10,21 @@ export const buildingLayouts={
  '纪念馆':{width:2.8,depth:1.85,z:-.27,floor:.23,height:1.3,doorX:0,doorWidth:.7,doorHeight:1.08,wall:0xeee5cc,trim:0xa7b39a},
  '殡仪馆':{width:2.8,depth:1.85,z:-.27,floor:.23,height:1.3,doorX:0,doorWidth:.85,doorHeight:1.05,wall:0xeee5cc,trim:0x929ea3},
  '鼠鼠学校':{width:2.32,depth:2.36,z:-.35,floor:.13,height:1.22,doorX:0,doorWidth:.56,doorHeight:.82,wall:0xb89059,trim:0x68452e,round:true},
- '鼠鼠小屋':{width:2.15,depth:2.14,z:0,floor:.1,height:1.25,doorX:0,doorWidth:.78,doorHeight:.84,wall:0xe1c6a0,trim:0x99603a,cottage:true}
+ '鼠鼠小屋':{width:2.15,depth:2.14,z:0,floor:.1,height:1.95,doorX:0,doorWidth:.78,doorHeight:.84,wall:0xe1c6a0,trim:0x99603a,cottage:true}
 };
 
 function box(parent,w,h,d,x,y,z,mat){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
 
 // Cut the doorway out of curved shells rather than placing a door on a solid body.
 function doorwayHole(mesh,layout,root){let geometry=mesh.geometry.toNonIndexed();const p=geometry.attributes.position,kept=[];mesh.updateWorldMatrix(true,false);root.updateWorldMatrix(true,false);const matrix=root.matrixWorld.clone().invert().multiply(mesh.matrixWorld),v=new THREE.Vector3();
- for(let i=0;i<p.count;i+=3){let inside=0;for(let j=0;j<3;j++){v.fromBufferAttribute(p,i+j).applyMatrix4(matrix);if(layout.cottage){if(v.z>0&&(v.x/.49)**2+((v.y-.52)/.49)**2<1)inside++}else if(Math.abs(v.x-layout.doorX)<layout.doorWidth/2+.02&&v.y>layout.floor-.03&&v.y<layout.floor+layout.doorHeight+.025&&v.z>layout.z+.15)inside++}if(layout.cottage&&['Cream chest','Left cheek','Right cheek','Joined muzzle'].includes(mesh.name)&&[0,1,2].every(j=>p.getZ(i+j)<=0))inside++;if(!inside)kept.push(i,i+1,i+2)}
+ for(let i=0;i<p.count;i+=3){let inside=0;for(let j=0;j<3;j++){v.fromBufferAttribute(p,i+j).applyMatrix4(matrix);if(layout.cottage){if(!['Rounded grey cottage','Cottage inner curved wall'].includes(mesh.name)&&v.y>.12&&v.y<2.13&&Math.hypot(v.x/1.184,v.z/.912)<cottageRadius(v.y)-.025)inside++;if(v.z>0&&(v.x/.49)**2+((v.y-.52)/.49)**2<1)inside++}else if(Math.abs(v.x-layout.doorX)<layout.doorWidth/2+.02&&v.y>layout.floor-.03&&v.y<layout.floor+layout.doorHeight+.025&&v.z>layout.z+.15)inside++}if(layout.cottage&&['Cream chest','Left cheek','Right cheek','Joined muzzle'].includes(mesh.name)&&[0,1,2].every(j=>p.getZ(i+j)<=0))inside++;if(!inside)kept.push(i,i+1,i+2)}
  geometry.setIndex(kept);mesh.geometry=geometry;const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];mesh.material=mats.map(m=>{const copy=m.clone();copy.side=layout.cottage?THREE.FrontSide:THREE.DoubleSide;return copy});if(!Array.isArray(mesh.material)||mesh.material.length===1)mesh.material=mesh.material[0];
 }
 
 export function installBuildingPortal(model,name){const layout=buildingLayouts[name];if(!layout)return;const front=layout.z+layout.depth/2,back=layout.z-layout.depth/2,top=layout.floor+layout.height;
  model.updateWorldMatrix(true,true);
  const removed=[];model.traverse(mesh=>{if(!mesh.isMesh)return;const centre=new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld);model.worldToLocal(centre);const p=mesh.geometry.parameters||{};
-  if(layout.cottage){if(mesh.name==='Round timber entrance'){return}if(mesh.name==='Individual door plank'||mesh.name==='Door window frame'||mesh.name==='Window mullion'||mesh.name==='Brass door knob'||mesh.name==='Iron hinge'||mesh.name==='Thick oak door frame')return;if(['Rounded grey cottage','Cream chest','Left cheek','Right cheek','Joined muzzle','Surface following tapered fur'].includes(mesh.name))doorwayHole(mesh,layout,model);return}
+  if(layout.cottage){if(mesh.name==='Garden moss'&&(centre.x/cottageFloor.x)**2+(centre.z/cottageFloor.z)**2<1.12){removed.push(mesh);return}if(mesh.name==='Round timber entrance'){return}if(mesh.name==='Individual door plank'||mesh.name==='Door window frame'||mesh.name==='Window mullion'||mesh.name==='Brass door knob'||mesh.name==='Iron hinge'||mesh.name==='Thick oak door frame')return;if(['Rounded grey cottage','Cream chest','Left cheek','Right cheek','Joined muzzle','Surface following tapered fur','Glossy eye','Eye catchlight','Little nose','Whisker','Inset lip crease'].includes(mesh.name))doorwayHole(mesh,layout,model);return}
   // Retain roof/tower, signs, foundation and outdoor gardens; replace the occupied core and facade.
   const bounds=new THREE.Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()),actual=bounds.getCenter(new THREE.Vector3());if(Math.abs(actual.x-layout.doorX)<layout.doorWidth/2+.06&&actual.y>layout.floor&&actual.y<layout.floor+layout.doorHeight+.025&&actual.z>front-.07&&actual.z<front+.25)removed.push(mesh);else if(name==='Mariah Carey名人堂'&&p.height===.22&&p.width===3.1)removed.push(mesh);else if(name==='诊所'&&mesh.geometry.type==='ExtrudeGeometry'&&p.options?.depth>.2)removed.push(mesh);else if(name==='鼠鼠学校'&&mesh.geometry.type==='CylinderGeometry'&&centre.y<layout.floor+.12)removed.push(mesh);else if(centre.y>layout.floor+.04&&centre.y<top-.04&&Math.abs(centre.x)<layout.width/2+.12&&centre.z>back-.1&&centre.z<front+.09)removed.push(mesh);
   else if(name==='Mariah Carey名人堂'&&p.height>1&&centre.y<top&&centre.z>=front)removed.push(mesh);
@@ -33,15 +34,11 @@ export function installBuildingPortal(model,name){const layout=buildingLayouts[n
  if(name==='Mariah Carey名人堂'){const h=layout.floor-.16,y=.16+h/2,foundation=new THREE.MeshStandardMaterial({color:0xe8e3d7,roughness:.85});for(const z of [back+.04,front-.04]){const edge=box(shell,layout.width,h,.08,0,y,z,foundation);edge.userData.hallFoundation=true}for(const x of [-layout.width/2+.04,layout.width/2-.04]){const edge=box(shell,.08,h,layout.depth-.16,x,y,layout.z,foundation);edge.userData.hallFoundation=true}}
  const roof=layout.round?new THREE.Mesh(new THREE.CylinderGeometry(layout.width/2,layout.width/2,.07,64),wall):box(shell,layout.width,.07,layout.depth,0,top,layout.z,wall);if(layout.round){roof.position.set(0,top,layout.z);shell.add(roof)}roof.userData.cutawayRoof=true;
  if(layout.cottage){
-  // Keep the exterior visible and render the room walls only from their inner faces.
-  const innerWall=(w,h,x,y,z,angle)=>{const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wall.clone());mesh.material.side=THREE.BackSide;mesh.position.set(x,y,z);mesh.rotation.y=angle;shell.add(mesh)};
-  innerWall(layout.width,layout.height,0,layout.floor+layout.height/2,back,Math.PI);
-  for(const side of [-1,1])innerWall(layout.depth,layout.height,side*layout.width/2,layout.floor+layout.height/2,layout.z,side*Math.PI/2);
-  roof.geometry.dispose();roof.geometry=new THREE.CircleGeometry(1,64);roof.scale.set(1.08,.84,1);roof.rotation.x=-Math.PI/2;roof.material=wall.clone();roof.material.side=THREE.BackSide;
-  const frontWall=new THREE.Shape();frontWall.moveTo(-1.075,.1);frontWall.lineTo(1.075,.1);frontWall.lineTo(1.075,top);frontWall.lineTo(-1.075,top);frontWall.closePath();const opening=new THREE.Path();opening.absellipse(0,.52,.39,.42,0,Math.PI*2,true);frontWall.holes.push(opening);
-  const innerFront=new THREE.Mesh(new THREE.ShapeGeometry(frontWall,64),wall.clone());innerFront.name='Cottage inner front wall';innerFront.material.side=THREE.BackSide;innerFront.position.z=.95;shell.add(innerFront);
-  const tunnel=new THREE.Mesh(new THREE.CylinderGeometry(.39,.39,front+.022-.95,64,1,true),trim.clone());tunnel.name='Cottage doorway lining';tunnel.material.side=THREE.DoubleSide;tunnel.rotation.x=Math.PI/2;tunnel.scale.z=layout.doorHeight/layout.doorWidth;tunnel.position.set(0,.52,(front+.022+.95)/2);shell.add(tunnel);
-  const frame=new THREE.Mesh(new THREE.RingGeometry(.39,.57,64),trim.clone());frame.material.side=THREE.DoubleSide;frame.scale.y=layout.doorHeight/layout.doorWidth;frame.position.set(0,.52,front+.022);shell.add(frame);
+  // One curved shell fits beneath the matching outer belly, including the ceiling.
+  shell.remove(roof);roof.geometry.dispose();
+  const lining=new THREE.Mesh(cottageShellGeometry(.045),wall.clone());lining.name='Cottage inner curved wall';shell.add(lining);doorwayHole(lining,layout,model);lining.material.side=THREE.BackSide;
+  const tunnel=new THREE.Mesh(cottageDoorLining(front+.022),trim.clone());tunnel.name='Cottage doorway lining';tunnel.material.side=THREE.DoubleSide;shell.add(tunnel);
+  const frame=new THREE.Mesh(cottageDoorLining(front+.022,true),trim.clone());frame.name='Cottage curved outer door frame';frame.material.side=THREE.DoubleSide;shell.add(frame);
  }else{
   if(layout.round){const body=new THREE.Mesh(new THREE.CylinderGeometry(1.16,1.16,layout.height,192,48,true),wall.clone());body.position.set(0,layout.floor+layout.height/2,layout.z);shell.add(body);doorwayHole(body,layout,model)}
   else{

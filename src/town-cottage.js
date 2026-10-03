@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {cottageShellGeometry} from './town-cottage-interior.js';
 
 // Procedural cottage shared with the approved preview. Front faces +Z.
 export function createCottage({density=1}={}){
@@ -16,7 +17,7 @@ export function createCottage({density=1}={}){
  function box(name,mat,x,y,z,w,h,d,parent=house){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.name=name;mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
  function line(name,points,radius,mat,parent=house){const path=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));const mesh=new THREE.Mesh(new THREE.TubeGeometry(path,24,radius,6,false),mat);mesh.name=name;mesh.castShadow=true;parent.add(mesh);return mesh}
  function ring(name,mat,x,y,z,r,tube,parent=house){const mesh=new THREE.Mesh(new THREE.TorusGeometry(r,tube,10,56),mat);mesh.name=name;mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh}
- oval('Rounded grey cottage',fur,0,1.3,0,1.48,1.38,1.14);
+ const body=new THREE.Mesh(cottageShellGeometry(),fur);body.name='Rounded grey cottage';body.scale.setScalar(1/.8);body.castShadow=true;body.receiveShadow=true;house.add(body);
  oval('Cream chest',cream,0,.82,.72,1.08,.89,.55);
  oval('Left cheek',cream,-.51,1.39,.95,.55,.41,.34);oval('Right cheek',cream,.51,1.39,.95,.55,.41,.34);
  for(const side of [-1,1]){
@@ -46,7 +47,7 @@ export function createCottage({density=1}={}){
    if(k<4){const j=base+k*2;hairIndices.push(j,j+2,j+1,j+1,j+2,j+3)}
   }
  }}
- coat([0,1.3,0],[1.48,1.38,1.14],42000,false,p=>p.y>.17&&p.y<2.4&&!(p.z>.73&&p.y<1.7));
+ coat([0,1.3,0],[1.48,1.38,1.14],42000,false,p=>p.y>1.3&&p.y<2.4&&!(p.z>.73&&p.y<1.7));
  coat([0,.82,.72],[1.08,.89,.55],14000,true,p=>p.z>.76&&!(p.z>.88&&(p.x/.62)**2+((p.y-.65)/.62)**2<1));
  for(const side of [-1,1])coat([side*.51,1.39,.95],[.55,.41,.34],10000,true,p=>p.z>1.03);
  coat([0,1.42,1.15],[.35,.23,.22],3000,true,p=>p.z>1.28&&p.y<1.54);

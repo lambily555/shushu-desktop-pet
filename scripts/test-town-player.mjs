@@ -20,3 +20,6 @@ const jumper={position:schoolPoint(-1.65,2.4),inside:null,platformHeight:0};let 
 for(let i=0;i<75;i++){jumper.platformHeight=height;const next=schoolPoint(-1.65,2.4-(i+1)*.75*.016);movePlayer(jumper,next.x-jumper.position.x,next.z-jumper.position.z);const surface=schoolPlatformHeightAt(jumper.position.x,jumper.position.z),previous=height;jumpVelocity-=.016*4;height=Math.max(0,height+jumpVelocity*.016);if(surface&&previous>=surface-.03&&jumpVelocity<=0&&height<surface){height=surface;jumpVelocity=0}else if(height===0)jumpVelocity=0}
 assert.ok(Math.hypot(jumper.position.x-platform.x,jumper.position.z-platform.z)<.24,'a running jump reaches the platform');
 assert.equal(height,.59,'the jump finishes standing on the platform');
+
+assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},2,-.65),false,'relocated cottage table blocks its new position');
+assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},-1.7,.8),true,'relocating the table frees its previous position');

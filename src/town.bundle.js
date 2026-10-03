@@ -16468,6 +16468,121 @@
     if (options.extrudePath !== void 0) data.options.extrudePath = options.extrudePath.toJSON();
     return data;
   }
+  var LatheGeometry = class _LatheGeometry extends BufferGeometry {
+    /**
+     * Constructs a new lathe geometry.
+     *
+     * @param {Array<Vector2|Vector3>} [points] - An array of points in 2D space. The x-coordinate of each point
+     * must be greater than zero.
+     * @param {number} [segments=12] - The number of circumference segments to generate.
+     * @param {number} [phiStart=0] - The starting angle in radians.
+     * @param {number} [phiLength=Math.PI*2] - The radian (0 to 2PI) range of the lathed section 2PI is a
+     * closed lathe, less than 2PI is a portion.
+     */
+    constructor(points = [new Vector2(0, -0.5), new Vector2(0.5, 0), new Vector2(0, 0.5)], segments = 12, phiStart = 0, phiLength = Math.PI * 2) {
+      super();
+      this.type = "LatheGeometry";
+      this.parameters = {
+        points,
+        segments,
+        phiStart,
+        phiLength
+      };
+      segments = Math.floor(segments);
+      phiLength = clamp(phiLength, 0, Math.PI * 2);
+      const indices = [];
+      const vertices = [];
+      const uvs = [];
+      const initNormals = [];
+      const normals = [];
+      const inverseSegments = 1 / segments;
+      const vertex2 = new Vector3();
+      const uv = new Vector2();
+      const normal = new Vector3();
+      const curNormal = new Vector3();
+      const prevNormal = new Vector3();
+      let dx = 0;
+      let dy = 0;
+      for (let j = 0; j <= points.length - 1; j++) {
+        switch (j) {
+          case 0:
+            dx = points[j + 1].x - points[j].x;
+            dy = points[j + 1].y - points[j].y;
+            normal.x = dy * 1;
+            normal.y = -dx;
+            normal.z = dy * 0;
+            prevNormal.copy(normal);
+            normal.normalize();
+            initNormals.push(normal.x, normal.y, normal.z);
+            break;
+          case points.length - 1:
+            initNormals.push(prevNormal.x, prevNormal.y, prevNormal.z);
+            break;
+          default:
+            dx = points[j + 1].x - points[j].x;
+            dy = points[j + 1].y - points[j].y;
+            normal.x = dy * 1;
+            normal.y = -dx;
+            normal.z = dy * 0;
+            curNormal.copy(normal);
+            normal.x += prevNormal.x;
+            normal.y += prevNormal.y;
+            normal.z += prevNormal.z;
+            normal.normalize();
+            initNormals.push(normal.x, normal.y, normal.z);
+            prevNormal.copy(curNormal);
+        }
+      }
+      for (let i2 = 0; i2 <= segments; i2++) {
+        const phi = phiStart + i2 * inverseSegments * phiLength;
+        const sin = Math.sin(phi);
+        const cos = Math.cos(phi);
+        for (let j = 0; j <= points.length - 1; j++) {
+          vertex2.x = points[j].x * sin;
+          vertex2.y = points[j].y;
+          vertex2.z = points[j].x * cos;
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+          uv.x = i2 / segments;
+          uv.y = j / (points.length - 1);
+          uvs.push(uv.x, uv.y);
+          const x2 = initNormals[3 * j + 0] * sin;
+          const y = initNormals[3 * j + 1];
+          const z = initNormals[3 * j + 0] * cos;
+          normals.push(x2, y, z);
+        }
+      }
+      for (let i2 = 0; i2 < segments; i2++) {
+        for (let j = 0; j < points.length - 1; j++) {
+          const base = j + i2 * points.length;
+          const a = base;
+          const b = base + points.length;
+          const c = base + points.length + 1;
+          const d = base + 1;
+          indices.push(a, b, d);
+          indices.push(c, d, b);
+        }
+      }
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    /**
+     * Factory method for creating an instance of this class from the given
+     * JSON object.
+     *
+     * @param {Object} data - A JSON object representing the serialized geometry.
+     * @return {LatheGeometry} A new instance.
+     */
+    static fromJSON(data) {
+      return new _LatheGeometry(data.points, data.segments, data.phiStart, data.phiLength);
+    }
+  };
   var PlaneGeometry = class _PlaneGeometry extends BufferGeometry {
     /**
      * Constructs a new plane geometry.
@@ -32791,6 +32906,55 @@ void main() {
     }
   };
 
+  // src/town-cottage-interior.js
+  function cottageRadius(y) {
+    if (y < 0.08) return 0.87;
+    if (y < 0.5) return 0.9 + (y - 0.08) / 0.42 * 0.055;
+    if (y < 1.04) return 0.955 + (y - 0.5) / 0.54 * 0.045;
+    return Math.sqrt(Math.max(0, 1 - ((y - 1.04) / 1.104) ** 2));
+  }
+  var cottageFloor = { x: 1.01, z: 0.77 };
+  var cottageFurniture = { bed: [-1.65, -0.7], shelf: [0.65, -1.45], table: [-1.7, 0.8], windowTable: [2, -0.65], water: [2.5, 0.35], bowl: [1.6, 1.05] };
+  function cottageShellGeometry(inset = 0) {
+    const points = [new Vector2(0, 0.04)];
+    for (let i2 = 0; i2 <= 96; i2++) {
+      const y = 0.08 + i2 * (2.144 - 0.08) / 96;
+      points.push(new Vector2(Math.max(0, cottageRadius(y) - inset), y));
+    }
+    const geometry = new LatheGeometry(points, 192);
+    geometry.scale(1.184, 1, 0.912);
+    return geometry;
+  }
+  function cottageFrontZ(x2, y, inset = 0.045) {
+    const r = cottageRadius(y) - inset;
+    return 0.912 * Math.sqrt(Math.max(0, r * r - (x2 / 1.184) ** 2));
+  }
+  function cottageDoorLining(front, outside = false) {
+    const positions = [], indices = [], rows = outside ? 8 : 2;
+    const outerZ = (x2, y) => {
+      let z = cottageFrontZ(x2, y, 0);
+      for (const [cx, cy, cz, rx, ry, rz] of [[0, 0.656, 0.576, 0.864, 0.712, 0.44], [-0.408, 1.112, 0.76, 0.44, 0.328, 0.272], [0.408, 1.112, 0.76, 0.44, 0.328, 0.272]]) {
+        const r = 1 - ((x2 - cx) / rx) ** 2 - ((y - cy) / ry) ** 2;
+        if (r > 0) z = Math.max(z, cz + rz * Math.sqrt(r));
+      }
+      return z + 0.012;
+    };
+    for (let row = 0; row <= rows; row++) for (let i2 = 0; i2 <= 96; i2++) {
+      const a = i2 * Math.PI * 2 / 96, t = row / rows, r = outside ? 0.6 + (0.39 - 0.6) * t : row === 0 ? 0.61 : 0.39, x2 = Math.cos(a) * r, y = Math.max(0.1, 0.52 + Math.sin(a) * r * 0.84 / 0.78);
+      const z = outside ? outerZ(x2, y) * (1 - t) + front * t : row === 2 ? front : cottageFrontZ(x2, y) - 6e-3;
+      positions.push(x2, y, z);
+    }
+    for (let row = 0; row < rows; row++) for (let i2 = 0; i2 < 96; i2++) {
+      const a = row * 97 + i2, b = a + 97;
+      indices.push(a, b, a + 1, b, b + 1, a + 1);
+    }
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return geometry;
+  }
+
   // src/town-life.js
   var destinations = [
     ["\u8DD1\u8F6E\u516C\u56ED", -11, -7.5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
@@ -32798,7 +32962,7 @@ void main() {
     ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
     ["\u4E2D\u5FC3\u5E7F\u573A", 0, -1.3, false, "\u793E\u4EA4", [0, 0]],
     ["\u7EAA\u5FF5\u9986", -11, 3.5, true, "\u53C2\u89C2", [0, -0.5]],
-    ["\u9F20\u9F20\u5C0F\u5C4B", -5, 6.5, true, "\u4F11\u606F", [-2.2, -0.7]],
+    ["\u9F20\u9F20\u5C0F\u5C4B", -5, 6.5, true, "\u4F11\u606F", cottageFurniture.bed],
     ["\u5C0F\u83DC\u56ED", 0, -14.4, false, "\u7167\u770B\u83DC\u56ED", [0, 0]],
     ["\u6BA1\u4EEA\u9986", -8, 11, true, "\u5DE5\u4F5C", [0, 1]],
     ["\u5893\u5730", 2, 11, false, "\u7EAA\u5FF5", [0, 0]],
@@ -32958,7 +33122,7 @@ void main() {
           } else if (d[3]) {
             actor.inside = actor.destination;
             actor.position = point(0, 2.6);
-            const stations = actor.action === "\u4F4F\u9662" ? [-1.15, -0.8] : actor.action === "\u7761\u89C9" ? [-2.2, -1.6] : actor.action === "\u996E\u6C34" ? [1.4, -0.7] : actor.action === "\u8FDB\u98DF" ? [1.7, 0.7] : d[5];
+            const stations = actor.action === "\u4F4F\u9662" ? [-1.15, -0.8] : actor.action === "\u7761\u89C9" ? cottageFurniture.bed : actor.action === "\u996E\u6C34" ? cottageFurniture.water : actor.action === "\u8FDB\u98DF" ? cottageFurniture.bowl : d[5];
             go(actor, point(...stations), "using", true);
           } else if (actor.action === "\u793E\u4EA4") {
             actor.phase = "meeting";
@@ -33071,7 +33235,7 @@ void main() {
       if (requested && actor.inside === (hospitalized ? "\u8BCA\u6240" : "\u9F20\u9F20\u5C0F\u5C4B")) {
         actor.destination = actor.inside;
         actor.action = hospitalized ? "\u4F4F\u9662" : "\u7761\u89C9";
-        go(actor, point(...hospitalized ? [-1.15, -0.8] : [-2.2, -1.6]), "using", true);
+        go(actor, point(...hospitalized ? [-1.15, -0.8] : cottageFurniture.bed), "using", true);
       } else actor.phase = actor.inside ? "exit-room" : "idle";
     }
     function setCelebration(next) {
@@ -33226,7 +33390,7 @@ void main() {
   }
   var obstacles = {
     "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [0.3, 1.6, 0.8, 0.35]],
-    "\u9F20\u9F20\u5C0F\u5C4B": [[-2.2, -1.6, 0.98, 0.65], [-2.3, 1.1, 0.55, 0.43], [0.2, -2.4, 0.82, 0.32], [1.7, -1.2, 0.23, 0.23], [1.8, 1.2, 0.4, 0.4]],
+    "\u9F20\u9F20\u5C0F\u5C4B": [[...cottageFurniture.bed, 0.98, 0.65], [...cottageFurniture.table, 0.55, 0.43], [...cottageFurniture.shelf, 0.82, 0.32], [...cottageFurniture.water, 0.23, 0.23], [...cottageFurniture.bowl, 0.4, 0.4]],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
     "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [3.35, 1.4, 0.35, 0.75], [-2, -0.5, 0.65, 0.4], [1.4, -0.5, 0.65, 0.4], [1.4, 1.55, 0.65, 0.4]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
@@ -33238,9 +33402,16 @@ void main() {
     if (actor.inside) {
       const gate = actor.doorway, throughDoor = gate?.open && Math.abs(x2 - gate.x) < gate.width / 2 - 0.13 && z > 2.4 && z < 4.5;
       if (throughDoor) return true;
+      if (actor.inside === "\u9F20\u9F20\u5C0F\u5C4B") {
+        const px2 = x2 * 2.15 / 8, pz2 = z * 2.14 / 6, corridor = Math.abs(px2) < 0.29 && pz2 > 0.3 && pz2 < 0.99;
+        if (!corridor && (px2 / (cottageFloor.x - 0.08)) ** 2 + (pz2 / (cottageFloor.z - 0.08)) ** 2 > 1) return false;
+      }
       if (Math.abs(x2) > 3.7 || z < -2.7 || z > 2.8) return false;
       if (actor.inside === "\u9F20\u9F20\u5B66\u6821" && (x2 / 3.9) ** 2 + (z / 2.9) ** 2 > 0.92) return false;
-      return !(obstacles[actor.inside] || []).some(([cx, cz, w, d]) => Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1);
+      return !(obstacles[actor.inside] || []).some(([cx, cz, w, d], index) => {
+        if (actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" && index === 1 && actor.cottageTableSlot === "window") [cx, cz] = cottageFurniture.windowTable;
+        return Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1;
+      });
     }
     if (Math.hypot(x2, z) > 17.4) return false;
     const local = schoolLocal(x2, z), height = actor.platformHeight || 0;
@@ -33280,7 +33451,7 @@ void main() {
     "\u7EAA\u5FF5\u9986": { width: 2.8, depth: 1.85, z: -0.27, floor: 0.23, height: 1.3, doorX: 0, doorWidth: 0.7, doorHeight: 1.08, wall: 15656396, trim: 10990490 },
     "\u6BA1\u4EEA\u9986": { width: 2.8, depth: 1.85, z: -0.27, floor: 0.23, height: 1.3, doorX: 0, doorWidth: 0.85, doorHeight: 1.05, wall: 15656396, trim: 9608867 },
     "\u9F20\u9F20\u5B66\u6821": { width: 2.32, depth: 2.36, z: -0.35, floor: 0.13, height: 1.22, doorX: 0, doorWidth: 0.56, doorHeight: 0.82, wall: 12095577, trim: 6833454, round: true },
-    "\u9F20\u9F20\u5C0F\u5C4B": { width: 2.15, depth: 2.14, z: 0, floor: 0.1, height: 1.25, doorX: 0, doorWidth: 0.78, doorHeight: 0.84, wall: 14796448, trim: 10051642, cottage: true }
+    "\u9F20\u9F20\u5C0F\u5C4B": { width: 2.15, depth: 2.14, z: 0, floor: 0.1, height: 1.95, doorX: 0, doorWidth: 0.78, doorHeight: 0.84, wall: 14796448, trim: 10051642, cottage: true }
   };
   function box(parent, w, h, d, x2, y, z, mat2) {
     const mesh = new Mesh(new BoxGeometry(w, h, d), mat2);
@@ -33301,6 +33472,7 @@ void main() {
       for (let j = 0; j < 3; j++) {
         v.fromBufferAttribute(p, i2 + j).applyMatrix4(matrix);
         if (layout.cottage) {
+          if (!["Rounded grey cottage", "Cottage inner curved wall"].includes(mesh.name) && v.y > 0.12 && v.y < 2.13 && Math.hypot(v.x / 1.184, v.z / 0.912) < cottageRadius(v.y) - 0.025) inside++;
           if (v.z > 0 && (v.x / 0.49) ** 2 + ((v.y - 0.52) / 0.49) ** 2 < 1) inside++;
         } else if (Math.abs(v.x - layout.doorX) < layout.doorWidth / 2 + 0.02 && v.y > layout.floor - 0.03 && v.y < layout.floor + layout.doorHeight + 0.025 && v.z > layout.z + 0.15) inside++;
       }
@@ -33329,11 +33501,15 @@ void main() {
       model.worldToLocal(centre);
       const p = mesh.geometry.parameters || {};
       if (layout.cottage) {
+        if (mesh.name === "Garden moss" && (centre.x / cottageFloor.x) ** 2 + (centre.z / cottageFloor.z) ** 2 < 1.12) {
+          removed.push(mesh);
+          return;
+        }
         if (mesh.name === "Round timber entrance") {
           return;
         }
         if (mesh.name === "Individual door plank" || mesh.name === "Door window frame" || mesh.name === "Window mullion" || mesh.name === "Brass door knob" || mesh.name === "Iron hinge" || mesh.name === "Thick oak door frame") return;
-        if (["Rounded grey cottage", "Cream chest", "Left cheek", "Right cheek", "Joined muzzle", "Surface following tapered fur"].includes(mesh.name)) doorwayHole(mesh, layout, model);
+        if (["Rounded grey cottage", "Cream chest", "Left cheek", "Right cheek", "Joined muzzle", "Surface following tapered fur", "Glossy eye", "Eye catchlight", "Little nose", "Whisker", "Inset lip crease"].includes(mesh.name)) doorwayHole(mesh, layout, model);
         return;
       }
       const bounds = new Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()), actual = bounds.getCenter(new Vector3());
@@ -33371,46 +33547,20 @@ void main() {
     }
     roof.userData.cutawayRoof = true;
     if (layout.cottage) {
-      const innerWall = (w2, h2, x2, y, z, angle) => {
-        const mesh = new Mesh(new PlaneGeometry(w2, h2), wall.clone());
-        mesh.material.side = BackSide;
-        mesh.position.set(x2, y, z);
-        mesh.rotation.y = angle;
-        shell.add(mesh);
-      };
-      innerWall(layout.width, layout.height, 0, layout.floor + layout.height / 2, back, Math.PI);
-      for (const side of [-1, 1]) innerWall(layout.depth, layout.height, side * layout.width / 2, layout.floor + layout.height / 2, layout.z, side * Math.PI / 2);
+      shell.remove(roof);
       roof.geometry.dispose();
-      roof.geometry = new CircleGeometry(1, 64);
-      roof.scale.set(1.08, 0.84, 1);
-      roof.rotation.x = -Math.PI / 2;
-      roof.material = wall.clone();
-      roof.material.side = BackSide;
-      const frontWall = new Shape();
-      frontWall.moveTo(-1.075, 0.1);
-      frontWall.lineTo(1.075, 0.1);
-      frontWall.lineTo(1.075, top);
-      frontWall.lineTo(-1.075, top);
-      frontWall.closePath();
-      const opening = new Path();
-      opening.absellipse(0, 0.52, 0.39, 0.42, 0, Math.PI * 2, true);
-      frontWall.holes.push(opening);
-      const innerFront = new Mesh(new ShapeGeometry(frontWall, 64), wall.clone());
-      innerFront.name = "Cottage inner front wall";
-      innerFront.material.side = BackSide;
-      innerFront.position.z = 0.95;
-      shell.add(innerFront);
-      const tunnel = new Mesh(new CylinderGeometry(0.39, 0.39, front + 0.022 - 0.95, 64, 1, true), trim.clone());
+      const lining = new Mesh(cottageShellGeometry(0.045), wall.clone());
+      lining.name = "Cottage inner curved wall";
+      shell.add(lining);
+      doorwayHole(lining, layout, model);
+      lining.material.side = BackSide;
+      const tunnel = new Mesh(cottageDoorLining(front + 0.022), trim.clone());
       tunnel.name = "Cottage doorway lining";
       tunnel.material.side = DoubleSide;
-      tunnel.rotation.x = Math.PI / 2;
-      tunnel.scale.z = layout.doorHeight / layout.doorWidth;
-      tunnel.position.set(0, 0.52, (front + 0.022 + 0.95) / 2);
       shell.add(tunnel);
-      const frame = new Mesh(new RingGeometry(0.39, 0.57, 64), trim.clone());
+      const frame = new Mesh(cottageDoorLining(front + 0.022, true), trim.clone());
+      frame.name = "Cottage curved outer door frame";
       frame.material.side = DoubleSide;
-      frame.scale.y = layout.doorHeight / layout.doorWidth;
-      frame.position.set(0, 0.52, front + 0.022);
       shell.add(frame);
     } else {
       if (layout.round) {
@@ -33912,7 +34062,12 @@ void main() {
       parent.add(mesh);
       return mesh;
     }
-    oval("Rounded grey cottage", fur, 0, 1.3, 0, 1.48, 1.38, 1.14);
+    const body = new Mesh(cottageShellGeometry(), fur);
+    body.name = "Rounded grey cottage";
+    body.scale.setScalar(1 / 0.8);
+    body.castShadow = true;
+    body.receiveShadow = true;
+    house.add(body);
     oval("Cream chest", cream, 0, 0.82, 0.72, 1.08, 0.89, 0.55);
     oval("Left cheek", cream, -0.51, 1.39, 0.95, 0.55, 0.41, 0.34);
     oval("Right cheek", cream, 0.51, 1.39, 0.95, 0.55, 0.41, 0.34);
@@ -33959,7 +34114,7 @@ void main() {
         }
       }
     }
-    coat([0, 1.3, 0], [1.48, 1.38, 1.14], 42e3, false, (p) => p.y > 0.17 && p.y < 2.4 && !(p.z > 0.73 && p.y < 1.7));
+    coat([0, 1.3, 0], [1.48, 1.38, 1.14], 42e3, false, (p) => p.y > 1.3 && p.y < 2.4 && !(p.z > 0.73 && p.y < 1.7));
     coat([0, 0.82, 0.72], [1.08, 0.89, 0.55], 14e3, true, (p) => p.z > 0.76 && !(p.z > 0.88 && (p.x / 0.62) ** 2 + ((p.y - 0.65) / 0.62) ** 2 < 1));
     for (const side of [-1, 1]) coat([side * 0.51, 1.39, 0.95], [0.55, 0.41, 0.34], 1e4, true, (p) => p.z > 1.03);
     coat([0, 1.42, 1.15], [0.35, 0.23, 0.22], 3e3, true, (p) => p.z > 1.28 && p.y < 1.54);
@@ -38540,7 +38695,7 @@ void main() {
         a.frozen = worldState.alive === false;
         if (a.frozen) {
           a.inside = "\u9F20\u9F20\u5C0F\u5C4B";
-          a.position = { x: -2.2, z: -0.7 };
+          a.position = { x: cottageFurniture.bed[0], z: cottageFurniture.bed[1] };
           a.phase = "activity";
           a.action = "\u4F11\u606F";
           a.speech = "";
@@ -38734,21 +38889,42 @@ void main() {
         host.appendChild(button);
         roomLabels.push({ button, point: new Vector3(x2, 0.95, z) });
       };
-      add(8, 0.18, 6, 0, -0.1, 0, floorColor);
-      const cutaway = [add(8, 1.9, 0.16, 0, 0.85, -3, wallColor)];
-      const sideWall = add(0.16, 1.9, 6, -4, 0.85, 0, wallColor);
-      cutaway.push(sideWall);
-      if (name === "\u8BCA\u6240") {
-        sideWall.material.color.set(12180706);
-        sideWall.material.transparent = true;
-        sideWall.material.opacity = 0.3;
+      const cutaway = [];
+      if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
+        const floor = new Mesh(new CylinderGeometry(1, 1, 0.08, 96), new MeshStandardMaterial({ color: floorColor, roughness: 0.85 }));
+        floor.name = "Cottage oval floor";
+        floor.scale.set(cottageFloor.x / (2.15 / 8), 1, cottageFloor.z / (2.14 / 6));
+        floor.position.y = 0.02;
+        room.add(floor);
+        for (let x2 = -3.6; x2 <= 3.6; x2 += 0.4) {
+          const length = 2 * floor.scale.z * Math.sqrt(Math.max(0, 1 - (x2 / floor.scale.x) ** 2));
+          if (length) add(0.012, 6e-3, length, x2, 0.062, 0, trimColor);
+        }
+        const g = cottageShellGeometry(0.045).toNonIndexed(), pos = g.attributes.position, indices = [];
+        for (let i2 = 0; i2 < pos.count; i2 += 3) if ([0, 1, 2].every((j) => pos.getY(i2 + j) < 0.95 && pos.getZ(i2 + j) < 0.25)) indices.push(i2, i2 + 1, i2 + 2);
+        g.setIndex(indices);
+        g.translate(0, -0.1, 0);
+        g.scale(8 / 2.15, 8 / 2.15, 6 / 2.14);
+        const curved = new Mesh(g, new MeshStandardMaterial({ color: wallColor, side: DoubleSide, roughness: 0.88 }));
+        room.add(curved);
+        cutaway.push(curved);
+      } else {
+        add(8, 0.18, 6, 0, -0.1, 0, floorColor);
+        cutaway.push(add(8, 1.9, 0.16, 0, 0.85, -3, wallColor));
+        const sideWall = add(0.16, 1.9, 6, -4, 0.85, 0, wallColor);
+        cutaway.push(sideWall);
+        if (name === "\u8BCA\u6240") {
+          sideWall.material.color.set(12180706);
+          sideWall.material.transparent = true;
+          sideWall.material.opacity = 0.3;
+        }
+        cutaway.push(add(8, 0.2, 0.16, 0, 0, 3, trimColor), add(0.16, 0.2, 6, 4, 0, 0, trimColor));
+        const tiled = ["\u8BCA\u6240", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"].includes(name);
+        for (let x2 = -3.8; x2 < 4; x2 += tiled ? 0.6 : 0.4) add(0.012, 0.01, 6, x2, 0, 0, trimColor);
+        if (tiled) for (let z = -2.8; z < 3; z += 0.6) add(8, 0.01, 0.012, 0, 0, z, trimColor);
+        add(8, 0.28, 0.03, 0, 0.2, -2.9, trimColor);
+        add(0.03, 0.28, 6, -3.9, 0.2, 0, trimColor);
       }
-      cutaway.push(add(8, 0.2, 0.16, 0, 0, 3, trimColor), add(0.16, 0.2, 6, 4, 0, 0, trimColor));
-      const tiled = ["\u8BCA\u6240", "\u7EAA\u5FF5\u9986", "\u6BA1\u4EEA\u9986"].includes(name);
-      for (let x2 = -3.8; x2 < 4; x2 += tiled ? 0.6 : 0.4) add(0.012, 0.01, 6, x2, 0, 0, trimColor);
-      if (tiled) for (let z = -2.8; z < 3; z += 0.6) add(8, 0.01, 0.012, 0, 0, z, trimColor);
-      add(8, 0.28, 0.03, 0, 0.2, -2.9, trimColor);
-      add(0.03, 0.28, 6, -3.9, 0.2, 0, trimColor);
       const oval = (x2, y, z, sx, sy, sz, color) => {
         const mesh = new Mesh(new SphereGeometry(1, 14, 10), new MeshStandardMaterial({ color, roughness: 0.8 }));
         mesh.position.set(x2, y, z);
@@ -38843,39 +39019,38 @@ void main() {
         label("\u5531\u7247\u5C55\u67DC", 1.1, -0.5);
         label("\u4E13\u8F91\u5899", 0, -2.7);
       } else if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
-        bed(-2.2, -1.6, "\u5E8A\u94FA");
-        for (let i2 = 0; i2 < 13; i2++) add(0.018, 1.5, 0.025, -3.6 + i2 * 0.6, 1, -2.88, 12886392);
-        bouquet(-3.25, 0.12, 1.9);
+        bed(...cottageFurniture.bed, "\u5E8A\u94FA");
+        bouquet(-2.7, 0.12, 0.4);
         const bowl = new Mesh(new TorusGeometry(0.36, 0.1, 12, 32), new MeshStandardMaterial({ color: 15324341 }));
         bowl.rotation.x = Math.PI / 2;
-        bowl.position.set(1.8, 0.18, 1.2);
+        bowl.position.set(1.6, 0.18, 1.05);
         room.add(bowl);
-        add(0.5, 0.06, 0.5, 1.8, 0.1, 1.2, 10123588);
-        label("\u98DF\u76C6", 1.8, 1.2);
-        add(0.16, 1.2, 0.16, 1.7, 0.6, -1.2, 9139029);
+        add(0.5, 0.06, 0.5, 1.6, 0.1, 1.05, 10123588);
+        label("\u98DF\u76C6", ...cottageFurniture.bowl);
+        add(0.16, 1.2, 0.16, 2.5, 0.6, 0.35, 9139029);
         const bottle = new Mesh(new CylinderGeometry(0.2, 0.2, 0.65, 20), new MeshStandardMaterial({ color: 11589080, transparent: true, opacity: 0.72 }));
-        bottle.position.set(1.7, 0.82, -1.2);
+        bottle.position.set(2.5, 0.82, 0.35);
         room.add(bottle);
         bottle.userData.roomAction = "water";
         clickable.push(bottle);
-        add(0.07, 0.3, 0.07, 1.7, 0.36, -1.05, 12304321);
+        add(0.07, 0.3, 0.07, 2.5, 0.36, 0.5, 12304321);
         const water = worldState.water || { amount: 100, quality: "\u65B0\u9C9C" }, level = Math.max(1e-3, water.amount / 100);
         const liquid = new Mesh(new CylinderGeometry(0.17, 0.17, 0.61, 20), new MeshStandardMaterial({ color: water.quality === "\u53D8\u8D28" ? 8750148 : 4628164, transparent: true, opacity: 0.85 }));
         liquid.scale.y = level;
-        liquid.position.set(1.7, 0.505 + 0.305 * level, -1.2);
+        liquid.position.set(2.5, 0.505 + 0.305 * level, 0.35);
         room.add(liquid);
         const waterQuality = water.amount <= 0 ? "\u7F3A\u6C34" : water.quality, waterText = { \u65B0\u9C9C: "\u6C34\u8D28\u6B63\u5E38", \u5F85\u6362\u6C34: "\u5EFA\u8BAE\u6362\u6C34", \u53D8\u8D28: "\u6C34\u5DF2\u53D8\u8D28", \u7F3A\u6C34: "\u6C34\u5DF2\u8017\u5C3D" }[waterQuality];
         label(`\u6C34\u58F6 ${Math.ceil(water.amount)}% \xB7 ${waterText}
-\u70B9\u51FB\u6E05\u6D17\u6362\u6C34`, 1.7, -1.2, "water");
+\u70B9\u51FB\u6E05\u6D17\u6362\u6C34`, ...cottageFurniture.water, "water");
         const waterLabel = roomLabels.at(-1).button;
         waterLabel.classList.add("town-water-label");
         waterLabel.dataset.quality = waterQuality;
         waterLabel.title = `${waterText}\uFF0C\u70B9\u51FB\u514D\u8D39\u6E05\u6D17\u5E76\u8865\u6EE1\u65B0\u9C9C\u6C34\u3002`;
-        shelf(0.2, -2.4, "\u7CAE\u4ED3");
+        shelf(...cottageFurniture.shelf, "\u7CAE\u4ED3");
         roomLabels.at(-1).button.remove();
         roomLabels.pop();
-        label("\u7CAE\u4ED3 \xB7 \u70B9\u51FB\u8865\u7ED9", 0.2, -2.4, "supply");
-        const moved = worldState.furniture?.table?.slot === "window", tableX = moved ? 2.2 : -2.3, tableZ = moved ? -0.8 : 1.1;
+        label("\u7CAE\u4ED3 \xB7 \u70B9\u51FB\u8865\u7ED9", ...cottageFurniture.shelf, "supply");
+        const moved = worldState.furniture?.table?.slot === "window", [tableX, tableZ] = moved ? cottageFurniture.windowTable : cottageFurniture.table;
         table(tableX, tableZ, 1, 0.75, 10188881);
         label("\u6728\u684C", tableX, tableZ);
         add(0.65, 0.15, 0.65, tableX + 1, 0.1, tableZ + 0.2, 9609346);
@@ -39375,6 +39550,7 @@ void main() {
       if (!firstPerson) return;
       const actor = life.actors.get("main");
       if (!actor) return;
+      actor.cottageTableSlot = worldState.furniture?.table?.slot;
       let forward = (playerKeys.has("KeyW") || playerKeys.has("ArrowUp") ? 1 : 0) - (playerKeys.has("KeyS") || playerKeys.has("ArrowDown") ? 1 : 0), right = (playerKeys.has("KeyD") || playerKeys.has("ArrowRight") ? 1 : 0) - (playerKeys.has("KeyA") || playerKeys.has("ArrowLeft") ? 1 : 0);
       const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.3 : 0.75, norm = Math.hypot(forward, right) || 1;
       forward /= norm;

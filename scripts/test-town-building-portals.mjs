@@ -21,7 +21,22 @@ for(const x of [-.2,0,.2])for(const y of [.35,.52,.7]){
 }
 for(const x of [-.7,.7]){
  const hits=new THREE.Raycaster(new THREE.Vector3(x,.65,0),new THREE.Vector3(0,0,1),0,2).intersectObject(cottage,true);
- assert.ok(hits.some(h=>h.object.name==='Cottage inner front wall'),'interior front wall exists beside the door');
+ assert.ok(hits.some(h=>h.object.name==='Cottage inner curved wall'),'interior front wall exists beside the door');
 }
 assert.equal(cottagePortal.shell.visible,true,'cottage lining remains visible from outdoors');
 console.log('Cottage deep doorway, reverse doorway and inner front wall passed');
+
+const {cottageRadius,cottageFloor}=await import('../src/town-cottage-interior.js');
+const inner=cottage.getObjectByName('Cottage inner curved wall');
+for(let i=0;i<inner.geometry.attributes.position.count;i++){
+ const v=new THREE.Vector3().fromBufferAttribute(inner.geometry.attributes.position,i);
+ assert.ok(Math.hypot(v.x/1.184,v.z/.912)<=cottageRadius(v.y)+1e-5,'every inner-wall vertex remains beneath the outer curved shell');
+}
+for(let i=0;i<64;i++){
+ const a=i*Math.PI*2/64,eye=new THREE.Vector3(Math.cos(a)*3,.7,Math.sin(a)*3),ray=new THREE.Raycaster(eye,new THREE.Vector3().sub(eye).setY(0).normalize(),0,6);
+ const outside=ray.intersectObject(cottage.getObjectByName('Rounded grey cottage'))[0],inside=ray.intersectObject(inner)[0];
+ if(outside&&inside)assert.ok(inside.distance>outside.distance,'inner wall never appears in front of the exterior silhouette');
+}
+for(const [x,z] of [[3,2],[-3,2],[3,-2],[-3,-2]])assert.equal(canWalk({inside:'鼠鼠小屋'},x,z),false,'old square room corners are not walkable');
+assert.equal(canWalk({inside:'鼠鼠小屋',doorway:{open:true,x:0,width:2.9}},0,3.2),true,'rounded room retains its open-door route');
+console.log('Cottage curved shell containment, 64 outside views and rounded movement boundary passed');
