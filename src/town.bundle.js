@@ -33301,9 +33301,10 @@ void main() {
       for (let j = 0; j < 3; j++) {
         v.fromBufferAttribute(p, i2 + j).applyMatrix4(matrix);
         if (layout.cottage) {
-          if (v.z > 0.68 && (v.x / 0.49) ** 2 + ((v.y - 0.52) / 0.49) ** 2 < 1) inside++;
+          if (v.z > 0 && (v.x / 0.49) ** 2 + ((v.y - 0.52) / 0.49) ** 2 < 1) inside++;
         } else if (Math.abs(v.x - layout.doorX) < layout.doorWidth / 2 + 0.02 && v.y > layout.floor - 0.03 && v.y < layout.floor + layout.doorHeight + 0.025 && v.z > layout.z + 0.15) inside++;
       }
+      if (layout.cottage && ["Cream chest", "Left cheek", "Right cheek", "Joined muzzle"].includes(mesh.name) && [0, 1, 2].every((j) => p.getZ(i2 + j) <= 0)) inside++;
       if (!inside) kept.push(i2, i2 + 1, i2 + 2);
     }
     geometry.setIndex(kept);
@@ -33311,7 +33312,7 @@ void main() {
     const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     mesh.material = mats.map((m) => {
       const copy = m.clone();
-      copy.side = DoubleSide;
+      copy.side = layout.cottage ? FrontSide : DoubleSide;
       return copy;
     });
     if (!Array.isArray(mesh.material) || mesh.material.length === 1) mesh.material = mesh.material[0];
@@ -33332,7 +33333,7 @@ void main() {
           return;
         }
         if (mesh.name === "Individual door plank" || mesh.name === "Door window frame" || mesh.name === "Window mullion" || mesh.name === "Brass door knob" || mesh.name === "Iron hinge" || mesh.name === "Thick oak door frame") return;
-        if (mesh.name === "Rounded grey cottage" || mesh.name === "Cream chest") doorwayHole(mesh, layout, model);
+        if (["Rounded grey cottage", "Cream chest", "Left cheek", "Right cheek", "Joined muzzle", "Surface following tapered fur"].includes(mesh.name)) doorwayHole(mesh, layout, model);
         return;
       }
       const bounds = new Box3().setFromObject(mesh).applyMatrix4(model.matrixWorld.clone().invert()), actual = bounds.getCenter(new Vector3());
@@ -33369,11 +33370,46 @@ void main() {
       shell.add(roof);
     }
     roof.userData.cutawayRoof = true;
-    if (layout.cottage) shell.visible = false;
     if (layout.cottage) {
-      box(shell, layout.width, layout.height, 0.065, 0, layout.floor + layout.height / 2, back, wall);
-      for (const side of [-1, 1]) box(shell, 0.065, layout.height, layout.depth, side * layout.width / 2, layout.floor + layout.height / 2, layout.z, wall);
-      const frame = new Mesh(new TorusGeometry(0.43, 0.045, 10, 48), trim);
+      const innerWall = (w2, h2, x2, y, z, angle) => {
+        const mesh = new Mesh(new PlaneGeometry(w2, h2), wall.clone());
+        mesh.material.side = BackSide;
+        mesh.position.set(x2, y, z);
+        mesh.rotation.y = angle;
+        shell.add(mesh);
+      };
+      innerWall(layout.width, layout.height, 0, layout.floor + layout.height / 2, back, Math.PI);
+      for (const side of [-1, 1]) innerWall(layout.depth, layout.height, side * layout.width / 2, layout.floor + layout.height / 2, layout.z, side * Math.PI / 2);
+      roof.geometry.dispose();
+      roof.geometry = new CircleGeometry(1, 64);
+      roof.scale.set(1.08, 0.84, 1);
+      roof.rotation.x = -Math.PI / 2;
+      roof.material = wall.clone();
+      roof.material.side = BackSide;
+      const frontWall = new Shape();
+      frontWall.moveTo(-1.075, 0.1);
+      frontWall.lineTo(1.075, 0.1);
+      frontWall.lineTo(1.075, top);
+      frontWall.lineTo(-1.075, top);
+      frontWall.closePath();
+      const opening = new Path();
+      opening.absellipse(0, 0.52, 0.39, 0.42, 0, Math.PI * 2, true);
+      frontWall.holes.push(opening);
+      const innerFront = new Mesh(new ShapeGeometry(frontWall, 64), wall.clone());
+      innerFront.name = "Cottage inner front wall";
+      innerFront.material.side = BackSide;
+      innerFront.position.z = 0.95;
+      shell.add(innerFront);
+      const tunnel = new Mesh(new CylinderGeometry(0.39, 0.39, front + 0.022 - 0.95, 64, 1, true), trim.clone());
+      tunnel.name = "Cottage doorway lining";
+      tunnel.material.side = DoubleSide;
+      tunnel.rotation.x = Math.PI / 2;
+      tunnel.scale.z = layout.doorHeight / layout.doorWidth;
+      tunnel.position.set(0, 0.52, (front + 0.022 + 0.95) / 2);
+      shell.add(tunnel);
+      const frame = new Mesh(new RingGeometry(0.39, 0.57, 64), trim.clone());
+      frame.material.side = DoubleSide;
+      frame.scale.y = layout.doorHeight / layout.doorWidth;
       frame.position.set(0, 0.52, front + 0.022);
       shell.add(frame);
     } else {
@@ -38986,13 +39022,7 @@ void main() {
       if (indoorNames.includes(name)) {
         buildRoom(name);
         room.visible = true;
-        if (firstPerson) {
-          const portal = placeModels.get(name).userData.portal;
-          if (portal.layout.cottage) {
-            portal.exteriorChildren.forEach((child) => child.visible = false);
-            portal.shell.visible = true;
-          }
-        } else {
+        if (!firstPerson) {
           placeModels.get(name).visible = false;
           room.userData.cutaway.forEach((o) => o.visible = true);
           target.copy(room.localToWorld(new Vector3(name === "Mariah Carey\u540D\u4EBA\u5802" ? 1.2 : 0, 1, 0)));
@@ -39019,11 +39049,6 @@ void main() {
       clearFocus(false);
       if (indoorNames.includes(activePlace)) {
         placeModels.get(activePlace).visible = true;
-        const portal = placeModels.get(activePlace).userData.portal;
-        if (portal.layout.cottage) {
-          portal.exteriorChildren.forEach((child) => child.visible = true);
-          portal.shell.visible = false;
-        }
         room.userData.cutaway?.forEach((o) => o.visible = false);
         room.visible = false;
       }

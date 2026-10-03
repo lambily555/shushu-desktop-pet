@@ -12,3 +12,16 @@ const schoolPortal=installBuildingPortal(school,'鼠鼠学校');
 assert.equal(schoolPortal.roof.geometry.type,'CylinderGeometry','school cutaway roof follows the round building');
 assert.equal(school.children.some(o=>o.geometry?.type==='CylinderGeometry'&&o.position.y<.25),false,'old school plinth cannot obscure the room');
 console.log('Eight shared shells: aligned doors, school platform and swing, open/closed apertures, collision and full-height hall glass passed');
+const cottage=makers['鼠鼠小屋'](),cottagePortal=installBuildingPortal(cottage,'鼠鼠小屋');cottagePortal.door.rotation.y=-1.45;cottage.updateMatrixWorld(true);
+for(const x of [-.2,0,.2])for(const y of [.35,.52,.7]){
+ const hits=new THREE.Raycaster(new THREE.Vector3(x,y,1.6),new THREE.Vector3(0,0,-1),0,1.7).intersectObject(cottage,true);
+ assert.equal(hits.length,0,`cottage deep doorway ${x},${y}: ${hits.map(h=>h.object.name)}`);
+ const reverse=new THREE.Raycaster(new THREE.Vector3(x,y,-.1),new THREE.Vector3(0,0,1),0,1.7).intersectObject(cottage,true);
+ assert.equal(reverse.length,0,'cottage doorway is clear from inside too');
+}
+for(const x of [-.7,.7]){
+ const hits=new THREE.Raycaster(new THREE.Vector3(x,.65,0),new THREE.Vector3(0,0,1),0,2).intersectObject(cottage,true);
+ assert.ok(hits.some(h=>h.object.name==='Cottage inner front wall'),'interior front wall exists beside the door');
+}
+assert.equal(cottagePortal.shell.visible,true,'cottage lining remains visible from outdoors');
+console.log('Cottage deep doorway, reverse doorway and inner front wall passed');
