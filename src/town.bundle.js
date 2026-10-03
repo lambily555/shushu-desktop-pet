@@ -1,4 +1,13 @@
 (() => {
+  // src/town-plaza-seats.js
+  var plazaSeats = [[-3.55, 0.8], [3.55, 0.8], [-1, 1.95], [1, 1.95]].map(([x2, z]) => ({ x: x2, z, y: 0.4625, heading: Math.atan2(-x2, -z) }));
+  function plazaSeatBlocks(x2, z) {
+    return plazaSeats.some((s) => {
+      const dx = x2 - s.x, dz = z - s.z, c = Math.cos(s.heading), sn = Math.sin(s.heading);
+      return Math.abs(dx * c - dz * sn) < 0.49 && Math.abs(dx * sn + dz * c) < 0.28;
+    });
+  }
+
   // node_modules/.pnpm/three@0.185.1/node_modules/three/build/three.core.js
   var REVISION = "185";
   var CullFaceNone = 0;
@@ -32982,7 +32991,8 @@ void main() {
     return { x: d[1] + Math.sin(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9), z: d[2] + Math.cos(a) * (name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.5 : 1.9) };
   }
   function blocked(x2, z, ignoreName = null) {
-    return destinations.some((d) => {
+    const plaza = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
+    return plazaSeatBlocks(x2 - plaza[1], z - plaza[2]) || destinations.some((d) => {
       if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A" || d[0] === ignoreName) return false;
       if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") return Math.hypot(x2 - d[1], z - d[2]) < 2.2;
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
@@ -33074,7 +33084,33 @@ void main() {
       if (actor.destination === "\u9F20\u9F20\u5C0F\u5C4B") actor.action = actor.child && actor.age < 0.18 ? "\u7761\u89C9" : actor.cycle % 3 === 0 ? "\u996E\u6C34" : day ? "\u4F11\u606F" : "\u8FDB\u98DF";
       go(actor, entrance(actor.destination), "arrived");
     }
+    function plazaSeatAvailable(index, id) {
+      return !!plazaSeats[index] && ![...actors.values()].some((a) => a.id !== id && (a.plazaSeat === index || a.plazaSeatReservation === index));
+    }
+    function releasePlazaSeat(actor, stepOff = true) {
+      if (actor.plazaSeat !== void 0) {
+        const s = plazaSeats[actor.plazaSeat], d = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
+        if (stepOff) actor.position = point(d[1] + s.x + Math.sin(s.heading) * 0.55, d[2] + s.z + Math.cos(s.heading) * 0.55);
+        delete actor.plazaSeat;
+        actor.seated = false;
+      }
+      delete actor.plazaSeatReservation;
+    }
+    function restInPlaza(actor) {
+      if (actor.id === "main" || actor.action !== "\u793E\u4EA4" || actor.forcedSleep || celebration) return false;
+      const index = plazaSeats.findIndex((_, i2) => plazaSeatAvailable(i2, actor.id));
+      if (index < 0) return false;
+      const s = plazaSeats[index], d = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
+      actor.plazaSeatReservation = index;
+      actor.partner = null;
+      actor.speech = "\u53BB\u957F\u6905\u4E0A\u6B47\u4E00\u4F1A\u513F";
+      actor.action = "\u5E7F\u573A\u5C0F\u61A9";
+      if (go(actor, point(d[1] + s.x + Math.sin(s.heading) * 0.55, d[2] + s.z + Math.cos(s.heading) * 0.55), "plaza-seat-ready")) return true;
+      delete actor.plazaSeatReservation;
+      return false;
+    }
     function complete(actor) {
+      if (restInPlaza(actor)) return;
       actor.completed++;
       actor.visited.add(actor.destination);
       onEvent({ id: actor.id, type: "activity", action: actor.action, place: actor.destination });
@@ -33128,7 +33164,7 @@ void main() {
             actor.phase = "meeting";
             actor.wait = 35;
             actor.speech = "\u7B49\u670B\u53CB\u4E00\u8D77\u804A\u804A";
-            go(actor, point(-1.9 + (actors.size ? [...actors.keys()].indexOf(actor.id) % 4 * 0.85 : 0), 0.65), "meeting");
+            go(actor, point(-1.9 + (actors.size ? [...actors.keys()].indexOf(actor.id) % 4 * 0.85 : 0), 0.1), "meeting");
           } else {
             actor.wait = 0;
             if (actor.destination === "\u5893\u5730") go(actor, point(d[1], d[2]), "using");
@@ -33137,6 +33173,35 @@ void main() {
               actor.phase = "using";
             }
           }
+        } else if (actor.phase === "plaza-seat-ready") {
+          const index = actor.plazaSeatReservation;
+          if (!plazaSeatAvailable(index, actor.id)) {
+            releasePlazaSeat(actor);
+            complete(actor);
+            continue;
+          }
+          const s = plazaSeats[index], d = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
+          go(actor, point(d[1] + s.x, d[2] + s.z), "plaza-sit", true);
+        } else if (actor.phase === "plaza-sit") {
+          const index = actor.plazaSeatReservation;
+          delete actor.plazaSeatReservation;
+          actor.plazaSeat = index;
+          actor.seated = true;
+          actor.heading = plazaSeats[index].heading;
+          actor.phase = "plaza-rest";
+          actor.wait = 18 + index * 3;
+          actor.speech = "\u5750\u4E00\u4F1A\u513F\uFF0C\u770B\u770B\u5E7F\u573A\u7684\u98CE\u666F";
+        } else if (actor.phase === "plaza-rest") {
+          actor.wait -= dt;
+          if (actor.wait <= 0) {
+            const s = plazaSeats[actor.plazaSeat], d = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
+            actor.plazaSeatLeaving = actor.plazaSeat;
+            releasePlazaSeat(actor, false);
+            go(actor, point(d[1] + s.x + Math.sin(s.heading) * 0.55, d[2] + s.z + Math.cos(s.heading) * 0.55), "plaza-rest-done", true);
+          }
+        } else if (actor.phase === "plaza-rest-done") {
+          delete actor.plazaSeatLeaving;
+          complete(actor);
         } else if (actor.phase === "celebrating") {
           actor.heading = Math.atan2(-actor.position.x, -1.3 - actor.position.z);
           actor.speech = celebration ? celebration.birthdays.includes(actor.id) ? "\u8C22\u8C22\u5927\u5BB6\u966A\u6211\u8FC7\u751F\u65E5\uFF01" : celebration.birthdays.length ? "\u751F\u65E5\u5FEB\u4E50\uFF01\u4E00\u8D77\u5206\u4EAB\u5C0F\u86CB\u7CD5\u5427\uFF01" : "\u4ED3\u9F20\u670B\u53CB\u4EEC\uFF0C\u8282\u65E5\u5FEB\u4E50\uFF01" : "";
@@ -33172,7 +33237,7 @@ void main() {
           if (friend) {
             actor.partner = friend.id;
             friend.partner = actor.id;
-            const middle = point((actor.position.x + friend.position.x) / 2, 0.8);
+            const middle = point((actor.position.x + friend.position.x) / 2, 0.1);
             go(actor, point(middle.x - 0.33, middle.z), "meet-ready");
             go(friend, point(middle.x + 0.33, middle.z), "meet-ready");
           } else {
@@ -33218,7 +33283,15 @@ void main() {
         other.phase = "idle";
         other.wait = 1;
       }
-      if (requested && (actor.memorialSeat || actor.clinicSeat || actor.restaurantSeat !== void 0 || actor.schoolSeat !== void 0)) {
+      if (requested) {
+        if (actor.plazaSeat !== void 0) {
+          actor.controlled = false;
+          actor.platformHeight = 0;
+        }
+        releasePlazaSeat(actor);
+      }
+      if (requested && (actor.plazaSeat !== void 0 || actor.memorialSeat || actor.clinicSeat || actor.restaurantSeat !== void 0 || actor.schoolSeat !== void 0)) {
+        delete actor.plazaSeat;
         delete actor.memorialSeat;
         actor.clinicSeat = 0;
         delete actor.restaurantSeat;
@@ -33247,6 +33320,10 @@ void main() {
       celebration = next;
       for (const actor of actors.values()) {
         if (actor.frozen || actor.forcedSleep) continue;
+        if (!actor.controlled) {
+          releasePlazaSeat(actor);
+          delete actor.plazaSeatLeaving;
+        }
         actor.partner = null;
         actor.speech = "";
         actor.path = [];
@@ -33254,7 +33331,7 @@ void main() {
         actor.wait = 0;
       }
     }
-    return { actors, add, tick, setResting, setCelebration, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
+    return { actors, add, tick, setResting, setCelebration, plazaSeatAvailable, releasePlazaSeat, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
   }
 
   // src/town-lights.js
@@ -34215,6 +34292,84 @@ void main() {
     return house;
   }
 
+  // src/town-plaza-statue.js
+  function createPlazaStatue() {
+    const statue = new Group();
+    statue.name = "\u9F20\u9F20\u5B88\u62A4\u795E\u50CF";
+    const bronze = new MeshStandardMaterial({ color: 11897678, metalness: 0.78, roughness: 0.34 });
+    const gold = new MeshStandardMaterial({ color: 14924911, metalness: 0.8, roughness: 0.27 });
+    const recess = new MeshStandardMaterial({ color: 5325620, metalness: 0.6, roughness: 0.48 });
+    const stone = new MeshStandardMaterial({ color: 14734521, roughness: 0.78 });
+    const glow = new MeshStandardMaterial({ color: 16767885, metalness: 0.4, roughness: 0.3, emissive: 16758860, emissiveIntensity: 0.22 });
+    const mesh = (geometry, material2, x2, y, z) => {
+      const m = new Mesh(geometry, material2);
+      m.position.set(x2, y, z);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      statue.add(m);
+      return m;
+    };
+    const oval = (x2, y, z, sx, sy, sz, material2 = bronze) => {
+      const m = mesh(new SphereGeometry(1, 32, 24), material2, x2, y, z);
+      m.scale.set(sx, sy, sz);
+      return m;
+    };
+    const tube = (points, r, material2 = gold) => mesh(new TubeGeometry(new CatmullRomCurve3(points.map((p) => new Vector3(...p))), 20, r, 8, false), material2, 0, 0, 0);
+    for (const [r, h, y, m] of [[0.49, 0.12, 0.32, stone], [0.43, 0.055, 0.408, gold], [0.37, 0.15, 0.51, stone], [0.39, 0.035, 0.602, gold]]) mesh(new CylinderGeometry(r, r, h, 64), m, 0, y, 0);
+    for (let i2 = 0; i2 < 16; i2++) {
+      const a = i2 * Math.PI / 8;
+      oval(Math.sin(a) * 0.375, 0.51, Math.cos(a) * 0.375, 0.015, 0.05, 0.015, gold);
+    }
+    oval(0, 1.01, 0, 0.32, 0.43, 0.245);
+    oval(0, 1.06, 0.207, 0.2, 0.3, 0.055, gold);
+    for (const side of [-1, 1]) {
+      oval(side * 0.18, 0.646, 0.115, 0.125, 0.063, 0.17);
+      for (let i2 = 0; i2 < 3; i2++) tube([[side * 0.18 + (i2 - 1) * 0.035, 0.65, 0.24], [side * 0.18 + (i2 - 1) * 0.035, 0.667, 0.27]], 8e-3, recess);
+    }
+    oval(0, 1.47, 0.035, 0.32, 0.295, 0.265);
+    for (const side of [-1, 1]) {
+      oval(side * 0.25, 1.695, 0.015, 0.137, 0.155, 0.077);
+      oval(side * 0.25, 1.706, 0.079, 0.084, 0.102, 0.019, gold);
+      oval(side * 0.25, 1.711, 0.091, 0.05, 0.065, 9e-3, recess);
+      oval(side * 0.215, 1.395, 0.199, 0.14, 0.135, 0.109);
+      oval(side * 0.122, 1.526, 0.263, 0.057, 0.073, 0.022, recess);
+      oval(side * 0.119, 1.54, 0.284, 0.019, 0.025, 8e-3, gold);
+      oval(side * 0.063, 1.39, 0.296, 0.073, 0.061, 0.043, gold);
+      tube([[side * 0.06, 1.355, 0.302], [side * 0.105, 1.345, 0.283], [side * 0.14, 1.369, 0.272]], 9e-3, recess);
+      for (let i2 = 0; i2 < 3; i2++) tube([[side * 0.125, 1.394 - i2 * 0.016, 0.277], [side * 0.24, 1.402 + (i2 - 1) * 0.027, 0.292], [side * 0.36, 1.412 + (i2 - 1) * 0.049, 0.262]], 6e-3, gold);
+      const arm = oval(side * 0.23, 1.028, 0.205, 0.094, 0.205, 0.095);
+      arm.rotation.z = side * 0.5;
+      oval(side * 0.124, 0.947, 0.35, 0.071, 0.068, 0.072, gold);
+    }
+    oval(0, 1.423, 0.335, 0.047, 0.03, 0.023, recess);
+    tube([[0, 1.4, 0.336], [0, 1.363, 0.337]], 9e-3, recess);
+    const seed = oval(0, 1.037, 0.354, 0.086, 0.135, 0.065, gold);
+    seed.rotation.z = -0.15;
+    tube([[0, 0.922, 0.411], [-0.013, 1.025, 0.423], [5e-3, 1.151, 0.398]], 7e-3, recess);
+    tube([[-0.23, 1.25, 0.14], [0, 1.175, 0.263], [0.23, 1.25, 0.14]], 0.025, gold);
+    oval(0, 1.171, 0.278, 0.044, 0.055, 0.017, glow);
+    const halo = mesh(new TorusGeometry(0.49, 0.018, 10, 96), gold, 0, 1.53, -0.205);
+    halo.name = "Sun halo";
+    mesh(new TorusGeometry(0.53, 6e-3, 6, 96), glow, 0, 1.53, -0.205);
+    for (let i2 = 0; i2 < 15; i2++) {
+      const a = -Math.PI * 0.35 + i2 * Math.PI * 1.7 / 14, inner = 0.565, outer = i2 % 2 ? 0.61 : 0.665;
+      tube([[Math.cos(a) * inner, 1.53 + Math.sin(a) * inner, -0.205], [Math.cos(a) * outer, 1.53 + Math.sin(a) * outer, -0.205]], 9e-3, gold);
+    }
+    const target = new Object3D();
+    target.position.set(0, 1.3, 0.1);
+    statue.add(target);
+    const key = new SpotLight(16768154, 13, 7, 0.43, 0.65, 2);
+    key.position.set(-1.45, 3.15, 2);
+    key.target = target;
+    statue.add(key);
+    const rim = new SpotLight(16762225, 9, 5, 0.48, 0.75, 2);
+    rim.position.set(1.15, 2.35, -1.35);
+    rim.target = target;
+    statue.add(rim);
+    statue.userData.lights = [key, rim];
+    return statue;
+  }
+
   // src/town-grounds.js
   var mat = (color, extra = {}) => new MeshStandardMaterial({ color, roughness: 0.85, ...extra });
   function kit2(group) {
@@ -34377,7 +34532,7 @@ void main() {
     return group;
   }
   function createPlaza() {
-    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7"), bronze = mat("#ad8950", { metalness: 0.72, roughness: 0.35 });
+    const group = new Group(), { box: box2, oval, tube } = kit2(group), wood = mat("#ffffff", { map: woodTexture() }), stone = mat("#d1c4a7");
     const floor = new Mesh(new CylinderGeometry(1, 1, 0.14, 64), mat("#b6aa90"));
     floor.scale.set(3.15 * Math.SQRT2, 1, 1.8 * Math.SQRT2);
     floor.position.y = 0.02;
@@ -34402,24 +34557,15 @@ void main() {
     water.rotation.x = -Math.PI / 2;
     water.position.y = 0.2;
     group.add(water);
-    const pedestal = new Mesh(new CylinderGeometry(0.26, 0.33, 0.23, 24), bronze);
-    pedestal.position.y = 0.31;
-    group.add(pedestal);
-    oval(0, 0.86, 0, 0.35, 0.46, 0.29, bronze);
-    oval(0, 1.24, 0.02, 0.3, 0.25, 0.27, bronze);
-    [-1, 1].forEach((side) => {
-      oval(side * 0.22, 1.45, 0.02, 0.13, 0.16, 0.07, bronze);
-      oval(side * 0.11, 1.24, 0.25, 0.037, 0.045, 0.025, mat("#453c28", { metalness: 0.8 }));
-      oval(side * 0.2, 0.74, 0.22, 0.085, 0.15, 0.075, bronze);
-      oval(side * 0.19, 0.45, 0.2, 0.11, 0.06, 0.13, bronze);
-    });
-    oval(0, 1.16, 0.295, 0.05, 0.035, 0.035, bronze);
-    tube([[-0.09, 1.1, 0.27], [0, 1.07, 0.3], [0.09, 1.1, 0.27]], 8e-3, bronze);
+    const statue = createPlazaStatue();
+    group.add(statue);
+    group.userData.statue = statue;
     for (let i2 = 0; i2 < 4; i2++) {
       const a = i2 * Math.PI / 2;
       tube([[Math.cos(a) * 0.35, 0.32, Math.sin(a) * 0.35], [Math.cos(a) * 0.48, 0.62, Math.sin(a) * 0.48], [Math.cos(a) * 0.61, 0.21, Math.sin(a) * 0.61]], 0.011, mat("#b9d9e0", { transparent: true, opacity: 0.7, roughness: 0.15 }));
     }
     const furnitureStart = group.children.length;
+    group.userData.plazaSeats = [];
     const bench = (x2, z, rotation) => {
       const seat = new Group(), k = kit2(seat);
       for (let i2 = 0; i2 < 3; i2++) k.box(0.82, 0.045, 0.08, 0, 0.3, -0.08 + i2 * 0.09, wood);
@@ -34428,16 +34574,16 @@ void main() {
         k.box(0.055, 0.3, 0.24, x3, 0.15, 0, wood);
         k.box(0.045, 0.4, 0.045, x3, 0.42, -0.14, wood);
       });
-      seat.position.set(x2, 0, z);
+      seat.position.set(x2, 0.14, z);
       seat.rotation.y = rotation;
+      const index = group.userData.plazaSeats.push(seat) - 1;
+      seat.traverse((o) => {
+        o.userData.townAction = "plaza-seat";
+        o.userData.seatIndex = index;
+      });
       group.add(seat);
     };
-    bench(-2.45, 0.7, 0.5);
-    bench(2.45, 0.7, -0.5);
-    bench(1.9, -1.1, Math.PI);
-    bench(-1.9, -1.1, Math.PI);
-    bench(-0.7, 1.45, 0);
-    bench(0.7, 1.45, 0);
+    for (const seat of plazaSeats) bench(seat.x, seat.z, seat.heading);
     const board = (x2, z, title, action) => {
       box2(0.85, 0.8, 0.1, x2, 0.74, z, wood);
       [-0.35, 0.35].forEach((dx) => box2(0.06, 1.2, 0.06, x2 + dx, 0.6, z, wood));
@@ -34497,6 +34643,7 @@ void main() {
       cake.visible = !!event?.birthdays?.length;
     };
     for (const item of group.children.slice(furnitureStart)) {
+      if (item.userData.townAction === "plaza-seat") continue;
       item.position.x *= Math.SQRT2;
       item.position.z *= Math.SQRT2;
     }
@@ -38787,6 +38934,15 @@ void main() {
           }
         }
       }
+      const plazaPose = actor.plazaSeat ?? (actor.phase === "moving" && actor.arrival === "plaza-sit" ? actor.plazaSeatReservation : actor.plazaSeatLeaving);
+      if (plazaPose !== void 0) {
+        const seat = plazaSeats[plazaPose], plaza = placeModels.get("\u4E2D\u5FC3\u5E7F\u573A"), d = Math.hypot(actor.position.x - plaza.position.x - seat.x, actor.position.z - plaza.position.z - seat.z);
+        rig.position.y = seat.y * Math.max(0, 1 - d / 0.55);
+        poseBone(rig, "LeftUpLeg", -1.05);
+        poseBone(rig, "RightUpLeg", -1.05);
+        poseBone(rig, "LeftLeg", 1.1);
+        poseBone(rig, "RightLeg", 1.1);
+      }
       if (actor.memorialSeat) {
         rig.position.y = actor.memorialSeat === "inside" ? 0.625 : 0.4325;
         poseBone(rig, "LeftUpLeg", -1.05);
@@ -39349,7 +39505,8 @@ void main() {
     }
     function returnToTown() {
       const actor = life.actors.get("main");
-      if (actor?.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
+      if (actor?.plazaSeat !== void 0) togglePlazaSeat(actor.plazaSeat);
+      else if (actor?.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
       else if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
       else if (actor?.schoolSeat !== void 0) toggleSchoolSeat(actor.schoolSeat);
       else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
@@ -39501,7 +39658,7 @@ void main() {
       playerKeys.clear();
       document.exitPointerLock?.();
       if (actor) {
-        actor.controlled = !!actor.inside || !!actor.clinicSeat || !!actor.memorialSeat;
+        actor.controlled = !!actor.inside || !!actor.clinicSeat || !!actor.memorialSeat || actor.plazaSeat !== void 0;
         actor.phase = actor.controlled ? "controlled" : "idle";
         actor.wait = 1;
         actor.moving = false;
@@ -39634,12 +39791,27 @@ void main() {
         const door = portalPoint(portal), d = Math.hypot(position.x - door.x, position.z - door.z);
         camera.position.y += portal.layout.floor * Math.max(0, 1 - d / 0.8);
       }
-      camera.position.y += (actor.memorialSeat ? actor.memorialSeat === "inside" ? 1.08 * room.scale.y : 0.88 : actor.clinicSeat ? 0.7 : actor.schoolSeat !== void 0 ? placeModels.get("\u9F20\u9F20\u5B66\u6821").userData.schoolSeats[actor.schoolSeat].y + 0.45 : actor.restaurantSeat !== void 0 ? 0.72 * room.scale.y : actor.seated ? 0.68 : 0.52) + jumpHeight;
+      camera.position.y += (actor.plazaSeat !== void 0 ? plazaSeats[actor.plazaSeat].y + 0.45 : actor.memorialSeat ? actor.memorialSeat === "inside" ? 1.08 * room.scale.y : 0.88 : actor.clinicSeat ? 0.7 : actor.schoolSeat !== void 0 ? placeModels.get("\u9F20\u9F20\u5B66\u6821").userData.schoolSeats[actor.schoolSeat].y + 0.45 : actor.restaurantSeat !== void 0 ? 0.72 * room.scale.y : actor.seated ? 0.68 : 0.52) + jumpHeight;
       camera.rotation.order = "YXZ";
       camera.rotation.set(playerPitch, playerYaw, 0);
       camera.updateMatrixWorld();
     }
     function playerInteract(source = "keyboard") {
+      const plazaActor = life.actors.get("main");
+      if (plazaActor?.plazaSeat !== void 0) {
+        togglePlazaSeat(plazaActor.plazaSeat);
+        return;
+      }
+      if (source === "keyboard" && plazaActor && !plazaActor.inside) {
+        const plaza = placeModels.get("\u4E2D\u5FC3\u5E7F\u573A");
+        for (const [index, seat] of plaza.userData.plazaSeats.entries()) {
+          const point2 = seat.getWorldPosition(new Vector3());
+          if (Math.hypot(plazaActor.position.x - point2.x, plazaActor.position.z - point2.z) < 0.7) {
+            togglePlazaSeat(index);
+            return;
+          }
+        }
+      }
       const memorialActor = life.actors.get("main");
       if (memorialActor?.memorialSeat) {
         toggleMemorialSeat(memorialActor.memorialSeat);
@@ -39725,6 +39897,10 @@ void main() {
           window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id: node.userData.pupId } }));
           return;
         }
+        if (node?.userData.townAction === "plaza-seat") {
+          togglePlazaSeat(node.userData.seatIndex);
+          return;
+        }
         if (node?.userData.roomAction === "memorial-seat" || node?.userData.townAction === "memorial-seat") {
           toggleMemorialSeat(node.userData.seatLocation);
           return;
@@ -39784,7 +39960,8 @@ void main() {
           if (!e.repeat) playerInteract();
         } else if (e.code === "Space") {
           const actor = life.actors.get("main"), seated = actor?.seated;
-          if (actor?.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
+          if (actor?.plazaSeat !== void 0) togglePlazaSeat(actor.plazaSeat);
+          else if (actor?.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
           else if (actor?.clinicSeat) toggleClinicSeat(actor.clinicSeat);
           else if (actor?.schoolSeat !== void 0) toggleSchoolSeat(actor.schoolSeat);
           else if (actor?.restaurantSeat !== void 0) toggleRestaurantSeat(actor.restaurantSeat);
@@ -39807,7 +39984,7 @@ void main() {
     function enterHall() {
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep) return false;
-      if (actor.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
+      if (actor.plazaSeat !== void 0) togglePlazaSeat(actor.plazaSeat);
       if (actor.memorialSeat) toggleMemorialSeat(actor.memorialSeat);
       if (firstPerson) stopFirstPerson();
       if (activePlace) leavePlace();
@@ -39854,6 +40031,48 @@ void main() {
       distance2 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
       positionCamera();
       window.dispatchEvent(new CustomEvent("town-exhibit-select", { detail: { title: exhibit.userData.hallExhibit } }));
+      return true;
+    }
+    function togglePlazaSeat(index) {
+      const actor = life.actors.get("main"), plaza = placeModels.get("\u4E2D\u5FC3\u5E7F\u573A"), seat = plaza.userData.plazaSeats[index];
+      if (!actor || actor.frozen || actor.forcedSleep || actor.inside || !seat) return false;
+      if (actor.plazaSeat !== void 0) {
+        const old = plaza.userData.plazaSeats[actor.plazaSeat], point3 = old.localToWorld(new Vector3(0, 0, 0.55));
+        actor.position = { x: point3.x, z: point3.z };
+        delete actor.plazaSeat;
+        actor.seated = false;
+        actor.controlled = firstPerson;
+        actor.phase = firstPerson ? "controlled" : "idle";
+        actor.action = "\u4F11\u606F";
+        return false;
+      }
+      if (actor.seated) return false;
+      if (!life.plazaSeatAvailable(index, actor.id)) {
+        sayAsMain("\u8FD9\u5F20\u957F\u6905\u6709\u670B\u53CB\u5728\u4F11\u606F\uFF0C\u6362\u4E00\u5F20\u5427\u3002");
+        return false;
+      }
+      const point2 = seat.getWorldPosition(new Vector3());
+      if (firstPerson && Math.hypot(actor.position.x - point2.x, actor.position.z - point2.z) > 0.8) return false;
+      actor.position = { x: point2.x, z: point2.z };
+      actor.plazaSeat = index;
+      actor.seated = true;
+      actor.controlled = true;
+      actor.phase = "controlled";
+      actor.path = [];
+      actor.partner = null;
+      actor.moving = false;
+      actor.platformHeight = 0;
+      actor.place = actor.destination = "\u4E2D\u5FC3\u5E7F\u573A";
+      actor.heading = plaza.rotation.y + seat.rotation.y;
+      actor.action = "\u5750\u5728\u5E7F\u573A\u957F\u6905\u4E0A";
+      actor.speech = "";
+      if (firstPerson) {
+        playerYaw = actor.heading + Math.PI;
+        playerPitch = 0;
+        playerKeys.clear();
+        jumpHeight = 0;
+        jumpVelocity = 0;
+      }
       return true;
     }
     function toggleMemorialSeat(location) {
@@ -40055,7 +40274,8 @@ void main() {
         if (hit) {
           let object = hit.object;
           while (object && !Number.isInteger(object.userData.npcIndex) && !object.userData.mainPet && !object.userData.pupId && !object.userData.roomAction && !object.userData.townAction && !object.userData.place) object = object.parent;
-          if (object?.userData.roomAction === "memorial-seat" || object?.userData.townAction === "memorial-seat") toggleMemorialSeat(object.userData.seatLocation);
+          if (object?.userData.townAction === "plaza-seat") togglePlazaSeat(object.userData.seatIndex);
+          else if (object?.userData.roomAction === "memorial-seat" || object?.userData.townAction === "memorial-seat") toggleMemorialSeat(object.userData.seatLocation);
           else if (object?.userData.roomAction === "restaurant-seat") toggleRestaurantSeat(object.userData.seatIndex);
           else if (object?.userData.townAction === "school-seat") toggleSchoolSeat(object.userData.seatIndex);
           else if (object?.userData.townAction?.startsWith("school-")) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.townAction } }));
