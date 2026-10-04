@@ -114,11 +114,12 @@ export function createCemetery(){
  // Niches in the rear wall hold small memorial urns.
  box(1.78,1.08,.24,0,.64,-1.27,stone);for(let row=0;row<3;row++)for(let col=0;col<5;col++){const x=-.7+col*.35,y=.3+row*.32;box(.29,.24,.025,x,y,-1.135,iron);oval(x,y-.015,-1.08,.063,.075,.05,cap)}
  storeSign(group,'鼠鼠纪念墓园',-1.25,.29,1.622,1.25,.22,'#d2bd93','#66533c');
- const graves=new THREE.Group();group.add(graves);let signature='';
- group.userData.setMemorials=items=>{const records=items.slice(-8),key=JSON.stringify(records.map(m=>[m.id,m.name]));if(key===signature)return;signature=key;while(graves.children.length){const child=graves.children[0];child.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.map?.dispose();o.material.dispose()}});graves.remove(child)}const k=kit(graves);
+ const graves=new THREE.Group();group.add(graves);let signature='',allRecords=[],wallPage=0;
+ group.userData.setMemorials=items=>{allRecords=[...new Map(items.map(m=>[m.id,m])).values()];const records=allRecords.slice(0,8),overflow=allRecords.slice(8);wallPage=Math.min(wallPage,Math.max(0,Math.ceil(overflow.length/15)-1));const key=JSON.stringify([allRecords.map(m=>[m.id,m.name]),wallPage]);if(key===signature)return;signature=key;while(graves.children.length){const child=graves.children[0];child.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.map?.dispose();o.material.dispose()}});graves.remove(child)}const k=kit(graves);
   for(let i=0;i<8;i++){const side=i<4?-1:1,x=side*(.88+(i%2)*.6),z=i%4<2?-.65:.85;k.box(.38,.06,.5,x,.12,z,cap);k.box(.26,.26,.07,x,.28,z-.14,stone);k.oval(x,.41,z-.14,.13,.09,.04,stone);const item=records[i];if(item){storeSign(graves,item.name,x,.29,z-.096,.24,.1,'#b9b7a6','#4b5345');k.oval(x+.12,.18,z+.13,.07,.035,.06,leaf);k.oval(x+.12,.23,z+.13,.045,.025,.035,mat('#dcc7b0'))}}
-  group.userData.memorialNames=records.map(m=>m.name);
- };group.userData.setMemorials([]);group.userData.footprint=4.2*3.2;group.userData.gate={x:0,z:1.6};return group;
+  overflow.slice(wallPage*15,wallPage*15+15).forEach((item,i)=>{const x=-.7+(i%5)*.35,y=.3+Math.floor(i/5)*.32;storeSign(graves,item.name,x,y-.09,-1.045,.29,.085,'#c9c4ad','#433e35')});
+  group.userData.memorialNames=allRecords.map(m=>m.name);group.userData.graveNames=records.map(m=>m.name);group.userData.wallNames=overflow.map(m=>m.name);group.userData.wallPage=wallPage;group.userData.wallPages=Math.max(1,Math.ceil(overflow.length/15));
+ };group.userData.setMemorialPage=page=>{wallPage=Math.max(0,Math.floor(page));group.userData.setMemorials(allRecords)};group.userData.setMemorials([]);group.userData.footprint=4.2*3.2;group.userData.gate={x:0,z:1.6};return group;
 }
 export function createSchool(){
  const group=new THREE.Group(),{box,oval}=kit(group),wood=mat('#ffffff',{map:woodTexture()}),roof=mat('#aa7245'),stone=mat('#c4baa4'),green=mat('#365d4b'),stepWood=mat('#b78956',{map:woodTexture()}),seatWood=mat('#9f7145',{map:woodTexture()}),gold=mat('#c8a155',{metalness:.65,roughness:.35});

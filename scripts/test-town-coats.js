@@ -11,7 +11,7 @@ assert.equal(legacy.npcs[0].coat,undefined,'migration does not change input resi
 state.mainCoat='silver';state.npcs[0].coat='pudding';state.npcs[0].relationship=90;state.lifeStage='成年';
 const born=sim.breed(state,'npc-0');assert.equal(born.ok,true);
 assert.ok(born.state.offspring.every(p=>keys.includes(p.coat)));
-const adopted=sim.adopt(born.state,born.state.offspring[0].id);assert.equal(adopted.state.mainCoat,born.state.offspring[0].coat);
+born.state.alive=false;const adopted=sim.adopt(born.state,born.state.offspring[0].id);assert.equal(adopted.state.mainCoat,born.state.offspring[0].coat);
 const colors=new Set();let inherited=0,total=0;
 for(let i=0;i<160;i++){
   const pair=sim.breedNpcPair(state,'npc-0','npc-1',now+i*1000);assert.equal(pair.ok,true);

@@ -877,3 +877,4 @@ body[data-town-view="first-person"] .town-birth-ticker{top:14px;bottom:auto;left
 @media(prefers-reduced-motion:reduce){.town-birth-track{animation:none}.town-birth-window{overflow-x:auto}}
 
 body[data-current-panel="town"] .town-cards:has(#townRecruitButton:not([hidden])){max-width:min(560px,calc(100% - 44px));flex-wrap:wrap;justify-content:flex-end}.town-cards #townRecruitButton{white-space:nowrap;flex-shrink:0}
+#townSuccession{box-sizing:border-box;overflow-x:hidden}#townSuccession .town-visitor-card>b{padding-left:26px;min-height:20px}#townSuccession>label{display:flex;align-items:center;gap:10px;margin-top:14px}#townSuccessorName,#townSuccessorSex,#townMainName{padding:7px 10px;border:1px solid #a8b8a0;border-radius:7px;background:#fffef8;color:#425440;font:inherit}#townSuccessorName{min-width:0;flex:1}
