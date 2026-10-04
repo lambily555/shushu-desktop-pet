@@ -33569,21 +33569,22 @@ void main() {
   var palettes = { silver: [13488341, 16776695], pudding: [13738062, 16775913], "three-line": [4277581, 14868953], violet: [7828878, 15526384] };
   var texture;
   var materials = /* @__PURE__ */ new Map();
-  function furMaterial(coat = "three-line") {
+  function furMaterial(coat = "three-line", age = 0) {
     if (!Object.hasOwn(palettes, coat)) coat = "three-line";
-    if (materials.has(coat)) return materials.get(coat);
+    const loss = Math.round(Math.max(0, Math.min(1, (age - 1.5) / 1.5)) * 20) / 20, key = coat + ":" + loss;
+    if (materials.has(key)) return materials.get(key);
     if (!texture) {
       texture = new TextureLoader().load("../assets/models/booth-hamster/restored/Assets/Ham/Texture/Ham.png");
       texture.colorSpace = SRGBColorSpace;
     }
     const [dark, light] = palettes[coat], material2 = new MeshStandardMaterial({ map: texture, roughness: 0.94 });
     material2.userData.hamsterFur = true;
-    if (coat === "three-line") {
-      material2.color.setHex(10198424);
-      materials.set(coat, material2);
+    if (coat === "three-line") material2.color.setHex(10198424);
+    if (coat === "three-line" && !loss) {
+      materials.set(key, material2);
       return material2;
     }
-    material2.onBeforeCompile = (shader) => {
+    if (coat !== "three-line") material2.onBeforeCompile = (shader) => {
       shader.uniforms.coatDark = { value: new Color(dark) };
       shader.uniforms.coatLight = { value: new Color(light) };
       shader.fragmentShader = "uniform vec3 coatDark;\nuniform vec3 coatLight;\n" + shader.fragmentShader;
@@ -33597,15 +33598,33 @@ void main() {
       diffuseColor *= sampledDiffuseColor;
     `));
     };
-    material2.customProgramCacheKey = () => "hamster-coat-v1";
-    materials.set(coat, material2);
+    if (loss) {
+      const recolor = material2.onBeforeCompile;
+      material2.onBeforeCompile = (shader) => {
+        recolor(shader);
+        shader.vertexShader = "varying vec3 furSurface;\n" + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nfurSurface=normalize(position+vec3(0.0001));");
+        shader.fragmentShader = "varying vec3 furSurface;\n" + shader.fragmentShader;
+        shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+      float sparse=sin(furSurface.x*17.0)*sin(furSurface.y*13.0)+0.25*sin(furSurface.z*19.0+furSurface.y*11.0);
+      float furPatch=smoothstep(1.1-${loss.toFixed(2)}*1.25,1.3-${loss.toFixed(2)}*.7,sparse);
+      float neutral=1.0-smoothstep(.015,.055,texture2D(map,vMapUv).r-texture2D(map,vMapUv).g);
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.48,.32,.28),furPatch*neutral*${(loss * 0.24).toFixed(3)});
+    `);
+      };
+    }
+    material2.customProgramCacheKey = () => "hamster-coat-v2-" + key;
+    materials.set(key, material2);
     return material2;
   }
-  function setHamsterCoat(rig, coat = "three-line") {
+  function setHamsterCoat(rig, coat = "three-line", age = 0) {
     if (!Object.hasOwn(palettes, coat)) coat = "three-line";
-    if (rig.userData.coat === coat) return;
+    const ageStep = Math.round(Math.max(0, Math.min(1, (age - 1.5) / 1.5)) * 20);
+    if (rig.userData.coat === coat && rig.userData.furStep === ageStep) return;
+    rig.userData.furStep = ageStep;
+    rig.userData.furAge = age;
     rig.userData.coat = coat;
-    const material2 = furMaterial(coat);
+    const material2 = furMaterial(coat, age);
     rig.traverse((child) => {
       if (child.isMesh) {
         const replace = (m) => m?.userData.hamsterFur ? material2 : m;
@@ -33793,9 +33812,13 @@ void main() {
       const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "Mariah Carey\u540D\u4EBA\u5802", "\u4E2D\u5FC3\u5E7F\u573A"];
       const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
       actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
+      const frailty = actor.aging?.frailty || 0, resting = frailty > 0 && (actor.cycle * 37 % 100 / 100 < frailty * 0.65 || actor.destination === "\u8DD1\u8F6E\u516C\u56ED" && actor.cycle * 19 % 100 / 100 < frailty * 0.9);
+      if (resting) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
+      if ((actor.health ?? 100) < 55) actor.destination = "\u8BCA\u6240";
       if (actor.destination === "\u4E2D\u5FC3\u5E7F\u573A" && actor.allowSocial === false) actor.destination = "\u9F20\u9F20\u5C0F\u5C4B";
       actor.action = byName.get(actor.destination)[4];
       if (actor.destination === "\u9F20\u9F20\u5C0F\u5C4B") actor.action = actor.child && actor.age < 0.18 ? "\u7761\u89C9" : actor.cycle % 3 === 0 ? "\u996E\u6C34" : day ? "\u4F11\u606F" : "\u8FDB\u98DF";
+      if (resting && actor.destination === "\u9F20\u9F20\u5C0F\u5C4B") actor.action = "\u7761\u89C9";
       go(actor, entrance(actor.destination), "arrived");
     }
     function plazaSeatAvailable(index, id) {
@@ -33839,7 +33862,7 @@ void main() {
         actor.moving = false;
         if (actor.frozen || actor.controlled) continue;
         if (actor.phase === "moving") {
-          let budget = dt * (actor.child ? 0.48 : 0.72);
+          let budget = dt * (actor.child ? 0.48 : 0.72) * (actor.aging?.movement ?? 1);
           while (budget > 0 && actor.path.length) {
             const target = actor.path[0], dist = distance(actor.position, target);
             if (dist > 1e-3) {
@@ -33930,7 +33953,7 @@ void main() {
             continue;
           }
           if (actor.wait <= 0) {
-            actor.wait = day ? 24 : 12;
+            actor.wait = (day ? 24 : 12) * (actor.action === "\u7761\u89C9" ? actor.aging?.sleep ?? 1 : 1);
             actor.phase = "activity";
             if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
@@ -39350,7 +39373,7 @@ void main() {
         child.receiveShadow = true;
         const material2 = (original) => {
           const name = (child.name + " " + (original?.name || "")).toLowerCase();
-          return name.includes("eye") ? eye : name.includes("hige") || name.includes("whisk") ? whisker : furMaterial(rig.userData.coat);
+          return name.includes("eye") ? eye : name.includes("hige") || name.includes("whisk") ? whisker : furMaterial(rig.userData.coat, rig.userData.furAge || 0);
         };
         child.material = Array.isArray(child.material) ? child.material.map(material2) : material2(child.material);
       });
@@ -39626,6 +39649,9 @@ void main() {
       if (worldState.alive !== false || worldState.pendingFarewell?.phase === "resting") {
         ids.add("main");
         const a = life.add("main", "\u9F20\u9F20\u5C0F\u5C4B", { name: "\u9F20\u9F20" });
+        a.age = worldState.ageYears ?? 0.7;
+        a.aging = window.TownSimulation.agingProfile(a.age);
+        a.health = worldState.health;
         a.allowSocial = worldState.socialAllowed !== false;
         a.frozen = worldState.alive === false;
         if (a.frozen) {
@@ -39644,6 +39670,9 @@ void main() {
         resident.lifeId = id;
         ids.add(id);
         const a = life.add(id, data?.place || places[i2]?.[0] || "\u9F20\u9F20\u5C0F\u5C4B", { name: data?.name || roles[i2] || "\u65B0\u90BB\u5C45" });
+        a.age = data?.ageYears ?? 0.7;
+        a.aging = window.TownSimulation.agingProfile(a.age);
+        a.health = data?.health;
         a.allowSocial = (worldState.npcSocialCounts?.[id] || 0) < 6;
       });
       pups.forEach((item) => {
@@ -39657,6 +39686,8 @@ void main() {
           a.wait = 24;
         }
         a.age = item.data.ageYears;
+        a.aging = window.TownSimulation.agingProfile(a.age);
+        a.health = item.data.health;
       });
       for (const id of life.actors.keys()) if (!ids.has(id)) {
         life.remove(id);
@@ -40550,7 +40581,7 @@ void main() {
       const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.3 : 0.75, norm = Math.hypot(forward, right) || 1;
       forward /= norm;
       right /= norm;
-      let dx = (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed, dz = (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed;
+      let dx = (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1), dz = (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1);
       const portal = actor.inside ? placeModels.get(actor.inside).userData.portal : nearbyPortal(actor);
       actor.entryPortal = portal;
       actor.doorway = portal ? { ...localDoor(portal), open: portal.angle > 1 } : null;
@@ -41240,7 +41271,7 @@ void main() {
         }
         item.data = data;
         item.index = index;
-        setHamsterCoat(item.rig, data.coat);
+        setHamsterCoat(item.rig, data.coat, data.ageYears);
         item.rig.scale.setScalar(window.TownSimulation.growthScale(data.ageYears));
         item.rig.visible = !indoorNames.includes(activePlace) || activePlace === "\u9F20\u9F20\u5C0F\u5C4B";
         item.tag.textContent = `${data.name} \xB7 ${data.stage}`;
@@ -41378,7 +41409,7 @@ void main() {
         pool.material.opacity = lampsOn ? night ? 0.035 : 0.07 : 0;
       });
       document.body.dataset.townPart = next.part || "";
-      setHamsterCoat(pet, next.mainCoat);
+      setHamsterCoat(pet, next.mainCoat, next.ageYears);
       syncResidents();
       syncPups();
       syncLife();
@@ -41391,7 +41422,7 @@ void main() {
       pet.visible = !firstPerson && (next.alive !== false || next.pendingFarewell?.phase !== "buried");
       residents.forEach((resident, i2) => {
         const data = next.npcs?.[i2], inside = indoorNames.includes(activePlace);
-        setHamsterCoat(resident.rig, data?.coat);
+        setHamsterCoat(resident.rig, data?.coat, data?.ageYears);
         resident.rig.visible = data?.alive !== false && (!inside || data?.place === activePlace);
         resident.tag.textContent = data ? `${data.name} ${data.sex === "male" ? "\u2642" : "\u2640"}` : roles[i2];
       });
