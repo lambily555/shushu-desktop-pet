@@ -27,3 +27,6 @@ assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},-1.7,.8),
 for(let z=-.5;z<=2.8;z+=.1)assert.equal(canWalk({inside:'纪念馆'},0,z),true,'memorial central aisle stays clear');
 assert.equal(canWalk({inside:'纪念馆'},-3.1,.65),false,'memorial side bench blocks walking');
 assert.equal(canWalk({inside:'纪念馆'},-2.35,.65),true,'memorial standing point is clear');
+
+for(const x of [-1,1.4])for(const z of [.1,1.8]){assert.equal(canWalk({inside:'鼠鼠学校'},x,z),false,'classroom chair is solid');assert.equal(canWalk({inside:'鼠鼠学校'},x+(x<0?.75:-.75),z),true,'classroom standing point is clear')}
+for(let z=.2;z<2.8;z+=.1)assert.equal(canWalk({inside:'鼠鼠学校'},.2,z),true,'classroom entrance aisle remains open');
