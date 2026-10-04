@@ -5963,19 +5963,19 @@
       return this;
     }
     /**
-	 * Creates a perspective projection matrix. This is used internally by
-	 * {@link PerspectiveCamera#updateProjectionMatrix}.
+       * Creates a perspective projection matrix. This is used internally by
+       * {@link PerspectiveCamera#updateProjectionMatrix}.
 
-	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
-	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
-	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
-	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-	 * @param {number} near - The distance from the camera to the near plane.
-	 * @param {number} far - The distance from the camera to the far plane.
-	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-	 * @return {Matrix4} A reference to this matrix.
-	 */
+       * @param {number} left - Left boundary of the viewing frustum at the near plane.
+       * @param {number} right - Right boundary of the viewing frustum at the near plane.
+       * @param {number} top - Top boundary of the viewing frustum at the near plane.
+       * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+       * @param {number} near - The distance from the camera to the near plane.
+       * @param {number} far - The distance from the camera to the far plane.
+       * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+       * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+       * @return {Matrix4} A reference to this matrix.
+       */
     makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 * near / (right - left);
@@ -6016,19 +6016,19 @@
       return this;
     }
     /**
-	 * Creates a orthographic projection matrix. This is used internally by
-	 * {@link OrthographicCamera#updateProjectionMatrix}.
+       * Creates a orthographic projection matrix. This is used internally by
+       * {@link OrthographicCamera#updateProjectionMatrix}.
 
-	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
-	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
-	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
-	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-	 * @param {number} near - The distance from the camera to the near plane.
-	 * @param {number} far - The distance from the camera to the far plane.
-	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-	 * @return {Matrix4} A reference to this matrix.
-	 */
+       * @param {number} left - Left boundary of the viewing frustum at the near plane.
+       * @param {number} right - Right boundary of the viewing frustum at the near plane.
+       * @param {number} top - Top boundary of the viewing frustum at the near plane.
+       * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+       * @param {number} near - The distance from the camera to the near plane.
+       * @param {number} far - The distance from the camera to the far plane.
+       * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+       * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+       * @return {Matrix4} A reference to this matrix.
+       */
     makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 / (right - left);
@@ -40328,6 +40328,28 @@ void main() {
       returnButton.hidden = false;
       window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id } }));
     }
+    function sayToNpc(id, text) {
+      const index = worldState.npcs.findIndex((n) => n.id === id);
+      if (index >= 0) {
+        sayToResident(index, text);
+        return;
+      }
+      const item = pups.get(id);
+      if (!item) return;
+      if (!firstPerson && focusedPup !== id) focusPup(id);
+      focusedResident = -3;
+      focusedPup = id;
+      speech.textContent = text;
+      speech.hidden = false;
+      clearTimeout(speech._timer);
+      speech._timer = setTimeout(() => {
+        speech.hidden = true;
+        if (firstPerson) {
+          focusedResident = -1;
+          focusedPup = null;
+        }
+      }, 4200);
+    }
     function clearFocus(restore = true) {
       if (focusedResident === -1) return;
       focusedResident = -1;
@@ -41255,6 +41277,7 @@ void main() {
       residents.forEach((n) => above(lifeBubbles.get(n.lifeId) || { hidden: true }, n.tag));
       pups.forEach((p) => above(lifeBubbles.get(p.data.id) || { hidden: true }, p.tag));
       if (focusedResident >= 0) above(speech, residents[focusedResident].tag);
+      else if (focusedPup && pups.has(focusedPup)) above(speech, pups.get(focusedPup).tag);
     }
     function syncPups() {
       const list = (worldState.offspring || []).filter((p) => p.alive !== false), ids = new Set(list.map((p) => p.id));
@@ -41464,7 +41487,7 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

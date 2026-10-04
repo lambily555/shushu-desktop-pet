@@ -1,8 +1,8 @@
 const fs = require('fs');
 const vm = require('vm');
-const source = fs.readFileSync(require('path').join(__dirname, '..', 'src', 'main.js'), 'utf8');
-const body = source.match(/function localHamsterReply\(message\)\{[\s\S]*?\n\}\nipcMain\.handle\('ai-chat'/)?.[0]
-  .replace(/\nipcMain\.handle\('ai-chat'[\s\S]*/, '');
+const source = fs.readFileSync(require('path').join(__dirname, '..', 'src', 'main.js'), 'utf8').replace(/\r\n/g, '\n');
+const body = source.match(/function localHamsterReply\(message\)\{[\s\S]*?\n\}\nfunction chatCompletionUrl/)?.[0]
+  .replace(/\nfunction chatCompletionUrl[\s\S]*/, '');
 if (!body) throw new Error('localHamsterReply not found');
 const context = { settings: { interfaceLanguage: 'zh', hunger: 80, mood: 90, chatHistory: [] }, console };
 vm.createContext(context);
