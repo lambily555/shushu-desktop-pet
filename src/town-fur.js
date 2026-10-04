@@ -9,6 +9,10 @@ export function furMaterial(coat='three-line'){
   if(!texture){texture=new THREE.TextureLoader().load('../assets/models/booth-hamster/restored/Assets/Ham/Texture/Ham.png');texture.colorSpace=THREE.SRGBColorSpace}
   const [dark,light]=palettes[coat],material=new THREE.MeshStandardMaterial({map:texture,roughness:.94});
   material.userData.hamsterFur=true;
+  if(coat==='three-line'){
+    material.color.setHex(0x9b9d98);
+    materials.set(coat,material);return material;
+  }
   material.onBeforeCompile=shader=>{
     shader.uniforms.coatDark={value:new THREE.Color(dark)};shader.uniforms.coatLight={value:new THREE.Color(light)};
     shader.fragmentShader='uniform vec3 coatDark;\nuniform vec3 coatLight;\n'+shader.fragmentShader;

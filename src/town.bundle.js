@@ -33578,6 +33578,11 @@ void main() {
     }
     const [dark, light] = palettes[coat], material2 = new MeshStandardMaterial({ map: texture, roughness: 0.94 });
     material2.userData.hamsterFur = true;
+    if (coat === "three-line") {
+      material2.color.setHex(10198424);
+      materials.set(coat, material2);
+      return material2;
+    }
     material2.onBeforeCompile = (shader) => {
       shader.uniforms.coatDark = { value: new Color(dark) };
       shader.uniforms.coatLight = { value: new Color(light) };
