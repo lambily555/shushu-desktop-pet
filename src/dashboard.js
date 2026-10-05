@@ -421,7 +421,7 @@ let townContext={type:'place',place:'中心广场',npcId:null};
 const gardenProgress=()=>Math.max(0,Math.min(100,Math.round((Date.now()-townState.garden.plantedAt)/864000)));
 function contextButton(action,title,detail,disabled=false){return `<button class="town-task" data-town-action="${action}"${disabled?' disabled':''}><b>${title}</b><span>${detail}</span></button>`}
 function renderTownContext(){
-  const panel=$('#townContext');if(!panel||panel.hidden)return;const title=$('#townContextTitle'),kicker=$('#townContextKicker'),body=$('#townContextBody');
+  const roster=townContext.type==='roster'||townContext.fromRoster,prefix=roster?'townRoster':'townContext',panel=$('#'+prefix);if(!panel||panel.hidden)return;const title=$('#'+prefix+'Title'),kicker=$('#'+prefix+'Kicker'),body=$('#'+prefix+'Body');
   if(townContext.type==='roster'){
     const seen=new Set(),people=townSim.residents(townState).filter(n=>n.alive!==false&&!n.transferredToMain&&!seen.has(n.id)&&seen.add(n.id));
     kicker.textContent='鼠鼠小屋 · 居民名册';title.textContent='小镇鼠鼠信息';
@@ -495,9 +495,9 @@ document.querySelector('[data-town-context-close]')?.addEventListener('click',()
 $('#townLookSensitivity').addEventListener('input',event=>{const value=Math.max(.25,Math.min(3,Number(event.target.value)||1));townState.lookSensitivity=value;$('#townLookSensitivityValue').textContent=value.toFixed(2)+'×';window.TownApp?.setLookSensitivity(value);saveTown()});
 document.querySelectorAll('[data-town-setting]').forEach(input=>input.addEventListener('change',()=>{const checked=input.checked;settleTown();townState[input.dataset.townSetting]=checked;saveTown();renderTown()}));
 $('#townMainSex')?.addEventListener('change',event=>{townState.mainSex=event.target.value;saveTown();renderTown();renderTownContext()});
-$('#townContext')?.addEventListener('click',event=>{
+function handleTownContextClick(event){
   const action=event.target.closest('[data-town-action]')?.dataset.townAction;if(!action)return;
-  if(action==='roster'||action==='roster-back'){townContext={type:'roster'};renderTownContext()}
+  if(action==='roster'||action==='roster-back'){townContext={type:'roster'};openTownOverlay('townRoster');renderTownContext()}
   else if(action==='roster-home'){showPlaceContext('鼠鼠小屋')}
   else if(action==='roster-main'){townContext={type:'main',fromRoster:true};renderTownContext()}
   else if(action==='roster-resident'){const id=event.target.closest('[data-resident-id]').dataset.residentId;if(townSim.resident(townState,id)){townContext={type:'npc',npcId:id,fromRoster:true};renderTownContext()}}
@@ -530,7 +530,8 @@ $('#townContext')?.addEventListener('click',event=>{
     if(!lamp.owned&&townState.seeds<12)townResult({state:townState,ok:false,message:'购买台灯需要 12 颗瓜子。'});
     else localTownAction(lamp.owned?'小屋家具已经换到新的摆放位置。':'台灯已经送到鼠鼠小屋。','鼠鼠小屋',()=>{if(!lamp.owned){townState.seeds-=12;lamp.owned=true}else townState.furniture.table.slot=townState.furniture.table.slot==='table'?'window':'table'});
   }
-});
+}
+for(const panel of ['townContext','townRoster'])$('#'+panel)?.addEventListener('click',handleTownContextClick);
 window.addEventListener('town-player-action',event=>{const {action,place,text,index}=event.detail;if(action.startsWith('place-')){showInteractionObject(action.slice(6))}else if(place==='鼠鼠学校'&&['黑板','书柜','课桌'].includes(text)){showPlaceContext(place);townContext.schoolObject=text==='黑板'?'school-board':text==='书柜'?'school-books':'school-desk';renderTownContext()}else if(action==='social'){const npc=townState.npcs[index];if(!npc)return;const result=townSim.interact(townState,npc.id);townResult(result);showNpcContext(index);window.TownApp?.sayToResident?.(index,result.message)}else if(action==='harvest')townResult(townSim.harvest(townState));else if(action==='exercise')townResult(townSim.exercise(townState));else if(action==='water')townResult(townSim.refillWater(townState));else if(action==='supply'){showPlaceContext('鼠鼠小屋');townResult(townSim.buyFood(townState))}else if(action==='treat'){if(townState.seeds<6)townResult({state:townState,ok:false,message:'诊疗需要6颗瓜子。'});else localTownAction('在诊疗床接受了温和诊疗。','诊所',()=>{townState.seeds-=6;townState.health=Math.min(100,townState.health+12)})}else if(action==='eat'){if(townState.food<=0)townResult({state:townState,ok:false,message:'食盆旁没有粮食，先补给粮仓吧。'});else localTownAction('鼠鼠吃了一份粮食。','鼠鼠小屋',()=>{townState.food--;townState.fullness=Math.min(100,townState.fullness+20)})}else if(action==='rest'){const last=townState.playerRestAt||0;if(Date.now()-last<1800000)townResult({state:townState,ok:false,message:'刚刚休息过，陪大家继续逛逛吧。'});else localTownAction('鼠鼠在床铺休息，恢复了6点体力。','鼠鼠小屋',()=>{townState.stamina=Math.min(100,townState.stamina+6);townState.playerRestAt=Date.now()})}else{showPlaceContext(place||'中心广场');$('#townActionResult').textContent='正在查看'+(text||place)+'。'}});
 window.addEventListener('town-plaza-action',event=>{if(event.detail.action==='harvest'){showPlaceContext('小菜园');townResult(townSim.harvest(townState));return}showPlaceContext('中心广场');$('#'+(event.detail.action==='calendar'?'townCalendarSection':'townExchangeSection'))?.scrollIntoView({block:'nearest'})});
 window.addEventListener('town-life-event',event=>{const result=townSim.recordSceneEvent(townState,event.detail);if(result.ok){townState=result.state;saveTown();if(event.detail.type!=='energy'){renderTown();renderTownContext()}}});
