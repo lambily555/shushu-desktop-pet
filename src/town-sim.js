@@ -149,4 +149,3 @@
   }
   return {renameMain,residents,resident,adoptionCandidates,memorialDates,agingProfile,lifespan,illnessHits,population,prepareImmigration,admitResidents,scheduleNpcPair,coatNames,calendarMonth,schoolBooks,schoolStatus,schoolAction,townClock,calendarEntries,exchangeOffers,exchange,townCalendar,calendarRate,recordSceneEvent,waterStatus,refillWater,growthScale,childrenOf,defaults,migrate,settle,daypart,weather,ageYears,stageFor,buyFood,harvest,interact,socialAllowance,exercise,relationship,breedingEligibility,breed,npcBreedingEligibility,breedNpcPair,finishFarewell,adopt,paceDays};
 });
-
