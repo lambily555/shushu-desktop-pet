@@ -47,7 +47,7 @@
     if(id==='garden-water'||id==='garden-weed')state.garden.plantedAt-=3600000;
     if(id==='clinic-hospital'){state.hospitalStay={until:state.calendarTime+6*3600000};state.currentActivity='住院';state.currentPlace='诊所';state.sleepRequested=false}
     state.placeInteractions={...state.placeInteractions,[id]:date};
-    let text=a.title+'完成。';if(id==='clinic-check')text='检查结果：健康 '+Math.round(state.health)+'，饱腹 '+Math.round(state.fullness)+'，水质 '+(state.water<=0?'缺水':root.TownSimulation.waterStatus(state,time).quality)+'。';
+    if(!('stamina' in a.effects))state.stamina=Math.max(0,state.stamina-2);root.TownSimulation.spendStamina(state,0);let text=a.title+'完成。';if(id==='clinic-check')text='检查结果：健康 '+Math.round(state.health)+'，饱腹 '+Math.round(state.fullness)+'，水质 '+(state.water<=0?'缺水':root.TownSimulation.waterStatus(state,time).quality)+'。';
     if(id==='funeral-message')text='留下寄语：'+message.trim().slice(0,80);
     state.events=[...(state.events||[]),{id:time+'-'+id,time,type:'activity',mainId:state.mainId,text:state.mainName+'：'+text,place:a.place}].slice(-80);
     return {state,ok:true,message:text+' '+description(a)};

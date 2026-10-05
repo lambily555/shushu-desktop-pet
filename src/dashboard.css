@@ -870,7 +870,7 @@ body[data-town-view="first-person"][data-town-hud="hidden"] .town-life-bubble:no
 .town-birth-ticker{position:absolute;z-index:24;left:24px;bottom:154px;display:flex;align-items:center;gap:10px;width:min(580px,calc(100% - 48px));padding:7px 10px;border-radius:9px;background:#faf7eceb;color:#486044;font-size:12px}
 .town-birth-ticker[hidden]{display:none}.town-birth-ticker>b{white-space:nowrap;font-size:11px}.town-birth-window{overflow:hidden;flex:1;min-width:0}.town-birth-track{display:flex;width:max-content;animation:town-birth-scroll 30s linear infinite}.town-birth-track span{white-space:nowrap}.town-birth-ticker button{font:inherit;padding:3px 6px;color:#486044;background:#e6eddd;border-radius:5px}
 .town-birth-ticker:hover .town-birth-track,.town-birth-ticker:focus-within .town-birth-track{animation-play-state:paused}@keyframes town-birth-scroll{to{transform:translateX(-50%)}}
-body[data-town-view="first-person"] .town-birth-ticker{top:14px;bottom:auto;left:14px;width:min(540px,calc(100% - 28px))}
+body[data-town-view="first-person"] .town-birth-ticker{top:auto;bottom:78px;left:14px;width:min(540px,calc(100% - 28px))}
 .town-overlay.town-immigration{left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);width:min(820px,calc(100% - 48px));max-height:86vh;z-index:60;padding:20px;overflow:auto}
 .town-immigration header{align-items:flex-start}.town-immigration header p,.town-immigration>p{font-size:12px;line-height:1.6}.town-visitor-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.town-visitor-card{position:relative;display:flex;flex-direction:column;gap:5px;padding:10px;background:#f4f2e8;border:2px solid #dce3d1;border-radius:12px;cursor:pointer;color:#425440;font-size:12px}.town-visitor-card:has(input:checked){border-color:#73906a;background:#e6efde}.town-visitor-card:has(input:disabled){opacity:.55;cursor:default}.town-visitor-card input{position:absolute;top:10px;left:10px;width:18px;height:18px;accent-color:#66825c}.town-visitor-card img{width:100%;aspect-ratio:1;object-fit:contain}.town-visitor-card small{font-size:11px;line-height:1.5}.town-portrait-loading{height:140px;display:grid;place-items:center;color:#71806b}.town-portrait-loading[hidden],.town-visitor-card img[hidden]{display:none}.town-immigration footer{display:flex;align-items:center;justify-content:space-between;position:sticky;bottom:-20px;padding:14px 0;background:#f8f8f0}.town-immigration footer button{padding:10px 18px;background:#6f8665;color:white;border-radius:9px}.town-immigration footer button:disabled{opacity:.45;cursor:default}
 @media(max-width:720px){.town-visitor-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -878,3 +878,25 @@ body[data-town-view="first-person"] .town-birth-ticker{top:14px;bottom:auto;left
 
 body[data-current-panel="town"] .town-cards:has(#townRecruitButton:not([hidden])){max-width:min(560px,calc(100% - 44px));flex-wrap:wrap;justify-content:flex-end}.town-cards #townRecruitButton{white-space:nowrap;flex-shrink:0}
 #townSuccession{box-sizing:border-box;overflow-x:hidden}#townSuccession .town-visitor-card>b{padding-left:26px;min-height:20px}#townSuccession>label{display:flex;align-items:center;gap:10px;margin-top:14px}#townSuccessorName,#townSuccessorSex,#townMainName{padding:7px 10px;border:1px solid #a8b8a0;border-radius:7px;background:#fffef8;color:#425440;font:inherit}#townSuccessorName{min-width:0;flex:1}
+
+
+/* Compact town HUD leaves the buildings in view. */
+body[data-current-panel="town"] .town-toolbar>div:first-child{background:none;padding:0;max-width:220px;border-radius:0}
+body[data-current-panel="town"] .town-kicker{display:none}
+body[data-current-panel="town"] .town-toolbar h3{font-size:19px;margin:0;color:#fffdf1;text-shadow:0 1px 4px #34452c}
+body[data-current-panel="town"] .town-status{top:52px;grid-template-columns:repeat(4,max-content);gap:5px 12px;max-width:310px}
+body[data-current-panel="town"] .town-status span{min-width:0;padding:0;background:none;box-shadow:none;backdrop-filter:none;border:0;color:#fffdf1;font-size:11px;gap:5px;text-shadow:0 1px 3px #34452c}
+body[data-current-panel="town"] .town-status b{font-size:11px}
+body[data-current-panel="town"] .town-toolbar>.town-info-stack{position:absolute;right:0;top:0;width:min(400px,calc(100vw - 350px));padding:0;background:none;display:grid;grid-template-columns:minmax(0,1fr);gap:5px;box-sizing:border-box}
+body[data-current-panel="town"] .town-info-stack .town-clock{position:static;width:100%;max-width:none;box-sizing:border-box;padding:8px 10px;gap:8px;justify-content:space-between;border:0;border-radius:8px;background:#f8faf0e6;white-space:nowrap}
+body[data-current-panel="town"] .town-info-stack .town-clock>b{font-size:11px}
+body[data-current-panel="town"] #townWeather{padding:0;background:none;border:0;gap:5px}
+body[data-current-panel="town"] #townWeather .town-weather-icon{font-size:20px}
+body[data-current-panel="town"] #townWeather small{display:none}
+body[data-current-panel="town"] #townWeather strong{font-size:11px}
+body[data-current-panel="town"] .town-info-stack .town-birth-ticker{position:static;width:100%;box-sizing:border-box;padding:6px 8px;gap:6px;font-size:11px;border-radius:8px;background:#f8faf0e6}
+body[data-current-panel="town"] .town-player-tools:has([data-player-enter]:not([hidden])){display:none!important}
+.town-view-settings{display:grid;gap:10px;padding-bottom:14px;border-bottom:1px solid #dce3d6;margin-bottom:12px}
+.town-view-settings>button{padding:9px 12px;border-radius:8px;background:#e4ecdf;color:#42583e;font:inherit;text-align:left}
+.town-view-settings .town-speed-control small{font-size:11px;line-height:1.5}
+@media(max-width:760px){body[data-current-panel="town"] .town-toolbar>.town-info-stack{width:min(330px,calc(100vw - 220px))}body[data-current-panel="town"] .town-info-stack .town-clock{flex-wrap:wrap;justify-content:flex-end;gap:4px}body[data-current-panel="town"] .town-status{grid-template-columns:repeat(2,max-content);max-width:180px}}

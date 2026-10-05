@@ -5963,19 +5963,19 @@
       return this;
     }
     /**
-       * Creates a perspective projection matrix. This is used internally by
-       * {@link PerspectiveCamera#updateProjectionMatrix}.
+	 * Creates a perspective projection matrix. This is used internally by
+	 * {@link PerspectiveCamera#updateProjectionMatrix}.
 
-       * @param {number} left - Left boundary of the viewing frustum at the near plane.
-       * @param {number} right - Right boundary of the viewing frustum at the near plane.
-       * @param {number} top - Top boundary of the viewing frustum at the near plane.
-       * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-       * @param {number} near - The distance from the camera to the near plane.
-       * @param {number} far - The distance from the camera to the far plane.
-       * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-       * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-       * @return {Matrix4} A reference to this matrix.
-       */
+	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
+	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
+	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
+	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+	 * @param {number} near - The distance from the camera to the near plane.
+	 * @param {number} far - The distance from the camera to the far plane.
+	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+	 * @return {Matrix4} A reference to this matrix.
+	 */
     makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 * near / (right - left);
@@ -6016,19 +6016,19 @@
       return this;
     }
     /**
-       * Creates a orthographic projection matrix. This is used internally by
-       * {@link OrthographicCamera#updateProjectionMatrix}.
+	 * Creates a orthographic projection matrix. This is used internally by
+	 * {@link OrthographicCamera#updateProjectionMatrix}.
 
-       * @param {number} left - Left boundary of the viewing frustum at the near plane.
-       * @param {number} right - Right boundary of the viewing frustum at the near plane.
-       * @param {number} top - Top boundary of the viewing frustum at the near plane.
-       * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
-       * @param {number} near - The distance from the camera to the near plane.
-       * @param {number} far - The distance from the camera to the far plane.
-       * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
-       * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
-       * @return {Matrix4} A reference to this matrix.
-       */
+	 * @param {number} left - Left boundary of the viewing frustum at the near plane.
+	 * @param {number} right - Right boundary of the viewing frustum at the near plane.
+	 * @param {number} top - Top boundary of the viewing frustum at the near plane.
+	 * @param {number} bottom - Bottom boundary of the viewing frustum at the near plane.
+	 * @param {number} near - The distance from the camera to the near plane.
+	 * @param {number} far - The distance from the camera to the far plane.
+	 * @param {(WebGLCoordinateSystem|WebGPUCoordinateSystem)} [coordinateSystem=WebGLCoordinateSystem] - The coordinate system.
+	 * @param {boolean} [reversedDepth=false] - Whether to use a reversed depth.
+	 * @return {Matrix4} A reference to this matrix.
+	 */
     makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem, reversedDepth = false) {
       const te = this.elements;
       const x2 = 2 / (right - left);
@@ -33859,10 +33859,18 @@ void main() {
       dt = Math.max(0, Math.min(dt, 1));
       elapsed += dt;
       for (const actor of actors.values()) {
+        if (!actor.frozen) {
+          actor.energySeconds = (actor.energySeconds || 0) + dt;
+          if (actor.energySeconds >= 5) {
+            const seconds = actor.energySeconds;
+            actor.energySeconds = 0;
+            onEvent({ id: actor.id, type: "energy", seconds, moving: actor.moving || actor.phase === "moving", action: actor.phase === "activity" ? actor.action : "\u884C\u52A8", place: actor.place });
+          }
+        }
         actor.moving = false;
         if (actor.frozen || actor.controlled) continue;
         if (actor.phase === "moving") {
-          let budget = dt * (actor.child ? 0.48 : 0.72) * (actor.aging?.movement ?? 1);
+          let budget = dt * (actor.child ? 0.48 : 0.72) * (actor.aging?.movement ?? 1) * (actor.energyMovement ?? 1);
           while (budget > 0 && actor.path.length) {
             const target = actor.path[0], dist = distance(actor.position, target);
             if (dist > 1e-3) {
@@ -33947,7 +33955,7 @@ void main() {
             actor.wait = 1;
           }
         } else if (actor.phase === "using") {
-          if (actor.familyPartner) {
+          if (actor.familyPartner && !actor.forcedSleep) {
             actor.phase = "family-wait";
             actor.speech = "\u2665 \u4E0E" + (actors.get(actor.familyPartner)?.name || "\u4F34\u4FA3") + "\u51C6\u5907\u8FCE\u63A5\u5C0F\u9F20";
             continue;
@@ -34018,9 +34026,9 @@ void main() {
         }
       }
     }
-    function setResting(requested, hospitalized = false) {
+    function setResting(requested, hospitalized = false, id = "main") {
       requested = !!requested || hospitalized;
-      const actor = actors.get("main");
+      const actor = actors.get(id);
       if (!actor || actor.frozen || !!actor.forcedSleep === !!requested && !!actor.forcedHospital === hospitalized) return;
       const other = actors.get(actor.partner);
       if (other) {
@@ -34081,6 +34089,7 @@ void main() {
       const members = /* @__PURE__ */ new Map();
       for (const plan2 of plans) plan2.parentIds.forEach((id, i2) => members.set(id, { partner: plan2.parentIds[1 - i2], station: [i2 === 0 ? -0.9 : 0.8, 1.6] }));
       for (const actor of actors.values()) {
+        if (actor.forcedSleep) continue;
         const next = members.get(actor.id);
         if ((actor.familyPartner || null) === (next?.partner || null)) continue;
         if (next) {
@@ -39668,6 +39677,7 @@ void main() {
         a.age = worldState.ageYears ?? 0.7;
         a.aging = window.TownSimulation.agingProfile(a.age);
         a.health = worldState.health;
+        a.energyMovement = window.TownSimulation.energyMovement(worldState.stamina);
         a.allowSocial = worldState.socialAllowed !== false;
         a.frozen = worldState.alive === false;
         if (a.frozen) {
@@ -39689,6 +39699,8 @@ void main() {
         a.age = data?.ageYears ?? 0.7;
         a.aging = window.TownSimulation.agingProfile(a.age);
         a.health = data?.health;
+        a.energyMovement = window.TownSimulation.energyMovement(data?.stamina);
+        life.setResting(data?.autoSleep, false, id);
         a.allowSocial = (worldState.npcSocialCounts?.[id] || 0) < 6;
       });
       pups.forEach((item) => {
@@ -39704,6 +39716,8 @@ void main() {
         a.age = item.data.ageYears;
         a.aging = window.TownSimulation.agingProfile(a.age);
         a.health = item.data.health;
+        a.energyMovement = window.TownSimulation.energyMovement(item.data.stamina);
+        life.setResting(item.data.autoSleep, false, item.data.id);
       });
       for (const id of life.actors.keys()) if (!ids.has(id)) {
         life.remove(id);
@@ -40619,7 +40633,7 @@ void main() {
       const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.3 : 0.75, norm = Math.hypot(forward, right) || 1;
       forward /= norm;
       right /= norm;
-      let dx = (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1), dz = (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1);
+      let dx = (-Math.sin(playerYaw) * forward + Math.cos(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1) * (actor.energyMovement ?? 1), dz = (-Math.cos(playerYaw) * forward - Math.sin(playerYaw) * right) * dt * speed * (actor.aging?.movement ?? 1) * (actor.energyMovement ?? 1);
       const portal = actor.inside ? placeModels.get(actor.inside).userData.portal : nearbyPortal(actor);
       actor.entryPortal = portal;
       actor.doorway = portal ? { ...localDoor(portal), open: portal.angle > 1 } : null;
@@ -41452,7 +41466,8 @@ void main() {
       syncResidents();
       syncPups();
       syncLife();
-      life.setResting(next.sleepRequested, !!next.hospitalized);
+      if (next.autoSleep && firstPerson) stopFirstPerson();
+      life.setResting(next.sleepRequested || next.autoSleep, !!next.hospitalized);
       life.setCelebration(next.celebration || null);
       life.setFamilyPlans(next.familyPlans || []);
       placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.setEvent(next.celebration);
