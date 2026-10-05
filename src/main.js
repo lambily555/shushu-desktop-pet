@@ -729,7 +729,7 @@ ipcMain.on('pet-command', (_event, command) => {
   petHiddenByUser=false;win?.show();win?.focus();win?.webContents.send('pet-command',command);
 });
 let lastWheelRecord='';
-ipcMain.on('pet-status', (_event, status) => { controlWin?.webContents.send('pet-status', status); if(status==='正在跑跑轮'&&lastWheelRecord!==localDate()){lastWheelRecord=localDate();recordActivity('wheel');} });
+ipcMain.on('pet-status', (_event, status) => { if(controlWin&&!controlWin.isDestroyed()&&!controlWin.webContents.isDestroyed())controlWin.webContents.send('pet-status', status); if(status==='正在跑跑轮'&&lastWheelRecord!==localDate()){lastWheelRecord=localDate();recordActivity('wheel');} });
 ipcMain.on('wander-start', () => {
   if (!win || wanderTimer || dragActive) return;
   wanderDirection = Math.random() < .5 ? -1 : 1;

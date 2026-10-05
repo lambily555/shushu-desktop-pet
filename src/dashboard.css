@@ -888,7 +888,7 @@ body[data-current-panel="town"] .town-status{top:52px;grid-template-columns:repe
 body[data-current-panel="town"] .town-status span{min-width:0;padding:5px 8px;background:#f8faf0e6;box-shadow:none;backdrop-filter:none;border:0;border-radius:8px;color:#425440;font-size:11px;gap:5px;text-shadow:none}
 body[data-current-panel="town"] .town-status b{font-size:11px}
 body[data-current-panel="town"] .town-toolbar>.town-info-stack{position:absolute;right:0;top:0;width:min(400px,calc(100vw - 350px));padding:0;background:none;display:grid;grid-template-columns:minmax(0,1fr);gap:5px;box-sizing:border-box}
-body[data-current-panel="town"] .town-info-stack .town-clock{position:static;width:100%;max-width:none;box-sizing:border-box;padding:4px 0;gap:10px;justify-content:flex-end;border:0;border-radius:0;background:none;color:#fffdf1;text-shadow:0 1px 3px #34452c;white-space:nowrap}
+body[data-current-panel="town"] .town-info-stack .town-clock{position:static;width:100%;max-width:none;box-sizing:border-box;padding:4px 0;gap:10px;justify-content:flex-end;border:0;border-radius:0;background:none;color:#fffdf1;text-shadow:none;white-space:nowrap}
 body[data-current-panel="town"] .town-info-stack .town-clock>b{font-size:11px}
 body[data-current-panel="town"] #townWeather{padding:0;background:none;border:0;gap:5px}
 body[data-current-panel="town"] #townWeather .town-weather-icon{font-size:20px}
@@ -900,3 +900,4 @@ body[data-current-panel="town"] .town-player-tools:has([data-player-enter]:not([
 .town-view-settings>button{padding:9px 12px;border-radius:8px;background:#e4ecdf;color:#42583e;font:inherit;text-align:left}
 .town-view-settings .town-speed-control small{font-size:11px;line-height:1.5}
 @media(max-width:760px){body[data-current-panel="town"] .town-toolbar>.town-info-stack{width:min(330px,calc(100vw - 220px))}body[data-current-panel="town"] .town-info-stack .town-clock{flex-wrap:wrap;justify-content:flex-end;gap:4px}body[data-current-panel="town"] .town-status{grid-template-columns:repeat(2,max-content);max-width:180px}}
+.town-resident-list{display:grid;gap:8px;min-width:0}.town-resident-list .town-task{width:100%;min-width:0;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
