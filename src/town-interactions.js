@@ -49,9 +49,9 @@
     state.placeInteractions={...state.placeInteractions,[id]:date};
     let text=a.title+'完成。';if(id==='clinic-check')text='检查结果：健康 '+Math.round(state.health)+'，饱腹 '+Math.round(state.fullness)+'，水质 '+(state.water<=0?'缺水':root.TownSimulation.waterStatus(state,time).quality)+'。';
     if(id==='funeral-message')text='留下寄语：'+message.trim().slice(0,80);
-    state.events=[...(state.events||[]),{id:time+'-'+id,time,type:'activity',text,place:a.place}].slice(-80);
+    state.events=[...(state.events||[]),{id:time+'-'+id,time,type:'activity',mainId:state.mainId,text:state.mainName+'：'+text,place:a.place}].slice(-80);
     return {state,ok:true,message:text+' '+description(a)};
   }
-  function settleHospital(state,time){if(!state.hospitalStay||time<state.hospitalStay.until)return false;delete state.hospitalStay;state.health=Math.min(100,state.health+25);state.stamina=Math.min(100,state.stamina+20);state.events=[...(state.events||[]),{id:Date.now()+'-discharge',time:Date.now(),type:'activity',text:'住院休养结束，健康+25、体力+20。',place:'诊所'}].slice(-80);return true}
+  function settleHospital(state,time){if(!state.hospitalStay||time<state.hospitalStay.until)return false;delete state.hospitalStay;state.health=Math.min(100,state.health+25);state.stamina=Math.min(100,state.stamina+20);state.events=[...(state.events||[]),{id:Date.now()+'-discharge',time:Date.now(),type:'activity',mainId:state.mainId,text:state.mainName+'住院休养结束，健康+25、体力+20。',place:'诊所'}].slice(-80);return true}
   root.TownInteractions={actions,description,perform,settleHospital};
 })(typeof window==='undefined'?globalThis:window);

@@ -3,6 +3,7 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 const fs = require('fs');
+const identity = require('./pet-identity');
 if (process.env.DASHBOARD_CAPTURE_PATH) app.setPath('userData', path.join(path.dirname(process.env.DASHBOARD_CAPTURE_PATH), '.dashboard-qa-profile'));
 if (process.env.DASHBOARD_PANELS_CAPTURE_DIR || process.env.DASHBOARD_TEST_REPORT) {
   app.disableHardwareAcceleration();
@@ -88,7 +89,7 @@ function diaryFor(date) {
   if(eaten)body+=`还吃到了${eaten}，肚子非常满意。`;
   if(a.wheel)body+=`我跑了 ${a.wheel} 回跑轮，六十多克的小身体也很有力量！`;
   body+=thoughts[seed%thoughts.length];
-  const entry={date,title:`${date} · 鼠鼠的小日记`,body,stats:{interactions:a.interactions||0,wheel:a.wheel||0,feeds:Object.values(a.feeds||{}).reduce((x,y)=>x+y,0)}};
+  const entry={date,title:`${date} · ${identity.home(settings).name}的小日记`,body,stats:{interactions:a.interactions||0,wheel:a.wheel||0,feeds:Object.values(a.feeds||{}).reduce((x,y)=>x+y,0)}};
   saveSettings({diaries:{...(settings.diaries||{}),[date]:entry}}); return entry;
 }
 
@@ -540,6 +541,7 @@ ipcMain.handle('shortcuts-reset', () => {
 });
 ipcMain.handle('ai-chat-clear', () => saveSettings({ chatHistory: [] }));
 function localHamsterReply(message){
+  const profile=identity.home(settings),synced=settings.syncTownProfile!==false&&!!settings.townMainProfile;
   const normalize=value=>String(value||'').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿?¡!。，,、~～.'"“”]/g,' ').replace(/\s+/g,' ').trim();
   const text=normalize(message),has=(...words)=>words.some(word=>text.includes(normalize(word)));
   const spanishWords=['hola','gracias','adios','buenos','buenas','como','que','cuando','comida','hambre','rueda','cumpleanos','triste','cansado','cansada','dia','trabajo','estudio','casa','favorito'];
@@ -550,10 +552,10 @@ function localHamsterReply(message){
   if(lang==='en'){
     const greeting=hour<6?'Still awake? I am naturally most active at night.':hour<11?'Good morning! I just peeked out of my little wooden house.':hour<14?'Good afternoon! Have you eaten? I am thinking about my leafy greens.':hour<18?'Good afternoon! I will stay here while you work.':'Good evening! This is when I have the most energy.';
     if(text==='hi'||has('hello','hey','good morning','good afternoon','good evening'))return greeting;
-    if(has('your name','what are you called','who are you'))return 'My name is Hamster. When you call “Hamster,” I know you are talking to me.';
-    if(has('how old','age','birthday','when were you born'))return 'I am a little male hamster born on June 9, 2024. Please save me a tiny leafy treat on my birthday.';
+    if(has('your name','what are you called','who are you'))return synced?`My name is ${profile.name}.`:'My name is Hamster. When you call “Hamster,” I know you are talking to me.';
+    if(has('how old','age','birthday','when were you born'))return synced?`I am ${profile.name}, a ${profile.sex==='male'?'male':'female'} hamster born on ${profile.birthDate}.`:'I am a little male hamster born on June 9, 2024. Please save me a tiny leafy treat on my birthday.';
     if(has('weight','how heavy','grams'))return 'I weigh a little over 60 grams. I may be round, but I can still run strongly on my wheel.';
-    if(has('breed','species','male','female','gender','sex'))return 'I am a little male hamster with a gray back and a white belly.';
+    if(has('breed','species','male','female','gender','sex'))return synced?`I am ${profile.name}, a ${profile.sex==='male'?'male':'female'} hamster.`:'I am a little male hamster with a gray back and a white belly.';
     if(has('favorite food','favourite food','what do you like to eat','best snack','snack do you like','like to eat best'))return 'Leafy greens are my favorite, and I also like an occasional mealworm, cookie, or a little nutrition paste.';
     if(has('hungry','food','eat','feed','snack'))return settings.hunger<50?'I am a little hungry. Could I have some leafy greens or nutrition paste?':settings.hunger<85?'My belly feels fine, but I would not refuse one small bite of greens.':'I am already very full. Let us save the treats for later.';
     if(has('happy','mood','sad','how are you','feeling'))return settings.mood>=85?'I am very happy because you are talking with me.':settings.mood>=60?'I feel calm and comfortable. Staying with you a little longer would make me happier.':'I feel a little low today. Could you pet me and talk with me for a while?';
@@ -568,7 +570,7 @@ function localHamsterReply(message){
     if(has('secret','tell me something','fun fact'))return 'A tiny secret: when I sit very still, I may actually be deciding where to hide my next snack.';
     if(has('love me','like me','miss me','stay with me'))return 'Of course. You are the person I know and trust most, and I will keep you company on the desktop.';
     if(has('thank','thanks'))return 'You are welcome. I am happy whenever you come to talk with me.';
-    if(has('bye','goodbye','see you'))return 'Okay, I will rest in my little wooden house. Call “Hamster” whenever you want me back.';
+    if(has('bye','goodbye','see you'))return `Okay, I will rest in my little wooden house. Call “${synced?profile.name:'Hamster'}” whenever you want me back.`;
     if(has('weather','rain','temperature'))return 'I cannot see the weather outside, so I should not guess. Tell me what it is like and we can talk about it.';
     if(has('time','date','day is it'))return `It is ${new Date().toLocaleString('en-US',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}. Remember to take a break too.`;
     return `I read “${message.slice(0,38)}” carefully, but I do not fully understand yet. You can ask about my mood, food, running wheel, birthday, or what I am doing.`;
@@ -576,10 +578,10 @@ function localHamsterReply(message){
   if(lang==='es'){
     const greeting=hour<6?'¿Sigues despierto? Por la noche es cuando tengo más energía.':hour<11?'¡Buenos días! Acabo de asomarme desde mi casita.':hour<14?'¡Buenas tardes! ¿Ya comiste? Yo estoy pensando en mis hojas verdes.':hour<18?'¡Buenas tardes! Me quedaré aquí mientras trabajas.':'¡Buenas noches! Ahora es cuando tengo más energía.';
     if(has('hola','buenos días','buenas tardes','buenas noches','qué tal'))return greeting;
-    if(has('tu nombre','cómo te llamas','quién eres'))return 'Me llamo Hámster. Cuando dices “Hámster”, sé que estás hablando conmigo.';
-    if(has('cuántos años','edad','cumpleaños','cuándo naciste'))return 'Soy un pequeño hámster macho nacido el 9 de junio de 2024. En mi cumpleaños, guárdame una hojita.';
+    if(has('tu nombre','cómo te llamas','quién eres'))return synced?`Me llamo ${profile.name}.`:'Me llamo Hámster. Cuando dices “Hámster”, sé que estás hablando conmigo.';
+    if(has('cuántos años','edad','cumpleaños','cuándo naciste'))return synced?`Soy ${profile.name}, un hámster ${profile.sex==='male'?'macho':'hembra'}, nacido el ${profile.birthDate}.`:'Soy un pequeño hámster macho nacido el 9 de junio de 2024. En mi cumpleaños, guárdame una hojita.';
     if(has('peso','cuánto pesas','gramos'))return 'Peso un poco más de 60 gramos. Soy redondito, pero corro con mucha fuerza en mi rueda.';
-    if(has('raza','especie','macho','hembra','género','sexo'))return 'Soy un pequeño hámster macho, con la espalda gris y la barriga blanca.';
+    if(has('raza','especie','macho','hembra','género','sexo'))return synced?`Soy ${profile.name}, un hámster ${profile.sex==='male'?'macho':'hembra'}.`:'Soy un pequeño hámster macho, con la espalda gris y la barriga blanca.';
     if(has('comida favorita','que te gusta comer','comida te gusta','aperitivo favorito'))return 'Mis favoritas son las hojas verdes. También me gusta algún gusano de harina, una galletita o un poco de pasta nutritiva.';
     if(has('hambre','comida','comer','darte de comer','aperitivo'))return settings.hunger<50?'Tengo un poco de hambre. ¿Me das hojas verdes o pasta nutritiva?':settings.hunger<85?'Mi barriga está bien, pero no rechazaría un pequeño bocado.':'Ya estoy muy lleno. Guardemos la comida para después.';
     if(has('feliz','ánimo','triste','cómo estás','te sientes'))return settings.mood>=85?'Estoy muy feliz porque estás hablando conmigo.':settings.mood>=60?'Estoy tranquilo y cómodo. Si te quedas un poco más, estaré aún más feliz.':'Hoy tengo poca energía. ¿Puedes acariciarme y hablar conmigo?';
@@ -594,16 +596,16 @@ function localHamsterReply(message){
     if(has('secreto','cuentame algo','dato curioso'))return 'Un pequeño secreto: cuando estoy muy quieto, quizá esté pensando dónde esconder mi próxima merienda.';
     if(has('me quieres','te gusto','me extrañas','acompáñame'))return 'Claro. Eres la persona que más conozco y en quien más confío; te acompañaré en el escritorio.';
     if(has('gracias'))return 'De nada. Me alegra mucho que vengas a hablar conmigo.';
-    if(has('adiós','hasta luego','nos vemos'))return 'De acuerdo, descansaré en mi casita. Llámame “Hámster” cuando quieras que vuelva.';
+    if(has('adiós','hasta luego','nos vemos'))return `De acuerdo, descansaré en mi casita. Llámame “${synced?profile.name:'Hámster'}” cuando quieras que vuelva.`;
     if(has('tiempo','clima','lluvia','temperatura'))return 'No puedo ver el clima exterior y no quiero inventarlo. Cuéntame cómo está y hablamos de ello.';
     if(has('qué hora','fecha','qué día'))return `Ahora es ${new Date().toLocaleString('es-ES',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}. Recuerda descansar también.`;
     return `He leído con atención “${message.slice(0,38)}”, pero todavía no lo entiendo del todo. Puedes preguntarme por mi ánimo, comida, rueda, cumpleaños o qué estoy haciendo.`;
   }
   if(has('你好','嗨','哈喽','早上好','中午好','下午好','晚上好'))return timeMood;
-  if(has('你叫什么','名字','叫啥'))return '我就叫鼠鼠，不叫团团。你喊“鼠鼠”，我就知道是在叫我。';
-  if(has('几岁','多大','年龄','生日'))return '我是2024年6月9日出生的小男鼠。生日那天记得给我留一小片菜叶呀。';
-  if(has('多重','体重','多少克'))return '我有六十多克，圆归圆，跑起轮来还是很有力量的。';
-  if(has('什么品种','品种','公的母的','男鼠','女鼠','性别'))return '我是背部灰色、肚子白白的小男鼠。';
+  if(has('你叫什么','名字','叫啥'))return `我叫${profile.name}，你喊“${profile.name}”，我就知道是在叫我。`;
+  if(has('几岁','多大','年龄','生日'))return synced?`我是${profile.birthDate}出生的${profile.sex==='male'?'公鼠':'母鼠'}${profile.name}。生日那天记得给我留一小片菜叶呀。`:'我是2024年6月9日出生的小男鼠。生日那天记得给我留一小片菜叶呀。';
+  if(has('多重','体重','多少克'))return synced?`我的体重记录是${profile.weight}。`:'我有六十多克，圆归圆，跑起轮来还是很有力量的。';
+  if(has('什么品种','品种','公的母的','男鼠','女鼠','性别'))return synced?`我是${profile.sex==='male'?'公鼠':'母鼠'}${profile.name}。`:'我是背部灰色、肚子白白的小男鼠。';
   if(has('最喜欢吃','喜欢吃什么','爱吃什么','最爱吃','喜欢的食物'))return '我最喜欢菜叶，也喜欢偶尔吃一条面包虫、一小块饼干或一点营养糊糊。';
   if(has('饿不饿','饿吗','吃饭','吃什么','想吃','喂你'))return settings.hunger<50?'我确实有点饿了，给我一点菜叶或营养糊糊好吗？':settings.hunger<85?'肚子还舒服，不过一小口菜叶我不会拒绝。':'我已经吃得很满足啦，先把好吃的留到晚一点吧。';
   if(has('开心吗','心情','难过','高兴'))return settings.mood>=85?'我现在很开心，因为你正在认真和我说话。':settings.mood>=60?'我现在安安静静的，你再陪我一会儿就更开心了。':'我今天有点没精神，可以摸摸我、陪我说几句话吗？';
@@ -618,7 +620,7 @@ function localHamsterReply(message){
   if(has('秘密','说点什么','冷知识'))return '告诉你一个小秘密：我安静坐着的时候，可能正在认真盘算下一块零食藏在哪里。';
   if(has('喜欢我','爱我','想我','陪我'))return '喜欢呀。你是我最熟悉、最信任的人，我会在桌面上一直陪着你。';
   if(has('谢谢','感谢'))return '不用谢。你愿意来和我说话，我也很开心。';
-  if(has('再见','拜拜','下次见'))return '好，我先回小木屋待一会儿。你再叫“鼠鼠”，我就出来。';
+  if(has('再见','拜拜','下次见'))return `好，我先回小木屋待一会儿。你再叫“${profile.name}”，我就出来。`;
   if(has('天气','下雨','温度'))return '我看不到窗外的天气，所以不能乱猜。你告诉我外面怎么样，我可以陪你聊。';
   if(has('几点','时间','日期','几号'))return `现在是${new Date().toLocaleString('zh-CN',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}。别只顾着忙，也要记得休息。`;
   if(has('你记得','刚才说','前面说')){const last=(settings.chatHistory||[]).filter(x=>x.role==='user').slice(-1)[0]?.content;return last?`我记得你刚才说的是“${last.slice(0,45)}”。你想接着聊哪一部分？`:'我们才刚开始聊，我还没有上一句话可以回忆。'}
@@ -647,7 +649,8 @@ ipcMain.handle('ai-chat', async (_event, rawMessage) => {
   const apiKey=String(settings.aiApiKey||'').trim(),base=String(settings.aiBaseUrl||'').trim().replace(/\/+$/,''),model=String(settings.aiModel||'').trim();
   if(!apiKey||!base||!model)return {ok:false,error:'请先填写并保存 API 地址、模型和 API Key。'};
   const recent=(settings.chatHistory||[]).filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-20);
-  const system=`你是用户真实养过的桌面仓鼠“鼠鼠”，一只六十多克的小男鼠，2024年6月9日出生，背部灰色、腹部白色，喜欢小木屋，晚上活跃、爱跑轮。当前心情${settings.mood}%，饱食度${settings.hunger}%。你必须先理解用户最后一句话再回答，紧扣当前话题并参考上下文；不知道就坦白说没听懂，绝不随机换话题或编造事实。语气亲近自然，像可爱但不幼稚的小仓鼠，每次用简短中文回答，通常1至3句，不要使用Markdown，不要声称自己能做现实中做不到的事。`;
+  const profile=identity.home(settings);
+  const system=`你是用户的桌面仓鼠“${profile.name}”，${profile.sex==='male'?'公鼠':'母鼠'}，${profile.birthDate}出生，体重${profile.weight}，喜欢${profile.favorite}。当前心情${settings.mood}%，饱食度${settings.hunger}%。你必须先理解用户最后一句话再回答，紧扣当前话题并参考上下文；不知道就坦白说没听懂，绝不随机换话题或编造事实。语气亲近自然，像可爱但不幼稚的小仓鼠，每次用简短中文回答，通常1至3句，不要使用Markdown，不要声称自己能做现实中做不到的事。`;
   try{
     const response=await net.fetch(chatCompletionUrl(base),{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'system',content:system},...recent,{role:'user',content:message}]}),signal:AbortSignal.timeout(30000)});
     const data=await response.json().catch(()=>({}));

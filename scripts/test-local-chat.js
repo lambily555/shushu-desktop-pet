@@ -1,10 +1,11 @@
+const assert = require('node:assert/strict');
 const fs = require('fs');
 const vm = require('vm');
 const source = fs.readFileSync(require('path').join(__dirname, '..', 'src', 'main.js'), 'utf8').replace(/\r\n/g, '\n');
 const body = source.match(/function localHamsterReply\(message\)\{[\s\S]*?\n\}\nfunction chatCompletionUrl/)?.[0]
   .replace(/\nfunction chatCompletionUrl[\s\S]*/, '');
 if (!body) throw new Error('localHamsterReply not found');
-const context = { settings: { interfaceLanguage: 'zh', hunger: 80, mood: 90, chatHistory: [] }, console };
+const context = { identity:require('../src/pet-identity'), settings: { interfaceLanguage: 'zh', hunger: 80, mood: 90, chatHistory: [] }, console };
 vm.createContext(context);
 vm.runInContext(`${body};this.reply=localHamsterReply`, context);
 const cases = [
@@ -25,3 +26,5 @@ for (const [message, expected] of cases) {
   if (!/[\u3400-\u9fff]/.test(message) && /[\u3400-\u9fff]/.test(reply)) throw new Error(`${message} -> ${reply}`);
   console.log(`PASS ${message} -> ${reply}`);
 }
+
+context.settings.townMainProfile={id:'new-main',name:'糯糯',birthDate:'2026-01-03',sex:'female',weight:'28克'};context.settings.syncTownProfile=true;assert.match(context.reply('你叫什么'),/糯糯/);assert.match(context.reply('你的生日'),/2026-01-03/);context.settings.syncTownProfile=false;assert.match(context.reply('你叫什么'),/鼠鼠/);assert.match(context.reply('你的生日'),/2024/);console.log('Home chat identity follows profile preference');
