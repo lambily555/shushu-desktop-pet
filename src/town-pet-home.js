@@ -19,7 +19,7 @@ export function createPetHome(){
 const assets=new Map();
 function asset(kind){if(!assets.has(kind))assets.set(kind,new GLTFLoader().loadAsync('../assets/models/cube-pets/animal-'+kind+'.glb'));return assets.get(kind)}
 export function createPetAnimal(kind){
- const holder=new THREE.Group();holder.name='Cube pet '+kind;holder.userData.roomAction='pet-home';
+ const holder=new THREE.Group();holder.name='Cube pet '+kind;holder.userData.roomAction='pet-home';holder.userData.petId=kind;
  asset(kind).then(data=>{const model=clone(data.scene),bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),centre=bounds.getCenter(new THREE.Vector3()),scale=.85/Math.max(size.x,size.y,size.z);model.scale.setScalar(scale);model.position.set(-centre.x*scale,-bounds.min.y*scale,-centre.z*scale);model.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true});holder.add(model);holder.userData.loaded=true;holder.userData.animationNames=data.animations.map(a=>a.name);holder.userData.clips=data.animations;holder.userData.mixer=new THREE.AnimationMixer(model);animatePet(holder,'idle')}).catch(()=>{holder.userData.loadError=true});
  return holder;
 }

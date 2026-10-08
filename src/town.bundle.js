@@ -37596,6 +37596,7 @@ void main() {
     const holder = new Group();
     holder.name = "Cube pet " + kind;
     holder.userData.roomAction = "pet-home";
+    holder.userData.petId = kind;
     asset(kind).then((data) => {
       const model = clone(data.scene), bounds = new Box3().setFromObject(model), size = bounds.getSize(new Vector3()), centre = bounds.getCenter(new Vector3()), scale = 0.85 / Math.max(size.x, size.y, size.z);
       model.scale.setScalar(scale);
@@ -38494,33 +38495,48 @@ void main() {
   var distance2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var petOutsideZ = (portal) => Math.max(4.3, (1.75 - portal.layout.z) / (portal.layout.depth / 6));
   function segmentClear(actor, a, b) {
-    const steps = Math.ceil(distance2(a, b) / 0.08);
+    const steps = Math.ceil(distance2(a, b) / 0.04);
     for (let i2 = 1; i2 <= steps; i2++) if (!canWalk(actor, a.x + (b.x - a.x) * i2 / steps, a.z + (b.z - a.z) * i2 / steps)) return false;
     return true;
   }
-  function petRoomPath(actor, target) {
-    const unit = 0.2, key = (x2, z) => `${x2},${z}`, start = [Math.round(actor.position.x / unit), Math.round(actor.position.z / unit)], end = [Math.round(target.x / unit), Math.round(target.z / unit)], queue = [start], parents = /* @__PURE__ */ new Map([[key(...start), null]]);
+  function petPath(actor, target) {
+    const indoors = !!actor.inside, unit = indoors ? 0.2 : 0.4, key = (x2, z) => `${x2},${z}`;
+    function anchor(point2) {
+      const x2 = Math.round(point2.x / unit), z = Math.round(point2.z / unit), choices = [];
+      for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+        const p = { x: (x2 + dx) * unit, z: (z + dz) * unit };
+        if (canWalk(actor, p.x, p.z) && segmentClear(actor, point2, p)) choices.push({ x: x2 + dx, z: z + dz, d: distance2(point2, p) });
+      }
+      return choices.sort((a, b) => a.d - b.d)[0];
+    }
+    const start = anchor(actor.position), end = anchor(target);
+    if (!start || !end) return [];
+    const queue = [{ ...start, g: 0, f: 0 }], cost = /* @__PURE__ */ new Map([[key(start.x, start.z), 0]]), parents = /* @__PURE__ */ new Map();
     let found = false;
-    for (let i2 = 0; i2 < queue.length; i2++) {
-      const [x2, z] = queue[i2];
-      if (x2 === end[0] && z === end[1]) {
+    while (queue.length) {
+      queue.sort((a, b) => a.f - b.f);
+      const n = queue.shift(), nk = key(n.x, n.z);
+      if (n.g !== cost.get(nk)) continue;
+      if (n.x === end.x && n.z === end.z) {
         found = true;
         break;
       }
       for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]) {
-        const nx = x2 + dx, nz = z + dz, k = key(nx, nz);
-        if (Math.abs(nx) > 20 || nz < -15 || nz > 22 || parents.has(k) || !segmentClear(actor, { x: x2 * unit, z: z * unit }, { x: nx * unit, z: nz * unit })) continue;
-        parents.set(k, key(x2, z));
-        queue.push([nx, nz]);
+        const x2 = n.x + dx, z = n.z + dz, k = key(x2, z);
+        if (indoors ? Math.abs(x2) > 20 || z < -15 || z > 22 : Math.abs(x2) > 44 || Math.abs(z) > 44) continue;
+        const g = n.g + Math.hypot(dx, dz);
+        if (g >= (cost.get(k) ?? Infinity) || !segmentClear(actor, { x: n.x * unit, z: n.z * unit }, { x: x2 * unit, z: z * unit })) continue;
+        cost.set(k, g);
+        parents.set(k, nk);
+        queue.push({ x: x2, z, g, f: g + Math.hypot(x2 - end.x, z - end.z) });
       }
     }
     if (!found) return [];
     const path = [];
-    for (let k = key(...end); k; k = parents.get(k)) {
+    for (let k = key(end.x, end.z); k; k = parents.get(k)) {
       const [x2, z] = k.split(",").map(Number);
       path.unshift({ x: x2 * unit, z: z * unit });
     }
-    if (!segmentClear(actor, actor.position, path[0]) || !segmentClear(actor, path.at(-1), target)) return [];
     path.push({ ...target });
     return path;
   }
@@ -38558,7 +38574,7 @@ void main() {
       actor.replan -= dt;
       if (!actor.goal || distance2(actor.goal, target) > (actor.inside ? 0.65 : 0.8) || !actor.path.length && actor.replan <= 0 && distance2(actor.position, target) > 0.12) {
         actor.goal = { ...target };
-        actor.path = actor.inside ? petRoomPath(actor, target) : route(actor.position, target);
+        actor.path = petPath(actor, target);
         actor.replan = 1;
       }
       const scale = actor.inside ? rooms.get(actor.inside).scale : null;
@@ -38580,7 +38596,7 @@ void main() {
         actor.moving = true;
         actor.heading = Math.atan2(dx, dz);
         budget -= d * fraction;
-        if (fraction === 1) actor.path.shift();
+        if (distance2(actor.position, next) < 5e-3) actor.path.shift();
         else break;
       }
       return distance2(actor.position, target) < 0.12;
@@ -43905,7 +43921,7 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance3 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance3 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, trackedSubject = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     let focusedExhibit = null;
     let lookSensitivity = 1;
@@ -44504,9 +44520,9 @@ void main() {
       cutaway.forEach((o) => o.visible = false);
       room.userData.labels = [...roomLabels];
     }
-    function enterPlace(name) {
+    function enterPlace(name, following = false) {
       clearFocus(false);
-      if (activePlace) leavePlace();
+      if (activePlace) leavePlace(following);
       savedCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       activePlace = name;
       document.querySelector("#townPlace b").textContent = name;
@@ -44537,9 +44553,9 @@ void main() {
       returnButton.hidden = firstPerson;
       host.dataset.place = name;
       if (!firstPerson) positionCamera();
-      window.dispatchEvent(new CustomEvent("town-place-select", { detail: { place: name } }));
+      if (!following) window.dispatchEvent(new CustomEvent("town-place-select", { detail: { place: name } }));
     }
-    function leavePlace() {
+    function leavePlace(following = false) {
       if (!activePlace) return;
       clearFocus(false);
       if (indoorNames.includes(activePlace)) {
@@ -44562,9 +44578,11 @@ void main() {
       if (!firstPerson) positionCamera();
       document.querySelector("#townPlace b").textContent = "\u4E2D\u5FC3\u5E7F\u573A";
       document.querySelector("#townPlace span").textContent = "\u9F20\u9F20\u4EEC\u78B0\u9762\u548C\u4EA4\u6362\u6D88\u606F\u7684\u5730\u65B9";
-      window.dispatchEvent(new CustomEvent("town-view-close"));
+      if (!following) window.dispatchEvent(new CustomEvent("town-view-close"));
     }
     function focusResident(index) {
+      if (firstPerson) stopFirstPerson();
+      trackedSubject = { type: "npc", id: index };
       const npc = residents[index];
       if (!npc?.rig.visible) return;
       if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
@@ -44581,19 +44599,28 @@ void main() {
       sayToResident(index, "\u4ECA\u5929\u4E5F\u5F88\u9AD8\u5174\u89C1\u5230\u4F60\uFF01");
       window.dispatchEvent(new CustomEvent("town-npc-select", { detail: { index } }));
     }
+    function focusDisplayPet(id) {
+      if (firstPerson) stopFirstPerson();
+      const rig = roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p.userData.petId === id);
+      if (!rig?.visible) return false;
+      trackedSubject = { type: "display", id };
+      focusedResident = -4;
+      target.copy(rig.getWorldPosition(new Vector3())).add(new Vector3(0.28, 0.1, 0));
+      yaw = facing("\u5BA0\u7269\u4E4B\u5BB6") + 0.18;
+      pitch = 0.68;
+      distance3 = 2;
+      returnButton.hidden = false;
+      positionCamera();
+      return true;
+    }
     function focusCompanion(id) {
-      const companion = petCompanions.inspect().find((p) => p.id === id && p.visible);
+      if (firstPerson) stopFirstPerson();
+      const companion = petCompanions.inspect().find((p) => p.id === id);
       if (!companion) return false;
-      const point2 = new Vector3(...companion.worldPosition).add(new Vector3(0, 0.1, 0));
-      if (firstPerson) {
-        const delta = point2.sub(camera.position);
-        playerYaw = Math.atan2(-delta.x, -delta.z);
-        playerPitch = Math.max(-1.3, Math.min(1.3, Math.atan2(delta.y, Math.hypot(delta.x, delta.z))));
-        return true;
-      }
+      trackedSubject = { type: "companion", id };
       if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       focusedResident = -4;
-      target.copy(point2).add(new Vector3(0.28, 0, 0));
+      target.set(...companion.worldPosition).add(new Vector3(0.28, 0.1, 0));
       yaw = companion.inside ? facing(companion.inside) + 0.18 : 0.15;
       pitch = 0.68;
       distance3 = companion.inside ? 1.25 : 1.7;
@@ -44602,7 +44629,9 @@ void main() {
       return true;
     }
     function focusPet() {
+      if (firstPerson) stopFirstPerson();
       if (!pet.visible) return;
+      trackedSubject = { type: "main" };
       if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       focusedResident = -2;
       target.copy(pet.position).add(new Vector3(1.05, 0.25, 0));
@@ -44618,6 +44647,8 @@ void main() {
       window.dispatchEvent(new CustomEvent("town-main-select"));
     }
     function focusPup(id) {
+      if (firstPerson) stopFirstPerson();
+      trackedSubject = { type: "pup", id };
       const item = pups.get(id);
       if (!item?.rig.visible) return;
       if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
@@ -44655,6 +44686,7 @@ void main() {
       }, 4200);
     }
     function clearFocus(restore = true) {
+      trackedSubject = null;
       if (focusedResident === -1) return;
       focusedResident = -1;
       focusedPup = null;
@@ -44697,18 +44729,20 @@ void main() {
         actor.phase = actor.inside ? "exit-room" : "idle";
         actor.wait = 0;
       }
-      if (firstPerson) {
-        stopFirstPerson();
-        window.dispatchEvent(new CustomEvent("town-view-close"));
-        return;
-      }
+      if (firstPerson) stopFirstPerson();
       if (activePlace) leavePlace();
       else clearFocus();
+      trackedSubject = null;
+      yaw = 0;
+      pitch = 0.83;
+      distance3 = 34;
+      target.set(0, 0, 0);
+      positionCamera();
       window.dispatchEvent(new CustomEvent("town-view-close"));
     }
     returnButton.onclick = returnToTown;
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && activePlace && document.body.dataset.currentPanel === "town") {
+      if (e.key === "Escape" && (activePlace || trackedSubject || firstPerson) && document.body.dataset.currentPanel === "town") {
         e.preventDefault();
         e.stopImmediatePropagation();
         returnToTown();
@@ -45113,7 +45147,7 @@ void main() {
           return;
         }
         if (node?.userData.roomAction === "pet-home") {
-          window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "pet-home", place: "\u5BA0\u7269\u4E4B\u5BB6" } }));
+          window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "pet-home", place: "\u5BA0\u7269\u4E4B\u5BB6", petId: node.userData.petId } }));
           return;
         }
         if (node?.userData.roomAction === "classroom-seat") {
@@ -45551,7 +45585,7 @@ void main() {
           else if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
           else if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.roomAction === "owned-pet") window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "owned-pet", petId: object.userData.petId } }));
-          else if (object?.userData.roomAction === "pet-home") window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "pet-home", place: "\u5BA0\u7269\u4E4B\u5BB6" } }));
+          else if (object?.userData.roomAction === "pet-home") window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "pet-home", place: "\u5BA0\u7269\u4E4B\u5BB6", petId: object.userData.petId } }));
           else if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
           else if (object?.userData.pupId) focusPup(object.userData.pupId);
           else if (object?.userData.mainPet) focusPet();
@@ -45672,8 +45706,21 @@ void main() {
       placeModels.get("\u8DD1\u8F6E\u516C\u56ED").userData.setRunning(dt, [...life.actors.values()].some((a) => a.place === "\u8DD1\u8F6E\u516C\u56ED" && a.phase === "activity" && a.action === "\u8DD1\u8F6E"));
       life.tick(dt, worldState.part === "\u767D\u5929");
       updatePlayer(dt);
+      if (trackedSubject && !firstPerson) {
+        const subject = trackedSubject, type = subject.type, selected = type === "companion" ? petCompanions.inspect().find((p) => p.id === subject.id) : life.actors.get(type === "main" ? "main" : type === "npc" ? residents[subject.id]?.lifeId : subject.id), inside = selected?.inside || null;
+        if (selected && inside !== activePlace) {
+          const view = { yaw, pitch, distance: distance3 }, focus = focusedResident, pup = focusedPup;
+          if (inside) enterPlace(inside, true);
+          else leavePlace(true);
+          trackedSubject = subject;
+          focusedResident = focus;
+          focusedPup = pup;
+          ({ yaw, pitch, distance: distance3 } = view);
+          returnButton.hidden = false;
+        }
+      }
       const focusedId = focusedResident === -2 ? "main" : focusedResident === -3 ? focusedPup : focusedResident >= 0 ? residents[focusedResident].lifeId : null, focusedActor = life.actors.get(focusedId);
-      if (focusedActor && (indoorNames.includes(activePlace) && focusedActor.inside !== activePlace || !indoorNames.includes(activePlace) && focusedActor.inside)) {
+      if (!trackedSubject && focusedActor && (indoorNames.includes(activePlace) && focusedActor.inside !== activePlace || !indoorNames.includes(activePlace) && focusedActor.inside)) {
         clearFocus();
         window.dispatchEvent(new CustomEvent("town-view-close"));
       }
@@ -45723,6 +45770,14 @@ void main() {
         renderActor(item.rig, life.actors.get(item.data.id), t);
         placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (firstPerson ? Math.hypot(item.rig.position.x - camera.position.x, item.rig.position.z - camera.position.z) > 2.8 : focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
       });
+      if (trackedSubject && !firstPerson) {
+        const selected = trackedSubject.type === "companion" ? petCompanions.inspect().find((p) => p.id === trackedSubject.id) : null, rig = trackedSubject.type === "main" ? pet : trackedSubject.type === "npc" ? residents[trackedSubject.id]?.rig : trackedSubject.type === "pup" ? pups.get(trackedSubject.id)?.rig : trackedSubject.type === "display" ? roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p.userData.petId === trackedSubject.id) : null;
+        if (selected || rig) {
+          const point2 = selected ? new Vector3(...selected.worldPosition) : trackedSubject.type === "display" ? rig.getWorldPosition(new Vector3()) : rig.position.clone();
+          target.copy(point2).add(new Vector3(selected || trackedSubject.type === "display" ? 0.28 : 1.05, selected || trackedSubject.type === "display" ? 0.1 : 0.25, 0));
+          positionCamera();
+        } else clearFocus();
+      }
       roomLabels.forEach(({ button, point: point2 }) => placeLabel(button, point2, occupied, true));
       layoutSpeech();
       if (firstPerson) pet.visible = false;
@@ -45836,13 +45891,13 @@ void main() {
     window.TownApp = { petInteraction: (action, petId) => {
       if (!petId) roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.playPetAction(action);
       petCompanions.interact(action, petId);
-    }, focusCompanion, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
+    }, focusCompanion, focusDisplayPet, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
       const v = new Vector3(...p.worldPosition).add(new Vector3(0, 0.1, 0)).project(camera), r = canvas.getBoundingClientRect();
       return { ...p, screenPoint: { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 } };
     }), petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.map((a) => ({ loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
-    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance3, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, trackedSubject, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance3, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

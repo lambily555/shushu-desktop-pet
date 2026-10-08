@@ -2,18 +2,22 @@ import * as THREE from 'three';
 import {createPetAnimal,animatePet} from './town-pet-home.js';
 import {cottagePetFurniture} from './town-pet-layout.js';
 import {canWalk,movePlayer} from './town-player.js';
-import {route,facing} from './town-life.js';
+import {facing} from './town-life.js';
 import {localDoor} from './town-building-portals.js';
 
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 export const petOutsideZ=portal=>Math.max(4.3,(1.75-portal.layout.z)/(portal.layout.depth/6));
-function segmentClear(actor,a,b){const steps=Math.ceil(distance(a,b)/.08);for(let i=1;i<=steps;i++)if(!canWalk(actor,a.x+(b.x-a.x)*i/steps,a.z+(b.z-a.z)*i/steps))return false;return true}
-// Small room grid uses the same doors, furniture and curved wall collision as the player.
-export function petRoomPath(actor,target){
- const unit=.2,key=(x,z)=>`${x},${z}`,start=[Math.round(actor.position.x/unit),Math.round(actor.position.z/unit)],end=[Math.round(target.x/unit),Math.round(target.z/unit)],queue=[start],parents=new Map([[key(...start),null]]);let found=false;
- for(let i=0;i<queue.length;i++){const [x,z]=queue[i];if(x===end[0]&&z===end[1]){found=true;break}for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const nx=x+dx,nz=z+dz,k=key(nx,nz);if(Math.abs(nx)>20||nz< -15||nz>22||parents.has(k)||!segmentClear(actor,{x:x*unit,z:z*unit},{x:nx*unit,z:nz*unit}))continue;parents.set(k,key(x,z));queue.push([nx,nz])}}
- if(!found)return [];const path=[];for(let k=key(...end);k;k=parents.get(k)){const [x,z]=k.split(',').map(Number);path.unshift({x:x*unit,z:z*unit})}if(!segmentClear(actor,actor.position,path[0])||!segmentClear(actor,path.at(-1),target))return [];path.push({...target});return path;
+function segmentClear(actor,a,b){const steps=Math.ceil(distance(a,b)/.04);for(let i=1;i<=steps;i++)if(!canWalk(actor,a.x+(b.x-a.x)*i/steps,a.z+(b.z-a.z)*i/steps))return false;return true}
+// Route planning and movement share the same door, furniture and body-clearance checks.
+function petPath(actor,target){
+ const indoors=!!actor.inside,unit=indoors?.2:.4,key=(x,z)=>`${x},${z}`;
+ function anchor(point){const x=Math.round(point.x/unit),z=Math.round(point.z/unit),choices=[];for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const p={x:(x+dx)*unit,z:(z+dz)*unit};if(canWalk(actor,p.x,p.z)&&segmentClear(actor,point,p))choices.push({x:x+dx,z:z+dz,d:distance(point,p)})}return choices.sort((a,b)=>a.d-b.d)[0]}
+ const start=anchor(actor.position),end=anchor(target);if(!start||!end)return [];const queue=[{...start,g:0,f:0}],cost=new Map([[key(start.x,start.z),0]]),parents=new Map();let found=false;
+ while(queue.length){queue.sort((a,b)=>a.f-b.f);const n=queue.shift(),nk=key(n.x,n.z);if(n.g!==cost.get(nk))continue;if(n.x===end.x&&n.z===end.z){found=true;break}for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[-1,1],[1,-1]]){const x=n.x+dx,z=n.z+dz,k=key(x,z);if(indoors?(Math.abs(x)>20||z< -15||z>22):(Math.abs(x)>44||Math.abs(z)>44))continue;const g=n.g+Math.hypot(dx,dz);if(g>=(cost.get(k)??Infinity)||!segmentClear(actor,{x:n.x*unit,z:n.z*unit},{x:x*unit,z:z*unit}))continue;cost.set(k,g);parents.set(k,nk);queue.push({x,z,g,f:g+Math.hypot(x-end.x,z-end.z)})}}
+ if(!found)return [];const path=[];for(let k=key(end.x,end.z);k;k=parents.get(k)){const [x,z]=k.split(',').map(Number);path.unshift({x:x*unit,z:z*unit})}path.push({...target});return path;
 }
+export const petRoomPath=(actor,target)=>petPath(actor,target);
+export const petOutdoorPath=(actor,target)=>petPath(actor,target);
 function followingPoint(actor,leader,index){
  const gap=actor.inside?.8+index*.9:.55+index*.25,heading=leader.heading||0;
  for(const turn of [0,.7,-.7,1.4,-1.4,Math.PI]){const p={x:leader.position.x-Math.sin(heading+turn)*gap,z:leader.position.z-Math.cos(heading+turn)*gap};if(canWalk(actor,p.x,p.z))return p}return {...actor.position};
@@ -26,9 +30,9 @@ export function createPetCompanions({scene,rooms,models,clickable}){
  }
  function prepare(actor,state){const portal=actor.inside?models.get(actor.inside).userData.portal:actor.entryPortal;actor.doorway=portal?{...localDoor(portal),open:portal.angle>1}:null;actor.cottageTableSlot=state.furniture?.table?.slot;actor.petFacilities={...state.petHome?.facilities,pets:state.petHome?.pets,food:state.petHome?.food,hasPets:!!state.petHome?.pets.length}}
  function walkTo(actor,target,dt){
-  actor.replan-=dt;if(!actor.goal||distance(actor.goal,target)>(actor.inside?.65:.8)||(!actor.path.length&&actor.replan<=0&&distance(actor.position,target)>.12)){actor.goal={...target};actor.path=actor.inside?petRoomPath(actor,target):route(actor.position,target);actor.replan=1}
+  actor.replan-=dt;if(!actor.goal||distance(actor.goal,target)>(actor.inside?.65:.8)||(!actor.path.length&&actor.replan<=0&&distance(actor.position,target)>.12)){actor.goal={...target};actor.path=petPath(actor,target);actor.replan=1}
   const scale=actor.inside?rooms.get(actor.inside).scale:null;let budget=dt*.9;
-  while(budget>0&&actor.path.length){const next=actor.path[0],dx=next.x-actor.position.x,dz=next.z-actor.position.z,d=Math.hypot(dx*(scale?.x||1),dz*(scale?.z||1));if(d<.005){actor.path.shift();continue}const fraction=Math.min(1,budget/d),before={...actor.position};movePlayer(actor,dx*fraction,dz*fraction);const moved=distance(before,actor.position);if(moved<.0001){actor.path=[];actor.replan=1;break}actor.moving=true;actor.heading=Math.atan2(dx,dz);budget-=d*fraction;if(fraction===1)actor.path.shift();else break}
+  while(budget>0&&actor.path.length){const next=actor.path[0],dx=next.x-actor.position.x,dz=next.z-actor.position.z,d=Math.hypot(dx*(scale?.x||1),dz*(scale?.z||1));if(d<.005){actor.path.shift();continue}const fraction=Math.min(1,budget/d),before={...actor.position};movePlayer(actor,dx*fraction,dz*fraction);const moved=distance(before,actor.position);if(moved<.0001){actor.path=[];actor.replan=1;break}actor.moving=true;actor.heading=Math.atan2(dx,dz);budget-=d*fraction;if(distance(actor.position,next)<.005)actor.path.shift();else break}
   return distance(actor.position,target)<.12;
  }
  function tick(dt,leader,state,activePlace,firstPerson){

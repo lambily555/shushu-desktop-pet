@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {petRoomPath,petOutsideZ} from '../src/town-pet-companions.js';
+import {petRoomPath,petOutsideZ,petOutdoorPath} from '../src/town-pet-companions.js';
 import {buildingLayouts,placeRoom,localDoor} from '../src/town-building-portals.js';
-import {destinations,facing,blocked} from '../src/town-life.js';
-import {canWalk} from '../src/town-player.js';
+import {destinations,facing,blocked,entrance} from '../src/town-life.js';
+import {canWalk,movePlayer} from '../src/town-player.js';
 import {cottagePetFurniture} from '../src/town-pet-layout.js';
 import {cottageFloor,cottageFurniture} from '../src/town-cottage-interior.js';
 const actor={inside:'鼠鼠小屋',position:{x:0,z:4.05},doorway:{x:0,z:3,width:2.6,open:true},petCompanion:true,petFacilities:{bed:true,toy:true,food:5,hasPets:true}};
@@ -13,3 +13,7 @@ const player={...actor,petCompanion:false};assert.equal(canWalk(player,...cottag
 assert.ok(Math.abs(cottagePetFurniture.beds[0][0]-.38-cottageFurniture.bed[0])>.98,'pet bed is separate from the hamster bed');
 for(const [name,layout] of Object.entries(buildingLayouts)){const destination=destinations.find(d=>d[0]===name),model=new THREE.Group();model.position.set(destination[1],0,destination[2]);model.rotation.y=facing(name);const portal={name,layout,model,angle:1.45,front:layout.z+layout.depth/2},room=new THREE.Group();model.updateMatrixWorld(true);placeRoom(room,portal);room.updateMatrixWorld(true);const gate=localDoor(portal),outer=room.localToWorld(new THREE.Vector3(gate.x,0,petOutsideZ(portal)));assert.equal(blocked(outer.x,outer.z),false,name+' has an approach outside the building footprint');for(let z=4.05;z<=petOutsideZ(portal);z+=.05){const point=room.localToWorld(new THREE.Vector3(gate.x,0,z));assert.equal(canWalk({position:point,entryPortal:portal},point.x,point.z),true,name+' has a continuous outdoor door corridor')}}
 console.log('Pet paths, alternate table layouts, door corridor, solid facilities and oval-floor containment passed');
+
+for(const from of destinations)for(const to of destinations){const start=entrance(from[0]),end=entrance(to[0]),actor={position:start,petCompanion:true};if(!canWalk(actor,start.x,start.z)||!canWalk(actor,end.x,end.z))continue;const path=petOutdoorPath(actor,end);assert.ok(path.length,from[0]+' -> '+to[0]+' has a collision-safe route');let previous=start;for(const point of path){const count=Math.ceil(Math.hypot(point.x-previous.x,point.z-previous.z)/.04);for(let i=1;i<=count;i++)assert.equal(canWalk(actor,previous.x+(point.x-previous.x)*i/count,previous.z+(point.z-previous.z)*i/count),true,'every route segment matches actual movement collision');previous=point}}
+
+for(const name of ['鼠鼠小屋','鼠鼠学校','宠物之家']){const actor={position:entrance(name),petCompanion:true},target=entrance('跑轮公园'),path=petOutdoorPath(actor,target);for(const point of path){for(let i=0;i<200&&Math.hypot(point.x-actor.position.x,point.z-actor.position.z)>.005;i++){const dx=point.x-actor.position.x,dz=point.z-actor.position.z,f=Math.min(1,.03/Math.hypot(dx,dz));movePlayer(actor,dx*f,dz*f)}assert.ok(Math.hypot(point.x-actor.position.x,point.z-actor.position.z)<.005,'pet can actually reach every planned waypoint')}}
