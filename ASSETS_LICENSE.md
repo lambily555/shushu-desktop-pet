@@ -45,3 +45,12 @@
 
 ## Mariah Carey 名人堂
 建筑、唱片、展柜及占位画面由代码生成。用户提供的专辑与照片仅在本地使用，未随本仓库分发；无私人贴图时自动显示程序生成的专辑名称封面及照片占位卡。
+
+## 宠物之家与 Cube Pets
+
+宠物之家建筑、货架、柜台、花盆、宠物窝与玩具由 `src/town-pet-home.js` 程序生成。用户参考图片仅用于建模方向，不作为运行素材或贴图公开。
+
+`assets/models/cube-pets/animal-cat.glb`、`animal-dog.glb`、`Textures/colormap.png` 来自 Kenney Cube Pets 2.0，按 CC0 使用及再分发，原始许可保存在同目录 `License.txt`。
+来源：https://kenney.nl/assets/cube-pets
+许可：https://creativecommons.org/publicdomain/zero/1.0/
+仅发布运行所需的猫、狗及共用颜色贴图，完整下载包和预览截图不包含在公开仓库。

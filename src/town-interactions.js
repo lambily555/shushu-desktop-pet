@@ -45,6 +45,7 @@
     if(id==='funeral-message'&&!message.trim())return {state:input,ok:false,message:'寄语不能为空。'};
     state.plaza={...state.plaza,inventory:{...inventory}};state.school={...state.school};
     for(const [k,v] of Object.entries(a.effects)){const n=value(k)+v;if(k==='vegetables'||k==='bedding')state.plaza.inventory[k]=n;else if(k==='knowledge')state.school.knowledge=n;else state[k]=['stamina','mood','health','fullness'].includes(k)?Math.min(100,n):n}
+    if((a.effects.seeds||0)>0)root.TownPets?.recordIncome(state,a.effects.seeds);
     if(id==='garden-water'||id==='garden-weed')state.garden.plantedAt-=3600000;
     if(id==='clinic-hospital'){state.hospitalStay={until:state.calendarTime+6*3600000};state.currentActivity='住院';state.currentPlace='诊所';state.sleepRequested=false}
     state.placeInteractions={...state.placeInteractions,[id]:date};

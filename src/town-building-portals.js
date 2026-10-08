@@ -3,6 +3,7 @@ import {cottageShellGeometry,cottageDoorLining,cottageFloor,cottageRadius} from 
 
 // Dimensions are in the town's world units, including the original front-door positions.
 export const buildingLayouts={
+ '宠物之家':{width:3.8,depth:2.8,z:0,floor:.12,height:1.7,doorX:.75,doorWidth:.82,doorHeight:1.35,wall:0xf1d8ae,trim:0x805132},
  'Mariah Carey名人堂':{width:3.1,depth:2.3,z:0,floor:.38,height:1.7,doorX:-.8,doorWidth:.62,doorHeight:1.4,wall:0xeae4d6,trim:0x625b55,glass:true},
  '鼠鼠饭馆':{width:4,depth:2.65,z:-.14,floor:.14,height:1.6,doorX:-.6,doorWidth:.8,doorHeight:1.25,wall:0xeee8d9,trim:0x655746},
  '诊所':{width:2.88,depth:1.85,z:-.175,floor:.2,height:1.45,doorX:0,doorWidth:.64,doorHeight:1.2,wall:0xf1f5f1,trim:0x86b6c5,glass:true},

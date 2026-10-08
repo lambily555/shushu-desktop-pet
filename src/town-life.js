@@ -2,6 +2,7 @@ import {plazaSeats,plazaSeatBlocks} from './town-plaza-seats.js';
 import {cottageFurniture} from './town-cottage-interior.js';
 // Scene-time movement is separate from real-time needs and aging.
 export const destinations=[
+ ['宠物之家',-14,1.5,true,'陪伴宠物',[-.75,.5]],
  ['跑轮公园',-11,-7.5,false,'跑轮',[-1.9,-.8]],['诊所',-4.5,-10,true,'检查',[.4,-.8]],
  ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
  ['纪念馆',-11,3.5,true,'参观',[0,-.5]],['鼠鼠小屋',-5,6.5,true,'休息',cottageFurniture.bed],
@@ -11,8 +12,8 @@ const byName=new Map(destinations.map(d=>[d[0],d]));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const point=(x,z)=>({x,z});
 export const facing=name=>{const d=byName.get(name);return name==='中心广场'?0:Math.round(Math.atan2(-d[1],-1.3-d[2])/(Math.PI/2))*(Math.PI/2)};
-export function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋'),a=facing(d[0]);return {x:d[1]+Math.sin(a)*(name==='跑轮公园'?2.5:1.9),z:d[2]+Math.cos(a)*(name==='跑轮公园'?2.5:1.9)}}
-export function blocked(x,z,ignoreName=null){const plaza=byName.get('中心广场');return plazaSeatBlocks(x-plaza[1],z-plaza[2])||destinations.some(d=>{if(d[0]==='中心广场'||d[0]===ignoreName)return false;if(d[0]==='跑轮公园')return Math.hypot(x-d[1],z-d[2])<2.2;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];if(d[0]==='墓地'){const lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a);return Math.abs(lx)<2.12&&Math.abs(lz)<1.66&&(Math.abs(lx)>1.95||lz< -1.03||(lz>1.46&&Math.abs(lx)>.45)||(Math.abs(lx)>.3&&Math.abs(lz-.08)>.2))}return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<(d[0]==='鼠鼠饭馆'?2.1:d[0]==='Mariah Carey名人堂'?1.75:1.62)&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<(d[0]==='鼠鼠饭馆'?1.5:d[0]==='Mariah Carey名人堂'?1.4:1.2)})||Math.hypot(x,z+1.3)<.9}
+export function entrance(name){const d=byName.get(name)||byName.get('鼠鼠小屋'),a=facing(d[0]);return {x:d[1]+Math.sin(a)*(name==='跑轮公园'?2.5:1.9)+(name==='宠物之家'?.75*Math.cos(a):0),z:d[2]+Math.cos(a)*(name==='跑轮公园'?2.5:1.9)-(name==='宠物之家'?.75*Math.sin(a):0)}}
+export function blocked(x,z,ignoreName=null){const plaza=byName.get('中心广场');return plazaSeatBlocks(x-plaza[1],z-plaza[2])||destinations.some(d=>{if(d[0]==='中心广场'||d[0]===ignoreName)return false;if(d[0]==='跑轮公园')return Math.hypot(x-d[1],z-d[2])<2.2;const a=facing(d[0]),dx=x-d[1],dz=z-d[2];if(d[0]==='墓地'){const lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a);return Math.abs(lx)<2.12&&Math.abs(lz)<1.66&&(Math.abs(lx)>1.95||lz< -1.03||(lz>1.46&&Math.abs(lx)>.45)||(Math.abs(lx)>.3&&Math.abs(lz-.08)>.2))}return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<(d[0]==='宠物之家'?2:d[0]==='鼠鼠饭馆'?2.1:d[0]==='Mariah Carey名人堂'?1.75:1.62)&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<(d[0]==='宠物之家'?1.5:d[0]==='鼠鼠饭馆'?1.5:d[0]==='Mariah Carey名人堂'?1.4:1.2)})||Math.hypot(x,z+1.3)<.9}
 // Grid routes avoid building footprints, garden beds and the central fountain.
 export function route(start,end){
  const unit=.4,toGrid=p=>[Math.round(p.x/unit),Math.round(p.z/unit)],key=(x,z)=>`${x},${z}`;
