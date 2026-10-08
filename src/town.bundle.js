@@ -44581,6 +44581,26 @@ void main() {
       sayToResident(index, "\u4ECA\u5929\u4E5F\u5F88\u9AD8\u5174\u89C1\u5230\u4F60\uFF01");
       window.dispatchEvent(new CustomEvent("town-npc-select", { detail: { index } }));
     }
+    function focusCompanion(id) {
+      const companion = petCompanions.inspect().find((p) => p.id === id && p.visible);
+      if (!companion) return false;
+      const point2 = new Vector3(...companion.worldPosition).add(new Vector3(0, 0.1, 0));
+      if (firstPerson) {
+        const delta = point2.sub(camera.position);
+        playerYaw = Math.atan2(-delta.x, -delta.z);
+        playerPitch = Math.max(-1.3, Math.min(1.3, Math.atan2(delta.y, Math.hypot(delta.x, delta.z))));
+        return true;
+      }
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
+      focusedResident = -4;
+      target.copy(point2).add(new Vector3(0.28, 0, 0));
+      yaw = companion.inside ? facing(companion.inside) + 0.18 : 0.15;
+      pitch = 0.68;
+      distance3 = companion.inside ? 1.25 : 1.7;
+      returnButton.hidden = false;
+      positionCamera();
+      return true;
+    }
     function focusPet() {
       if (!pet.visible) return;
       if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
@@ -45816,7 +45836,7 @@ void main() {
     window.TownApp = { petInteraction: (action, petId) => {
       if (!petId) roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.playPetAction(action);
       petCompanions.interact(action, petId);
-    }, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
+    }, focusCompanion, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
       const v = new Vector3(...p.worldPosition).add(new Vector3(0, 0.1, 0)).project(camera), r = canvas.getBoundingClientRect();
       return { ...p, screenPoint: { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 } };
     }), petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.map((a) => ({ loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
