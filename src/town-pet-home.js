@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {clone} from 'three/examples/jsm/utils/SkeletonUtils.js';
+import {cottagePetFurniture} from './town-pet-layout.js';
 
 export const petHomeFurniture={counter:[2.75,.9,.45,1.05],shelf:[0,-2.4,3.45,.35],beds:[[-2.65,-1.35],[-.85,-1.35]],animals:[[-1.85,.5],[.3,.5]],toy:[2.7,-1.2]};
 const material=color=>new THREE.MeshStandardMaterial({color,roughness:.82});
@@ -17,6 +18,19 @@ export function createPetHome(){
 }
 const assets=new Map();
 function asset(kind){if(!assets.has(kind))assets.set(kind,new GLTFLoader().loadAsync('../assets/models/cube-pets/animal-'+kind+'.glb'));return assets.get(kind)}
+export function createPetAnimal(kind){
+ const holder=new THREE.Group();holder.name='Cube pet '+kind;holder.userData.roomAction='pet-home';
+ asset(kind).then(data=>{const model=clone(data.scene),bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),centre=bounds.getCenter(new THREE.Vector3()),scale=.85/Math.max(size.x,size.y,size.z);model.scale.setScalar(scale);model.position.set(-centre.x*scale,-bounds.min.y*scale,-centre.z*scale);model.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true});holder.add(model);holder.userData.loaded=true;holder.userData.animationNames=data.animations.map(a=>a.name);holder.userData.clips=data.animations;holder.userData.mixer=new THREE.AnimationMixer(model);animatePet(holder,'idle')}).catch(()=>{holder.userData.loadError=true});
+ return holder;
+}
+export function animatePet(holder,name){const data=holder.userData,clip=data.clips?.find(c=>c.name===name);if(!clip||data.animation===name)return;data.mixer.stopAllAction();data.mixer.clipAction(clip).reset().play();data.animation=name}
+export function populateCottagePets(room,label){
+ const beds=cottagePetFurniture.beds.map(([x,z])=>{const group=new THREE.Group();group.position.set(x,.07,z);const rim=new THREE.Mesh(new THREE.TorusGeometry(.31,.075,8,24),material(0xc69b77));rim.rotation.x=Math.PI/2;rim.position.y=.08;group.add(rim);box(group,.45,.07,.45,0,.035,0,0xf3dec0);room.add(group);return group});
+ const [x,z]=cottagePetFurniture.grain,grain=new THREE.Group();grain.position.set(x,0,z);box(grain,.4,.5,.4,0,.32,0,0x95603b);box(grain,.45,.06,.45,0,.6,0,0xd7b878);sign(grain,'宠物粮',.36,.12,0,.36,.205);room.add(grain);label('宠物专属粮仓',x,z,'pet-roster');
+ const [tx,tz]=cottagePetFurniture.toy,toy=new THREE.Group();toy.position.set(tx,.07,tz);box(toy,.27,.05,.35,0,.025,0,0x95603b);box(toy,.07,.42,.07,0,.25,0,0xd4bd86);box(toy,.3,.04,.32,0,.46,0,0xc69b77);room.add(toy);label('宠物玩具',tx,tz,'pet-roster');
+ const foods=cottagePetFurniture.bowls.map(([bx,bz])=>{const bowl=new THREE.Mesh(new THREE.TorusGeometry(.12,.035,8,20),material(0xe8ded0));bowl.rotation.x=Math.PI/2;bowl.position.set(bx,.1,bz);room.add(bowl);return box(room,.15,.035,.15,bx,.09,bz,0xbb9656)});label('宠物食盆',.8,.7,'pet-roster');label('宠物窝',.2,-.5,'pet-roster');
+ room.userData.syncPets=state=>{beds.forEach(b=>b.visible=!!state?.facilities?.bed);toy.visible=!!state?.facilities?.toy;grain.visible=!!state?.pets?.length||state?.food>0;foods.forEach(b=>b.visible=(state?.food||0)>0)};
+}
 export function populatePetHome(room,label,clickable){
  const wood=0x95603b,cream=0xf3dec0;
  box(room,8,.09,6,0,-.045,0,0xe7c68f);
@@ -24,14 +38,11 @@ export function populatePetHome(room,label,clickable){
  const [cx,cz,cw,cd]=petHomeFurniture.counter;box(room,cw*2,.85,cd*2,cx,.425,cz,wood);box(room,cw*2+.12,.08,cd*2+.1,cx,.89,cz,0xc99553);label('领养柜台',cx,cz,'pet-home');
  box(room,7,.12,.65,0,.12,-2.4,wood);for(const x of [-3.5,-1.75,0,1.75,3.5])box(room,.1,2.4,.65,x,1.3,-2.4,wood);
  for(const y of [.5,1.3,2.1]){box(room,7,.09,.65,0,y,-2.4,wood);for(let i=0;i<10;i++){const x=-3.1+i*.69;box(room,.35,.4,.3,x,y+.24,-2.4,[0xcfa453,0x90a86d,0xc68563,0xe5d7ab][i%4]);box(room,.22,.1,.015,x,y+.27,-2.235,cream)}}label('宠物用品架',0,-2.4,'pet-home');
- const beds=[];for(const [x,z] of petHomeFurniture.beds){const bed=new THREE.Group();bed.position.set(x,0,z);room.add(bed);const ring=new THREE.Mesh(new THREE.TorusGeometry(.46,.12,8,24),material(0xc69b77));ring.rotation.x=Math.PI/2;ring.position.y=.17;bed.add(ring);box(bed,.62,.09,.65,0,.075,0,cream);beds.push(bed)}
- const toy=new THREE.Group();toy.position.set(...[petHomeFurniture.toy[0],0,petHomeFurniture.toy[1]]);room.add(toy);box(toy,.55,.07,.55,0,.04,0,wood);const post=new THREE.Mesh(new THREE.CylinderGeometry(.095,.095,.65,12),material(0xd4bd86));post.position.y=.4;toy.add(post);box(toy,.55,.07,.55,0,.75,0,wood);label('照护区',-1,-1.3,'pet-home');
  const bowls=[];for(const [x,z] of [[-2.5,1.7],[-.5,1.7]]){const bowl=new THREE.Mesh(new THREE.TorusGeometry(.2,.055,8,20),material(0xe8ded0));bowl.rotation.x=Math.PI/2;bowl.position.set(x,.08,z);room.add(bowl);const food=box(room,.22,.045,.22,x,.065,z,0xbb9656);bowls.push(food)}label('宠物食盆',-1.5,1.7,'pet-home');
- const animals=[];['cat','dog'].forEach((kind,index)=>{const holder=new THREE.Group();holder.name='Cube pet '+kind;holder.position.set(petHomeFurniture.animals[index][0],0,petHomeFurniture.animals[index][1]);holder.rotation.y=index?-.5:.5;holder.userData.roomAction='pet-home';room.add(holder);clickable.push(holder);animals.push(holder);
-  asset(kind).then(data=>{const model=clone(data.scene),bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),centre=bounds.getCenter(new THREE.Vector3()),scale=.85/Math.max(size.x,size.y,size.z);model.scale.setScalar(scale);model.position.set(-centre.x*scale,-bounds.min.y*scale,-centre.z*scale);model.traverse(o=>{if(o.isMesh)o.castShadow=o.receiveShadow=true});holder.add(model);holder.userData.loaded=true;holder.userData.animationNames=data.animations.map(a=>a.name);holder.userData.clips=data.animations;const idle=data.animations.find(a=>/idle/i.test(a.name));if(idle){holder.userData.mixer=new THREE.AnimationMixer(model);holder.userData.mixer.clipAction(idle).play()}}).catch(()=>{holder.userData.loadError=true});
+ const animals=[];['cat','dog'].forEach((kind,index)=>{const holder=createPetAnimal(kind);holder.position.set(petHomeFurniture.animals[index][0],0,petHomeFurniture.animals[index][1]);holder.rotation.y=index?-.5:.5;room.add(holder);clickable.push(holder);animals.push(holder);
  });label('猫狗陪伴区',-.75,.5,'pet-home');
- room.userData.petHome={animals,beds,toy,bowls};
- room.userData.syncPets=state=>{beds.forEach(b=>b.visible=!!state?.facilities?.bed);toy.visible=!!state?.facilities?.toy;bowls.forEach(b=>b.visible=(state?.food||0)>0)};
- room.userData.playPetAction=action=>animals.forEach(a=>{const mixer=a.userData.mixer,clip=a.userData.clips?.find(c=>c.name===(action==='feed'?'eat':'gesture-positive'));if(!mixer||!clip)return;mixer.stopAllAction();mixer.clipAction(clip).reset().play();a.userData.playFor=3});
- room.userData.tickPets=dt=>animals.forEach(a=>{const data=a.userData;data.mixer?.update(dt);if(data.playFor>0){data.playFor-=dt;if(data.playFor<=0){data.mixer.stopAllAction();data.mixer.clipAction(data.clips.find(c=>c.name==='idle')).reset().play()}}});
+ room.userData.petHome={animals,bowls};
+ room.userData.syncPets=state=>{animals.forEach((a,i)=>a.visible=!state?.pets?.some(p=>p.id===['cat','dog'][i]));bowls.forEach(b=>b.visible=true)};
+ room.userData.playPetAction=action=>animals.forEach(a=>{if(!a.visible)return;animatePet(a,action==='feed'?'eat':'gesture-positive');a.userData.playFor=3});
+ room.userData.tickPets=dt=>animals.forEach(a=>{const data=a.userData;data.mixer?.update(dt);if(data.playFor>0){data.playFor-=dt;if(data.playFor<=0)animatePet(a,'idle')}});
 }

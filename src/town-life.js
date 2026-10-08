@@ -2,7 +2,7 @@ import {plazaSeats,plazaSeatBlocks} from './town-plaza-seats.js';
 import {cottageFurniture} from './town-cottage-interior.js';
 // Scene-time movement is separate from real-time needs and aging.
 export const destinations=[
- ['宠物之家',-14,1.5,true,'陪伴宠物',[-.75,.5]],
+ ['宠物之家',15.65,-.25,true,'陪伴宠物',[-.75,.5]],
  ['跑轮公园',-11,-7.5,false,'跑轮',[-1.9,-.8]],['诊所',-4.5,-10,true,'检查',[.4,-.8]],
  ['零食铺',9,-7,true,'购买粮食',[.5,1.9]],['中心广场',0,-1.3,false,'社交',[0,0]],
  ['纪念馆',-11,3.5,true,'参观',[0,-.5]],['鼠鼠小屋',-5,6.5,true,'休息',cottageFurniture.bed],

@@ -19,3 +19,9 @@ assert.equal(pets.perform({...state,autoSleep:true},'pet').ok,false,'sleep block
 const visit=pets.perform(base(),'visit').state;assert.equal(pets.perform(visit,'pet').ok,true);assert.equal(pets.perform({...visit,calendarTime:visit.petHome.visitUntil},'pet').ok,false,'day pass expires');
 const starvation=structuredClone(state);pets.settle(starvation,state.calendarTime,state.calendarTime+20*DAY);assert.equal(starvation.petHome.food,0);assert.equal(starvation.petHome.pets[0].fullness,0);assert.ok(starvation.notifications.at(-1).text.includes('宠物粮用完'));
 console.log('Pet adoption consent, unique ownership, atomic charges, facilities, food settlement, persistence, expiry and sleeping guards passed');
+
+assert.equal(pets.normalize({calendarTime:time,petHome:{pets:[{id:'cat'}]}}).follow,false,'old pets live at home by default');
+assert.equal(result.state.petHome.follow,true,'new adoption enables following');
+const stopped=pets.perform(result.state,'follow',{time});assert.equal(stopped.ok,true);assert.equal(stopped.state.petHome.follow,false);assert.equal(stopped.state.seeds,result.state.seeds);assert.equal(stopped.state.stamina,result.state.stamina);assert.equal(pets.perform(stopped.state,'follow',{time}).state.petHome.follow,true);assert.equal(pets.perform(base(),'follow',{time}).ok,false);
+
+const pair=pets.perform(pets.perform(base(),'adopt-cat',{consent:true,time}).state,'adopt-dog',{consent:true,time}).state;pair.petHome.food=2;const fed=pets.perform(pair,'feed',{petId:'cat',time});assert.equal(fed.ok,true);assert.equal(fed.state.petHome.food,1);assert.equal(fed.state.petHome.pets[0].fullness,100);assert.equal(fed.state.petHome.pets[1].fullness,80);assert.equal(pets.perform(pair,'feed',{petId:'missing',time}).ok,false);

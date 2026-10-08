@@ -6779,9 +6779,9 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateOnAxis(axis, distance2) {
+    translateOnAxis(axis, distance3) {
       _v1$6.copy(axis).applyQuaternion(this.quaternion);
-      this.position.add(_v1$6.multiplyScalar(distance2));
+      this.position.add(_v1$6.multiplyScalar(distance3));
       return this;
     }
     /**
@@ -6790,8 +6790,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateX(distance2) {
-      return this.translateOnAxis(_xAxis, distance2);
+    translateX(distance3) {
+      return this.translateOnAxis(_xAxis, distance3);
     }
     /**
      * Translate the 3D object by a distance along its Y-axis in local space.
@@ -6799,8 +6799,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateY(distance2) {
-      return this.translateOnAxis(_yAxis, distance2);
+    translateY(distance3) {
+      return this.translateOnAxis(_yAxis, distance3);
     }
     /**
      * Translate the 3D object by a distance along its Z-axis in local space.
@@ -6808,8 +6808,8 @@
      * @param {number} distance - The distance in world units.
      * @return {Object3D} A reference to this instance.
      */
-    translateZ(distance2) {
-      return this.translateOnAxis(_zAxis, distance2);
+    translateZ(distance3) {
+      return this.translateOnAxis(_zAxis, distance3);
     }
     /**
      * Converts the given vector from this 3D object's local space to world space.
@@ -7591,17 +7591,17 @@
           }
           const indexTip = hand.joints["index-finger-tip"];
           const thumbTip = hand.joints["thumb-tip"];
-          const distance2 = indexTip.position.distanceTo(thumbTip.position);
+          const distance3 = indexTip.position.distanceTo(thumbTip.position);
           const distanceToPinch = 0.02;
           const threshold = 5e-3;
-          if (hand.inputState.pinching && distance2 > distanceToPinch + threshold) {
+          if (hand.inputState.pinching && distance3 > distanceToPinch + threshold) {
             hand.inputState.pinching = false;
             this.dispatchEvent({
               type: "pinchend",
               handedness: inputSource.handedness,
               target: this
             });
-          } else if (!hand.inputState.pinching && distance2 <= distanceToPinch - threshold) {
+          } else if (!hand.inputState.pinching && distance3 <= distanceToPinch - threshold) {
             hand.inputState.pinching = true;
             this.dispatchEvent({
               type: "pinchstart",
@@ -12137,10 +12137,10 @@
           return;
         }
       }
-      const distance2 = raycaster.ray.origin.distanceTo(_intersectPoint);
-      if (distance2 < raycaster.near || distance2 > raycaster.far) return;
+      const distance3 = raycaster.ray.origin.distanceTo(_intersectPoint);
+      if (distance3 < raycaster.near || distance3 > raycaster.far) return;
       intersects2.push({
-        distance: distance2,
+        distance: distance3,
         point: _intersectPoint.clone(),
         uv: Triangle.getInterpolation(_intersectPoint, _vA$1, _vB$1, _vC$1, _uvA, _uvB, _uvC, new Vector2()),
         face: null,
@@ -12817,10 +12817,10 @@
     if (intersect2 === null) return null;
     _intersectionPointWorld.copy(point2);
     _intersectionPointWorld.applyMatrix4(object.matrixWorld);
-    const distance2 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
-    if (distance2 < raycaster.near || distance2 > raycaster.far) return null;
+    const distance3 = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
+    if (distance3 < raycaster.near || distance3 > raycaster.far) return null;
     return {
-      distance: distance2,
+      distance: distance3,
       point: _intersectionPointWorld.clone(),
       object
     };
@@ -13873,8 +13873,8 @@
       const center = sphere.center;
       const negRadius = -sphere.radius;
       for (let i2 = 0; i2 < 6; i2++) {
-        const distance2 = planes[i2].distanceToPoint(center);
-        if (distance2 < negRadius) {
+        const distance3 = planes[i2].distanceToPoint(center);
+        if (distance3 < negRadius) {
           return false;
         }
       }
@@ -14099,10 +14099,10 @@
     const distSq = ray.distanceSqToSegment(_vStart, _vEnd, _intersectPointOnRay, _intersectPointOnSegment);
     if (distSq > thresholdSq) return;
     _intersectPointOnRay.applyMatrix4(object.matrixWorld);
-    const distance2 = raycaster.ray.origin.distanceTo(_intersectPointOnRay);
-    if (distance2 < raycaster.near || distance2 > raycaster.far) return;
+    const distance3 = raycaster.ray.origin.distanceTo(_intersectPointOnRay);
+    if (distance3 < raycaster.near || distance3 > raycaster.far) return;
     return {
-      distance: distance2,
+      distance: distance3,
       // What do we want? intersection point on the ray or on the segment??
       // point: raycaster.ray.at( distance ),
       point: _intersectPointOnSegment.clone().applyMatrix4(object.matrixWorld),
@@ -14286,10 +14286,10 @@
       const intersectPoint = new Vector3();
       _ray.closestPointToPoint(point2, intersectPoint);
       intersectPoint.applyMatrix4(matrixWorld);
-      const distance2 = raycaster.ray.origin.distanceTo(intersectPoint);
-      if (distance2 < raycaster.near || distance2 > raycaster.far) return;
+      const distance3 = raycaster.ray.origin.distanceTo(intersectPoint);
+      if (distance3 < raycaster.near || distance3 > raycaster.far) return;
       intersects2.push({
-        distance: distance2,
+        distance: distance3,
         distanceToRay: Math.sqrt(rayPointDistanceSq),
         point: intersectPoint,
         index,
@@ -14911,13 +14911,13 @@
      * @param {?number} distance - An optional distance on the curve.
      * @return {number} The updated interpolation factor.
      */
-    getUtoTmapping(u, distance2 = null) {
+    getUtoTmapping(u, distance3 = null) {
       const arcLengths = this.getLengths();
       let i2 = 0;
       const il = arcLengths.length;
       let targetArcLength;
-      if (distance2) {
-        targetArcLength = distance2;
+      if (distance3) {
+        targetArcLength = distance3;
       } else {
         targetArcLength = u * arcLengths[il - 1];
       }
@@ -20716,11 +20716,11 @@
      * @param {Vector2} minTarget - The lower-left corner of the view rectangle is written into this vector.
      * @param {Vector2} maxTarget - The upper-right corner of the view rectangle is written into this vector.
      */
-    getViewBounds(distance2, minTarget, maxTarget) {
+    getViewBounds(distance3, minTarget, maxTarget) {
       _v3$1.set(-1, -1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
+      minTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance3 / _v3$1.z);
       _v3$1.set(1, 1, 0.5).applyMatrix4(this.projectionMatrixInverse);
-      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance2 / _v3$1.z);
+      maxTarget.set(_v3$1.x, _v3$1.y).multiplyScalar(-distance3 / _v3$1.z);
     }
     /**
      * Computes the width and height of the camera's viewable rectangle at a given distance along the viewing direction.
@@ -20729,8 +20729,8 @@
      * @param {Vector2} target - The target vector that is used to store result where x is width and y is height.
      * @returns {Vector2} The view size.
      */
-    getViewSize(distance2, target) {
-      this.getViewBounds(distance2, _minTarget, _maxTarget);
+    getViewSize(distance3, target) {
+      this.getViewBounds(distance3, _minTarget, _maxTarget);
       return target.subVectors(_maxTarget, _minTarget);
     }
     /**
@@ -20884,14 +20884,14 @@
      * @param {number} [penumbra=0] - Percent of the spotlight cone that is attenuated due to penumbra. Value range is `[0,1]`.
      * @param {number} [decay=2] - The amount the light dims along the distance of the light.
      */
-    constructor(color, intensity, distance2 = 0, angle = Math.PI / 3, penumbra = 0, decay = 2) {
+    constructor(color, intensity, distance3 = 0, angle = Math.PI / 3, penumbra = 0, decay = 2) {
       super(color, intensity);
       this.isSpotLight = true;
       this.type = "SpotLight";
       this.position.copy(Object3D.DEFAULT_UP);
       this.updateMatrix();
       this.target = new Object3D();
-      this.distance = distance2;
+      this.distance = distance3;
       this.angle = angle;
       this.penumbra = penumbra;
       this.decay = decay;
@@ -20955,11 +20955,11 @@
      * @param {number} [distance=0] - Maximum range of the light. `0` means no limit.
      * @param {number} [decay=2] - The amount the light dims along the distance of the light.
      */
-    constructor(color, intensity, distance2 = 0, decay = 2) {
+    constructor(color, intensity, distance3 = 0, decay = 2) {
       super(color, intensity);
       this.isPointLight = true;
       this.type = "PointLight";
-      this.distance = distance2;
+      this.distance = distance3;
       this.decay = decay;
       this.shadow = new PointLightShadow();
     }
@@ -28751,7 +28751,7 @@
         const light = lights[i2];
         const color = light.color;
         const intensity = light.intensity;
-        const distance2 = light.distance;
+        const distance3 = light.distance;
         let shadowMap = null;
         if (light.shadow && light.shadow.map) {
           if (light.shadow.map.texture.format === RGFormat) {
@@ -28791,7 +28791,7 @@
           const uniforms = cache.get(light);
           uniforms.position.setFromMatrixPosition(light.matrixWorld);
           uniforms.color.copy(color).multiplyScalar(intensity);
-          uniforms.distance = distance2;
+          uniforms.distance = distance3;
           uniforms.coneCos = Math.cos(light.angle);
           uniforms.penumbraCos = Math.cos(light.angle * (1 - light.penumbra));
           uniforms.decay = light.decay;
@@ -37522,6 +37522,9 @@ void main() {
     });
   }
 
+  // src/town-pet-layout.js
+  var cottagePetFurniture = { beds: [[-0.25, -0.5], [0.65, -0.5]], grain: [-0.6, -1.72, 0.22, 0.22], toy: [2.8, -0.4, 0.15, 0.2], bowls: [[0.65, 0.7], [0.95, 0.7]] };
+
   // src/town-pet-home.js
   var petHomeFurniture = { counter: [2.75, 0.9, 0.45, 1.05], shelf: [0, -2.4, 3.45, 0.35], beds: [[-2.65, -1.35], [-0.85, -1.35]], animals: [[-1.85, 0.5], [0.3, 0.5]], toy: [2.7, -1.2] };
   var material = (color) => new MeshStandardMaterial({ color, roughness: 0.82 });
@@ -37589,6 +37592,77 @@ void main() {
     if (!assets.has(kind)) assets.set(kind, new GLTFLoader().loadAsync("../assets/models/cube-pets/animal-" + kind + ".glb"));
     return assets.get(kind);
   }
+  function createPetAnimal(kind) {
+    const holder = new Group();
+    holder.name = "Cube pet " + kind;
+    holder.userData.roomAction = "pet-home";
+    asset(kind).then((data) => {
+      const model = clone(data.scene), bounds = new Box3().setFromObject(model), size = bounds.getSize(new Vector3()), centre = bounds.getCenter(new Vector3()), scale = 0.85 / Math.max(size.x, size.y, size.z);
+      model.scale.setScalar(scale);
+      model.position.set(-centre.x * scale, -bounds.min.y * scale, -centre.z * scale);
+      model.traverse((o) => {
+        if (o.isMesh) o.castShadow = o.receiveShadow = true;
+      });
+      holder.add(model);
+      holder.userData.loaded = true;
+      holder.userData.animationNames = data.animations.map((a) => a.name);
+      holder.userData.clips = data.animations;
+      holder.userData.mixer = new AnimationMixer(model);
+      animatePet(holder, "idle");
+    }).catch(() => {
+      holder.userData.loadError = true;
+    });
+    return holder;
+  }
+  function animatePet(holder, name) {
+    const data = holder.userData, clip = data.clips?.find((c) => c.name === name);
+    if (!clip || data.animation === name) return;
+    data.mixer.stopAllAction();
+    data.mixer.clipAction(clip).reset().play();
+    data.animation = name;
+  }
+  function populateCottagePets(room, label) {
+    const beds = cottagePetFurniture.beds.map(([x3, z2]) => {
+      const group = new Group();
+      group.position.set(x3, 0.07, z2);
+      const rim = new Mesh(new TorusGeometry(0.31, 0.075, 8, 24), material(13015927));
+      rim.rotation.x = Math.PI / 2;
+      rim.position.y = 0.08;
+      group.add(rim);
+      box(group, 0.45, 0.07, 0.45, 0, 0.035, 0, 15982272);
+      room.add(group);
+      return group;
+    });
+    const [x2, z] = cottagePetFurniture.grain, grain = new Group();
+    grain.position.set(x2, 0, z);
+    box(grain, 0.4, 0.5, 0.4, 0, 0.32, 0, 9789499);
+    box(grain, 0.45, 0.06, 0.45, 0, 0.6, 0, 14137464);
+    sign2(grain, "\u5BA0\u7269\u7CAE", 0.36, 0.12, 0, 0.36, 0.205);
+    room.add(grain);
+    label("\u5BA0\u7269\u4E13\u5C5E\u7CAE\u4ED3", x2, z, "pet-roster");
+    const [tx, tz] = cottagePetFurniture.toy, toy = new Group();
+    toy.position.set(tx, 0.07, tz);
+    box(toy, 0.27, 0.05, 0.35, 0, 0.025, 0, 9789499);
+    box(toy, 0.07, 0.42, 0.07, 0, 0.25, 0, 13942150);
+    box(toy, 0.3, 0.04, 0.32, 0, 0.46, 0, 13015927);
+    room.add(toy);
+    label("\u5BA0\u7269\u73A9\u5177", tx, tz, "pet-roster");
+    const foods = cottagePetFurniture.bowls.map(([bx, bz]) => {
+      const bowl = new Mesh(new TorusGeometry(0.12, 0.035, 8, 20), material(15261392));
+      bowl.rotation.x = Math.PI / 2;
+      bowl.position.set(bx, 0.1, bz);
+      room.add(bowl);
+      return box(room, 0.15, 0.035, 0.15, bx, 0.09, bz, 12293718);
+    });
+    label("\u5BA0\u7269\u98DF\u76C6", 0.8, 0.7, "pet-roster");
+    label("\u5BA0\u7269\u7A9D", 0.2, -0.5, "pet-roster");
+    room.userData.syncPets = (state) => {
+      beds.forEach((b) => b.visible = !!state?.facilities?.bed);
+      toy.visible = !!state?.facilities?.toy;
+      grain.visible = !!state?.pets?.length || state?.food > 0;
+      foods.forEach((b) => b.visible = (state?.food || 0) > 0);
+    };
+  }
   function populatePetHome(room, label, clickable) {
     const wood = 9789499, cream = 15982272;
     box(room, 8, 0.09, 6, 0, -0.045, 0, 15189647);
@@ -37608,27 +37682,6 @@ void main() {
       }
     }
     label("\u5BA0\u7269\u7528\u54C1\u67B6", 0, -2.4, "pet-home");
-    const beds = [];
-    for (const [x2, z] of petHomeFurniture.beds) {
-      const bed = new Group();
-      bed.position.set(x2, 0, z);
-      room.add(bed);
-      const ring = new Mesh(new TorusGeometry(0.46, 0.12, 8, 24), material(13015927));
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = 0.17;
-      bed.add(ring);
-      box(bed, 0.62, 0.09, 0.65, 0, 0.075, 0, cream);
-      beds.push(bed);
-    }
-    const toy = new Group();
-    toy.position.set(...[petHomeFurniture.toy[0], 0, petHomeFurniture.toy[1]]);
-    room.add(toy);
-    box(toy, 0.55, 0.07, 0.55, 0, 0.04, 0, wood);
-    const post = new Mesh(new CylinderGeometry(0.095, 0.095, 0.65, 12), material(13942150));
-    post.position.y = 0.4;
-    toy.add(post);
-    box(toy, 0.55, 0.07, 0.55, 0, 0.75, 0, wood);
-    label("\u7167\u62A4\u533A", -1, -1.3, "pet-home");
     const bowls = [];
     for (const [x2, z] of [[-2.5, 1.7], [-0.5, 1.7]]) {
       const bowl = new Mesh(new TorusGeometry(0.2, 0.055, 8, 20), material(15261392));
@@ -37641,46 +37694,22 @@ void main() {
     label("\u5BA0\u7269\u98DF\u76C6", -1.5, 1.7, "pet-home");
     const animals = [];
     ["cat", "dog"].forEach((kind, index) => {
-      const holder = new Group();
-      holder.name = "Cube pet " + kind;
+      const holder = createPetAnimal(kind);
       holder.position.set(petHomeFurniture.animals[index][0], 0, petHomeFurniture.animals[index][1]);
       holder.rotation.y = index ? -0.5 : 0.5;
-      holder.userData.roomAction = "pet-home";
       room.add(holder);
       clickable.push(holder);
       animals.push(holder);
-      asset(kind).then((data) => {
-        const model = clone(data.scene), bounds = new Box3().setFromObject(model), size = bounds.getSize(new Vector3()), centre = bounds.getCenter(new Vector3()), scale = 0.85 / Math.max(size.x, size.y, size.z);
-        model.scale.setScalar(scale);
-        model.position.set(-centre.x * scale, -bounds.min.y * scale, -centre.z * scale);
-        model.traverse((o) => {
-          if (o.isMesh) o.castShadow = o.receiveShadow = true;
-        });
-        holder.add(model);
-        holder.userData.loaded = true;
-        holder.userData.animationNames = data.animations.map((a) => a.name);
-        holder.userData.clips = data.animations;
-        const idle = data.animations.find((a) => /idle/i.test(a.name));
-        if (idle) {
-          holder.userData.mixer = new AnimationMixer(model);
-          holder.userData.mixer.clipAction(idle).play();
-        }
-      }).catch(() => {
-        holder.userData.loadError = true;
-      });
     });
     label("\u732B\u72D7\u966A\u4F34\u533A", -0.75, 0.5, "pet-home");
-    room.userData.petHome = { animals, beds, toy, bowls };
+    room.userData.petHome = { animals, bowls };
     room.userData.syncPets = (state) => {
-      beds.forEach((b) => b.visible = !!state?.facilities?.bed);
-      toy.visible = !!state?.facilities?.toy;
-      bowls.forEach((b) => b.visible = (state?.food || 0) > 0);
+      animals.forEach((a, i2) => a.visible = !state?.pets?.some((p) => p.id === ["cat", "dog"][i2]));
+      bowls.forEach((b) => b.visible = true);
     };
     room.userData.playPetAction = (action) => animals.forEach((a) => {
-      const mixer = a.userData.mixer, clip = a.userData.clips?.find((c) => c.name === (action === "feed" ? "eat" : "gesture-positive"));
-      if (!mixer || !clip) return;
-      mixer.stopAllAction();
-      mixer.clipAction(clip).reset().play();
+      if (!a.visible) return;
+      animatePet(a, action === "feed" ? "eat" : "gesture-positive");
       a.userData.playFor = 3;
     });
     room.userData.tickPets = (dt) => animals.forEach((a) => {
@@ -37688,20 +37717,8 @@ void main() {
       data.mixer?.update(dt);
       if (data.playFor > 0) {
         data.playFor -= dt;
-        if (data.playFor <= 0) {
-          data.mixer.stopAllAction();
-          data.mixer.clipAction(data.clips.find((c) => c.name === "idle")).reset().play();
-        }
+        if (data.playFor <= 0) animatePet(a, "idle");
       }
-    });
-  }
-
-  // src/town-plaza-seats.js
-  var plazaSeats = [[-3.55, 0.8], [3.55, 0.8], [-1, 1.95], [1, 1.95]].map(([x2, z]) => ({ x: x2, z, y: 0.4625, heading: Math.atan2(-x2, -z) }));
-  function plazaSeatBlocks(x2, z) {
-    return plazaSeats.some((s) => {
-      const dx = x2 - s.x, dz = z - s.z, c = Math.cos(s.heading), sn = Math.sin(s.heading);
-      return Math.abs(dx * c - dz * sn) < 0.49 && Math.abs(dx * sn + dz * c) < 0.28;
     });
   }
 
@@ -37754,9 +37771,18 @@ void main() {
     return geometry;
   }
 
+  // src/town-plaza-seats.js
+  var plazaSeats = [[-3.55, 0.8], [3.55, 0.8], [-1, 1.95], [1, 1.95]].map(([x2, z]) => ({ x: x2, z, y: 0.4625, heading: Math.atan2(-x2, -z) }));
+  function plazaSeatBlocks(x2, z) {
+    return plazaSeats.some((s) => {
+      const dx = x2 - s.x, dz = z - s.z, c = Math.cos(s.heading), sn = Math.sin(s.heading);
+      return Math.abs(dx * c - dz * sn) < 0.49 && Math.abs(dx * sn + dz * c) < 0.28;
+    });
+  }
+
   // src/town-life.js
   var destinations = [
-    ["\u5BA0\u7269\u4E4B\u5BB6", -14, 1.5, true, "\u966A\u4F34\u5BA0\u7269", [-0.75, 0.5]],
+    ["\u5BA0\u7269\u4E4B\u5BB6", 15.65, -0.25, true, "\u966A\u4F34\u5BA0\u7269", [-0.75, 0.5]],
     ["\u8DD1\u8F6E\u516C\u56ED", -11, -7.5, false, "\u8DD1\u8F6E", [-1.9, -0.8]],
     ["\u8BCA\u6240", -4.5, -10, true, "\u68C0\u67E5", [0.4, -0.8]],
     ["\u96F6\u98DF\u94FA", 9, -7, true, "\u8D2D\u4E70\u7CAE\u98DF", [0.5, 1.9]],
@@ -38187,123 +38213,6 @@ void main() {
     return { actors, add, tick, setFamilyPlans, setResting, setCelebration, plazaSeatAvailable, releasePlazaSeat, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
   }
 
-  // src/town-lights.js
-  var segmentDistance = (x2, z, a, b) => {
-    const dx = b.x - a.x, dz = b.z - a.z, t = Math.max(0, Math.min(1, ((x2 - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz || 1)));
-    return Math.hypot(x2 - a.x - t * dx, z - a.z - t * dz);
-  };
-  function lampPositionClear(x2, z) {
-    if (Math.hypot(x2, z) > 16.2) return false;
-    if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
-    if (segmentDistance(x2, z, { x: 0, z: 8.2 }, { x: 2, z: 8.2 }) < 0.6 || segmentDistance(x2, z, { x: 2, z: 8.2 }, { x: 2, z: 9.45 }) < 0.6) return false;
-    for (const d of destinations) {
-      const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
-      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : name === "\u5893\u5730" ? 2.3 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : name === "\u5893\u5730" ? 1.8 : 1.45;
-      if (name === "\u8DD1\u8F6E\u516C\u56ED" ? Math.hypot(dx, dz) < 2.45 : Math.abs(lx) < w && Math.abs(lz) < h) return false;
-      if (name !== "\u4E2D\u5FC3\u5E7F\u573A") {
-        const e = entrance(name), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
-        if (segmentDistance(x2, z, e, near) < 0.6) return false;
-      }
-    }
-    return true;
-  }
-  function lampLayout() {
-    const lamps = [];
-    for (const d of destinations) {
-      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 5.1 : name === "\u5893\u5730" ? 2.6 : 2.2;
-      for (const direction of [-1, 1]) {
-        for (let back = 0.6; back < 3; back += 0.4) {
-          const x2 = d[1] - Math.sin(a) * back + Math.cos(a) * side * direction, z = d[2] - Math.cos(a) * back - Math.sin(a) * side * direction;
-          if (lampPositionClear(x2, z)) {
-            lamps.push({ x: x2, z, yaw: Math.atan2(z - d[2], d[1] - x2), place: name });
-            break;
-          }
-        }
-      }
-    }
-    let seed = 731;
-    const random = () => {
-      seed = seed * 1664525 + 1013904223 >>> 0;
-      return seed / 4294967296;
-    };
-    let added = 0;
-    for (let i2 = 0; i2 < 300 && added < 6; i2++) {
-      const x2 = (random() - 0.5) * 29, z = (random() - 0.5) * 29;
-      if (!lampPositionClear(x2, z) || lamps.some((l) => Math.hypot(x2 - l.x, z - l.z) < 4)) continue;
-      lamps.push({ x: x2, z, yaw: random() * Math.PI * 2, place: null });
-      added++;
-    }
-    return lamps;
-  }
-
-  // src/town-verges.js
-  function vergeLayout() {
-    const segments = [[{ x: -14, z: -1.3 }, { x: 14, z: -1.3 }], [{ x: 0, z: -12.5 }, { x: 0, z: 12.7 }]];
-    for (const d of destinations) {
-      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") continue;
-      const e = entrance(d[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
-      segments.push([near, e]);
-    }
-    let seed = 927;
-    const random = () => {
-      seed = seed * 1664525 + 1013904223 >>> 0;
-      return seed / 4294967296;
-    }, lamps = lampLayout(), items = [];
-    const centers = [], parts = [["grass", -0.2, 0], ["grass", 0.05, 0.12], ["flower", -0.05, -0.12], ["flower", 0.14, -0.04], ["stone", 0.26, 0.16], ["twig", -0.23, 0.22]];
-    for (let attempt = 0; attempt < 200 && centers.length < 7; attempt++) {
-      const [a, b] = segments[Math.floor(random() * segments.length)], dx = b.x - a.x, dz = b.z - a.z, length = Math.hypot(dx, dz);
-      if (length < 0.5) continue;
-      const t = random(), side = random() < 0.5 ? -1 : 1, offset = 1.15 + random() * 0.45, x2 = a.x + dx * t - dz / length * offset * side, z = a.z + dz * t + dx / length * offset * side, yaw = random() * Math.PI * 2;
-      if (centers.some((p) => Math.hypot(x2 - p.x, z - p.z) < 4)) continue;
-      const cluster = parts.map(([kind, ox, oz]) => ({ x: x2 + ox * Math.cos(yaw) - oz * Math.sin(yaw), z: z + ox * Math.sin(yaw) + oz * Math.cos(yaw), kind, yaw: random() * Math.PI * 2, scale: 1 + random() * 0.3 }));
-      if (cluster.some((p) => !lampPositionClear(p.x, p.z) || lamps.some((l) => Math.hypot(p.x - l.x, p.z - l.z) < 0.55))) continue;
-      centers.push({ x: x2, z });
-      items.push(...cluster);
-    }
-    return items;
-  }
-  function createTownVerges() {
-    const group = new Group(), batches = /* @__PURE__ */ new Map(), matrix = new Matrix4(), rotation = new Quaternion();
-    const add = (key, geometry, color, x2, y, z, sx, sy, sz, yaw = 0) => {
-      if (!batches.has(key)) batches.set(key, { geometry, color, matrices: [] });
-      rotation.setFromAxisAngle(new Vector3(0, 1, 0), yaw);
-      matrix.compose(new Vector3(x2, y, z), rotation, new Vector3(sx, sy, sz));
-      batches.get(key).matrices.push(matrix.clone());
-    };
-    const blade = new ConeGeometry(1, 1, 4), sphere = new SphereGeometry(1, 7, 5), branch = new CylinderGeometry(1, 1, 1, 5);
-    branch.rotateZ(Math.PI / 2);
-    const stem = new CylinderGeometry(1, 1, 1, 5);
-    for (const p of vergeLayout()) {
-      const s = p.scale;
-      if (p.kind === "grass" || p.kind === "flower") for (let i2 = 0; i2 < 5; i2++) {
-        const a = p.yaw + i2 * 2.4;
-        add("grass", blade, 7902045, p.x + Math.cos(a) * 0.075 * s, 0.1 * s, p.z + Math.sin(a) * 0.075 * s, 0.028 * s, (0.14 + i2 * 0.02) * s, 0.022 * s, a);
-      }
-      if (p.kind === "flower") {
-        add("stem", stem, 6718535, p.x, 0.16 * s, p.z, 9e-3 * s, 0.25 * s, 9e-3 * s);
-        const color = Math.sin(p.yaw) > 0 ? 15981761 : 14069701;
-        for (let i2 = 0; i2 < 5; i2++) {
-          const a = i2 * Math.PI * 2 / 5;
-          add("petal" + color, sphere, color, p.x + Math.cos(a) * 0.045 * s, 0.29 * s, p.z + Math.sin(a) * 0.045 * s, 0.04 * s, 0.015 * s, 0.032 * s, a);
-        }
-        add("pollen", sphere, 14989652, p.x, 0.305 * s, p.z, 0.022 * s, 0.015 * s, 0.022 * s);
-      }
-      if (p.kind === "stone") add("stone", sphere, 10854798, p.x, 0.035 * s, p.z, 0.11 * s, 0.055 * s, 0.075 * s, p.yaw);
-      if (p.kind === "twig") {
-        add("twig", branch, 8809296, p.x, 0.033, p.z, 0.28 * s, 0.017 * s, 0.017 * s, p.yaw);
-        add("twig", branch, 8809296, p.x + 0.035, 0.037, p.z, 0.14 * s, 0.012 * s, 0.012 * s, p.yaw + 0.7);
-      }
-    }
-    for (const { geometry, color, matrices } of batches.values()) {
-      const mesh = new InstancedMesh(geometry, new MeshStandardMaterial({ color, roughness: 1 }), matrices.length);
-      matrices.forEach((m, i2) => mesh.setMatrixAt(i2, m));
-      mesh.receiveShadow = true;
-      group.add(mesh);
-    }
-    group.name = "\u8DEF\u8FB9\u82B1\u8349";
-    return group;
-  }
-
   // src/town-player.js
   var schoolAngle = facing("\u9F20\u9F20\u5B66\u6821");
   var schoolPosition = destinations.find(([name]) => name === "\u9F20\u9F20\u5B66\u6821");
@@ -38320,9 +38229,9 @@ void main() {
     return [-1.65, -0.72].some((px2) => Math.hypot(p.x - px2, p.z - 1.62) < 1);
   }
   var obstacles = {
-    "\u5BA0\u7269\u4E4B\u5BB6": [petHomeFurniture.counter, petHomeFurniture.shelf, ...petHomeFurniture.beds.map(([x2, z]) => [x2, z, 0.55, 0.55]), [...petHomeFurniture.toy, 0.3, 0.3], ...petHomeFurniture.animals.map(([x2, z]) => [x2, z, 0.7, 0.65])],
+    "\u5BA0\u7269\u4E4B\u5BB6": [petHomeFurniture.counter, petHomeFurniture.shelf, ...petHomeFurniture.animals.map(([x2, z]) => [x2, z, 0.7, 0.65])],
     "Mariah Carey\u540D\u4EBA\u5802": [[-2.1, -0.5, 0.9, 0.4], [1.1, -0.5, 0.9, 0.4], [2.7, 1.2, 0.7, 0.45], [3, -1.4, 0.35, 0.2], [0, -1.7, 0.65, 0.65], [0.3, 1.6, 0.8, 0.35]],
-    "\u9F20\u9F20\u5C0F\u5C4B": [[...cottageFurniture.bed, 0.98, 0.65], [...cottageFurniture.table, 0.55, 0.43], [...cottageFurniture.shelf, 0.82, 0.32], [...cottageFurniture.water, 0.23, 0.23], [...cottageFurniture.bowl, 0.4, 0.4]],
+    "\u9F20\u9F20\u5C0F\u5C4B": [[...cottageFurniture.bed, 0.98, 0.65], [...cottageFurniture.table, 0.55, 0.43], [...cottageFurniture.shelf, 0.82, 0.32], [...cottageFurniture.water, 0.23, 0.23], [...cottageFurniture.bowl, 0.4, 0.4], ...cottagePetFurniture.beds.map(([x2, z]) => [x2, z, 0.38, 0.38]), cottagePetFurniture.grain, cottagePetFurniture.toy],
     "\u8BCA\u6240": [[-1.9, -0.8, 0.98, 0.65], [1.6, -2.4, 0.82, 0.32], [1.9, 1.2, 0.75, 0.45]],
     "\u9F20\u9F20\u996D\u9986": [[0, -2.3, 3.3, 0.45], [3.35, 1.4, 0.35, 0.75], [-2, -0.5, 0.65, 0.4], [1.4, -0.5, 0.65, 0.4], [1.4, 1.55, 0.65, 0.4]],
     "\u96F6\u98DF\u94FA": [[-2.2, -2.4, 0.82, 0.32], [0.5, -2.4, 0.82, 0.32], [0.5, 1.3, 1.55, 0.48]],
@@ -38341,8 +38250,12 @@ void main() {
       if (Math.abs(x2) > 3.7 || z < -2.7 || z > 2.8) return false;
       if (actor.inside === "\u9F20\u9F20\u5B66\u6821" && (x2 / 3.9) ** 2 + (z / 2.9) ** 2 > 0.92) return false;
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d], index) => {
-        if (actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" && (index === 2 || index === 3) && !actor.petFacilities?.bed) return false;
-        if (actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" && index === 4 && !actor.petFacilities?.toy) return false;
+        if (actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" && index >= 2 && actor.petFacilities?.pets?.some((p) => p.id === ["cat", "dog"][index - 2])) return false;
+        if (actor.inside === "\u9F20\u9F20\u5C0F\u5C4B") {
+          if ((index === 5 || index === 6) && (!actor.petFacilities?.bed || actor.petCompanion)) return false;
+          if (index === 7 && !actor.petFacilities?.hasPets && !actor.petFacilities?.food) return false;
+          if (index === 8 && !actor.petFacilities?.toy) return false;
+        }
         if (actor.inside === "\u9F20\u9F20\u5C0F\u5C4B" && index === 1 && actor.cottageTableSlot === "window") [cx, cz] = cottageFurniture.windowTable;
         return Math.abs(x2 - cx) < w + 0.1 && Math.abs(z - cz) < d + 0.1;
       });
@@ -38575,6 +38488,306 @@ void main() {
   }
   function localDoor(portal) {
     return { x: portal.layout.doorX * 8 / portal.layout.width, z: 3, width: portal.layout.doorWidth * 8 / portal.layout.width };
+  }
+
+  // src/town-pet-companions.js
+  var distance2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+  var petOutsideZ = (portal) => Math.max(4.3, (1.75 - portal.layout.z) / (portal.layout.depth / 6));
+  function segmentClear(actor, a, b) {
+    const steps = Math.ceil(distance2(a, b) / 0.08);
+    for (let i2 = 1; i2 <= steps; i2++) if (!canWalk(actor, a.x + (b.x - a.x) * i2 / steps, a.z + (b.z - a.z) * i2 / steps)) return false;
+    return true;
+  }
+  function petRoomPath(actor, target) {
+    const unit = 0.2, key = (x2, z) => `${x2},${z}`, start = [Math.round(actor.position.x / unit), Math.round(actor.position.z / unit)], end = [Math.round(target.x / unit), Math.round(target.z / unit)], queue = [start], parents = /* @__PURE__ */ new Map([[key(...start), null]]);
+    let found = false;
+    for (let i2 = 0; i2 < queue.length; i2++) {
+      const [x2, z] = queue[i2];
+      if (x2 === end[0] && z === end[1]) {
+        found = true;
+        break;
+      }
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [-1, 1], [1, -1]]) {
+        const nx = x2 + dx, nz = z + dz, k = key(nx, nz);
+        if (Math.abs(nx) > 20 || nz < -15 || nz > 22 || parents.has(k) || !segmentClear(actor, { x: x2 * unit, z: z * unit }, { x: nx * unit, z: nz * unit })) continue;
+        parents.set(k, key(x2, z));
+        queue.push([nx, nz]);
+      }
+    }
+    if (!found) return [];
+    const path = [];
+    for (let k = key(...end); k; k = parents.get(k)) {
+      const [x2, z] = k.split(",").map(Number);
+      path.unshift({ x: x2 * unit, z: z * unit });
+    }
+    if (!segmentClear(actor, actor.position, path[0]) || !segmentClear(actor, path.at(-1), target)) return [];
+    path.push({ ...target });
+    return path;
+  }
+  function followingPoint(actor, leader, index) {
+    const gap = actor.inside ? 0.8 + index * 0.9 : 0.55 + index * 0.25, heading = leader.heading || 0;
+    for (const turn of [0, 0.7, -0.7, 1.4, -1.4, Math.PI]) {
+      const p = { x: leader.position.x - Math.sin(heading + turn) * gap, z: leader.position.z - Math.cos(heading + turn) * gap };
+      if (canWalk(actor, p.x, p.z)) return p;
+    }
+    return { ...actor.position };
+  }
+  function createPetCompanions({ scene, rooms, models, clickable }) {
+    const pets = /* @__PURE__ */ new Map();
+    let initialized = false;
+    const worldPoint = (name, x2, z) => rooms.get(name).localToWorld(new Vector3(x2, 0, z));
+    function sync(state) {
+      for (const [index, pet] of (state.petHome?.pets || []).entries()) if (!pets.has(pet.id)) {
+        const newlyAdopted = initialized && state.petHome.follow, inside = newlyAdopted ? "\u5BA0\u7269\u4E4B\u5BB6" : "\u9F20\u9F20\u5C0F\u5C4B", position = newlyAdopted ? { x: pet.id === "cat" ? -1.85 : 0.3, z: 0.5 } : { x: cottagePetFurniture.beds[index][0], z: cottagePetFurniture.beds[index][1] }, rig = createPetAnimal(pet.id);
+        rig.userData.roomAction = "owned-pet";
+        rig.userData.petId = pet.id;
+        rig.scale.setScalar(0.25);
+        scene.add(rig);
+        clickable.push(rig);
+        pets.set(pet.id, { id: pet.id, inside, position, heading: 0, rig, path: [], replan: 0, petCompanion: true });
+      }
+      initialized = true;
+    }
+    function prepare(actor, state) {
+      const portal = actor.inside ? models.get(actor.inside).userData.portal : actor.entryPortal;
+      actor.doorway = portal ? { ...localDoor(portal), open: portal.angle > 1 } : null;
+      actor.cottageTableSlot = state.furniture?.table?.slot;
+      actor.petFacilities = { ...state.petHome?.facilities, pets: state.petHome?.pets, food: state.petHome?.food, hasPets: !!state.petHome?.pets.length };
+    }
+    function walkTo(actor, target, dt) {
+      actor.replan -= dt;
+      if (!actor.goal || distance2(actor.goal, target) > (actor.inside ? 0.65 : 0.8) || !actor.path.length && actor.replan <= 0 && distance2(actor.position, target) > 0.12) {
+        actor.goal = { ...target };
+        actor.path = actor.inside ? petRoomPath(actor, target) : route(actor.position, target);
+        actor.replan = 1;
+      }
+      const scale = actor.inside ? rooms.get(actor.inside).scale : null;
+      let budget = dt * 0.9;
+      while (budget > 0 && actor.path.length) {
+        const next = actor.path[0], dx = next.x - actor.position.x, dz = next.z - actor.position.z, d = Math.hypot(dx * (scale?.x || 1), dz * (scale?.z || 1));
+        if (d < 5e-3) {
+          actor.path.shift();
+          continue;
+        }
+        const fraction = Math.min(1, budget / d), before = { ...actor.position };
+        movePlayer(actor, dx * fraction, dz * fraction);
+        const moved = distance2(before, actor.position);
+        if (moved < 1e-4) {
+          actor.path = [];
+          actor.replan = 1;
+          break;
+        }
+        actor.moving = true;
+        actor.heading = Math.atan2(dx, dz);
+        budget -= d * fraction;
+        if (fraction === 1) actor.path.shift();
+        else break;
+      }
+      return distance2(actor.position, target) < 0.12;
+    }
+    function tick(dt, leader, state, activePlace, firstPerson) {
+      let index = 0;
+      for (const actor of pets.values()) {
+        prepare(actor, state);
+        actor.moving = false;
+        const follow = state.petHome?.follow && state.alive !== false && leader && !leader.forcedSleep && !leader.frozen, wanted = follow ? leader.inside || null : "\u9F20\u9F20\u5C0F\u5C4B";
+        if (actor.exiting) {
+          const portal = actor.exiting, gate = localDoor(portal), p2 = worldPoint(portal.name, gate.x, petOutsideZ(portal));
+          actor.entryPortal = portal;
+          prepare(actor, state);
+          const target = { x: p2.x, z: p2.z };
+          actor.path = [target];
+          actor.goal = target;
+          if (walkTo(actor, target, dt)) {
+            actor.exiting = null;
+            actor.path = [];
+            actor.goal = null;
+          }
+        } else if (actor.inside !== wanted) {
+          if (actor.inside) {
+            const name = actor.inside, portal = models.get(name).userData.portal, gate = localDoor(portal);
+            if (distance2(actor.position, { x: gate.x, z: 2.35 }) < 1.1) portal.target = 1;
+            prepare(actor, state);
+            if (walkTo(actor, { x: gate.x, z: portal.angle > 1 ? 4.1 : 2.35 }, dt) && portal.angle > 1) {
+              const p2 = worldPoint(name, actor.position.x, actor.position.z);
+              actor.position = { x: p2.x, z: p2.z };
+              actor.inside = null;
+              actor.exiting = portal;
+              actor.path = [];
+              actor.goal = null;
+            }
+          } else if (wanted) {
+            const portal = models.get(wanted).userData.portal, gate = localDoor(portal), approach = worldPoint(wanted, gate.x, petOutsideZ(portal));
+            actor.entryPortal = portal;
+            prepare(actor, state);
+            if (actor.entering === wanted) {
+              portal.target = 1;
+              if (portal.angle > 1) {
+                const p2 = worldPoint(wanted, gate.x, 4.05), target = { x: p2.x, z: p2.z };
+                actor.path = [target];
+                actor.goal = target;
+                walkTo(actor, target, dt);
+                if (distance2(actor.position, target) < 0.03) {
+                  const local = rooms.get(wanted).worldToLocal(new Vector3(actor.position.x, portal.layout.floor, actor.position.z));
+                  actor.position = { x: local.x, z: local.z };
+                  actor.inside = wanted;
+                  actor.entering = null;
+                  actor.path = [];
+                  actor.goal = null;
+                }
+              }
+            } else if (distance2(actor.position, { x: approach.x, z: approach.z }) < 0.03) {
+              actor.entering = wanted;
+              actor.path = [];
+              actor.goal = null;
+            } else walkTo(actor, { x: approach.x, z: approach.z }, dt);
+          }
+        } else {
+          actor.entryPortal = null;
+          const homePoint = cottagePetFurniture.beds[index], target = follow ? followingPoint(actor, leader, index) : { x: homePoint[0], z: homePoint[1] };
+          walkTo(actor, target, dt);
+        }
+        const p = new Vector3(actor.position.x, 0, actor.position.z);
+        if (actor.inside) rooms.get(actor.inside).localToWorld(p);
+        else p.y = 0.03;
+        actor.reaction = Math.max(0, (actor.reaction || 0) - dt);
+        if (actor.reaction > 0) p.y += Math.sin(Math.PI * (1 - actor.reaction / 0.65)) * 0.18;
+        actor.rig.position.copy(p);
+        actor.rig.rotation.y = actor.heading + (actor.inside ? facing(actor.inside) : 0);
+        actor.rig.visible = actor.inside ? !!rooms.get(actor.inside)?.visible && (firstPerson || !activePlace || activePlace === actor.inside) : firstPerson || !activePlace;
+        const data = actor.rig.userData;
+        if (data.playFor > 0) data.playFor -= dt;
+        else animatePet(actor.rig, actor.moving ? "walk" : "idle");
+        data.mixer?.update(dt);
+        index++;
+      }
+    }
+    function interact(action, petId) {
+      for (const actor of pets.values()) {
+        if (petId && actor.id !== petId) continue;
+        if (action === "click") actor.reaction = 0.65;
+        animatePet(actor.rig, action === "feed" ? "eat" : "gesture-positive");
+        actor.rig.userData.playFor = 3;
+      }
+    }
+    return { sync, tick, interact, inspect: () => [...pets.values()].map((a) => ({ id: a.id, inside: a.inside, position: { ...a.position }, worldPosition: a.rig.position.toArray(), reaction: a.reaction || 0, moving: a.moving, loaded: !!a.rig.userData.loaded, error: !!a.rig.userData.loadError, animation: a.rig.userData.animation, visible: a.rig.visible })) };
+  }
+
+  // src/town-lights.js
+  var segmentDistance = (x2, z, a, b) => {
+    const dx = b.x - a.x, dz = b.z - a.z, t = Math.max(0, Math.min(1, ((x2 - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz || 1)));
+    return Math.hypot(x2 - a.x - t * dx, z - a.z - t * dz);
+  };
+  function lampPositionClear(x2, z) {
+    if (Math.hypot(x2, z) > 16.2) return false;
+    if (segmentDistance(x2, z, { x: -14, z: -1.3 }, { x: 14, z: -1.3 }) < 0.68 || segmentDistance(x2, z, { x: 0, z: -12.5 }, { x: 0, z: 12.7 }) < 0.68) return false;
+    if (segmentDistance(x2, z, { x: 0, z: 8.2 }, { x: 2, z: 8.2 }) < 0.6 || segmentDistance(x2, z, { x: 2, z: 8.2 }, { x: 2, z: 9.45 }) < 0.6) return false;
+    for (const d of destinations) {
+      const name = d[0], a = facing(name), dx = x2 - d[1], dz = z - d[2], lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
+      const w = name === "\u9F20\u9F20\u5B66\u6821" ? 2.5 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 4.65 : name === "\u5893\u5730" ? 2.3 : 1.9, h = name === "\u9F20\u9F20\u5B66\u6821" ? 2.1 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 2.8 : name === "\u5893\u5730" ? 1.8 : 1.45;
+      if (name === "\u8DD1\u8F6E\u516C\u56ED" ? Math.hypot(dx, dz) < 2.45 : Math.abs(lx) < w && Math.abs(lz) < h) return false;
+      if (name !== "\u4E2D\u5FC3\u5E7F\u573A") {
+        const e = entrance(name), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
+        if (segmentDistance(x2, z, e, near) < 0.6) return false;
+      }
+    }
+    return true;
+  }
+  function lampLayout() {
+    const lamps = [];
+    for (const d of destinations) {
+      const name = d[0], a = facing(name), side = name === "\u8DD1\u8F6E\u516C\u56ED" ? 2.8 : name === "\u9F20\u9F20\u5B66\u6821" ? 2.8 : name === "\u4E2D\u5FC3\u5E7F\u573A" ? 5.1 : name === "\u5893\u5730" ? 2.6 : 2.2;
+      for (const direction of [-1, 1]) {
+        for (let back = 0.6; back < 3; back += 0.4) {
+          const x2 = d[1] - Math.sin(a) * back + Math.cos(a) * side * direction, z = d[2] - Math.cos(a) * back - Math.sin(a) * side * direction;
+          if (lampPositionClear(x2, z)) {
+            lamps.push({ x: x2, z, yaw: Math.atan2(z - d[2], d[1] - x2), place: name });
+            break;
+          }
+        }
+      }
+    }
+    let seed = 731;
+    const random = () => {
+      seed = seed * 1664525 + 1013904223 >>> 0;
+      return seed / 4294967296;
+    };
+    let added = 0;
+    for (let i2 = 0; i2 < 300 && added < 6; i2++) {
+      const x2 = (random() - 0.5) * 29, z = (random() - 0.5) * 29;
+      if (!lampPositionClear(x2, z) || lamps.some((l) => Math.hypot(x2 - l.x, z - l.z) < 4)) continue;
+      lamps.push({ x: x2, z, yaw: random() * Math.PI * 2, place: null });
+      added++;
+    }
+    return lamps;
+  }
+
+  // src/town-verges.js
+  function vergeLayout() {
+    const segments = [[{ x: -14, z: -1.3 }, { x: 14, z: -1.3 }], [{ x: 0, z: -12.5 }, { x: 0, z: 12.7 }]];
+    for (const d of destinations) {
+      if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A") continue;
+      const e = entrance(d[0]), near = Math.abs(e.x) < Math.abs(e.z + 1.3) ? { x: 0, z: e.z } : { x: e.x, z: -1.3 };
+      segments.push([near, e]);
+    }
+    let seed = 927;
+    const random = () => {
+      seed = seed * 1664525 + 1013904223 >>> 0;
+      return seed / 4294967296;
+    }, lamps = lampLayout(), items = [];
+    const centers = [], parts = [["grass", -0.2, 0], ["grass", 0.05, 0.12], ["flower", -0.05, -0.12], ["flower", 0.14, -0.04], ["stone", 0.26, 0.16], ["twig", -0.23, 0.22]];
+    for (let attempt = 0; attempt < 200 && centers.length < 7; attempt++) {
+      const [a, b] = segments[Math.floor(random() * segments.length)], dx = b.x - a.x, dz = b.z - a.z, length = Math.hypot(dx, dz);
+      if (length < 0.5) continue;
+      const t = random(), side = random() < 0.5 ? -1 : 1, offset = 1.15 + random() * 0.45, x2 = a.x + dx * t - dz / length * offset * side, z = a.z + dz * t + dx / length * offset * side, yaw = random() * Math.PI * 2;
+      if (centers.some((p) => Math.hypot(x2 - p.x, z - p.z) < 4)) continue;
+      const cluster = parts.map(([kind, ox, oz]) => ({ x: x2 + ox * Math.cos(yaw) - oz * Math.sin(yaw), z: z + ox * Math.sin(yaw) + oz * Math.cos(yaw), kind, yaw: random() * Math.PI * 2, scale: 1 + random() * 0.3 }));
+      if (cluster.some((p) => !lampPositionClear(p.x, p.z) || lamps.some((l) => Math.hypot(p.x - l.x, p.z - l.z) < 0.55))) continue;
+      centers.push({ x: x2, z });
+      items.push(...cluster);
+    }
+    return items;
+  }
+  function createTownVerges() {
+    const group = new Group(), batches = /* @__PURE__ */ new Map(), matrix = new Matrix4(), rotation = new Quaternion();
+    const add = (key, geometry, color, x2, y, z, sx, sy, sz, yaw = 0) => {
+      if (!batches.has(key)) batches.set(key, { geometry, color, matrices: [] });
+      rotation.setFromAxisAngle(new Vector3(0, 1, 0), yaw);
+      matrix.compose(new Vector3(x2, y, z), rotation, new Vector3(sx, sy, sz));
+      batches.get(key).matrices.push(matrix.clone());
+    };
+    const blade = new ConeGeometry(1, 1, 4), sphere = new SphereGeometry(1, 7, 5), branch = new CylinderGeometry(1, 1, 1, 5);
+    branch.rotateZ(Math.PI / 2);
+    const stem = new CylinderGeometry(1, 1, 1, 5);
+    for (const p of vergeLayout()) {
+      const s = p.scale;
+      if (p.kind === "grass" || p.kind === "flower") for (let i2 = 0; i2 < 5; i2++) {
+        const a = p.yaw + i2 * 2.4;
+        add("grass", blade, 7902045, p.x + Math.cos(a) * 0.075 * s, 0.1 * s, p.z + Math.sin(a) * 0.075 * s, 0.028 * s, (0.14 + i2 * 0.02) * s, 0.022 * s, a);
+      }
+      if (p.kind === "flower") {
+        add("stem", stem, 6718535, p.x, 0.16 * s, p.z, 9e-3 * s, 0.25 * s, 9e-3 * s);
+        const color = Math.sin(p.yaw) > 0 ? 15981761 : 14069701;
+        for (let i2 = 0; i2 < 5; i2++) {
+          const a = i2 * Math.PI * 2 / 5;
+          add("petal" + color, sphere, color, p.x + Math.cos(a) * 0.045 * s, 0.29 * s, p.z + Math.sin(a) * 0.045 * s, 0.04 * s, 0.015 * s, 0.032 * s, a);
+        }
+        add("pollen", sphere, 14989652, p.x, 0.305 * s, p.z, 0.022 * s, 0.015 * s, 0.022 * s);
+      }
+      if (p.kind === "stone") add("stone", sphere, 10854798, p.x, 0.035 * s, p.z, 0.11 * s, 0.055 * s, 0.075 * s, p.yaw);
+      if (p.kind === "twig") {
+        add("twig", branch, 8809296, p.x, 0.033, p.z, 0.28 * s, 0.017 * s, 0.017 * s, p.yaw);
+        add("twig", branch, 8809296, p.x + 0.035, 0.037, p.z, 0.14 * s, 0.012 * s, 0.012 * s, p.yaw + 0.7);
+      }
+    }
+    for (const { geometry, color, matrices } of batches.values()) {
+      const mesh = new InstancedMesh(geometry, new MeshStandardMaterial({ color, roughness: 1 }), matrices.length);
+      matrices.forEach((m, i2) => mesh.setMatrixAt(i2, m));
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    }
+    group.name = "\u8DEF\u8FB9\u82B1\u8349";
+    return group;
   }
 
   // node_modules/.pnpm/three@0.185.1/node_modules/three/examples/jsm/environments/RoomEnvironment.js
@@ -41405,18 +41618,18 @@ void main() {
         if (lightAttribute.CastLightOnObject !== void 0 && lightAttribute.CastLightOnObject.value === 0) {
           intensity = 0;
         }
-        let distance2 = 0;
+        let distance3 = 0;
         if (lightAttribute.FarAttenuationEnd !== void 0) {
           if (lightAttribute.EnableFarAttenuation !== void 0 && lightAttribute.EnableFarAttenuation.value === 0) {
-            distance2 = 0;
+            distance3 = 0;
           } else {
-            distance2 = lightAttribute.FarAttenuationEnd.value;
+            distance3 = lightAttribute.FarAttenuationEnd.value;
           }
         }
         const decay = 1;
         switch (type) {
           case 0:
-            model = new PointLight(color, intensity, distance2, decay);
+            model = new PointLight(color, intensity, distance3, decay);
             break;
           case 1:
             model = new DirectionalLight(color, intensity);
@@ -41433,7 +41646,7 @@ void main() {
             } else if (lightAttribute.InnerAngle !== void 0) {
               angle = MathUtils.degToRad(lightAttribute.InnerAngle.value);
             }
-            model = new SpotLight(color, intensity, distance2, angle, penumbra, decay);
+            model = new SpotLight(color, intensity, distance3, angle, penumbra, decay);
             break;
           default:
             console.warn("THREE.FBXLoader: Unknown light type " + lightAttribute.LightType.value + ", defaulting to a PointLight.");
@@ -43249,7 +43462,7 @@ void main() {
 
   // src/town.js
   var places = [
-    ["\u5BA0\u7269\u4E4B\u5BB6", -14, 1.5, 14727289, "\u9886\u517B\u3001\u966A\u4F34\u4E0E\u7167\u62A4\u732B\u72D7\u4F19\u4F34"],
+    ["\u5BA0\u7269\u4E4B\u5BB6", 15.65, -0.25, 14727289, "\u9886\u517B\u3001\u966A\u4F34\u4E0E\u7167\u62A4\u732B\u72D7\u4F19\u4F34"],
     ["\u8DD1\u8F6E\u516C\u56ED", -6, -5, 9549732, "\u591C\u91CC\u6700\u70ED\u95F9\u7684\u8FD0\u52A8\u573A"],
     ["\u8BCA\u6240", 0, -5, 12044761, "\u533B\u751F\u9F20\u9F20\u5B88\u62A4\u5927\u5BB6\u7684\u5065\u5EB7"],
     ["\u96F6\u98DF\u94FA", 6, -5, 14990735, "\u8D2D\u4E70\u7CAE\u98DF\u548C\u5076\u5C14\u7684\u5C0F\u96F6\u98DF"],
@@ -43692,7 +43905,7 @@ void main() {
       tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       scene.add(tree);
     }
-    let yaw = 0, pitch = 0.83, distance2 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
+    let yaw = 0, pitch = 0.83, distance3 = 34, drag = null, activePlace = null, savedCamera = null, focusedResident = -1, focusedPup = null, savedFocusCamera = null, worldState = {};
     let hoverPointer = null, hoveredActor = null, hoverUntil = 0;
     let focusedExhibit = null;
     let lookSensitivity = 1;
@@ -44096,6 +44309,8 @@ void main() {
         label("\u5531\u7247\u5C55\u67DC", 1.1, -0.5);
         label("\u4E13\u8F91\u5899", 0, -2.7);
       } else if (name === "\u9F20\u9F20\u5C0F\u5C4B") {
+        populateCottagePets(room, label);
+        room.userData.syncPets(worldState.petHome);
         bed(...cottageFurniture.bed, "\u5E8A\u94FA");
         bouquet(-2.7, 0.12, 0.4);
         const bowl = new Mesh(new TorusGeometry(0.36, 0.1, 12, 32), new MeshStandardMaterial({ color: 15324341 }));
@@ -44292,7 +44507,7 @@ void main() {
     function enterPlace(name) {
       clearFocus(false);
       if (activePlace) leavePlace();
-      savedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
+      savedCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       activePlace = name;
       document.querySelector("#townPlace b").textContent = name;
       document.querySelector("#townPlace span").textContent = indoorNames.includes(name) ? "\u5EFA\u7B51\u5185\u5916\u5171\u7528\u6A21\u578B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E" : "\u8FD1\u8DDD\u79BB\u67E5\u770B \xB7 \u62D6\u52A8\u65CB\u8F6C \xB7 \u6EDA\u8F6E\u7F29\u653E";
@@ -44306,14 +44521,14 @@ void main() {
           });
           room.userData.cutaway.forEach((o) => o.visible = true);
           target.copy(room.localToWorld(new Vector3(name === "Mariah Carey\u540D\u4EBA\u5802" ? 1.2 : 0, 1, 0)));
-          distance2 = name === "Mariah Carey\u540D\u4EBA\u5802" ? 6 : 5;
+          distance3 = name === "Mariah Carey\u540D\u4EBA\u5802" ? 6 : 5;
           pitch = 0.92;
           yaw = facing(name) + 0.18;
         }
       } else {
         const place = places.find((p) => p[0] === name);
         target.set(place[1], 0.2, place[2]);
-        distance2 = name === "\u5893\u5730" ? 6.2 : 8;
+        distance3 = name === "\u5893\u5730" ? 6.2 : 8;
         pitch = 0.85;
         yaw = facing(name) + 0.2;
       }
@@ -44337,7 +44552,7 @@ void main() {
       }
       clearRoom();
       if (savedCamera) {
-        ({ yaw, pitch, distance: distance2 } = savedCamera);
+        ({ yaw, pitch, distance: distance3 } = savedCamera);
         target.copy(savedCamera.target);
       }
       activePlace = null;
@@ -44352,12 +44567,12 @@ void main() {
     function focusResident(index) {
       const npc = residents[index];
       if (!npc?.rig.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       focusedResident = index;
       target.copy(npc.rig.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance2 = 5.4;
+      distance3 = 5.4;
       returnButton.hidden = false;
       host.dataset.resident = String(index);
       document.querySelector("#townPlace b").textContent = worldState.npcs?.[index]?.name || roles[index];
@@ -44368,12 +44583,12 @@ void main() {
     }
     function focusPet() {
       if (!pet.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       focusedResident = -2;
       target.copy(pet.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance2 = 5.4;
+      distance3 = 5.4;
       returnButton.hidden = false;
       host.dataset.resident = "main";
       speech.hidden = true;
@@ -44385,14 +44600,14 @@ void main() {
     function focusPup(id) {
       const item = pups.get(id);
       if (!item?.rig.visible) return;
-      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance2, target: target.clone() };
+      if (focusedResident === -1) savedFocusCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       focusedResident = -3;
       focusedPup = id;
       speech.hidden = true;
       target.copy(item.rig.position).add(new Vector3(1.05, 0.25, 0));
       yaw = 0.15;
       pitch = 0.68;
-      distance2 = 5.4;
+      distance3 = 5.4;
       positionCamera();
       returnButton.hidden = false;
       window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id } }));
@@ -44430,7 +44645,7 @@ void main() {
       if (restore && savedFocusCamera) {
         yaw = savedFocusCamera.yaw;
         pitch = savedFocusCamera.pitch;
-        distance2 = savedFocusCamera.distance;
+        distance3 = savedFocusCamera.distance;
         target.copy(savedFocusCamera.target);
         positionCamera();
       }
@@ -44486,7 +44701,7 @@ void main() {
       }
     }).observe(document.body, { attributes: true, attributeFilter: ["data-current-panel"] });
     function positionCamera() {
-      camera.position.set(Math.sin(yaw) * Math.cos(pitch) * distance2, Math.sin(pitch) * distance2, Math.cos(yaw) * Math.cos(pitch) * distance2);
+      camera.position.set(Math.sin(yaw) * Math.cos(pitch) * distance3, Math.sin(pitch) * distance3, Math.cos(yaw) * Math.cos(pitch) * distance3);
       camera.position.add(target);
       camera.lookAt(target);
       camera.updateMatrixWorld();
@@ -44529,7 +44744,7 @@ void main() {
       const hint = document.createElement("small");
       hint.textContent = "WASD \u79FB\u52A8 \xB7 E \u5F00\u95E8/\u4E92\u52A8 \xB7 \u9F20\u6807\u73AF\u987E";
       firstContext.appendChild(hint);
-      const actions = place === "\u5BA0\u7269\u4E4B\u5BB6" ? [{ id: "pet-home", title: "\u5BA0\u7269\u670D\u52A1" }, { id: "pet-pet", title: "\u6478\u6478\u4F19\u4F34" }, { id: "pet-feed", title: "\u5582\u98DF" }] : window.TownInteractions.actions.filter((action) => action.place === place);
+      const actions = [...place === "\u5BA0\u7269\u4E4B\u5BB6" ? [] : window.TownInteractions.actions.filter((action) => action.place === place), ...["\u5BA0\u7269\u4E4B\u5BB6", "\u9F20\u9F20\u5C0F\u5C4B"].includes(place) ? [{ id: place === "\u9F20\u9F20\u5C0F\u5C4B" ? "pet-roster" : "pet-home", title: place === "\u9F20\u9F20\u5C0F\u5C4B" ? "\u6211\u7684\u5BA0\u7269" : "\u5BA0\u7269\u670D\u52A1" }, { id: "pet-follow", title: "\u8DDF\u968F / \u56DE\u5BB6" }, { id: "pet-pet", title: "\u6478\u6478\u4F19\u4F34" }, { id: "pet-feed", title: "\u5582\u98DF" }] : []];
       if (actions.length) {
         const list = document.createElement("div");
         list.className = "town-first-actions";
@@ -44537,7 +44752,7 @@ void main() {
           const button = document.createElement("button");
           button.type = "button";
           button.textContent = action.title;
-          button.title = place === "\u5BA0\u7269\u4E4B\u5BB6" ? action.title : window.TownInteractions.description(action);
+          button.title = action.id.startsWith("pet-") ? action.title : window.TownInteractions.description(action);
           button.onclick = () => window.dispatchEvent(new CustomEvent("town-first-action", { detail: { id: action.id } }));
           list.appendChild(button);
         });
@@ -44568,7 +44783,7 @@ void main() {
       if (!actor || actor.frozen) return false;
       clearFocus();
       if (activePlace) leavePlace();
-      playerSavedCamera = { yaw, pitch, distance: distance2, target: target.clone() };
+      playerSavedCamera = { yaw, pitch, distance: distance3, target: target.clone() };
       firstPerson = true;
       pet.visible = false;
       if (pet.userData.model) pet.userData.model.visible = false;
@@ -44615,7 +44830,7 @@ void main() {
       if (activePlace) leavePlace();
       if (actor?.inside) enterPlace(actor.inside);
       else if (playerSavedCamera) {
-        ({ yaw, pitch, distance: distance2 } = playerSavedCamera);
+        ({ yaw, pitch, distance: distance3 } = playerSavedCamera);
         target.copy(playerSavedCamera.target);
       }
       delete host.dataset.view;
@@ -44685,7 +44900,7 @@ void main() {
       const actor = life.actors.get("main");
       if (!actor) return;
       actor.cottageTableSlot = worldState.furniture?.table?.slot;
-      actor.petFacilities = worldState.petHome?.facilities;
+      actor.petFacilities = { ...worldState.petHome?.facilities, pets: worldState.petHome?.pets, food: worldState.petHome?.food, hasPets: !!worldState.petHome?.pets.length };
       let forward = (playerKeys.has("KeyW") || playerKeys.has("ArrowUp") ? 1 : 0) - (playerKeys.has("KeyS") || playerKeys.has("ArrowDown") ? 1 : 0), right = (playerKeys.has("KeyD") || playerKeys.has("ArrowRight") ? 1 : 0) - (playerKeys.has("KeyA") || playerKeys.has("ArrowLeft") ? 1 : 0);
       const speed = playerKeys.has("ShiftLeft") || playerKeys.has("ShiftRight") ? 1.3 : 0.75, norm = Math.hypot(forward, right) || 1;
       forward /= norm;
@@ -44746,6 +44961,21 @@ void main() {
     }
     function playerInteract(source = "keyboard") {
       if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
+      if (source === "mouse") {
+        const ray2 = new Raycaster();
+        ray2.setFromCamera(new Vector2(0, 0), camera);
+        const hit2 = ray2.intersectObjects(clickable, true).find((h) => {
+          if (h.distance > 2.1) return false;
+          for (let n = h.object; n; n = n.parent) if (!n.visible) return false;
+          return true;
+        });
+        let node = hit2?.object;
+        while (node && !node.userData.roomAction) node = node.parent;
+        if (node?.userData.roomAction === "owned-pet") {
+          window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "owned-pet", petId: node.userData.petId } }));
+          return;
+        }
+      }
       const pupil = life.actors.get("main");
       if (pupil?.classroomSeat !== void 0) {
         toggleClassroomSeat(pupil.classroomSeat);
@@ -44834,7 +45064,7 @@ void main() {
       if (actor.inside && (source === "keyboard" || actor.inside !== "\u9F20\u9F20\u5B66\u6821")) {
         const nearby = roomLabels.map((l) => ({ ...l, d: Math.hypot(l.point.x - actor.position.x, l.point.z - actor.position.z) })).sort((a, b) => a.d - b.d)[0];
         if (nearby?.d < 1.2 && !(source === "mouse" && nearby.button.textContent.startsWith("\u4F11\u606F\u957F\u6905"))) {
-          const text = nearby.button.textContent, extra = window.TownInteractions.actions.find((a) => a.place === actor.inside && a.object === text), action = actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" ? "pet-home" : extra ? "place-" + extra.id : text.startsWith("\u6C34\u58F6") ? "water" : text.startsWith("\u7CAE\u4ED3") ? "supply" : text === "\u8BCA\u7597\u5E8A" ? "treat" : text.includes("\u5E8A") ? "rest" : text === "\u98DF\u76C6" ? "eat" : "inspect";
+          const text = nearby.button.textContent, extra = window.TownInteractions.actions.find((a) => a.place === actor.inside && a.object === text), action = actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" ? "pet-home" : text.startsWith("\u5BA0\u7269") ? "pet-roster" : extra ? "place-" + extra.id : text.startsWith("\u6C34\u58F6") ? "water" : text.startsWith("\u7CAE\u4ED3") ? "supply" : text === "\u8BCA\u7597\u5E8A" ? "treat" : text.includes("\u5E8A") ? "rest" : text === "\u98DF\u76C6" ? "eat" : "inspect";
           window.dispatchEvent(new CustomEvent("town-player-action", { detail: { action, text, place: actor.inside } }));
           actor.speech = "\u770B\u770B" + text.split(" \xB7 ")[0];
           return;
@@ -44856,6 +45086,10 @@ void main() {
         }
         if (node?.userData.pupId) {
           window.dispatchEvent(new CustomEvent("town-pup-select", { detail: { id: node.userData.pupId } }));
+          return;
+        }
+        if (["owned-pet", "pet-roster"].includes(node?.userData.roomAction)) {
+          window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: node.userData.roomAction, petId: node.userData.petId } }));
           return;
         }
         if (node?.userData.roomAction === "pet-home") {
@@ -45000,7 +45234,7 @@ void main() {
       bounds.getCenter(target);
       yaw = facing(activePlace) + (exhibit.userData.hallSide ? Math.PI / 2 : 0);
       pitch = 0.04;
-      distance2 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
+      distance3 = Math.max(1.2, bounds.getSize(new Vector3()).y / (2 * Math.tan(MathUtils.degToRad(camera.fov / 2))) * 1.65);
       positionCamera();
       window.dispatchEvent(new CustomEvent("town-exhibit-select", { detail: { title: exhibit.userData.hallExhibit } }));
       return true;
@@ -45234,7 +45468,7 @@ void main() {
       if (activePlace !== "Mariah Carey\u540D\u4EBA\u5802" || firstPerson) return;
       focusedExhibit = null;
       target.copy(room.localToWorld(new Vector3(1.2, 0, 0)));
-      distance2 = 6;
+      distance3 = 6;
       pitch = 0.92;
       yaw = facing(activePlace) + 0.18;
       positionCamera();
@@ -45263,7 +45497,7 @@ void main() {
       if (Math.hypot(dx, dy) > 4) drag.moved = true;
       if (drag.button === 2 || drag.button === 1 || e.shiftKey) {
         const right = new Vector3().setFromMatrixColumn(camera.matrix, 0), forward = new Vector3().crossVectors(right, camera.up);
-        target.copy(drag.target).addScaledVector(right, -dx * distance2 * 15e-4).addScaledVector(forward, dy * distance2 * 15e-4);
+        target.copy(drag.target).addScaledVector(right, -dx * distance3 * 15e-4).addScaledVector(forward, dy * distance3 * 15e-4);
       } else {
         yaw = drag.yaw - dx * 8e-3;
         pitch = Math.max(0.34, Math.min(1.18, drag.pitch + dy * 6e-3));
@@ -45296,6 +45530,7 @@ void main() {
           else if (object?.userData.townAction?.startsWith("school-")) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.townAction } }));
           else if (object?.userData.townAction === "clinic-seat") toggleClinicSeat(object.userData.seatSide);
           else if (object?.userData.townAction) window.dispatchEvent(new CustomEvent("town-plaza-action", { detail: { action: object.userData.townAction } }));
+          else if (object?.userData.roomAction === "owned-pet") window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "owned-pet", petId: object.userData.petId } }));
           else if (object?.userData.roomAction === "pet-home") window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: "pet-home", place: "\u5BA0\u7269\u4E4B\u5BB6" } }));
           else if (object?.userData.roomAction) window.dispatchEvent(new CustomEvent("town-object-action", { detail: { action: object.userData.roomAction } }));
           else if (object?.userData.pupId) focusPup(object.userData.pupId);
@@ -45309,7 +45544,7 @@ void main() {
     canvas.addEventListener("wheel", (e) => {
       e.preventDefault();
       if (firstPerson) return;
-      distance2 = Math.max(focusedExhibit !== null ? 0.6 : activePlace ? 5 : 14, Math.min(activePlace ? 20 : 38, distance2 + e.deltaY * 0.015));
+      distance3 = Math.max(focusedExhibit !== null ? 0.6 : activePlace ? 5 : 14, Math.min(activePlace ? 20 : 38, distance3 + e.deltaY * 0.015));
       positionCamera();
     }, { passive: false });
     function resize() {
@@ -45402,6 +45637,7 @@ void main() {
       });
     }
     indoorNames.forEach((name) => buildRoom(name));
+    const petCompanions = createPetCompanions({ scene, rooms: roomCache, models: placeModels, clickable });
     clearRoom();
     roomCache.forEach((indoor) => indoor.visible = false);
     const roomBounds = new Map(indoorNames.map((name) => [name, new Box3().setFromObject(placeModels.get(name))]));
@@ -45447,8 +45683,9 @@ void main() {
       if (firstPerson && main) updateFirstContext(main.inside || main.place);
       viewArea.setFromProjectionMatrix(viewMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
       roomCache.forEach((indoor, name) => {
-        indoor.visible = activePlace === name || (firstPerson || name === "\u5BA0\u7269\u4E4B\u5BB6") && viewArea.intersectsBox(roomBounds.get(name));
+        indoor.visible = activePlace === name || (firstPerson || name === "\u5BA0\u7269\u4E4B\u5BB6" || name === "\u9F20\u9F20\u5C0F\u5C4B") && viewArea.intersectsBox(roomBounds.get(name));
       });
+      petCompanions.tick(dt, main, worldState, activePlace, firstPerson);
       mainTag.textContent = worldState.mainName || "\u9F20\u9F20";
       placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, firstPerson || !pet.visible || focusedResident !== -1 && focusedResident !== -2, true);
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
@@ -45513,6 +45750,8 @@ void main() {
       const oldBoard = worldState.schoolBoard;
       worldState = next;
       roomCache.get("\u5BA0\u7269\u4E4B\u5BB6")?.userData.syncPets(next.petHome);
+      roomCache.get("\u9F20\u9F20\u5C0F\u5C4B")?.userData.syncPets(next.petHome);
+      petCompanions.sync(next);
       setLookSensitivity(next.lookSensitivity ?? 1);
       if (oldBoard !== next.schoolBoard) {
         buildRoom("\u9F20\u9F20\u5B66\u6821", true);
@@ -45574,10 +45813,16 @@ void main() {
         buildRoom(activePlace);
       }
     }
-    window.TownApp = { petInteraction: (action) => roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.playPetAction(action), setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.map((a) => ({ loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    window.TownApp = { petInteraction: (action, petId) => {
+      if (!petId) roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.playPetAction(action);
+      petCompanions.interact(action, petId);
+    }, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
+      const v = new Vector3(...p.worldPosition).add(new Vector3(0, 0.1, 0)).project(camera), r = canvas.getBoundingClientRect();
+      return { ...p, screenPoint: { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 } };
+    }), petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.map((a) => ({ loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
-    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance2, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
+    }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance3, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
