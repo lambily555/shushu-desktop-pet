@@ -31,7 +31,7 @@ assert.ok(family.state.offspring.every(p=>['male','female'].includes(p.sex)));
 const npcFamily=sim.breedNpcPair(sim.defaults(start),'npc-0','npc-1',start);assert.equal(npcFamily.ok,true);assert.ok(npcFamily.state.npcOffspring.length>=1&&npcFamily.state.npcOffspring.length<=2);assert.equal(npcFamily.state.stamina,100);assert.ok(npcFamily.state.npcOffspring.every(p=>p.parents.includes('轮轮')&&p.parents.includes('白大夫')));assert.equal(sim.breedNpcPair(npcFamily.state,'npc-0','npc-1',start).ok,false);
 
 let limited=sim.defaults(start);assert.equal(limited.stamina,100);let socialResult;for(const id of ['npc-0','npc-0','npc-1','npc-1','npc-2','npc-2']){socialResult=sim.interact(limited,id,start);assert.equal(socialResult.ok,true);limited=socialResult.state}socialResult=sim.interact(limited,'npc-3',start);assert.equal(socialResult.ok,false);assert.equal(limited.social.total,6);assert.equal(limited.stamina,28);
-let rested=sim.settle(limited,start+12*HOUR);assert.ok(rested.stamina>limited.stamina);const workout=sim.exercise(rested,start+12*HOUR);assert.equal(workout.ok,true);assert.ok(workout.state.stamina<rested.stamina);
+let rested=sim.settle(limited,start+12*HOUR);assert.ok(rested.stamina>limited.stamina);rested.currentActivity="休息";rested.sleepRequested=false;rested.autoSleep=false;const workout=sim.exercise(rested,start+12*HOUR);assert.equal(workout.ok,true);assert.ok(workout.state.stamina<rested.stamina);
 
 let farewell=sim.defaults(start);Object.assign(farewell,{mortality:true,ageYearsValue:3,health:70});farewell=sim.settle(farewell,start+HOUR);assert.equal(farewell.alive,false);farewell=sim.finishFarewell(farewell).state;assert.equal(farewell.memorials.length,1);assert.equal(farewell.pendingFarewell.phase,'buried');const adopted=sim.adopt(farewell,'npc-0');assert.equal(adopted.ok,true);assert.equal(adopted.state.alive,true);
 assert.equal(adopted.state.mainSex,adopted.state.npcs[0].sex);
@@ -45,7 +45,7 @@ let water=sim.defaults(start);water.food=100;
 const dayWater=sim.settle(water,start+DAY);assert.ok(Math.abs(dayWater.water-200/3)<.001);assert.equal(sim.waterStatus(dayWater,start+DAY).quality,'待换水');
 const stale=sim.settle(water,start+2*DAY);assert.equal(sim.waterStatus(stale,start+2*DAY).quality,'变质');
 assert.equal(sim.settle(water,start+4*DAY).water,0);
-const fresh=sim.refillWater(stale,start+2*DAY).state;assert.equal(fresh.water,100);assert.equal(sim.waterStatus(fresh,start+2*DAY).quality,'新鲜');
+stale.currentActivity="休息";stale.sleepRequested=false;stale.autoSleep=false;const fresh=sim.refillWater(stale,start+2*DAY).state;assert.equal(fresh.water,100);assert.equal(sim.waterStatus(fresh,start+2*DAY).quality,'新鲜');
 assert.ok(sim.settle(fresh,start+3*DAY).health>sim.settle(stale,start+3*DAY).health);
 assert.ok(Math.abs(continuous.water-segmented.water)<.001);
 for(const id of ['npc-0','npc-1'])assert.equal(sim.childrenOf(npcFamily.state,id).length,npcFamily.state.npcOffspring.length);

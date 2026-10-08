@@ -40507,6 +40507,7 @@ void main() {
     crosshair.textContent = "+";
     host.appendChild(crosshair);
     function startFirstPerson() {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       if (firstPerson) return true;
       const actor = life.actors.get("main");
       if (!actor || actor.frozen) return false;
@@ -40688,6 +40689,7 @@ void main() {
       camera.updateMatrixWorld();
     }
     function playerInteract(source = "keyboard") {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const pupil = life.actors.get("main");
       if (pupil?.classroomSeat !== void 0) {
         toggleClassroomSeat(pupil.classroomSeat);
@@ -40905,6 +40907,7 @@ void main() {
       return startFirstPerson();
     }
     function toggleHallSeat() {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep || activePlace !== "Mariah Carey\u540D\u4EBA\u5802") return false;
       actor.seated = !actor.seated;
@@ -40943,6 +40946,7 @@ void main() {
       return true;
     }
     function togglePlazaSeat(index) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main"), plaza = placeModels.get("\u4E2D\u5FC3\u5E7F\u573A"), seat = plaza.userData.plazaSeats[index];
       if (!actor || actor.frozen || actor.forcedSleep || actor.inside || !seat) return false;
       if (actor.plazaSeat !== void 0) {
@@ -40985,6 +40989,7 @@ void main() {
       return true;
     }
     function toggleMemorialSeat(location) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep) return false;
       const inside = location === "inside", model = placeModels.get("\u7EAA\u5FF5\u9986");
@@ -41025,6 +41030,7 @@ void main() {
       return true;
     }
     function toggleRestaurantSeat(index) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main"), seats = roomCache.get("\u9F20\u9F20\u996D\u9986")?.userData.restaurantSeats;
       if (!actor || actor.frozen || actor.forcedSleep || !seats?.[index] || activePlace !== "\u9F20\u9F20\u996D\u9986") return false;
       if (actor.restaurantSeat !== void 0) {
@@ -41060,6 +41066,7 @@ void main() {
       return true;
     }
     function toggleClassroomSeat(index) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main"), seats = roomCache.get("\u9F20\u9F20\u5B66\u6821")?.userData.classroomSeats;
       if (!actor || actor.frozen || actor.forcedSleep || !seats?.[index]) return false;
       if (actor.classroomSeat !== void 0) {
@@ -41096,6 +41103,7 @@ void main() {
       return true;
     }
     function toggleSchoolSeat(index) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main"), school = placeModels.get("\u9F20\u9F20\u5B66\u6821"), seats = school.userData.schoolSeats;
       if (!actor || actor.frozen || actor.forcedSleep || actor.inside || !seats[index]) return false;
       if (actor.schoolSeat !== void 0) {
@@ -41132,6 +41140,7 @@ void main() {
       return true;
     }
     function toggleClinicSeat(side) {
+      if (window.TownSimulation.mainSleeping({ ...worldState, currentActivity: worldState.activity })) return false;
       const actor = life.actors.get("main");
       if (!actor || actor.frozen || actor.forcedSleep || actor.inside) return false;
       if (actor.clinicSeat) {
@@ -41466,7 +41475,7 @@ void main() {
       syncResidents();
       syncPups();
       syncLife();
-      if (next.autoSleep && firstPerson) stopFirstPerson();
+      if (window.TownSimulation.mainSleeping({ ...next, currentActivity: next.activity }) && firstPerson) stopFirstPerson();
       life.setResting(next.sleepRequested || next.autoSleep, !!next.hospitalized);
       life.setCelebration(next.celebration || null);
       life.setFamilyPlans(next.familyPlans || []);

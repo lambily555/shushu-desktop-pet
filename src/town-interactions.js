@@ -34,6 +34,7 @@
   function perform(input,id,time=Date.now(),message=''){
     const a=actions.find(a=>a.id===id);if(!a)return {state:input,ok:false,message:'未找到这个互动。'};
     const state=JSON.parse(JSON.stringify(input)),date=new Date(state.calendarTime).toISOString().slice(0,10);
+    if(globalThis.TownSimulation.mainSleeping(state))return globalThis.TownSimulation.sleepBlocked(input);
     if(state.hospitalStay)return {state:input,ok:false,message:'鼠鼠正在住院休养，出院后再进行活动。'};
     if(id==='clinic-emergency'&&state.health>=60)return {state:input,ok:false,message:'健康达到60以上，无需急诊，可选择检查或普通诊疗。'};
     if(!state.alive)return {state:input,ok:false,message:'请先选择新的鼠鼠伙伴。'};
