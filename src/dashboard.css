@@ -909,3 +909,5 @@ body[data-town-view="first-person"][data-town-hud="hidden"] #townContext[data-pe
 .town-pet-services select,.town-pet-services input[type=file]{box-sizing:border-box;width:100%;min-width:0;max-width:100%}.town-pet-services label{white-space:normal;overflow-wrap:anywhere}
 
 .town-pet-services select,.town-pet-services .town-task{box-sizing:border-box;width:100%;height:64px;border:1px solid #ced8ca;border-radius:11px;padding:11px 12px;background:#fffdf6;color:#405046}.town-pet-services select{font:inherit;font-weight:600;margin-bottom:8px}
+
+#townPetSpecies,#townPetTextureTarget,.town-pet-services [data-town-action="pet-request-species"],.town-pet-services [data-town-action="pet-custom-texture"]{width:50%}
