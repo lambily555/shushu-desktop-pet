@@ -37592,17 +37592,37 @@ void main() {
     if (!assets.has(kind)) assets.set(kind, new GLTFLoader().loadAsync("../assets/models/cube-pets/animal-" + kind + ".glb"));
     return assets.get(kind);
   }
-  function createPetAnimal(kind) {
+  function createPetAnimal(kind, texture2) {
     const holder = new Group();
     holder.name = "Cube pet " + kind;
     holder.userData.roomAction = "pet-home";
     holder.userData.petId = kind;
     asset(kind).then((data) => {
+      if (holder.userData.retired) return;
+      const customMap = texture2 ? new TextureLoader().load(texture2) : null;
+      if (customMap) {
+        customMap.colorSpace = SRGBColorSpace;
+        holder.userData.customMap = customMap;
+      }
       const model = clone(data.scene), bounds = new Box3().setFromObject(model), size = bounds.getSize(new Vector3()), centre = bounds.getCenter(new Vector3()), scale = 0.85 / Math.max(size.x, size.y, size.z);
       model.scale.setScalar(scale);
       model.position.set(-centre.x * scale, -bounds.min.y * scale, -centre.z * scale);
       model.traverse((o) => {
-        if (o.isMesh) o.castShadow = o.receiveShadow = true;
+        if (o.isMesh) {
+          o.castShadow = o.receiveShadow = true;
+          if (texture2) {
+            o.geometry = o.geometry.clone();
+            const positions = o.geometry.attributes.position, uv = new Float32Array(positions.count * 2);
+            o.geometry.computeBoundingBox();
+            const b = o.geometry.boundingBox;
+            for (let i2 = 0; i2 < positions.count; i2++) {
+              uv[i2 * 2] = (positions.getX(i2) - b.min.x) / Math.max(1e-3, b.max.x - b.min.x);
+              uv[i2 * 2 + 1] = (positions.getY(i2) - b.min.y) / Math.max(1e-3, b.max.y - b.min.y);
+            }
+            o.geometry.setAttribute("uv", new BufferAttribute(uv, 2));
+            o.material = new MeshStandardMaterial({ map: customMap, roughness: 0.82 });
+          }
+        }
       });
       holder.add(model);
       holder.userData.loaded = true;
@@ -37694,26 +37714,49 @@ void main() {
     }
     label("\u5BA0\u7269\u98DF\u76C6", -1.5, 1.7, "pet-home");
     const animals = [];
-    ["cat", "dog"].forEach((kind, index) => {
-      const holder = createPetAnimal(kind);
-      holder.position.set(petHomeFurniture.animals[index][0], 0, petHomeFurniture.animals[index][1]);
-      holder.rotation.y = index ? -0.5 : 0.5;
-      room.add(holder);
-      clickable.push(holder);
-      animals.push(holder);
-    });
-    label("\u732B\u72D7\u966A\u4F34\u533A", -0.75, 0.5, "pet-home");
+    label("\u5BA0\u7269\u966A\u4F34\u533A", -0.75, 0.5, "pet-home");
     room.userData.petHome = { animals, bowls };
     room.userData.syncPets = (state) => {
-      animals.forEach((a, i2) => a.visible = !state?.pets?.some((p) => p.id === ["cat", "dog"][i2]));
-      bowls.forEach((b) => b.visible = true);
+      const stock = state?.stock || [];
+      for (let i2 = 0; i2 < 2; i2++) {
+        const pet = stock[i2], old = animals[i2];
+        if (old?.userData.stockKey === JSON.stringify(pet)) continue;
+        if (old) {
+          old.userData.retired = true;
+          if (old.userData.customMap) {
+            old.traverse((o) => {
+              if (o.isMesh) {
+                o.geometry.dispose();
+                o.material.dispose();
+              }
+            });
+            old.userData.customMap.dispose();
+          }
+          room.remove(old);
+          const at = clickable.indexOf(old);
+          if (at >= 0) clickable.splice(at, 1);
+        }
+        if (!pet) {
+          animals[i2] = null;
+          continue;
+        }
+        const holder = createPetAnimal(pet.species || pet.id, pet.texture);
+        holder.userData.petId = pet.id;
+        holder.userData.stockKey = JSON.stringify(pet);
+        holder.position.set(...[petHomeFurniture.animals[i2][0], 0, petHomeFurniture.animals[i2][1]]);
+        holder.rotation.y = i2 ? -0.5 : 0.5;
+        room.add(holder);
+        clickable.push(holder);
+        animals[i2] = holder;
+      }
     };
     room.userData.playPetAction = (action) => animals.forEach((a) => {
-      if (!a.visible) return;
+      if (!a?.visible) return;
       animatePet(a, action === "feed" ? "eat" : "gesture-positive");
       a.userData.playFor = 3;
     });
     room.userData.tickPets = (dt) => animals.forEach((a) => {
+      if (!a) return;
       const data = a.userData;
       data.mixer?.update(dt);
       if (data.playFor > 0) {
@@ -37901,7 +37944,7 @@ void main() {
         go(actor, entrance(actor.destination), "arrived");
         return;
       }
-      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "Mariah Carey\u540D\u4EBA\u5802", "\u4E2D\u5FC3\u5E7F\u573A"];
+      const choices = actor.child ? ["\u9F20\u9F20\u5C0F\u5C4B", "\u8DD1\u8F6E\u516C\u56ED", "\u4E2D\u5FC3\u5E7F\u573A", "\u5C0F\u83DC\u56ED", "\u9F20\u9F20\u5B66\u6821"] : ["\u5C0F\u83DC\u56ED", "\u96F6\u98DF\u94FA", "\u4E2D\u5FC3\u5E7F\u573A", actor.home, "\u8DD1\u8F6E\u516C\u56ED", "\u9F20\u9F20\u5C0F\u5C4B", "\u7EAA\u5FF5\u9986", "\u8BCA\u6240", "\u5893\u5730", "\u6BA1\u4EEA\u9986", "\u9F20\u9F20\u5B66\u6821", "\u9F20\u9F20\u996D\u9986", "Mariah Carey\u540D\u4EBA\u5802", "\u5BA0\u7269\u4E4B\u5BB6", "\u4E2D\u5FC3\u5E7F\u573A"];
       const index = (actor.cycle - 1 + [...actors.keys()].indexOf(actor.id)) % choices.length;
       actor.destination = actor.child && actor.age < 0.18 ? "\u9F20\u9F20\u5C0F\u5C4B" : choices[index];
       const frailty = actor.aging?.frailty || 0, resting = frailty > 0 && (actor.cycle * 37 % 100 / 100 < frailty * 0.65 || actor.destination === "\u8DD1\u8F6E\u516C\u56ED" && actor.cycle * 19 % 100 / 100 < frailty * 0.9);
@@ -37946,12 +37989,98 @@ void main() {
       actor.phase = actor.inside ? "exit-room" : actor.action === "\u8DD1\u8F6E" || actor.destination === "\u5893\u5730" ? "exit-yard" : "idle";
       actor.wait = 2;
     }
+    let petInvites = [];
+    function setPetInvitations(plans = []) {
+      petInvites = plans.map((p) => ({ ...p }));
+      const main = actors.get("main");
+      if (main && petInvites.some((p) => p.status === "pending")) main.controlled = false;
+      for (const actor of actors.values()) if (actor.petInvitationHold && !petInvites.some((p) => p.status === "pending" && p.npcId === actor.id)) actor.petInvitationHold = false;
+    }
+    function petVisit(actor, dt) {
+      if (actor.id === "main") {
+        const invite2 = petInvites.find((p) => p.status === "pending"), friend = actors.get(invite2?.npcId);
+        actor.petInviteFree = !!invite2 && !actor.forcedSleep && !actor.frozen;
+        if (!actor.petInviteFree || !friend || friend.forcedSleep || friend.controlled) return false;
+        friend.petInvitationHold = true;
+        if (!friend.inside && blocked(friend.position.x, friend.position.z) && !(friend.phase === "moving" && friend.arrival === "pet-meet-ready")) go(friend, entrance(friend.place), "pet-meet-ready", true);
+        if (friend.phase === "moving" && friend.arrival === "pet-meet-ready") return true;
+        actor.action = "\u901A\u77E5\u9886\u517B\u5BA0\u7269";
+        actor.destination = friend.inside || friend.place;
+        if (actor.phase === "moving" && String(actor.arrival).startsWith("pet-invite")) return false;
+        if (actor.inside !== friend.inside) {
+          if (actor.inside) {
+            if (["exit-room", "outside"].includes(actor.phase) || actor.phase === "moving" && actor.arrival === "outside") return false;
+            actor.phase = "exit-room";
+            return false;
+          }
+          if (actor.phase === "pet-invite-enter") {
+            actor.inside = friend.inside;
+            actor.position = { x: 0, z: 2.6 };
+          } else {
+            go(actor, entrance(friend.inside), "pet-invite-enter");
+            return true;
+          }
+        }
+        if (distance(actor.position, friend.position) > 0.75) {
+          const target = actor.inside ? { x: friend.position.x - 0.5, z: friend.position.z } : [[-0.5, 0], [0.5, 0], [0, 0.5], [0, -0.5]].map(([x2, z]) => ({ x: friend.position.x + x2, z: friend.position.z + z })).find((p) => !blocked(p.x, p.z));
+          if (target) go(actor, target, "pet-invite-ready", !!actor.inside);
+          return true;
+        }
+        actor.heading = Math.atan2(friend.position.x - actor.position.x, friend.position.z - actor.position.z);
+        actor.speech = friend.name + "\uFF0C\u4F60\u53EF\u4EE5\u53BB\u5BA0\u7269\u4E4B\u5BB6\u9886\u517B\u4E00\u53EA\u4F19\u4F34\uFF01";
+        friend.speech = "\u8C22\u8C22\u4F60\uFF01\u6211\u8FD9\u5C31\u53BB\u5BA0\u7269\u4E4B\u5BB6\u770B\u770B\u3002";
+        actor.petInviteTalk = (actor.petInviteTalk || 0) + dt;
+        if (actor.petInviteTalk >= 3) {
+          actor.petInviteTalk = 0;
+          friend.petInvitationHold = false;
+          actor.petInviteFree = false;
+          actor.phase = "idle";
+          actor.wait = 1;
+          onEvent({ id: "main", npcId: friend.id, type: "pet-invited", place: friend.place });
+        }
+        return true;
+      }
+      if (actor.petInvitationHold) return !(actor.phase === "moving" && actor.arrival === "pet-meet-ready");
+      const invite = petInvites.find((p) => p.npcId === actor.id && p.status === "notified");
+      if (!invite || actor.forcedSleep || actor.frozen) return false;
+      actor.action = "\u9886\u517B\u5BA0\u7269";
+      actor.destination = "\u5BA0\u7269\u4E4B\u5BB6";
+      if (actor.phase === "moving" && String(actor.arrival).startsWith("pet-adopt")) return false;
+      if (actor.inside && actor.inside !== "\u5BA0\u7269\u4E4B\u5BB6") {
+        if (["exit-room", "outside"].includes(actor.phase) || actor.phase === "moving" && actor.arrival === "outside") return false;
+        actor.phase = "exit-room";
+        return false;
+      }
+      if (!actor.inside) {
+        if (actor.phase === "pet-adopt-enter") {
+          actor.inside = actor.place = "\u5BA0\u7269\u4E4B\u5BB6";
+          actor.position = { x: 0, z: 2.6 };
+        } else {
+          go(actor, entrance("\u5BA0\u7269\u4E4B\u5BB6"), "pet-adopt-enter");
+          return true;
+        }
+      }
+      if (actor.phase !== "pet-adopt-ready") {
+        go(actor, { x: 1.7, z: 0.4 }, "pet-adopt-ready", true);
+        return true;
+      }
+      actor.speech = "\u8001\u677F\uFF0C\u6211\u60F3\u9886\u517B\u4E00\u4F4D\u5BA0\u7269\u4F19\u4F34\uFF01";
+      actor.phase = "using";
+      actor.wait = 0;
+      onEvent({ id: actor.id, type: "pet-npc-adopt", place: "\u5BA0\u7269\u4E4B\u5BB6" });
+      return true;
+    }
     function tick(dt, isDay = day) {
       day = isDay;
       dt = Math.max(0, Math.min(dt, 1));
       elapsed += dt;
       for (const actor of actors.values()) {
-        if (!actor.frozen) {
+        if (petVisit(actor, dt)) {
+          actor.moving = false;
+          actor.energySeconds = actor.id === "main" ? 0 : actor.energySeconds;
+          continue;
+        }
+        if (!actor.frozen && !actor.petInviteFree) {
           actor.energySeconds = (actor.energySeconds || 0) + dt;
           if (actor.energySeconds >= 5) {
             const seconds = actor.energySeconds;
@@ -38057,7 +38186,7 @@ void main() {
             actor.phase = "activity";
             if (actor.action === "\u7761\u89C9") onEvent({ id: actor.id, type: "status", action: "\u7761\u89C9", place: actor.destination });
             actor.heading = actor.inside ? Math.PI : facing(actor.destination) + Math.PI;
-            actor.speech = actor.action === "\u6B23\u8D4F\u5C55\u89C8" ? "\u770B\u770B\u559C\u6B22\u7684\u4E13\u8F91\u548C\u5531\u7247" : actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u4F4F\u9662" ? "\u5B89\u9759\u4F11\u517B\uFF0C\u7B49\u767D\u5927\u592B\u7167\u6599" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
+            actor.speech = actor.action === "\u966A\u4F34\u5BA0\u7269" ? "\u966A\u5BA0\u7269\u73A9\u4E00\u4F1A\u513F\uFF0C\u5E2E\u8001\u677F\u7167\u987E\u65B0\u4F19\u4F34" : actor.action === "\u6B23\u8D4F\u5C55\u89C8" ? "\u770B\u770B\u559C\u6B22\u7684\u4E13\u8F91\u548C\u5531\u7247" : actor.action === "\u7528\u9910" ? "\u5750\u4E0B\u6765\uFF0C\u5C1D\u5C1D\u65B0\u9C9C\u852C\u83DC\u548C\u8C37\u7269" : actor.action === "\u4F4F\u9662" ? "\u5B89\u9759\u4F11\u517B\uFF0C\u7B49\u767D\u5927\u592B\u7167\u6599" : actor.action === "\u8D2D\u4E70\u7CAE\u98DF" ? "\u6311\u4E00\u70B9\u559C\u6B22\u7684\u7CAE\u98DF" : actor.action === "\u68C0\u67E5" ? "\u8BA4\u771F\u68C0\u67E5\u8EAB\u4F53" : actor.action === "\u996E\u6C34" ? "\u559D\u4E00\u70B9\u6C34" : actor.action === "\u8FDB\u98DF" ? "\u56BC\u56BC\uFF0C\u597D\u9999\u5440" : actor.action === "\u7167\u770B\u83DC\u56ED" ? "\u770B\u770B\u5AE9\u53F6\u957F\u597D\u4E86\u6CA1\u6709" : actor.action === "\u8DD1\u8F6E" ? "\u8DD1\u8D77\u6765\uFF01" : actor.action === "\u53C2\u89C2" ? "\u770B\u770B\u5927\u5BB6\u7559\u4E0B\u7684\u56DE\u5FC6" : actor.action === "\u5B66\u4E60" ? "\u7FFB\u5F00\u4E66\u672C\uFF0C\u8BA4\u8BC6\u65B0\u7684\u79CD\u5B50" : actor.action === "\u7EAA\u5FF5" ? "\u8F7B\u8F7B\u95EE\u597D\uFF0C\u8BB0\u4F4F\u5728\u8FD9\u91CC\u7684\u670B\u53CB" : actor.action === "\u5DE5\u4F5C" ? "\u6574\u7406\u9001\u522B\u7528\u54C1\uFF0C\u4FDD\u6301\u8FD9\u91CC\u5B89\u9759" : actor.action === "\u7761\u89C9" ? "\u547C\u2026\u2026" : "\u4F11\u606F\u4E00\u4F1A\u513F";
           }
         } else if (actor.phase === "family-wait") {
           const other = actors.get(actor.familyPartner);
@@ -38212,7 +38341,7 @@ void main() {
         }
       }
     }
-    return { actors, add, tick, setFamilyPlans, setResting, setCelebration, plazaSeatAvailable, releasePlazaSeat, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
+    return { actors, add, tick, setPetInvitations, setFamilyPlans, setResting, setCelebration, plazaSeatAvailable, releasePlazaSeat, remove: (id) => actors.delete(id), inspect: () => ({ elapsed, conversations, actors: [...actors.values()].map((a) => ({ ...a, entryPortal: void 0, path: void 0, visited: [...a.visited] })) }) };
   }
 
   // src/town-player.js
@@ -38252,7 +38381,7 @@ void main() {
       if (Math.abs(x2) > 3.7 || z < -2.7 || z > 2.8) return false;
       if (actor.inside === "\u9F20\u9F20\u5B66\u6821" && (x2 / 3.9) ** 2 + (z / 2.9) ** 2 > 0.92) return false;
       return !(obstacles[actor.inside] || []).some(([cx, cz, w, d], index) => {
-        if (actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" && index >= 2 && actor.petFacilities?.pets?.some((p) => p.id === ["cat", "dog"][index - 2])) return false;
+        if (actor.inside === "\u5BA0\u7269\u4E4B\u5BB6" && index >= 2 && actor.petFacilities?.stock && !actor.petFacilities.stock[index - 2]) return false;
         if (actor.inside === "\u9F20\u9F20\u5C0F\u5C4B") {
           if ((index === 5 || index === 6) && (!actor.petFacilities?.bed || actor.petCompanion)) return false;
           if (index === 7 && !actor.petFacilities?.hasPets && !actor.petFacilities?.food) return false;
@@ -38493,6 +38622,7 @@ void main() {
   }
 
   // src/town-pet-companions.js
+  var restPoints = [...cottagePetFurniture.beds, [-0.65, -0.5], [0.1, 1.6], [1.8, 1.5], [0.5, -1.1], [2.2, -0.8]];
   var distance2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var petOutsideZ = (portal) => Math.max(4.3, (1.75 - portal.layout.z) / (portal.layout.depth / 6));
   function segmentClear(actor, a, b) {
@@ -38554,14 +38684,14 @@ void main() {
     let initialized = false;
     const worldPoint = (name, x2, z) => rooms.get(name).localToWorld(new Vector3(x2, 0, z));
     function sync(state) {
-      for (const [index, pet] of (state.petHome?.pets || []).entries()) if (!pets.has(pet.id)) {
-        const newlyAdopted = initialized && state.petHome.follow, inside = newlyAdopted ? "\u5BA0\u7269\u4E4B\u5BB6" : "\u9F20\u9F20\u5C0F\u5C4B", position = newlyAdopted ? { x: pet.id === "cat" ? -1.85 : 0.3, z: 0.5 } : { x: cottagePetFurniture.beds[index][0], z: cottagePetFurniture.beds[index][1] }, rig = createPetAnimal(pet.id);
+      for (const [index, pet] of [...state.petHome?.pets || [], ...state.petHome?.npcPets || []].entries()) if (!pets.has(pet.id)) {
+        const newlyAdopted = initialized && (state.petHome.follow || pet.ownerId), inside = newlyAdopted ? "\u5BA0\u7269\u4E4B\u5BB6" : "\u9F20\u9F20\u5C0F\u5C4B", position = newlyAdopted ? { x: (pet.adoptedSlot ?? (pet.id === "cat" ? 0 : 1)) === 0 ? -1.85 : 0.3, z: 1.4 } : { x: restPoints[index % restPoints.length][0], z: restPoints[index % restPoints.length][1] }, rig = createPetAnimal(pet.species || pet.id, pet.texture);
         rig.userData.roomAction = "owned-pet";
         rig.userData.petId = pet.id;
         rig.scale.setScalar(0.25);
         scene.add(rig);
         clickable.push(rig);
-        pets.set(pet.id, { id: pet.id, inside, position, heading: 0, rig, path: [], replan: 0, petCompanion: true });
+        pets.set(pet.id, { id: pet.id, ownerId: pet.ownerId, inside, position, heading: 0, rig, path: [], replan: 0, petCompanion: true });
       }
       initialized = true;
     }
@@ -38569,7 +38699,7 @@ void main() {
       const portal = actor.inside ? models.get(actor.inside).userData.portal : actor.entryPortal;
       actor.doorway = portal ? { ...localDoor(portal), open: portal.angle > 1 } : null;
       actor.cottageTableSlot = state.furniture?.table?.slot;
-      actor.petFacilities = { ...state.petHome?.facilities, pets: state.petHome?.pets, food: state.petHome?.food, hasPets: !!state.petHome?.pets.length };
+      actor.petFacilities = { ...state.petHome?.facilities, pets: state.petHome?.pets, stock: state.petHome?.stock, food: state.petHome?.food, hasPets: !!state.petHome?.pets.length };
     }
     function walkTo(actor, target, dt) {
       actor.replan -= dt;
@@ -38602,12 +38732,13 @@ void main() {
       }
       return distance2(actor.position, target) < 0.12;
     }
-    function tick(dt, leader, state, activePlace, firstPerson) {
+    function tick(dt, leader, state, activePlace, firstPerson, actors = /* @__PURE__ */ new Map()) {
       let index = 0;
       for (const actor of pets.values()) {
+        const owner = actor.ownerId ? actors.get(actor.ownerId) : leader;
         prepare(actor, state);
         actor.moving = false;
-        const follow = state.petHome?.follow && state.alive !== false && leader && !leader.forcedSleep && !leader.frozen, wanted = follow ? leader.inside || null : "\u9F20\u9F20\u5C0F\u5C4B";
+        const follow = (actor.ownerId ? !!owner : state.petHome?.follow) && (actor.ownerId || state.alive !== false) && owner && !owner.forcedSleep && !owner.frozen, wanted = follow ? owner.inside || null : actor.ownerId && !owner ? "\u5BA0\u7269\u4E4B\u5BB6" : "\u9F20\u9F20\u5C0F\u5C4B";
         if (actor.exiting) {
           const portal = actor.exiting, gate = localDoor(portal), p2 = worldPoint(portal.name, gate.x, petOutsideZ(portal));
           actor.entryPortal = portal;
@@ -38661,7 +38792,7 @@ void main() {
           }
         } else {
           actor.entryPortal = null;
-          const homePoint = cottagePetFurniture.beds[index], target = follow ? followingPoint(actor, leader, index) : { x: homePoint[0], z: homePoint[1] };
+          const homePoint = restPoints[index % restPoints.length], target = follow ? followingPoint(actor, owner, actor.ownerId ? 0 : index) : { x: homePoint[0], z: homePoint[1] };
           walkTo(actor, target, dt);
         }
         const p = new Vector3(actor.position.x, 0, actor.position.z);
@@ -38687,7 +38818,7 @@ void main() {
         actor.rig.userData.playFor = 3;
       }
     }
-    return { sync, tick, interact, inspect: () => [...pets.values()].map((a) => ({ id: a.id, inside: a.inside, position: { ...a.position }, worldPosition: a.rig.position.toArray(), reaction: a.reaction || 0, moving: a.moving, loaded: !!a.rig.userData.loaded, error: !!a.rig.userData.loadError, animation: a.rig.userData.animation, visible: a.rig.visible })) };
+    return { sync, tick, interact, inspect: () => [...pets.values()].map((a) => ({ id: a.id, ownerId: a.ownerId, inside: a.inside, position: { ...a.position }, worldPosition: a.rig.position.toArray(), reaction: a.reaction || 0, moving: a.moving, loaded: !!a.rig.userData.loaded, error: !!a.rig.userData.loadError, animation: a.rig.userData.animation, visible: a.rig.visible })) };
   }
 
   // src/town-lights.js
@@ -43972,6 +44103,7 @@ void main() {
         resident.lifeId = id;
         ids.add(id);
         const a = life.add(id, data?.place || places[i2]?.[0] || "\u9F20\u9F20\u5C0F\u5C4B", { name: data?.name || roles[i2] || "\u65B0\u90BB\u5C45" });
+        a.home = data?.place || a.home;
         a.age = data?.ageYears ?? 0.7;
         a.aging = window.TownSimulation.agingProfile(a.age);
         a.health = data?.health;
@@ -44603,7 +44735,7 @@ void main() {
     }
     function focusDisplayPet(id) {
       if (firstPerson) stopFirstPerson();
-      const rig = roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p.userData.petId === id);
+      const rig = roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p?.userData.petId === id);
       if (!rig?.visible) return false;
       trackedSubject = { type: "display", id };
       focusedResident = -4;
@@ -45754,7 +45886,7 @@ void main() {
       roomCache.forEach((indoor, name) => {
         indoor.visible = activePlace === name || (firstPerson || name === "\u5BA0\u7269\u4E4B\u5BB6" || name === "\u9F20\u9F20\u5C0F\u5C4B") && viewArea.intersectsBox(roomBounds.get(name));
       });
-      petCompanions.tick(dt, main, worldState, activePlace, firstPerson);
+      petCompanions.tick(dt, main, worldState, activePlace, firstPerson, life.actors);
       mainTag.textContent = worldState.mainName || "\u9F20\u9F20";
       placeLabel(mainTag, pet.position.clone().add(new Vector3(0, 0.8, 0)), occupied, firstPerson || !pet.visible || focusedResident !== -1 && focusedResident !== -2, true);
       if (main) document.querySelector("#townActivity").textContent = "\u9F20\u9F20" + (main.phase === "moving" ? "\u6B63\u5728\u524D\u5F80" + main.destination : "\u6B63\u5728" + main.place + main.action) + "\u3002";
@@ -45773,7 +45905,7 @@ void main() {
         placeLabel(item.tag, item.rig.position.clone().add(new Vector3(0, 0.75 * item.rig.scale.x, 0)), occupied, !item.rig.visible || (firstPerson ? Math.hypot(item.rig.position.x - camera.position.x, item.rig.position.z - camera.position.z) > 2.8 : focusedResident !== -1 ? focusedPup !== item.data.id : hoveredActor !== item.data.id), true);
       });
       if (trackedSubject && !firstPerson) {
-        const selected = trackedSubject.type === "companion" ? petCompanions.inspect().find((p) => p.id === trackedSubject.id) : null, rig = trackedSubject.type === "main" ? pet : trackedSubject.type === "npc" ? residents[trackedSubject.id]?.rig : trackedSubject.type === "pup" ? pups.get(trackedSubject.id)?.rig : trackedSubject.type === "display" ? roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p.userData.petId === trackedSubject.id) : null;
+        const selected = trackedSubject.type === "companion" ? petCompanions.inspect().find((p) => p.id === trackedSubject.id) : null, rig = trackedSubject.type === "main" ? pet : trackedSubject.type === "npc" ? residents[trackedSubject.id]?.rig : trackedSubject.type === "pup" ? pups.get(trackedSubject.id)?.rig : trackedSubject.type === "display" ? roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p?.userData.petId === trackedSubject.id) : null;
         if (selected || rig) {
           const point2 = selected ? new Vector3(...selected.worldPosition) : trackedSubject.type === "display" ? rig.getWorldPosition(new Vector3()) : rig.position.clone();
           target.copy(point2).add(new Vector3(selected || trackedSubject.type === "display" ? 0.28 : 1.05, selected || trackedSubject.type === "display" ? 0.1 : 0.25, 0));
@@ -45858,6 +45990,7 @@ void main() {
       life.setResting(next.sleepRequested || next.autoSleep, !!next.hospitalized);
       life.setCelebration(next.celebration || null);
       life.setFamilyPlans(next.familyPlans || []);
+      life.setPetInvitations(next.petHome?.invites || []);
       placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.setEvent(next.celebration);
       placeModels.get("\u5C0F\u83DC\u56ED").userData.setGrowth(next.gardenProgress ?? 0.5);
       pet.scale.setScalar(window.TownSimulation.growthScale(next.ageYears ?? 0.7));
@@ -45896,7 +46029,7 @@ void main() {
     }, focusCompanion, focusDisplayPet, setMemorialPage: (page) => placeModels.get("\u5893\u5730").userData.setMemorialPage(page), sayToNpc, residentPortraits, setLookSensitivity, toggleHallSeat, toggleClinicSeat, toggleRestaurantSeat, toggleSchoolSeat, enterHall, focusExhibit, resetHallView, sayAsMain, startFirstPerson, stopFirstPerson, playerInteract, resize, enterPlace, leavePlace, returnToTown, focusPup, focusResident, focusPet, clearFocus, sayToResident, applyWorld, inspect: () => ({ portals: [...placeModels.values()].filter((m) => m.userData.portal).map((m) => ({ name: m.userData.portal.name, angle: m.userData.portal.angle, open: !!m.userData.portal.target, gate: localDoor(m.userData.portal), position: portalPoint(m.userData.portal).toArray() })), sharedRooms: roomCache.size, petCompanions: petCompanions.inspect().map((p) => {
       const v = new Vector3(...p.worldPosition).add(new Vector3(0, 0.1, 0)).project(camera), r = canvas.getBoundingClientRect();
       return { ...p, screenPoint: { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 } };
-    }), petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.map((a) => ({ loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
+    }), petHome: { position: placeModels.get("\u5BA0\u7269\u4E4B\u5BB6").position.toArray(), animals: roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.filter(Boolean).map((a) => ({ species: a.name, custom: !!a.userData.stockKey?.includes("texture"), loaded: !!a.userData.loaded, error: !!a.userData.loadError, animations: a.userData.animationNames || [] })) }, lookSensitivity, focusedExhibit, hallPosition: destinations.find((d) => d[0] === "Mariah Carey\u540D\u4EBA\u5802").slice(1, 3), hall: activePlace === "Mariah Carey\u540D\u4EBA\u5802" ? { albums: room.userData.albumCount, photos: room.userData.photoCount, standeeLoaded: !!room.userData.hallClickable.at(-1).material.userData.loaded, exhibitPoints: room.userData.hallClickable.map((o) => {
       const v = new Box3().setFromObject(o).getCenter(new Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2 };
     }), loaded: room.userData.hallExhibits.filter((o) => o.material.userData.loaded).length, fallback: room.userData.hallExhibits.filter((o) => o.material.userData.fallback).length } : null, life: life.inspect(), firstPerson, playerCamera: { yaw: playerYaw, pitch: playerPitch, jumpHeight, eyeHeight: camera.position.y }, seated: !!life.actors.get("main")?.seated, petY: pet.position.y, cemeteryView: activePlace === "\u5893\u5730", cemeteryMemorialNames: placeModels.get("\u5893\u5730").userData.memorialNames, memorialWall: { page: placeModels.get("\u5893\u5730").userData.wallPage, pages: placeModels.get("\u5893\u5730").userData.wallPages, names: placeModels.get("\u5893\u5730").userData.wallNames }, townRadius: 18, cottageModel: true, plazaArea: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.footprint, gardenArea: placeModels.get("\u5C0F\u83DC\u56ED").userData.footprint, celebration: worldState.celebration || null, cakeVisible: placeModels.get("\u4E2D\u5FC3\u5E7F\u573A").userData.cake.visible, birthdayHats: [["main", pet], ...residents.map((n) => [n.lifeId, n.rig]), ...[...pups.values()].map((p) => [p.data.id, p.rig])].filter(([id, rig]) => rig.userData.birthdayHat?.visible).map(([id]) => id), pups: [...pups.values()].map((p) => ({ id: p.data.id, scale: p.rig.scale.x, visible: p.rig.visible, loaded: !!p.rig.userData.loaded })), activePlace, focusedResident, focusedPup, trackedSubject, interiorVisible: room.visible, petVisible: pet.visible, visibleResidentCount: residents.filter((n) => n.rig.visible).length, streetLampCount: lampBulbs.length, litStreetLampCount: lampBulbs.filter((item) => item.light.intensity > 0).length, lampPositions, furniture: roomLabels.map((x2) => x2.button.textContent), camera: { yaw, pitch, distance: distance3, target: target.toArray() }, npcCount: residents.filter((n) => n.rig.userData.loaded).length, petLoaded: !!pet.userData.loaded, jointCount: pet.userData.joints?.length || 0, gaitBoneCount: Object.keys(pet.userData.bones || {}).filter((name) => /Arm|Leg|Hand|Foot|Spine|Neck|Head/.test(name)).length, armTucked: pet.userData.armTucked, forepawSpan: pet.userData.forepawSpan, gaitSample: pet.userData.gaitSample, petHeight: new Box3().setFromObject(pet).getSize(new Vector3()).y, positions: residents.map((n) => n.rig.position.toArray()) }) };

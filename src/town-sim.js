@@ -163,7 +163,7 @@
   }
   function recordSceneEvent(stateInput,detail,at=Date.now()){
     let state=migrate(stateInput,at);const main=detail.id==='main',npc=resident(state,detail.id);if(!main&&!npc)return {state,ok:false};
-    if(detail.type==='energy'){const seconds=clamp(Number(detail.seconds)||0,0,10),resting=!detail.moving&&['休息','睡觉','住院','广场小憩'].includes(detail.action);spendStamina(state,seconds*(resting?-.4:detail.moving?.2:.1),detail.id);return {state,ok:true}}
+    if(['pet-invited','pet-npc-adopt'].includes(detail.type))return petCare.sceneEvent(state,detail,at);if(detail.type==='energy'){const seconds=clamp(Number(detail.seconds)||0,0,10),resting=!detail.moving&&['休息','睡觉','住院','广场小憩'].includes(detail.action);spendStamina(state,seconds*(resting?-.4:detail.moving?.2:.1),detail.id);return {state,ok:true}}
     if(detail.type==='status'){if(main){state.currentPlace=detail.place;state.currentActivity=detail.action;state.activityUntil=at+HOUR}else{npc.currentPlace=detail.place;npc.currentActivity=detail.action}return {state,ok:true}}
     state.sceneLedger={...(state.sceneLedger||{})};const date=dateKey(at);if(state.sceneSocial?.date!==date)state.sceneSocial={date,counts:{}};else state.sceneSocial={...state.sceneSocial,counts:{...state.sceneSocial.counts}};
     if(detail.type==='social'){
