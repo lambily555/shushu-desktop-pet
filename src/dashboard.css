@@ -910,4 +910,4 @@ body[data-town-view="first-person"][data-town-hud="hidden"] #townContext[data-pe
 
 .town-pet-services select,.town-pet-services .town-task{box-sizing:border-box;width:100%;height:64px;border:1px solid #ced8ca;border-radius:11px;padding:11px 12px;background:#fffdf6;color:#405046}.town-pet-services select{font:inherit;font-weight:600;margin-bottom:8px}
 
-#townPetSpecies,#townPetTextureTarget,.town-pet-services [data-town-action="pet-request-species"],.town-pet-services [data-town-action="pet-custom-texture"]{width:50%}
+#townPetSpecies,#townPetTextureTarget,.town-pet-services [data-town-action="pet-request-species"],.town-pet-services [data-town-action="pet-custom-texture"]{width:100%;height:32px;padding:3px 12px}.town-pet-services [data-town-action="pet-request-species"],.town-pet-services [data-town-action="pet-custom-texture"]{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
