@@ -1,3 +1,4 @@
+import {cottageFurniture} from '../src/town-cottage-interior.js';
 import assert from 'node:assert/strict';
 import {entrance,destinations,facing} from '../src/town-life.js';
 import {movePlayer,canWalk,schoolPlatformHeightAt} from '../src/town-player.js';
@@ -21,8 +22,8 @@ for(let i=0;i<75;i++){jumper.platformHeight=height;const next=schoolPoint(-1.65,
 assert.ok(Math.hypot(jumper.position.x-platform.x,jumper.position.z-platform.z)<.24,'a running jump reaches the platform');
 assert.equal(height,.59,'the jump finishes standing on the platform');
 
-assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},2,-.65),false,'relocated cottage table blocks its new position');
-assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},-1.7,.8),true,'relocating the table frees its previous position');
+assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},...cottageFurniture.windowTable),false,'relocated cottage table blocks its new position');
+assert.equal(canWalk({inside:'鼠鼠小屋',cottageTableSlot:'window'},0,1.8),true,'relocated table leaves the entrance aisle clear');
 
 for(let z=-.5;z<=2.8;z+=.1)assert.equal(canWalk({inside:'纪念馆'},0,z),true,'memorial central aisle stays clear');
 assert.equal(canWalk({inside:'纪念馆'},-3.1,.65),false,'memorial side bench blocks walking');

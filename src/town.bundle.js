@@ -37523,7 +37523,7 @@ void main() {
   }
 
   // src/town-pet-layout.js
-  var cottagePetFurniture = { beds: [[-0.25, -0.5], [0.65, -0.5]], grain: [-0.6, -1.72, 0.22, 0.22], toy: [2.8, -0.4, 0.15, 0.2], bowls: [[0.65, 0.7], [0.95, 0.7]] };
+  var cottagePetFurniture = { beds: [[0.25, -0.25], [1.25, -0.25]], grain: [1.3, -1.6, 0.22, 0.22], toy: [2.5, -0.65, 0.15, 0.2], bowls: [[0.7, 1.05], [1.15, 1.05]] };
 
   // src/town-pet-home.js
   var petHomeFurniture = { counter: [2.75, 0.9, 0.45, 1.05], shelf: [0, -2.4, 3.45, 0.35], beds: [[-2.65, -1.35], [-0.85, -1.35]], animals: [[-1.85, 0.5], [0.3, 0.5]], toy: [2.7, -1.2] };
@@ -37730,8 +37730,9 @@ void main() {
     if (y < 1.04) return 0.955 + (y - 0.5) / 0.54 * 0.045;
     return Math.sqrt(Math.max(0, 1 - ((y - 1.04) / 1.104) ** 2));
   }
+  var cottageExpansion = Math.sqrt(1.5);
   var cottageFloor = { x: 1.01, z: 0.77 };
-  var cottageFurniture = { bed: [-1.65, -0.7], shelf: [0.65, -1.45], table: [-1.7, 0.8], windowTable: [2, -0.65], water: [2.5, 0.35], bowl: [1.6, 1.05] };
+  var cottageFurniture = { bed: [-1.85, -0.55], shelf: [-0.2, -1.7], table: [-1.8, 1], windowTable: [-2, 0.85], water: [2.65, 0.05], bowl: [2.05, 1.05] };
   function cottageShellGeometry(inset = 0) {
     const points = [new Vector2(0, 0.04)];
     for (let i2 = 0; i2 <= 96; i2++) {
@@ -37818,7 +37819,7 @@ void main() {
         const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
         return Math.abs(lx) < 2.12 && Math.abs(lz) < 1.66 && (Math.abs(lx) > 1.95 || lz < -1.03 || lz > 1.46 && Math.abs(lx) > 0.45 || Math.abs(lx) > 0.3 && Math.abs(lz - 0.08) > 0.2);
       }
-      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < (d[0] === "\u5BA0\u7269\u4E4B\u5BB6" ? 2 : d[0] === "\u9F20\u9F20\u996D\u9986" ? 2.1 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.75 : 1.62) && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < (d[0] === "\u5BA0\u7269\u4E4B\u5BB6" ? 1.5 : d[0] === "\u9F20\u9F20\u996D\u9986" ? 1.5 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.4 : 1.2);
+      return Math.abs(dx * Math.cos(a) - dz * Math.sin(a)) < (d[0] === "\u5BA0\u7269\u4E4B\u5BB6" ? 2 : d[0] === "\u9F20\u9F20\u996D\u9986" ? 2.1 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.75 : d[0] === "\u9F20\u9F20\u5C0F\u5C4B" ? 1.62 * cottageExpansion : 1.62) && Math.abs(dx * Math.sin(a) + dz * Math.cos(a)) < (d[0] === "\u5BA0\u7269\u4E4B\u5BB6" ? 1.5 : d[0] === "\u9F20\u9F20\u996D\u9986" ? 1.5 : d[0] === "Mariah Carey\u540D\u4EBA\u5802" ? 1.4 : d[0] === "\u9F20\u9F20\u5C0F\u5C4B" ? 1.2 * cottageExpansion : 1.2);
     }) || Math.hypot(x2, z + 1.3) < 0.9;
   }
   function route(start, end) {
@@ -38268,7 +38269,7 @@ void main() {
     let ignore = null;
     const portal = actor.entryPortal;
     if (portal?.angle > 1) {
-      const a = facing(portal.name), dx = x2 - portal.model.position.x, dz = z - portal.model.position.z, lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a), layout = portal.layout;
+      const a = facing(portal.name), dx = x2 - portal.model.position.x, dz = z - portal.model.position.z, lx = (dx * Math.cos(a) - dz * Math.sin(a)) / portal.model.scale.x, lz = (dx * Math.sin(a) + dz * Math.cos(a)) / portal.model.scale.z, layout = portal.layout;
       if (Math.abs(lx - layout.doorX) < layout.doorWidth / 2 - 0.055 && lz > portal.front - 0.3 && lz < portal.front + 1.2) ignore = portal.name;
     }
     return ![[0, 0], [0.08, 0], [-0.08, 0], [0, 0.08], [0, -0.08]].some(([dx, dz]) => blocked(x2 + dx, z + dz, ignore));
@@ -38482,7 +38483,7 @@ void main() {
     room.position.copy(model.position);
     room.rotation.y = model.rotation.y;
     const scale = layout.width / 8;
-    room.scale.set(scale, scale, layout.depth / 6);
+    room.scale.set(scale * model.scale.x, scale * model.scale.y, layout.depth / 6 * model.scale.z);
     const offset = new Vector3(0, layout.floor, layout.z).applyAxisAngle(new Vector3(0, 1, 0), model.rotation.y);
     room.position.add(offset);
     room.updateMatrixWorld(true);
@@ -43806,6 +43807,7 @@ void main() {
       obj.rotation.y = facing(place[0]);
       placeModels.set(place[0], obj);
       installBuildingPortal(obj, place[0]);
+      if (place[0] === "\u9F20\u9F20\u5C0F\u5C4B") obj.scale.set(cottageExpansion, 1, cottageExpansion);
       clickable.push(obj);
       scene.add(obj);
     });
@@ -44328,24 +44330,24 @@ void main() {
         populateCottagePets(room, label);
         room.userData.syncPets(worldState.petHome);
         bed(...cottageFurniture.bed, "\u5E8A\u94FA");
-        bouquet(-2.7, 0.12, 0.4);
+        bouquet(-2.75, 0.12, 0.3);
         const bowl = new Mesh(new TorusGeometry(0.36, 0.1, 12, 32), new MeshStandardMaterial({ color: 15324341 }));
         bowl.rotation.x = Math.PI / 2;
-        bowl.position.set(1.6, 0.18, 1.05);
+        bowl.position.set(cottageFurniture.bowl[0], 0.18, cottageFurniture.bowl[1]);
         room.add(bowl);
-        add(0.5, 0.06, 0.5, 1.6, 0.1, 1.05, 10123588);
+        add(0.5, 0.06, 0.5, cottageFurniture.bowl[0], 0.1, cottageFurniture.bowl[1], 10123588);
         label("\u98DF\u76C6", ...cottageFurniture.bowl);
-        add(0.16, 1.2, 0.16, 2.5, 0.6, 0.35, 9139029);
+        add(0.16, 1.2, 0.16, cottageFurniture.water[0], 0.6, cottageFurniture.water[1], 9139029);
         const bottle = new Mesh(new CylinderGeometry(0.2, 0.2, 0.65, 20), new MeshStandardMaterial({ color: 11589080, transparent: true, opacity: 0.72 }));
-        bottle.position.set(2.5, 0.82, 0.35);
+        bottle.position.set(cottageFurniture.water[0], 0.82, cottageFurniture.water[1]);
         room.add(bottle);
         bottle.userData.roomAction = "water";
         clickable.push(bottle);
-        add(0.07, 0.3, 0.07, 2.5, 0.36, 0.5, 12304321);
+        add(0.07, 0.3, 0.07, cottageFurniture.water[0], 0.36, cottageFurniture.water[1] + 0.15, 12304321);
         const water = worldState.water || { amount: 100, quality: "\u65B0\u9C9C" }, level = Math.max(1e-3, water.amount / 100);
         const liquid = new Mesh(new CylinderGeometry(0.17, 0.17, 0.61, 20), new MeshStandardMaterial({ color: water.quality === "\u53D8\u8D28" ? 8750148 : 4628164, transparent: true, opacity: 0.85 }));
         liquid.scale.y = level;
-        liquid.position.set(2.5, 0.505 + 0.305 * level, 0.35);
+        liquid.position.set(cottageFurniture.water[0], 0.505 + 0.305 * level, cottageFurniture.water[1]);
         room.add(liquid);
         const waterQuality = water.amount <= 0 ? "\u7F3A\u6C34" : water.quality, waterText = { \u65B0\u9C9C: "\u6C34\u8D28\u6B63\u5E38", \u5F85\u6362\u6C34: "\u5EFA\u8BAE\u6362\u6C34", \u53D8\u8D28: "\u6C34\u5DF2\u53D8\u8D28", \u7F3A\u6C34: "\u6C34\u5DF2\u8017\u5C3D" }[waterQuality];
         label(`\u6C34\u58F6 ${Math.ceil(water.amount)}% \xB7 ${waterText}

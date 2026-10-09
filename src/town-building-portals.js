@@ -59,5 +59,5 @@ export function installBuildingPortal(model,name){const layout=buildingLayouts[n
  const portal={name,layout,model,door:pivot,target:0,angle:0,front,roof,shell,light:ceilingLight,exteriorChildren:model.children.filter(child=>child!==shell&&child!==pivot&&child!==ceilingLight)};model.userData.portal=portal;return portal;
 }
 
-export function placeRoom(room,portal){const {layout,model}=portal;room.position.copy(model.position);room.rotation.y=model.rotation.y;const scale=layout.width/8;room.scale.set(scale,scale,layout.depth/6);const offset=new THREE.Vector3(0,layout.floor,layout.z).applyAxisAngle(new THREE.Vector3(0,1,0),model.rotation.y);room.position.add(offset);room.updateMatrixWorld(true)}
+export function placeRoom(room,portal){const {layout,model}=portal;room.position.copy(model.position);room.rotation.y=model.rotation.y;const scale=layout.width/8;room.scale.set(scale*model.scale.x,scale*model.scale.y,layout.depth/6*model.scale.z);const offset=new THREE.Vector3(0,layout.floor,layout.z).applyAxisAngle(new THREE.Vector3(0,1,0),model.rotation.y);room.position.add(offset);room.updateMatrixWorld(true)}
 export function localDoor(portal){return {x:portal.layout.doorX*8/portal.layout.width,z:3,width:portal.layout.doorWidth*8/portal.layout.width}}

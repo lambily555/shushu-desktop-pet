@@ -8,8 +8,9 @@ export function cottageRadius(y){
  if(y<1.04)return .955+(y-.5)/.54*.045;
  return Math.sqrt(Math.max(0,1-((y-1.04)/1.104)**2));
 }
+export const cottageExpansion=Math.sqrt(1.5);
 export const cottageFloor={x:1.01,z:.77};
-export const cottageFurniture={bed:[-1.65,-.7],shelf:[.65,-1.45],table:[-1.7,.8],windowTable:[2,-.65],water:[2.5,.35],bowl:[1.6,1.05]};
+export const cottageFurniture={bed:[-1.85,-.55],shelf:[-.2,-1.7],table:[-1.8,1],windowTable:[-2,.85],water:[2.65,.05],bowl:[2.05,1.05]};
 export function cottageShellGeometry(inset=0){
  const points=[new THREE.Vector2(0,.04)];
  for(let i=0;i<=96;i++){const y=.08+i*(2.144-.08)/96;points.push(new THREE.Vector2(Math.max(0,cottageRadius(y)-inset),y))}
