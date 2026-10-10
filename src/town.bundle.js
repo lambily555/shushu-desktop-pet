@@ -37856,7 +37856,10 @@ void main() {
     const plaza = byName.get("\u4E2D\u5FC3\u5E7F\u573A");
     return plazaSeatBlocks(x2 - plaza[1], z - plaza[2]) || destinations.some((d) => {
       if (d[0] === "\u4E2D\u5FC3\u5E7F\u573A" || d[0] === ignoreName) return false;
-      if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") return Math.hypot(x2 - d[1], z - d[2]) < 2.2;
+      if (d[0] === "\u8DD1\u8F6E\u516C\u56ED") {
+        const dx2 = x2 - d[1], dz2 = z - d[2], r = Math.hypot(dx2, dz2);
+        return Math.abs(r - 2.19) < 0.12 && !(Math.abs(dx2) < 0.4 && dz2 > 0);
+      }
       const a = facing(d[0]), dx = x2 - d[1], dz = z - d[2];
       if (d[0] === "\u5893\u5730") {
         const lx = dx * Math.cos(a) - dz * Math.sin(a), lz = dx * Math.sin(a) + dz * Math.cos(a);
@@ -43998,7 +44001,8 @@ void main() {
       const step = actor ? time * 8 : progress * 5.5;
       const frontLeft = Math.sin(step) * blend, frontRight = -frontLeft, hindLeft = frontRight, hindRight = frontLeft;
       const lift = (value) => Math.max(0, value), plant = (value) => Math.max(0, -value);
-      rig.position.y += Math.abs(Math.sin(step * 2)) * 0.012 * blend;
+      rig.userData.walkBob = Math.abs(Math.sin(step * 2)) * 0.012 * blend;
+      rig.position.y += rig.userData.walkBob;
       const model = rig.userData.model;
       if (model) {
         const base = rig.userData.modelBase;
@@ -45908,7 +45912,9 @@ void main() {
         const selected = trackedSubject.type === "companion" ? petCompanions.inspect().find((p) => p.id === trackedSubject.id) : null, rig = trackedSubject.type === "main" ? pet : trackedSubject.type === "npc" ? residents[trackedSubject.id]?.rig : trackedSubject.type === "pup" ? pups.get(trackedSubject.id)?.rig : trackedSubject.type === "display" ? roomCache.get("\u5BA0\u7269\u4E4B\u5BB6").userData.petHome.animals.find((p) => p?.userData.petId === trackedSubject.id) : null;
         if (selected || rig) {
           const point2 = selected ? new Vector3(...selected.worldPosition) : trackedSubject.type === "display" ? rig.getWorldPosition(new Vector3()) : rig.position.clone();
-          target.copy(point2).add(new Vector3(selected || trackedSubject.type === "display" ? 0.28 : 1.05, selected || trackedSubject.type === "display" ? 0.1 : 0.25, 0));
+          if (rig && trackedSubject.type !== "display") point2.y -= rig.userData.walkBob || 0;
+          point2.add(new Vector3(selected || trackedSubject.type === "display" ? 0.28 : 1.05, selected || trackedSubject.type === "display" ? 0.1 : 0.25, 0));
+          target.lerp(point2, 1 - Math.exp(-12 * dt));
           positionCamera();
         } else clearFocus();
       }
